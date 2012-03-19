@@ -28,8 +28,6 @@ for i in range(len(teststr)):
         query = query + "OR "
 query = query + ");"
 
-print query
-
 cur.execute(query, teststr)
 
 for l in cur:

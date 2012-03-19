@@ -1,6 +1,6 @@
-DROP TABLE clusters;
-DROP VIEW clusterorgs;
-DROP VIEW distinctorgs;
+DROP TABLE IF EXISTS clusters;
+DROP VIEW IF EXISTS clusterorgs;
+DROP VIEW IF EXISTS distinctorgs;
 
 /* This is intended to be run after builddb_1.sql
    The two scripts are separated in order to allow us to generate clusters

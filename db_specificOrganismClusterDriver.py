@@ -15,13 +15,14 @@
 
 import os, sys
 
-if not len(sys.argv) == 4:
-    print "Usage> ./db_specificOrganismClusterDriver.py [groupfile] [Inflation] [rcutoff]"
+if not len(sys.argv) == 5:
+    print "Usage> ./db_specificOrganismClusterDriver.py [groupfile] [Inflation] [cutoff] [scoremethod]"
     exit(2)
 
 groupfile = sys.argv[1]
 inflation=sys.argv[2]
-rCutoff=sys.argv[3]
+cutoff=sys.argv[3]
+method=sys.argv[4]
 
 fid = open(groupfile, "r")
 
@@ -42,7 +43,7 @@ for line in fid:
     except IOError:
         # Generate and run an MCL command
         cmd = ("python src/db_getBlastResultsBetweenSpecificOrganisms.py " + safewhole + 
-               " | mcxdeblast --score=r --m9 --line-mode=abc --rcut=" + str(rCutoff) + 
-               " --out=- - | mcl - --abc -I " + str(inflation) + " -o " + foutname + ";")
+               " | python src/db_makeBlastScoreTable.py -m " + str(method) + " -c " + str(cutoff) +
+               " | mcl - --abc -I " + str(inflation) + " -o " + foutname + ";")
         print cmd
         os.system(cmd)

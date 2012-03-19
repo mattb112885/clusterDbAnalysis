@@ -34,7 +34,7 @@ for line in fid:
     safewhole = " ".join(s for s in safepart)
 
     # Generate a filename - no quotes needed or wanted here but we do need to replace spaces
-    foutname = "clusters/" + "_".join(s.replace(" ", "_") for s in spl)
+    foutname = "clusters/" + "_".join(s.replace(" ", "_") for s in spl ) + "_I_" + str(inflation) + "_c_" + str(cutoff) + "_m_" + str(method)
 
     # Make sure that file doesn't exist already. If it does, skip over it... mcl takes a long time.
     try:

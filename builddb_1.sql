@@ -71,7 +71,7 @@ CREATE INDEX blastqueryidx ON blastresults (querygene);
 CREATE INDEX blasttargetidx ON blastresults (targetgene);
 
 /* Add self-bit score */
-CREATE TEMPORARY TABLE blast_self AS
+CREATE TABLE blast_self AS
        SELECT * FROM blastresults 
        WHERE blastresults.querygene = blastresults.targetgene;
 
@@ -88,6 +88,8 @@ CREATE TABLE blastres_selfbit AS
 
 CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);
 CREATE INDEX selfbittargetidx ON blastres_selfbit(targetgene);
+
+DROP VIEW s;
 
 /* Resulting table:
    Gene ID | organism | organismID | organism abbreviation | contig ID | gene start | gene end | strand | annotation | nucleotide sequence | amino acid sequence 

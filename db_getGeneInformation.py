@@ -15,8 +15,7 @@
 #
 # If you do not include the "fig|" I will add it for you. However, no other modifications are allowed.
 #
-# Example:
-# 
+
 
 import fileinput, sqlite3, optparse
 

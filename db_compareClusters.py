@@ -28,7 +28,7 @@ def getGenesInCluster(runid, clusterid, cursor):
     genelist = []
     for l in cursor:
         s = list(l)
-        genelist.append(s[0])
+        genelist.append(s[2])
     return genelist
 
 def getAllGenes(cursor):
@@ -52,26 +52,27 @@ cur = con.cursor()
 genelist = getAllGenes(cur)
 
 for gene in genelist:
-    clustList = getUniqueClustersContainingGene(geneid, cursor)
+    clustList = getUniqueClustersContainingGene(gene, cur)
     # Iterate over the list twice to get all pairwise comparisons between clusters.
     for i in range(0, len(clustList)):
         for j in range(i, len(clustList)):
             if clustList[i][0] == clustList[j][0] and clustList[i][1] == clustList[j][1]:
                 continue
             genelist1 = getGenesInCluster(clustList[i][0], clustList[i][1], cur)
-            geneList2 = getGenesInCluster(clustList[j][0], clustList[j][1], cur)
+            genelist2 = getGenesInCluster(clustList[j][0], clustList[j][1], cur)
             # The meat of the code: are the two lists the same?
             isSame = True
             # "+" : Gene in list 1 but not in list 2
-            for g in geneList1:
-                if not g in geneList2:
+            for g in genelist1:
+                if not g in genelist2:
                     isSame = False
                     print "%s\t%s\t%s\t%s\t%s\t%s\t%s" %( gene, clustList[i][0], clustList[i][1], clustList[j][0], clustList[j][1], "+", g )
             # "-" : Gene in list 2 but not in list 1
-            for g in geneList2:
-                if not g in geneList1:
+            for g in genelist2:
+                if not g in genelist1:
                     isSame = False
                     print "%s\t%s\t%s\t%s\t%s\t%s\t%s" %( gene, clustList[i][0], clustList[i][1], clustList[j][0], clustList[j][1], "-", g )
+
             # SAME: The two clusters are identical
             if isSame:
                 print "%s\t%s\t%s\t%s\t%s\t%s\t%s" %( gene, clustList[i][0], clustList[i][1], clustList[j][0], clustList[j][1], "SAME", "" )

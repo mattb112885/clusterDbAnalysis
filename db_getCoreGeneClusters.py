@@ -46,7 +46,7 @@ cur.execute("CREATE INDEX myorgrunidx ON clusterorgs_my(runid);")
 cur.execute("CREATE INDEX myorgclusteridx ON clusterorgs_my(clusterid);")
 
 checkPairs = []
-cur.execute("SELECT * from clusterorgs_my;")
+cur.execute("SELECT DISTINCT clusterorgs_my.runid, clusterorgs_my.clusterid FROM clusterorgs_my;")
 for l in cur:
     s = list(l)
     checkPairs.append( [s[0], s[1]] )

@@ -9,8 +9,13 @@
 # but if something weird happens it isn't my fault!!)
 #
 
-import sys
+import sys, os
+
+if not len(sys.argv) == 3:
+    print "Usage: ./getCoreClusterFastas.py [infofile] [outputfolder]"
+
 infofile = sys.argv[1]
+outputfolder = sys.argv[2]
 
 s = open(infofile, "r")
 
@@ -18,10 +23,11 @@ lastone = None
 fid = -1
 for line in s:
     spl = line.strip().split("\t")
+    myrunid = spl[0]
     if not spl[1] == lastone:
         if not fid == -1:
             fid.close()
-        fid = open(spl[0][1:10] + "_" + spl[1] + ".fasta", "w")
+        fid = open(os.path.join(outputfolder, myrunid[1:10] + "_" + spl[1] + ".fasta"), "w")
         lastone = spl[1]
     
     fid.write(">" + spl[2] + " " + spl[4] + "\n")

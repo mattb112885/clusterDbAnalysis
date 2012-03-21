@@ -1,10 +1,14 @@
 #!/usr/bin/python
 
-# Will generate a FASTA file for every core gene...
-# I'm a fucking moron. I'm sorry this took so long.
+# Will generate a FASTA file for every different cluster
+# in the results of "db_getClusterGeneInfo.py" ("infofile").
+# The results are placed in "outputfolder"
 #
-# Requres an info file (below)
 # Files outputted with first 10 digits of run ID followed by the cluster ID
+#
+##############
+# WARNING!!!!!
+##############
 # Cluster ID MUST BE SORTED in the input file (this shouldn't be a problem
 # but if something weird happens it isn't my fault!!)
 #
@@ -27,7 +31,7 @@ for line in s:
     if not spl[1] == lastone:
         if not fid == -1:
             fid.close()
-        fid = open(os.path.join(outputfolder, myrunid[1:10] + "_" + spl[1] + ".fasta"), "w")
+        fid = open(os.path.join(outputfolder, myrunid[0:9] + "_" + spl[1] + ".fasta"), "w")
         lastone = spl[1]
     
     fid.write(">" + spl[2] + " " + spl[4] + "\n")

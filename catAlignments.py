@@ -10,18 +10,21 @@ import os
 import re
 import sys
 
-if not len(sys.argv) == 2:
-    print "Usage: ./catAlignments.py [alignment path]"
+if not len(sys.argv) == 3:
+    print "Usage: ./catAlignments.py [alignment path] [Searchkey]"
+    print "Searchkey is a pattern in the files to search for."
+    print "It is generally the first part of a run ID for which you want to generate"
+    print "a tree, e.g. 8XCM"
     exit(2)
 
 filelist = []
 for filename in os.listdir(sys.argv[1]):
-    # Search for fasta_aln files
-    if re.search("\.fasta_aln$", filename) != None:
+    # Search for files with the keyword in them and with at least fasta_aln (maybe fasta_aln_trimmed)
+    if re.search("fasta_aln") != None and re.search(sys.argv[2]) != None:
         filelist.append(filename)
 
 if len(filelist) == 0:
-    print "ERROR: No files found with expected extension fasta_aln"
+    print "ERROR: No files found with expected extension fasta_aln and search key Searchkey"
     exit(2)
 
 # Mapping between organism ID and (aligned) sequences...

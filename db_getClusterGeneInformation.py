@@ -45,12 +45,16 @@ for line in fileinput.input("-"):
     query = "INSERT INTO desiredclusters VALUES (?, ?);"
     con.execute(query, (spl[rc], spl[cc]))
 
+# Unique... god damnit
+query = "CREATE TEMPORARY TABLE unqclusters AS SELECT DISTINCT * from desiredclusters;"
+cur.execute(query)
+
 # Generate information about all of those clusters (for all genes, not just the ones piped into this command)
 cur.execute(""" SELECT clusters.*, processed.organism, processed.annotation, processed.aaseq, processed.nucseq
               FROM clusters
               INNER JOIN processed ON processed.geneid = clusters.geneid
-              INNER JOIN desiredclusters ON desiredclusters.clusterid = clusters.clusterid
-                 AND clusters.runid = desiredclusters.runid;""")
+              INNER JOIN unqclusters ON unqclusters.clusterid = clusters.clusterid
+                 AND clusters.runid = unqclusters.runid;""")
 
 for l in cur:
     s = list(l)

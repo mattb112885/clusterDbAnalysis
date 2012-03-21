@@ -20,7 +20,7 @@ if not len(sys.argv) == 3:
 filelist = []
 for filename in os.listdir(sys.argv[1]):
     # Search for files with the keyword in them and with at least fasta_aln (maybe fasta_aln_trimmed)
-    if re.search("fasta_aln") != None and re.search(sys.argv[2]) != None:
+    if re.search("fasta_aln", filename) != None and re.search(sys.argv[2], filename) != None:
         filelist.append(filename)
 
 if len(filelist) == 0:

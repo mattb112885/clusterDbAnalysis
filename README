@@ -1,0 +1,214 @@
+INSTALLATION
+
+The pipeline requires installation of some tools:
+
+- Blast+ (including blastp and tblastn)
+- Python (with Ruffus)
+- Mcl
+- Sqlite3
+
+All of these are already installed on the Biome server except sqlite3 (which will be installed soon).
+
+The program also needs some input files. Here's how to generate them:
+
+1) Download the "spreadsheet (tab delimited)" format 
+   from all of your genomes in the SEED and place them in the "raw" directory.
+
+2) Download the genbank files and place them in the "genbank" directory.
+
+3) Generate a tab-delimited list of organisms that looks like this:
+
+   Genus/species/strain	   Organism ID	      Organism abbreviation (1-6 characters)
+
+   For example,
+
+   Methanosarcina naples 100		nap100	2207.3
+   Methanosarcina acetivorans C2A	aceC2A	188937.5 
+
+Call the file "organisms" and place it in the root directory. The abbreviation is used when creating / displaying trees. 
+PHYLIP format requires identifiers with 10 or less characters. "Extended PHYLIP" format seems to have little support
+and RaxML only takes PHYLIP as an input file format...
+
+We could possibly use another treeing program (e.g. fasttree) if we're OK with the quality. In my experience these trees tend
+to be very easy anyway so it probably doesn't matter what program we use...
+
+4) You will need to specify which groups of organisms to cluster. This should be in a tab-delimited file
+   called "groups" in the root diretory. There should be one line per group of organisms that you wish to cluster together.
+
+   The organism specification operates based on wildcards, so the user can specify for example:
+
+   mazei
+
+   And the clustering resulting will include all organisms with "mazei" in the name. Names with spaces are acceptable (the python
+   code deals with putting the quotation marks around them). Organism names with quotation marks in them are not allowed.
+
+   You can include multiple identifiers - the resulting cluters will contain all organisms that match ANY of the chosen identifiers.
+   For example:
+
+   mazei	barkeri		acetivorans
+   mazei
+
+   will cluster all of the M. mazei, M. barkeri, and M. acetivorans genomes in one run, and in a separate run, cluster only the M. mazei genomes.
+
+   mazei	barkeri Fusaro
+
+   will cluster all of the mazei as well as M. barkeri Fusaro [there is a space between barkeri and Fusaro, not a tab]
+
+   Final note - the organism specifications are case-sensitive and must match whatever is in the "Organisms" file.
+
+-------------------------------
+-------------------------------
+
+DESCRIPTION OF PIPELINE - PART 1 ("main.sh")
+
+This first part of the pipeline begins with the above-mentioned files and ends with
+a list of clusters for the specified groups of organisms. It dumps them into the database
+for easy viewing.
+
+~~~~~
+These steps assume that we want to generate clusters separately for different groups of organisms.
+  If we don't do that, we should only call MCL once (with all of the organisms), 
+  and then generate lists of core genes from the resulting clusters.
+
+  Pseudogene finding will probably be easier for more closely-related groups - will need to check for consistency
+     across the groups to have more confidence in our calls of pseudogenes.
+~~~~~
+
+The shell script "main.sh" pipes each of the raw data
+into the functions that are necessary and outputs the results of these functions 
+are redirected to the appropriate output folder.
+
+Any of the python scripts can be run individually as well - many of them are pipe commands.
+The condition is that they MUST be run from the root directory (because they have to know where they are
+ in the directory structure)
+
+The steps performed are as follows: 
+
+- Generate (annotated) amino acid and nucleotide fasta files
+- Generate an annotation file for matching up later, containing organism name, gene name,
+  annotation and length of each gene in tab-delimited format
+- Run BLAST all vs. all
+
+- Generate a SQLITE database containing:
+   rawdata: Concatenated list of all of the raw SEED data
+   organisms: A list of organisms and associated SEED features
+   processed: A view containing Organism name, gene name, gene length, and annotation.
+   blastresults: The blast results [concatenated], in -m9 format (ready for input into MCL)
+
+
+For each line of the "groups" file:
+- Use the database to generate a list of blast hits for only the organisms 
+- Call MCL to generate clusters
+- Generate raw and flattened results files. Give each cluster run a unique identifier
+
+Concatinate all of the flattened results files (with unique identifiers) and import them into the
+  database as the "clusters" table
+
+--------------------------------
+--------------------------------
+
+Database access functions (part 1 - before pseudogene finding)
+--------------------------------------------------------------
+
+I have written several functions to generate specific tables from the database. All of them MUST
+be run from the root directory so that they can correctly find the location of the sqlite database.
+
+Here is a description of them:
+
+--> db_findGenesWithInternalStops.py
+
+     I used this function to identify all of the organisms with internal STOP codons from RAST. You can use it to prove
+     to yourself that the only enzymes in RAST with internal stop codons are the ones with pyrrolysine in them (which is encoded
+     by a canonical STOP codon UAG)
+
+     Usage: python src/db_findgenesWithInternalStops.py
+
+     Prints the genes to stdout along with the nucleic acid sequences...
+
+--> db_getAllClusterRuns.py
+
+    Returns a list of cluster run IDs present in the database (use this function if you don't want to distinguish other analysis
+    by what organisms are present in the clusters)
+ 
+--> db_getBlastResSpecificOrgaisms.py
+
+    Provide it a list of organisms (patterns) to match as input arguments. The script will 
+    get all of the BLAST records for organisms that match the
+    specified patterns against all the other organisms that match the same patterns and print them
+    to stdout. These results can subsequently be used for
+    MCL clustering by piping the results into MCL (see "db_specificOrganismClusterDriver.py" for details) and, in fact,
+    this is how the clustering results are generated before they are dumped into the database.
+
+    Example usage: 
+
+    python src/db_getBlastResSpecificOrganisms.py "Methanosarcina"
+
+    Prints out all of the BLAST results for any organism containing "Methanosarcina" in its name against any other organism
+    with "Methanosarcina" in its name
+
+    You can call this with more than one name, for example:
+
+    python src/db_getBlastResSpecificOrganisms.py "acetivorans" "barkeri"
+
+    will get all BLAST hits of acetivorans strains vs. barkeri strains (and each of those against themselves as well)
+
+--> db_getClusterGeneInformation.py
+
+    Given a table of run ID / cluster ID pairs, generates a list of information about every gene in the specified clusters
+    (from the specified runs). This information includes organism, amino acid sequence, nucleic acid seqeuence, and annotation.
+
+    Generate the run ID / cluster ID pairs with for example, db_getClustersWithAnnotation, db_getAllClusters, etc...
+    or generate your own if you know you're interested in a particular cluster (from looking at the results of one of these functions)
+
+--> db_getClusterRunIds.py
+
+    Provide this function with a list of organisms (patterns) to match as input arguments. It will generate for you a list of all the clustering runs
+    in the database which were done using exactly the organisms from the specified patterns.
+
+    Example: python src/db_getClusterRunIds.py "Methanosarcina"
+
+    returns an error if you have not run any clustering analysis on the Methanosarcina against each other, but
+    returns the run ID (s) of any runs in which you have run Methanosarcina against each other to stdout (which can be piped into other commands)
+
+    This command should be called with the same patterns that you provided in the "groups" file for best results (i.e. the same ones used to call
+    db_specificOrganismClusterDriver.py)
+
+--> db_getClustersWithAnnotation.py
+
+    Pipe in a run ID and provide annotation(s) to try to match, and this function will return any cluster containing at least one gene
+    matching the desired annotations, which genes matched it, and the matching annotation.
+
+    Example usage (assuming a clustering run has already been done for Methanosarcina): 
+
+    python src/db_getClusterRxnIds.py "Methanosarcina" | python src/getClustersWithAnnotation.py
+
+--> db_getCoreGeneClusters.py
+
+    Pipe in a run ID and it will return all of the clusters containing exactly one copy of the gene for each organism that was used
+    to generate that run.
+
+    This function only returns the run ID, cluster Id, gene ID and annotation. If you want more information than this, pipe the results of this into
+    db_getClusterGeneInformation.py
+
+--> db_specificOrganismClusterDriver.py
+
+    Specify as an input argument a tab-delimited file containing a list of organisms for which you want to run clustering (one group per line), for example:
+
+    Methanosarcina
+    Methanosarcina	Methanococcus
+    Methanosarcina mazei	Methanosarcina barkeri
+
+    The function automatically pulls out the BLAST results specific to the groups of organisms specified (by calling db_getBlastResSpecificOrganisms.py)
+    and then pipes the results into MCL and writes the results to a file whose name reflects the given input arguments.
+
+-------
+Many of these can be chained together in pipelines like so:
+
+python src/db_getClusterRunIds.py "Methanosarcina" | python src/db_getClustersWithAnnotation.py "F420" | python src/db_getClusterGeneInformation.py > F420_results
+
+will take the clustering results for Methanosarcina species only, extract all of the clusters for which at least one of the gene annotations contains "F420", and then
+generates a table of information about all of the genes in those clusters and saves them to a file (F420_results)
+
+python src/db_getAllClusterRuns.py | python src/db_getClustersWithAnnotation.py "F420" | python src/db_getClusterGeneInformation.py > F420_results
+
+will do the same thing but will gather the information from ALL cluster runs, not just the ones specific to Methanosarcina

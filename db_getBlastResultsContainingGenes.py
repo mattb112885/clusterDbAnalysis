@@ -9,6 +9,8 @@
 #
 # The code is identical except the sql command has an OR instead of an AND...
 
+import fileinput, optparse, sqlite3
+
 usage = "%prog "
 description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"
 parser = optparse.OptionParser(usage=usage, description=description)

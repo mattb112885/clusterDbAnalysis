@@ -11,7 +11,7 @@ import fileinput, optparse, sys
 parser = optparse.OptionParser()
 parser.add_option("-g", "--geneid", help="Column number (start from 1) for gene id", action="store", type="int", dest="geneidcol", default=1)
 parser.add_option("-a", "--annote", help="Column number (start from 1) for annotation / FASTA header", action="store", type="int", dest="annotecol", default=2)
-parser.add_option("-n", "--numcluster", help="Desired number of genes in each cluster to extract", action="store", type="int", dest="seqcol", default=3)
+parser.add_option("-s", "--seqcol", help="Column number (start from 1) for sequence column", action="store", type="int", dest="seqcol", default=3)
 (options, args) = parser.parse_args()
 
 geneidcol = options.geneidcol - 1
@@ -24,8 +24,8 @@ for line in fileinput.input("-"):
     annote = spl[annotecol]
     seq = spl[seqcol]
 
-    if len(geneid) > 10:
-        sys.stderr.write("WARNING: Gene ID lengths greater than 10 identified. This could cause problems for PHYLIP format-dependent programs like RAXML\n")
+#    if len(geneid) > 10:
+#        sys.stderr.write("WARNING: Gene ID lengths greater than 10 identified. This could cause problems for PHYLIP format-dependent programs like RAXML\n")
 
     print ">" + geneid + " " + annote
     print seq

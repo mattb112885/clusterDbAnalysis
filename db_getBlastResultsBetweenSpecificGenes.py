@@ -26,9 +26,9 @@ for line in fileinput.input("-"):
     cur.execute("INSERT INTO desiredgenes VALUES (?);", (spl[gc], ) )
 
 # Generate a list of blast results with query matching one of the desiredgenes
-cur.execute("""SELECT blastresults.* FROM blastresults
-               WHERE blastresults.targetgene IN (select geneid from desiredgenes)
-               AND blastresults.querygene IN (select geneid from desiredgenes);""");
+cur.execute("""SELECT blastres_selfbit.* FROM blastres_selfbit
+               WHERE blastres_selfbit.targetgene IN (select geneid from desiredgenes)
+               AND blastres_selfbit.querygene IN (select geneid from desiredgenes);""");
 
 for l in cur:
     s = list(l)

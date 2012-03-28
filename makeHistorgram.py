@@ -46,4 +46,4 @@ hist, bin_edges = numpy.histogram(numarr, bins=options.number, range=(start, end
 
 # bin_edges has n+1 elements - hist[i] is number of elements between bin_edges[i] and bin_edges[i+1]
 for ii in range(len(hist)):
-    print "%d\t%1.4f\t%1.4f" % (bin_edges[ii], bin_edges[ii+1], hist[ii])
+    print "%1.4f\t%1.4f\t%d" % (bin_edges[ii], bin_edges[ii+1], hist[ii])

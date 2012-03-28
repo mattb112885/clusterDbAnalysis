@@ -13,20 +13,24 @@
 
 import fileinput
 import sys
+import optparse
 
-if len(sys.argv) < 2:
-    print "Usage: ./replaceOrgWithName.py [orgfile] [useAbbrev]"
-    print "./replaceOrgWithName [orgfile] [TRUE] means use the organism abbreviation rather than the full name"
-    print "Omit useAbbrev to make it FALSE (or use anything but TRUE or T)"
+parser = optparse.OptionParser()
+parser.add_option("-f", "--orgfile", help="Organism file (required)", action="store", type="str", dest="orgfile", default=None)
+parser.add_option("-a", "--useabbrev", help="Use abbreviation? (If specified, use the abbreviated form of the organism name. If not specified, use the entire organism name)", 
+                  action="store_true", dest="useabbrev", default=False)
+parser.add_option("-k", "--keeppeg", help="Keep PEG ID? (if specified, keeps peg id. If not, throws it away)", action="store_true", dest="keeppeg", default=False)
+(options, args) = parser.parse_args()
+
+if options.orgfile == None:
+    print "ERROR: Orgfile (-f orgfile) is a required argument to replaceOrgWithAbbrev"
     exit(2)
 
-useabbrev = False
-if len(sys.argv) == 3:
-    if sys.argv[2].lower().startswith("t"):
-        useabbrev = True
+useabbrev = options.useabbrev
+keeppeg = options.keeppeg
 
 orgAbbrev = {}
-fid = open(sys.argv[1], "r")
+fid = open(options.orgfile, "r")
 for line in fid:
     spl = line.strip().split("\t")
     if useabbrev:
@@ -35,7 +39,14 @@ for line in fid:
         orgAbbrev[spl[2]] = spl[0].replace(" ", "_")
 
 for line in fileinput.input("-"):
-    myline = line.strip().replace("fig|", "")
+    myline = line.strip()
+
+    if not keeppeg:
+        myline = myline.replace("fig|", "")
+
     for s in orgAbbrev:
-        myline = myline.replace(s, orgAbbrev[s])
+        if keeppeg:
+            myline = myline.replace(s, orgAbbrev[s] + "_" + s)
+        else:
+            myline = myline.replace(s, orgAbbrev[s])
     print myline

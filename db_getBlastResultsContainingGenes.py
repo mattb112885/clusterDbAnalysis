@@ -1,13 +1,15 @@
 #!/usr/bin/python
 
-# Provide a list of organisms to match [can match any portion of the organism
-# so if you give it just "mazei" it will return to you a list of Methanosarcina mazei]
+# This is a pipe command.
 #
-# Returns a list of blast results specific to those organisms to stdout
-# (which can subsequently be used to do clustering...)
-# 
+# Unlike db_getBlastResultsBetweenSpecificGenes (which only gets blast results containing both
+# query and target inside them),
+# this command will get blast results if either the query OR the target
+# is contained within them.
+#
+# The code is identical except the sql command has an OR instead of an AND...
 
-import sqlite3, optparse, fileinput
+import fileinput, optparse, sqlite3
 
 usage = "%prog "
 description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"
@@ -19,7 +21,7 @@ gc = options.genecolumn - 1
 con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()
 
-# Generate a table of BLAST results
+# Generate a table of BLAST results                                                                                                                                                                            
 cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
 for line in fileinput.input("-"):
     spl = line.strip().split("\t")
@@ -28,7 +30,7 @@ for line in fileinput.input("-"):
 # Generate a list of blast results with query matching one of the desiredgenes
 cur.execute("""SELECT blastres_selfbit.* FROM blastres_selfbit
                WHERE blastres_selfbit.targetgene IN (select geneid from desiredgenes)
-               AND blastres_selfbit.querygene IN (select geneid from desiredgenes);""");
+               OR blastres_selfbit.querygene IN (select geneid from desiredgenes);""");
 
 for l in cur:
     s = list(l)

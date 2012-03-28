@@ -27,16 +27,14 @@ import optparse
 import sys
 
 parser = optparse.OptionParser()
-parser.add_option("-I", "--inflation", help="Inflation parameter used for MCL clustering", action="store", type="float", dest="inflation", default=None)
-parser.add_option("-c", "--cutoff", help="Scoring cutoff used for MCL clustering", action="store", type="float", dest="cutoff", default=None)
-parser.add_option("-m", "--method", help="Scoring method used for MCL clustering", action="store", type="string", dest="method", default=None)
+parser.add_option("-n", "--name", help="Run name (should have descriptions of Inflation, method and cutoff)", action="store", type="string", dest="name", default=None)
 (options, args) = parser.parse_args()
 
-if options.method == None or options.cutoff == None or options.inflation == None:
+if options.name == None:
     sys.stderr.write("ERROR in flattenClusterFile: -I, -c, and -m are all required")
     exit(2)
 
-runid = "I_%1.2f_cutoff_%1.2f_method_%s" %(options.inflation, options.cutoff, options.method)
+runid = options.name
 if len(runid) > 64:
     print sys.stderr.write("WARNING: Resulting clusterID is too long - will truncate to 64 characters")
     runid = runid[0:64]

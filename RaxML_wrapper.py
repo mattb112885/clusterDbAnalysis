@@ -70,7 +70,7 @@ INFILE=fname
 OUTFILE="%s.nwk" %(fname)
 
 # Required part
-raxcmd = "%s -s %s -n %s -m %s -T %d" %(PROGRAM, INFILE, OUTFILE, MODEL, NUMTHREADS)
+raxcmd = "%s -s %s -n %s -m %s -T %d -p 123456" %(PROGRAM, INFILE, OUTFILE, MODEL, NUMTHREADS)
 
 # Optional part
 if NUMBOOTS > 0:

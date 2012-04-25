@@ -26,6 +26,7 @@ parser.add_option("-b", "--bootstraps", help="Number of bootstraps (D=0)", actio
 parser.add_option("-T", "--numthreads", help="Number of threads, must be more than 1 (D=2)", action="store", type="int", dest="NTHREADS", default=2)
 parser.add_option("-k", "--nocleanup", help="Set this flag to keep intermediate RAXML and PHYLIP files (D=false, delete these files)", action="store_false", dest="CLEANUP", default=True)
 parser.add_option("-m", "--model", help="Specify model to use with RAXML (D=PROTGAMMAWAG)", action="store", type="str", dest="MODEL", default="PROTGAMMAWAG")
+parser.add_option("-p", "--program", help="Specify the name of the RAXML program to use (D=raxmlHPC-PTHREADS)", action="store", type="str", dest="PROGRAM", default="raxmlHPC-PTHREADS")
 
 (options, args) = parser.parse_args()
 
@@ -33,6 +34,7 @@ NUMBOOTS=options.NUMBOOTS
 NUMTHREADS=options.NTHREADS
 CLEANUP=options.CLEANUP
 MODEL=options.MODEL
+PROGRAM=options.PROGRAM
 
 # Read the FASTA file from stdin and convert it into a phylip file
 # Use list so we actually edit in-place rather than
@@ -68,7 +70,7 @@ INFILE=fname
 OUTFILE="%s.nwk" %(fname)
 
 # Required part
-raxcmd = "raxmlHPC-PTHREADS -s %s -n %s -m %s -T %d" %(INFILE, OUTFILE, MODEL, NUMTHREADS)
+raxcmd = "%s -s %s -n %s -m %s -T %d" %(PROGRAM, INFILE, OUTFILE, MODEL, NUMTHREADS)
 
 # Optional part
 if NUMBOOTS > 0:

@@ -1,28 +1,25 @@
 #!/bin/bash
 
 # Standardized function calls for aligning and trimming alignments
-# Call: ./alignAndTrim.sh [FASTA file]
+
+if [ $# -lt 2 ]; then
+    echo "Usage: ./src/alignAndTrim.sh [Input file] [Output file]"
+    echo "Both input file and output file should be FASTA files"
+    echo "Any folder location should be OK for either of them..."
+    exit 0;
+fi
 
 alignprogram="mafft"
 
-# Run alignment
-mafft --auto $1 > /tmp/$1.aln
+# Get just the file name out of the path
+base=$(basename $1)
 
-# Trim alignment
-# This uses the "relaxed selection" from the gblocks paper
-# which they said works better for shorter alignments.
-#
-# b1 = "Minimum number of sequences for a conserved position"
-# b2 = "Minimum number of sequences for a flank position"
-# b3 = "Maximum number of contiguous nonconserved positions"
-# b4 = "Minimum length of a block"
-# b5 = "Allowed gap positions" (n, h, or a - none, half, or any number)
-#
-# -p=y: Yes I want you to actually do blocking instead of giving me a menu
-# Note that it automatically outputs the same format that it reads (in this case, FASTA)
-# the FASTA files it outputs contain extra spaces, which isn't a problem for FASTTREE
-# but could be for some other parsers...
-Gblocks /tmp/$1.aln -b1=9 -b2=9 -b3=10 -b4=5 -b5=h -p=y
+# Run alignment (automatically choose an appropriate accuracy level)
+mafft --auto $1 > /tmp/${base}.aln
 
-# In case I need it, this is the same thing but with the "stringent" criteria.
-#Gblocks /tmp/$1.aln -b1=9 -b2=13 -b3=8 -b4=10 -b5=n -p=y
+# Wrapper for GBlocks that doesnt' whine about long names (which is really just
+# long annotations...)
+#
+# For now the parameters are buried in here - some time I would like to make them
+# more explicit.
+python src/Gblocks_wrapper.py /tmp/${base}.aln $2

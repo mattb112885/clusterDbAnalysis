@@ -13,6 +13,9 @@
 # -m minbit: Bit score / min( query self-bit, target self-bit)
 # -m maxbit: Bit score / max( query self-bit, target self-bit)
 # -m avgbit: Bit score * 2 / (query self-bit + target self-bit)
+# 
+# Local alignments (if you WANT domain hits)
+# -m normhsp: Bit score / hsp length (equivalent to r in mcxdeblast)
 
 def minbit(bitscore, qselfbit, tselfbit):
     return float(bitscore)/min( float(qselfbit), float(tselfbit) )
@@ -23,9 +26,12 @@ def maxbit(bitscore, qselfbit, tselfbit):
 def avgbit(bitscore, qselfbit, tselfbit):
     return float(bitscore) * 2 / (float(qselfbit) + float(tselfbit) )
 
+def normhsp(bitscore, hsplen):
+    return float(bitscore)/float(hsplen)
+
 import optparse, fileinput
 
-validmethods = ['minbit', 'maxbit', 'avgbit']
+validmethods = ['minbit', 'maxbit', 'avgbit', 'normhsp']
 
 parser = optparse.OptionParser()
 parser.add_option("-m", "--method", help="Method name", action="store", type="str", dest="method", default=None)
@@ -46,6 +52,7 @@ for line in fileinput.input("-"):
     bitscore = spl[11]
     qselfbit = spl[12]
     tselfbit = spl[13]
+    hsplen = spl[3]
 
     qgene = spl[0]
     tgene = spl[1]
@@ -56,6 +63,8 @@ for line in fileinput.input("-"):
         score = maxbit(bitscore, qselfbit, tselfbit)
     elif options.method == 'avgbit':
         score = avgbit(bitscore, qselfbit, tselfbit)
+    elif options.method == 'normhsp':
+        score = normhsp(bitscore, hsplen)
 
     if score < options.cutoff:
         score = 0

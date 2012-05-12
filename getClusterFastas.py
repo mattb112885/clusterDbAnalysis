@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Will generate a FASTA file for every different cluster
-# in the results of "db_getClusterGeneInfo.py" ("infofile").
+# in the results of "db_getClusterGeneInformation.py" ("infofile").
 # The fasta files are placed in "outputfolder"
 #
 # Organism name and annotation are placed in "labelfolder"

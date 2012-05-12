@@ -18,7 +18,7 @@
 import sys, os
 
 if not len(sys.argv) == 4:
-    print "Usage: ./getCoreClusterFastas.py [infofile] [fastafolder] [labelfolder]"
+    print "Usage: ./getClusterFastas.py [infofile] [fastafolder] [labelfolder]"
     exit(2)
 
 infofile = sys.argv[1]

@@ -86,7 +86,15 @@ os.system(raxcmd);
 
 # Get the best tree from those results and replace the names
 # with the real names
-treestr = "".join([ line.strip() for line in open("RAxML_bestTree.%s" %(OUTFILE)) ])
+#
+# Note - the "bipartitions" file contains the bootstrap labels. However, that file is only
+# created when we actually run with a nonzero number of bootstraps.
+# The fallback is to just return the ML tree ("bestTree") without any labels, since without
+# bootstraps there are no labels anyway.
+if NUMBOOTS > 0:
+    treestr = "".join([ line.strip() for line in open("RAxML_bipartitions.%s" %(OUTFILE)) ])
+else:
+    treestr = "".join([ line.strip() for line in open("RAxML_bestTree.%s" %(OUTFILE)) ])
 
 for sub in subToReal:
     treestr = treestr.replace(sub, subToReal[sub])

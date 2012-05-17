@@ -1,36 +1,37 @@
 #!/usr/bin/python
 
-# Deals with more too-long identifier name bullshit from other programs
+# This is a pipe command.
 #
-# Provide it both an input and an output fasta file name and it will go ahead
-# and shorten the names for you and call GBlocks (with "relaxed" parameters that are better
-# for more closely-related or shorter alignments) to trim the alignment to high-quality sites.
+# Pipe in an alignment
+# (e.g. from MAFFT, clustal, whatever)
+# in FASTA format
 #
-# Default parameters are described in the paper
+# Outputs the results of Gblocks to stdout.
+#
+# Default parameters are "relaxed" parameters described in the paper
 # "Improvement of phylogenies after removing divergent and ambiguously aligned blocks from protein sequence alignments"
 # C.F.:
 # http://sysbio.oxfordjournals.org/content/56/4/564.full
 #
+# According to the paper the relaxed parameters are better when dealing with short alignments (i.e. only one gene)
+#
+import fileinput
 import sys
 import random
 import os
 from Bio import AlignIO
 from Bio import SeqIO
 
-if not len(sys.argv) == 3:
-    sys.stderr.write("Usage: ./Gblocks_wrapper.py [input alignment] [output alignment]\n")
-    exit(2)
-
 # Read the FASTA file from stdin and convert it into a new fasta file
-aln = list(AlignIO.read(open(sys.argv[1], "r"), "fasta"))
+aln = list(AlignIO.read(sys.stdin, "fasta"))
 
-# We will use this to convert back to the IDs in the fasta file
+# We will use this to convert back to the real IDs later
 subToReal = {}
 for i in range(len(aln)):
     newid = "S%09d" %(i)
     subToReal[newid] = aln[i].description
     aln[i].id = newid
-    # Gblocks STILL complains that the name is too fucking long even if the ID is shortened. FINE, I'll throw out the fucking annotation.
+    # Gblocks STILL complains that the name is too long even if the ID is shortened. FINE, I'll throw out the annotation too...
     aln[i].description = ""
 
 fname = "%d.faa" %(random.randint(0,2**30))
@@ -40,7 +41,8 @@ SeqIO.write(aln, fid, "fasta")
 fid.close()
 
 # Now we need to run GBlocks on this.
-gblcmd = "Gblocks %s -b1=9 -b2=9 -b3=10 -b4=5 -b5=h -p=y > /dev/null 2> /dev/null" %(fname)
+# Don't bother redirecting stderr but I do redirect stdout since this is a pipe command...
+gblcmd = "Gblocks %s -b1=9 -b2=9 -b3=10 -b4=5 -b5=h -p=y > /dev/null" %(fname)
 sys.stderr.write("Running GBlocks with command: \n %s\n" %(gblcmd))
 os.system(gblcmd);
 
@@ -53,9 +55,7 @@ for i in range(len(aln)):
     aln[i].id=des
     aln[i].description=""
 
-fid = open(sys.argv[2], "w")
-SeqIO.write(aln, fid, "fasta")
-fid.close()
+SeqIO.write(aln, sys.stdout, "fasta")
 
 # Clean up temporary files
 rmcmd = "rm %s*" %(fname)

@@ -21,12 +21,14 @@ from Bio import AlignIO
 from Bio import SeqIO
 from optparse import OptionParser
 
-parser = OptionParser()
+description = "Wrapper for RAXML to take care of some nits (takes input in FASTA format and does not discard existing gene names; takes care of putting in seed arguments for you)."
+parser = OptionParser(description=description)
 parser.add_option("-b", "--bootstraps", help="Number of bootstraps (D=0)", action="store", type="int", dest="NUMBOOTS", default=0)
 parser.add_option("-T", "--numthreads", help="Number of threads, must be more than 1 (D=2)", action="store", type="int", dest="NTHREADS", default=2)
 parser.add_option("-k", "--nocleanup", help="Set this flag to keep intermediate RAXML and PHYLIP files (D=false, delete these files)", action="store_false", dest="CLEANUP", default=True)
 parser.add_option("-m", "--model", help="Specify model to use with RAXML (D=PROTGAMMAWAG)", action="store", type="str", dest="MODEL", default="PROTGAMMAWAG")
 parser.add_option("-p", "--program", help="Specify the name of the RAXML program to use (D=raxmlHPC-PTHREADS)", action="store", type="str", dest="PROGRAM", default="raxmlHPC-PTHREADS")
+parser.add_option("-c", "--conselfile", help="Specify a file name to use as a base for files needed to run results with CONSEL", action="store", type="str", dest="CONSELBASE", default=None)
 
 (options, args) = parser.parse_args()
 
@@ -35,6 +37,7 @@ NUMTHREADS=options.NTHREADS
 CLEANUP=options.CLEANUP
 MODEL=options.MODEL
 PROGRAM=options.PROGRAM
+CONSELBASE=options.CONSELBASE
 
 # Read the FASTA file from stdin and convert it into a phylip file
 # Use list so we actually edit in-place rather than
@@ -96,9 +99,26 @@ if NUMBOOTS > 0:
 else:
     treestr = "".join([ line.strip() for line in open("RAxML_bestTree.%s" %(OUTFILE)) ])
 
+# To use CONSEL or to use RAXML again we need to save a copy of the tree with the substituted names.
+# We also print out a translation table so we can back-translate again later.
+if not CONSELBASE == None:
+    # Translation table
+    fid = open(CONSELBASE + ".trans", "w")
+    for i in subToReal:
+        fid.write("%s\t%s\n" %(i, subToReal[i]))
+    fid.close()
+    # Substituted tree
+    fid = open(CONSELBASE + ".substituted.nwk", "w")
+    fid.write("%s\n" %(treestr) )
+    fid.close()
+    # Substituted alignment (philip) file
+    os.system("cp %s %s.phi" %(fname, CONSELBASE))
+
+# Substitute names back for the final tree output
 for sub in subToReal:
     treestr = treestr.replace(sub, subToReal[sub])
 
+# Print the final tree to stdout
 print treestr
 
 if CLEANUP:

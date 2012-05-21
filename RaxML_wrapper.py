@@ -28,7 +28,7 @@ parser.add_option("-T", "--numthreads", help="Number of threads, must be more th
 parser.add_option("-k", "--nocleanup", help="Set this flag to keep intermediate RAXML and PHYLIP files (D=false, delete these files)", action="store_false", dest="CLEANUP", default=True)
 parser.add_option("-m", "--model", help="Specify model to use with RAXML (D=PROTGAMMAWAG)", action="store", type="str", dest="MODEL", default="PROTGAMMAWAG")
 parser.add_option("-p", "--program", help="Specify the name of the RAXML program to use (D=raxmlHPC-PTHREADS)", action="store", type="str", dest="PROGRAM", default="raxmlHPC-PTHREADS")
-parser.add_option("-c", "--conselfile", help="Specify a file name to use as a base for files needed to run results with CONSEL", action="store", type="str", dest="CONSELBASE", default=None)
+parser.add_option("-c", "--conselfile", help="Specify a file name to use as a base for files needed to run results with CONSEL. Overrides -k because afaik RAXML does not one to run multiple algorithms in a row...", action="store", type="str", dest="CONSELBASE", default=None)
 
 (options, args) = parser.parse_args()
 
@@ -38,6 +38,10 @@ CLEANUP=options.CLEANUP
 MODEL=options.MODEL
 PROGRAM=options.PROGRAM
 CONSELBASE=options.CONSELBASE
+
+if not CONSELBASE == None and CLEANUP == False:
+    sys.stderr.write("WARNING: specification of -c overwrites -k (CLEANUP) due to technical limitations in RAXML\n")
+    CLEANUP = True
 
 # Read the FASTA file from stdin and convert it into a phylip file
 # Use list so we actually edit in-place rather than
@@ -107,12 +111,25 @@ if not CONSELBASE == None:
     for i in subToReal:
         fid.write("%s\t%s\n" %(i, subToReal[i]))
     fid.close()
+
     # Substituted tree
     fid = open(CONSELBASE + ".substituted.nwk", "w")
     fid.write("%s\n" %(treestr) )
     fid.close()
-    # Substituted alignment (philip) file
+
+    # Substituted alignment (philip) file - just copy from the temp file we made earlier...
     os.system("cp %s %s.phi" %(fname, CONSELBASE))
+
+    # Remove the surplus RAXML temporary files because otherwise RAXML balks...
+    os.system("rm RAxML_*.%s" %(OUTFILE) )
+
+    # Use RAXML to generate the per-site likelihood file. Again we let stderr through but squash stdout since this is a pipe command.
+    raxcmd = "%s -s %s -n %s -m %s -T %d -p 123456 -f g -z %s.substituted.nwk > /dev/null" %(PROGRAM, INFILE, OUTFILE,  MODEL, NUMTHREADS, CONSELBASE)
+    sys.stderr.write("Writing the per-site likelihood file using command: \n %s \n" %(raxcmd))
+    os.system(raxcmd)
+
+    # The per-site likelihood file is printed to RAxML_perSiteLLs.${OUTFILE} - lets put this in the specified naming convention instead...
+    os.system("cp RAxML_perSiteLLs.%s %s.perSiteLLs" %(OUTFILE, CONSELBASE))
 
 # Substitute names back for the final tree output
 for sub in subToReal:
@@ -125,4 +142,3 @@ if CLEANUP:
     # * to remove the "reduced" files if any are created by RAXML
     os.system("rm %s*" %(INFILE) )
     os.system("rm RAxML_*.%s" %(OUTFILE))
-

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Convert PUBSEED to RAST by calling appropriate server scripts, and then
+# rearranging the tables to the right format.
+#
+# Output goes to ${ID}.txt in common format
+# with the RAST files that are downloaded (and placed in the "RAW" folder)
+#
+# This must be run for any organism you wish to pull from pubseed for the analysis
+# (as opposed to uploading from RAST)
+#
+# Example usage: convertToRast.sh 188937.1
+
+ORGANISM="$1"
+
+# Add nucleic acid and protein sequences from pubseed
+# based on the server scripts
+# First call to svr_fasta adds the nucleotide sequence for the proteins
+# and second call adds the protein sequence.
+cat "${ORGANISM}.tbl" | svr_fasta -c 1 | svr_fasta -c 1 -protein > "${ORGANISM}.int"
+
+# This function will convert as best it can from the tabular fromat of the pubseed
+# (with sequences added) into the RAST "raw" format.
+
+cat "${ORGANISM}.int" | ./pubseed2rast.py > "${ORGANISM}.rast_txt"

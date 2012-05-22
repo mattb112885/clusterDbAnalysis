@@ -30,9 +30,10 @@ for gene in geneToAnnotation:
     for char in charToRemove:
         geneToAnnotation[gene] = geneToAnnotation[gene].replace(char, "_")
 
-# Actually replace the annotations now
+# Actually replace the annotations now. We need to keep the original ID as well to make sure the names stay unique
+# (grumble grumble)
 for gene in geneToAnnotation:
-    newickString = newickString.replace(gene, geneToAnnotation[gene])
+    newickString = newickString.replace(gene, gene + "_" + geneToAnnotation[gene])
 
 print newickString
     

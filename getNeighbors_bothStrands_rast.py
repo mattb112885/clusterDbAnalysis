@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Input: RAST raw info file (from the /raw/ folder)
+# Input: a raw file [from e.g. ./src/db_getAllRawData.py]
 #
 # Outputs (up to k=12) the k-nearest neighbors of a gene on both sides. 
 # Does not include circularity in general...
@@ -11,19 +11,14 @@
 import sys
 from operator import itemgetter
 import re
-
-if not len(sys.argv) == 2:
-    print "Usage: ./makeNeighborTable [rast_raw_info_file]"
-    exit(2)
+import fileinput
 
 MAXK = 5
 
 geneTuples = []
-for line in open(sys.argv[1], "r"):
+for line in fileinput.input("-"):
     spl = line.strip().split("\t")
-    # PUBSEED tables for some reason have blank lines. Lets skip those.
-    if len(spl) < 6:
-        continue
+
     # Protein-coding genes only
     if not spl[2] == "peg":
         continue

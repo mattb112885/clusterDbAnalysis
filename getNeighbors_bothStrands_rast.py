@@ -34,7 +34,7 @@ for line in fileinput.input("-"):
     # Gene ID, Organism+Contig, Start, Stop, Strand
     # Add organism to contig name to avoid non-unique contig names like "contig00001" conflicting when
     # we concatinate all of them.
-    geneTuples.append( (spl[1], orgid + "_" + spl[0], int(spl[4]), int(spl[5]), spl[6]) )
+    geneTuples.append( (spl[1], orgid + "." + spl[0], int(spl[4]), int(spl[5]), spl[6]) )
 
 # Sort by contig first, then by start
 sortGeneTuples = sorted(geneTuples, key=itemgetter(1,3))

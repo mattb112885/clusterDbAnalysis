@@ -61,11 +61,25 @@ CREATE TABLE geneinfo(
        CHECK (aalen < 15000)
        );
 
+/* Note - distance is number of genes */
+CREATE TABLE neighborhoods(
+       "centergene" VARCHAR(32),
+       "neighborgene" VARCHAR(32),
+       "distance" VARCHAR(32),
+       "contig_mod" VARCHAR(256),
+       "startloc" INT,
+       "strand" VARCHAR(4),
+       FOREIGN KEY(centergene) REFERENCES rawdata(geneid),
+       FOREIGN KEY(neighborgene) REFERENCES rawdata(geneid)
+       );
+       
+
 .separator "\t"
 .import organisms organisms
 .import db/raw_cat rawdata
 .import db/mod_cat geneinfo
 .import db/blastres_cat blastresults
+.import db/neighborhoods neighborhoods
 
 CREATE INDEX blastqueryidx ON blastresults (querygene);
 CREATE INDEX blasttargetidx ON blastresults (targetgene);

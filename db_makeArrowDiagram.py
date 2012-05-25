@@ -4,20 +4,32 @@
 # Lets read input arguments first.
 import sys
 
-if not len(sys.argv) == 3:
-    print "Usage: ./TutorialArrow.py [Newick File] [Output basename]"
+if not len(sys.argv) == 3 and not len(sys.argv) == 4:
+    print "Usage: ./TutorialArrow.py [Newick File] [Output basename] [number of genes away (optional)]"
     print "Pipe in a run ID [only one!] to use for coloring."
     print "Output file is just a file name"
     print "Usage of this function requlres you to have a UI (i.e. you must have an X server up and running)"
+    print "Number of genes away must be less than or equal to 5"
     exit(2)
 
-# We will need to create Qt4 items
+if len(sys.argv) == 4:
+    MAXK = int(sys.argv[3])
+    print MAXK
+    if MAXK > 5:
+        print "ERROR: Number of genes away must be <= 5"
+        exit(2)
+    if MAXK <= 0:
+        print "ERROR: Invalid maximum number of genes away"
+
+# Import lots of stuff for drawing...
 from PyQt4 import QtCore
 from PyQt4.QtCore import QPointF
 from PyQt4.QtGui import QGraphicsRectItem, QGraphicsSimpleTextItem, \
     QGraphicsPolygonItem, QColor, QPen, QBrush, QPolygonF
 from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace
+# And other stuff we need...
 from operator import itemgetter
+import fileinput
 import sqlite3
 import os
 
@@ -164,13 +176,6 @@ for l in cur:
     geneToAnnote[spl[0]] = spl[9]
     geneToOrganism[spl[0]] = spl[1]
 
-# This is to account for genes on the edges of contig, for example. 
-# They are given the default annotation
-# of "NONE"
-geneToAnnote["NONE"] = "NONE"
-
-MAXK = 3
-
 # Read neighborhood file - NOTE that we want BOTH strands
 # rather than just neighbors on the same strand for this
 # analysis. Make sure you call the correct function to generate
@@ -236,58 +241,93 @@ for gene in geneToNeighbors:
     sortTuples = sorted(tuple(geneToNeighbors[gene]), key=itemgetter(1))
     geneToNeighbors[gene] = sortTuples
 
-sys.stderr.write("Assigning colors to annotations based on their frequency...\n")
-annoteToNumGenes = {}
+################
+# Get the run ID to search for
+# and all the cluster info for that run ID
+################
+
+sys.stderr.write("Gathering cluster information for specified run ID...\n")
+done = False
+runid = ""
+for line in fileinput.input("-"):
+    if done == True:
+        sys.stderr.write("ERROR: Must only pipe in ONE run ID\n")
+        exit(2)
+    done = True
+    runid = line.strip()
+
+cur.execute("SELECT * FROM clusters WHERE clusters.runid=?;", (runid, ) )
+atLeastOne = False
+geneToCluster = {}
+for l in cur:
+    atLeastOne = True
+    geneToCluster[str(l[2])] = str(l[1])
+
+if not atLeastOne:
+    sys.stderr.write("ERROR: piped in run ID not found in database\n")
+    exit(2)
+
+############
+# Set up cluster list to have the most-used ones first
+############
+
+# Count instances of each cluster
+clusterToNumber = {}
 for node in t.traverse():
     if node.is_leaf():
-        genename = node.name
-        neighborPairs = geneToNeighbors[genename]
-        for pair in neighborPairs:
-            annotation = geneToAnnote[pair[0]]
-            if annotation in annoteToNumGenes:
-                annoteToNumGenes[annotation] += 1
+        pairList = geneToNeighbors[node.name]
+        for pair in pairList:
+            if not pair[0] in geneToCluster:
+                # Don't bother printing warnings about fake genes...
+                if not pair[0] == "NONE":
+                    sys.stderr.write("WARNING: The tree contains gene %s that is not present in the clustering run specified. These will not be colored!\n" %(pair[0]) )
+                continue
+            cluster = geneToCluster[pair[0]]
+            if cluster in clusterToNumber:
+                clusterToNumber[cluster] += 1
             else:
-                annoteToNumGenes[annotation] = 1
+                clusterToNumber[cluster] = 1
 
-sortedAnnotes = sorted(annoteToNumGenes.items(), key=itemgetter(1), reverse=True)
-keynum = 0
-annoteToColor = {}
-for annote in sortedAnnotes:
-    print annote
-    if annote[1] < 2:
-        keynum = len(colorTable) - 1
+# Assign color to each cluster
+# according to the number of genes in that cluster within the neighbors
+# of genes in the tree
+clusterTuples = sorted(clusterToNumber.iteritems(), key=itemgetter(1), reverse=True)
+clusterToColor = {}
+currentIdx = 0
+for tup in clusterTuples:
+    print tup
+    clusterToColor[tup[0]] = colorTable[currentIdx]
+    if currentIdx < len(colorTable) - 1:
+        currentIdx += 1
 
-    annoteToColor[annote[0]] = colorTable[keynum]
+clusterToColor["NONE"] = "#FFFFFF"
+geneToCluster["NONE"] = "NONE"
+geneToAnnote["NONE"] = "NONE"
 
-    if keynum < len(colorTable) - 1:
-        keynum = keynum + 1
-
-annoteToColor["NONE"] = "#FFFFFF"
-
+#############
 # Add actual arrow objects to the tree
+#############
 sys.stderr.write("Adding arrow objects to leaves of the tree...\n")
 for node in t.traverse():
     if node.is_leaf():
-        # Add a text with larger font to replace the crappy size-10 ish font that comes by default...
+        # Add an annotation text with larger font to replace the crappy size-10 ish font that comes by default...
         newname = "_".join( [ node.name, geneToOrganism[node.name], geneToAnnote[node.name] ] )
-        F = faces.TextFace(newname, ftype="Times", fsize=24)
+        F = faces.TextFace(newname, ftype="Times", fsize=32)
         node.add_face(F, 0, position="aligned")
+
         genename = node.name
-        # Note - we include the "neighborhood" of a gene to itself with this
-        # We will get an error if the files don't match up...
         geneNeighbors = geneToNeighbors[genename]
         for neighborPair in geneNeighbors:
             label = neighborPair[0]
-            color = annoteToColor[geneToAnnote[neighborPair[0]]]
+            color = clusterToColor[geneToCluster[neighborPair[0]]]
             direction = neighborPair[2]
             # For now I make all the arrows the same length.
             F = faces.DynamicItemFace(makeArrowNode,30,30,300,30, direction, label, color)
             node.add_face(F, neighborPair[1] + MAXK+1, position="aligned")
             anno = geneToAnnote[label]
-            trimmedAnno = anno[0:30]
+            trimmedAnno = anno[0:30] + "\n" + anno[31:60]
             F = faces.TextFace(trimmedAnno, ftype="Times", fsize=20)
             node.add_face(F, neighborPair[1] + MAXK + 1, position="aligned")
-        #node.name = newname
 
 # Note - PDF and PNG export are both horrid-quality - I will try to fix this but for now I'll just export to SVG...
 # My suggestion is to find something that doesn't crash and that isn't horrible quality to convert this to another format.
@@ -303,8 +343,12 @@ t.render("%s.svg" %(sys.argv[2]), tree_style=ts)
 
 # Convert the svg file into a high-quality (300 dpi) PNG file...
 # The PNG converter in ETE gives a terrible quality image
-# so this is the best I could come up with.
-#os.system("inkscape -e %s.png -d 300 %s.svg" %(sys.argv[2], sys.argv[2]) )
+# as does the "convert" function (which is probably what ETE uses)
+# so this is the best I could come up with...
+os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(sys.argv[2], sys.argv[2]) )
+# Then trim off the edges
+os.system("convert -trim %s_temp.png %s.png" %(sys.argv[2], sys.argv[2]))
+os.system("rm %s_temp.png" %(sys.argv[2]))
 
 # This is an interactive part. Uncomment this if you want interaction with the tree.
 # As of right now the interaction doesn't DO anything. I will consider making it a hover-over thing

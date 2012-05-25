@@ -2,19 +2,27 @@ INSTALLATION
 
 The pipeline requires installation of some tools:
 
-- Blast+ (including blastp and tblastn)
-- Python (with Ruffus)
+- Blast+ (including blastp and, if you want to use it, tblastn)
+- Python (2.6 works)
 - Mcl
 - Sqlite3
+- Ruffus (python package for parallelization of blast)
 
-All of these are already installed on the Biome server except sqlite3 (which will be installed soon).
+Some of the individual scripts have additional requirements:
+- For some nice tree visualization (db_makeArrowDiagram), you will need PyQt4 and ete2
+- For calculation of histograms you need numpy
+- For alignments and trees you will need alignment and tree programs. 
+- Anything that requires genbank or conversion between fasta and phylip (including raxml wrapper and Gblocks wrapper) requires biopython.
+- RAXML wrapper requires RAXML and Gblocks wrapper requires Gblocks, obviously.
 
 The program also needs some input files. Here's how to generate them:
 
 1) Download the "spreadsheet (tab delimited)" format 
    from all of your genomes in the SEED and place them in the "raw" directory.
 
-2) Download the genbank files and place them in the "genbank" directory.
+You can also, if your genomes are in pubseed, download the fasta file and the tab-delimited file from the SEED's FTP server and run convertPubseedToRast.py on them to get a file in the same format as you would get from RAST. The annotations thus gotten will probably be more accurate (particularly for those in the seed viewer, as opposed to the pubseed) than what one would obtain by running through RAST only.
+
+2) (Optionally) Download the genbank files and place them in the "genbank" directory.
 
 3) Generate a tab-delimited list of organisms that looks like this:
 
@@ -25,12 +33,7 @@ The program also needs some input files. Here's how to generate them:
    Methanosarcina naples 100		nap100	2207.3
    Methanosarcina acetivorans C2A	aceC2A	188937.5 
 
-Call the file "organisms" and place it in the root directory. The abbreviation is used when creating / displaying trees. 
-PHYLIP format requires identifiers with 10 or less characters. "Extended PHYLIP" format seems to have little support
-and RaxML only takes PHYLIP as an input file format...
-
-We could possibly use another treeing program (e.g. fasttree) if we're OK with the quality. In my experience these trees tend
-to be very easy anyway so it probably doesn't matter what program we use...
+Call the file "organisms" and place it in the root directory. 
 
 4) You will need to specify which groups of organisms to cluster. This should be in a tab-delimited file
    called "groups" in the root diretory. There should be one line per group of organisms that you wish to cluster together.
@@ -54,6 +57,16 @@ to be very easy anyway so it probably doesn't matter what program we use...
 
    will cluster all of the mazei as well as M. barkeri Fusaro [there is a space between barkeri and Fusaro, not a tab]
 
+   You can also specify NOT by using "!" in front of names:
+
+   !methanosarcina
+
+   will cluster everything that is not methanosarcina, while
+
+   Methanosarcina	   !mazei
+
+   will cluster everything in methanosarcina and not in mazei (the key rule is that all of them are always linked by AND)
+
    Final note - the organism specifications are case-sensitive and must match whatever is in the "Organisms" file.
 
 -------------------------------
@@ -62,17 +75,8 @@ to be very easy anyway so it probably doesn't matter what program we use...
 DESCRIPTION OF PIPELINE - PART 1 ("main.sh")
 
 This first part of the pipeline begins with the above-mentioned files and ends with
-a list of clusters for the specified groups of organisms. It dumps them into the database
-for easy viewing.
-
-~~~~~
-These steps assume that we want to generate clusters separately for different groups of organisms.
-  If we don't do that, we should only call MCL once (with all of the organisms), 
-  and then generate lists of core genes from the resulting clusters.
-
-  Pseudogene finding will probably be easier for more closely-related groups - will need to check for consistency
-     across the groups to have more confidence in our calls of pseudogenes.
-~~~~~
+some processed gene tables with easier access to gene lengths and organisms, and
+all of the BLAST results and gene neighborhoods pre-computed for easy access.
 
 The shell script "main.sh" pipes each of the raw data
 into the functions that are necessary and outputs the results of these functions 
@@ -94,26 +98,167 @@ The steps performed are as follows:
    organisms: A list of organisms and associated SEED features
    processed: A view containing Organism name, gene name, gene length, and annotation.
    blastresults: The blast results [concatenated], in -m9 format (ready for input into MCL)
+   neighborhoods: Gene neighborhoods of each gene - neighorhood calculation allows things on either strand
+      to be considered a neighborhood and looks at number of genes, not genetic distance.
 
+-------------------------------
+-------------------------------
+
+DESCRIPTION OF PIPELINE - PART 2 ("main2.sh")
 
 For each line of the "groups" file:
 - Use the database to generate a list of blast hits for only the organisms 
 - Call MCL to generate clusters
-- Generate raw and flattened results files. Give each cluster run a unique identifier
+- Generate raw and flattened results files. Give each cluster run an identifier that explains what parameters
+  were passed into it (parameters include inflation, measurement technique, and cutoff)
 
 Concatinate all of the flattened results files (with unique identifiers) and import them into the
-  database as the "clusters" table
+  database as the "clusters" table. Also makes a couple other tables for convenience, including "clusterorgs" which
+  lists the organisms in each cluster.
 
---------------------------------
---------------------------------
 
-Database access functions (part 1 - before pseudogene finding)
---------------------------------------------------------------
+#########################
+# SQL building scripts
+########################
+
+For reference, the SQL code used to build the local sqlite database
+with information from other analysis functions is located in builddb_1.sql (blast, neighborhoods, and raw data), builddb_2.sql (clustering), and builddb_3.sql (obsolete)
+
+##########################
+# Utility functions
+##########################
+
+These don't require access to the database, and therefore can be run from anywhere.
+See the individual function help text for how to run them.
+
+---> addGeneIdsToGenbank.py
+
+Utilizes the tab-delimited file from RAST to add gene IDs to the genbank file that RAST outputs to the appropriate field. This function will fail if the contig name is too long for NCBI standards.
+
+---> annoteSeq2Fasta.py
+
+Convert a table containing gene IDs, annotations, and sequences to a FASTA file. You can specify what columns contain each of these pieces of information.
+
+---> Blast_all_v_all.py
+
+Blast all of the fasta files in a particular folder against each other. All fasta files must have ".faa" or ".fasta" extension to allow distinguishing from e.g. the database files or other stuff in the folder.
+
+---> catAlignments.py
+
+Concatinate alignments by organism. The input fasta files must all contain alignments with the same set of organisms, only one protein per organism. The order does not need to be the same.
+
+---> clusterIdToTable.py
+
+Several functions require as an input both a run ID and a cluster ID in a table:
+
+M_2.0_...	  1
+
+This function is for convenience. You can pipe in a run ID and specify a list of cluster IDs as input arguments, and it outputs a table with the run ID duplicated in the first column and each separate cluster ID in the second column.
+
+---> convertPubseedToRast.py
+
+Convert tab-delimited annotation file from the SEED FTP servers into the format output by RAST. This makes such files compatible with the rest of the database.
+
+---> countClusters.py
+
+Takes in an MCL cluster file and outputs the number of elements in each cluster in a big list. Intended to help build histograms of the number of genes in each cluster.
+
+---> fastaToPhylip.py
+
+Converts a fasta file into a phylip file with substituted IDs to avoid issues with the length of identifiers (phylip has a length limit of 10 characters on its identifiers). Mostly for testing purposes, and because it is nicer to look at an alignment in phylip format than in fasta...
+
+---> flattenClusterFile.py
+
+This function is used within main2.sh to take the output from MCL clustering and turn it into a
+three-column table (run id | cluster id | gene id) to import into the database.
+
+---> Gblocks_wrapper.py
+
+Wrapper script to allow import of our fasta files into Gblocks without clobbering our existing gene identifiers and annotations. Gblocks is a tool for trimming alignment regions of poor quality.
+
+---> genbank2nucleotides.py
+
+Takes a genbank file as input and outputs the nucleotide content of the contigs in a nucleotide fasta file.
+
+---> getClusterFastas.py
+
+If you have an output file ("geneinfo file") from another function with multiple clusters in it, you can use this to generate a separate fasta for each of the clusters and put them all in one place.
+
+---> getNeighbors_bothStrands_rast.py
+
+Takes the raw tbl from RAST and generates a neighorhood file for each. A neighborhood file tells you the name of neighboring genes on the same contig, how many genes away it is,  what contig that is, what the start location of the neighboring gene is predicted to be and what strand the neighboring gene is on.
+
+This function is used to get a neighborhood file that is imported into the database.
+
+---> makeHistogram.py
+
+Uses numpy to calculate bins according to the inputted parameters from a set of numbers that is piped into it.
+
+---> makePresenceAbsenceFasta.py
+
+Generates a FASTA file from an inputted table of presence/absence for each cluster. The fasta file can be used to make a presence/absence tree with RAXML.
+
+---> plotScatter.py
+
+(Still needs a lot of work). Uses matplotlib adn numpy to create a scatterplot from a piped input with two columns of numeric data.
+
+---> pubseed2rast.py
+
+This is an intermediate function. Call convertPubseedToRast instead.
+
+---> raw2faa.py
+
+Takes the tab-delimited file from RAST and converts it to an amino-acid fasta file
+
+---> raw2fna.py
+
+Takes the tab-delimted file from RAST and converts it to a nucleotide fasta file (only gene-encoring nucleotides end up in this fasta file).
+
+---> raw2processed.py
+
+Takes the tab-delimited file from RAST and processes it to include lengths of genes and which organism each gene belongs to.
+
+---> RaxML_wrapper.py
+
+A nice wrapper script for RAXML that abstracts away some of the complexity of getting the call correct and making sure you get the files you want out of it. Unlike raxml itself, takes FASTA alignments (not phylip) as input.
+
+---> replaceGeneNamesWithAliases.py
+
+Given a conversion table between gene names and aliases and a file in which to convert them, replaces all instances of each gene name with their corresponding aliases.
+
+---> replaceOrgWithAbbrev.py
+
+Replace organism names with their abbreviations (this is similar in reason to the replaceGeneNamesWithAliases.py - I might remove this one later).
+
+---> splitLine.py
+
+Split a space-delimited string into separate lines
+
+---> startDifference.py
+
+Compute minimum difference between consecutive genes in each contig. You can use this to find overlapping genes...
+
+---> tblastn_all_vs_all.py
+
+Run tblastn in parallel for all amino acids in one folder against all the genomes in another folder.
+
+
+##########################
+# Database access functions
+##########################
 
 I have written several functions to generate specific tables from the database. All of them MUST
 be run from the root directory so that they can correctly find the location of the sqlite database.
 
-Here is a description of them:
+TODO: Make an environment variable to optionally read and locate the database instead?
+
+Here is a description of them. See the individual function's help text for how to run them. Most functions expect something to be piped in and export something to stdout:
+
+--> db_compareClusters.py
+
+    (Work in progress)
+
+    Use this function to compare two different cluster runs. The function will tell you if a cluster is identical between two runs and, if not, what genes are added to or subtracted from each depending on the reference gene.
 
 --> db_findGenesWithInternalStops.py
 
@@ -125,12 +270,24 @@ Here is a description of them:
 
      Prints the genes to stdout along with the nucleic acid sequences...
 
+--> db_getAllBlastResults.py
+
+    Gets a table with all blast results (useful for piping into a program to calculate something based on all blast results rather than a subset of them)
+
 --> db_getAllClusterRuns.py
 
     Returns a list of cluster run IDs present in the database (use this function if you don't want to distinguish other analysis
     by what organisms are present in the clusters)
  
---> db_getBlastResSpecificOrgaisms.py
+--> db_getAllClustersSpecRun.py
+
+    Get a list of all of the run id, cluster id pairs for a specified run ID
+
+--> db_getBlastResultsBetweenSpecificGenes.py
+
+    Pull out all of the blast results in the database in which both the query AND the target gene are in the specified list.
+
+--> db_getBlastResultsBetweenSpecificOrgaisms.py
 
     Provide it a list of organisms (patterns) to match as input arguments. The script will 
     get all of the BLAST records for organisms that match the
@@ -151,6 +308,10 @@ Here is a description of them:
     python src/db_getBlastResSpecificOrganisms.py "acetivorans" "barkeri"
 
     will get all BLAST hits of acetivorans strains vs. barkeri strains (and each of those against themselves as well)
+
+--> db_getBlastResultsContainingGenes.py
+
+    Unlike db_getBlastResultsBetweenSpecificGenes.py, this function returns any blast results where either the query OR the target gene is one of the specified genes. Use to e.g. identify if genes in a cluster are also highly homologous to other clusters (which could indicate an issue with the clustering parameters)...
 
 --> db_getClusterGeneInformation.py
 
@@ -173,6 +334,10 @@ Here is a description of them:
     This command should be called with the same patterns that you provided in the "groups" file for best results (i.e. the same ones used to call
     db_specificOrganismClusterDriver.py)
 
+--> db_getClustersContainingGenes.py
+
+    Get a list of cluster / run ID pairs containing at least one of the specified genes.
+
 --> db_getClustersWithAnnotation.py
 
     Pipe in a run ID and provide annotation(s) to try to match, and this function will return any cluster containing at least one gene
@@ -182,6 +347,10 @@ Here is a description of them:
 
     python src/db_getClusterRxnIds.py "Methanosarcina" | python src/getClustersWithAnnotation.py
 
+--> db_getClustersWithNumGenes.py
+
+    Get a list of cluster / run ID pairs containing a specified number of genes.
+
 --> db_getCoreGeneClusters.py
 
     Pipe in a run ID and it will return all of the clusters containing exactly one copy of the gene for each organism that was used
@@ -189,6 +358,46 @@ Here is a description of them:
 
     This function only returns the run ID, cluster Id, gene ID and annotation. If you want more information than this, pipe the results of this into
     db_getClusterGeneInformation.py
+
+--> db_getGeneInformation.py
+
+    Get a "gene information" table containing sequences, location, annotation, etc. for a particular set of genes.
+
+--> db_getGeneNeighborhoods.py
+
+    Get information about all genes within a specified number of genes on the genome from the specified genes (regardless of the size of their spacers). As of this writing the number of genes specified must be less than or equal to 5.
+
+--> db_getGenesInClusters.py
+
+    Get a list of genes present in the specified clusters (cluster/run pairs).
+
+--> db_getGenesWithAnnotation.py
+
+    Get a list of all genes with annotation matching the specified annotation (not case-sensitive and can match any part of the annotation).
+
+--> db_getPresenceAbsenceTable_01.py
+
+    Make a presence/absence table for every gene in the database based on all available run IDs. 
+
+    In this particular version, the organism is given a 1 for a particular cluster if it has a representative in that cluster and a 0 if it does not.
+
+    Note - if an organism isn't used in a particular run ID it is given a 0 for all clusters.
+
+--> db_getPresenceAbsenceTable_pegs.py
+
+    Make a presence/absence table for every gene in the database based on all available run IDs. 
+
+    In this particular version, if the organism has any representatives in a particular cluster, the gene IDs are printed out in that cell (semicolon-delimited I think). If not, "NONE" is printed to the cell.
+
+    Note - if an organism isn't used in a particular run ID it is given a NONE for all clusters.
+
+--> db_makeArrowDiagram.py
+
+    Given a newick file and a specified run ID, makes a diagram in which the specified newick file is displayed next to its gene neighborhood. The gene neighborhood is colored according to the existence of genes in the same cluster within the specified clustering run.
+
+--> db_makeBlastScoreTable.py
+
+    Given a table of BLASTP results, makes a table of homology scores based on a variety of available metrics (minbit, maxbit, normhsp, ...). See the file for a description of available scores.
 
 --> db_specificOrganismClusterDriver.py
 

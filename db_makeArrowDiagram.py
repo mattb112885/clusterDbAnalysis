@@ -325,7 +325,7 @@ for node in t.traverse():
             F = faces.DynamicItemFace(makeArrowNode,30,30,300,30, direction, label, color)
             node.add_face(F, neighborPair[1] + MAXK+1, position="aligned")
             anno = geneToAnnote[label]
-            trimmedAnno = anno[0:30] + "\n" + anno[31:60]
+            trimmedAnno = anno[0:30] + "\n" + anno[30:60]
             F = faces.TextFace(trimmedAnno, ftype="Times", fsize=20)
             node.add_face(F, neighborPair[1] + MAXK + 1, position="aligned")
 

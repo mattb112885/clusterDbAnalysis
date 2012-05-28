@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# This is a pipe command.
+# Pipe in the "geneinfo" file.
+#
 # Will generate a FASTA file for every different cluster
 # in the results of "db_getClusterGeneInformation.py" ("infofile").
 # The fasta files are placed in "outputfolder"
@@ -16,21 +19,19 @@
 #
 
 import sys, os
+import fileinput
 
-if not len(sys.argv) == 4:
-    print "Usage: ./getClusterFastas.py [infofile] [fastafolder] [labelfolder]"
+if not len(sys.argv) == 3:
+    print "Usage: ./getClusterFastas.py [fastafolder] [labelfolder]"
     exit(2)
 
-infofile = sys.argv[1]
-outputfolder = sys.argv[2]
-labelfolder = sys.argv[3]
-
-s = open(infofile, "r")
+outputfolder = sys.argv[1]
+labelfolder = sys.argv[2]
 
 lastone = None
 fid = -1
 labelfid = -1
-for line in s:
+for line in fileinput.input("-"):
     spl = line.strip().split("\t")
     myrunid = spl[0]
     if not spl[1] == lastone:

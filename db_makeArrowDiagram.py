@@ -357,6 +357,9 @@ for node in t.traverse():
 
         # Dont' crash because of e.g. outgroups put in. We already warned about this so don't need to do it again.
         if not ( node.name in geneToNeighbors and node.name in geneToOrganism and node.name in geneToAnnote ):
+            # We still want to make the text face though so that it is visible!
+            F = faces.TextFace(node.name, ftype="Times", fsize=32)
+            node.add_face(F, 0, position="aligned")
             continue
 
         # Add an annotation text with larger font to replace the crappy size-10 ish font that comes by default...

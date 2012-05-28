@@ -42,7 +42,7 @@ NUMCORES = options.NCORES
 # Read run IDs from stdin
 s = []
 for line in fileinput.input("-"):
-    ln = line.strip().split("\t")
+    ln = line.strip('\n').split("\t")
     s.append(ln[0])
 unqruns = set(s) # Unique run IDs
 

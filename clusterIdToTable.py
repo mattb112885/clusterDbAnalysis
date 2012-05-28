@@ -27,4 +27,4 @@ clusterIds = sys.argv[1:]
 
 for line in fileinput.input("-"):
     for s in clusterIds:
-        print "%s\t%s" %(line.strip(), s)
+        print "%s\t%s" %(line.strip('\n'), s)

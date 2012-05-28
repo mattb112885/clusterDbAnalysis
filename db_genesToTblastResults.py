@@ -22,7 +22,7 @@ cur = con.cursor()
 # Get list of gene IDs
 geneids = []
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\n').split("\t")
     geneids.append(spl[gc])
 
 # Unique IDs

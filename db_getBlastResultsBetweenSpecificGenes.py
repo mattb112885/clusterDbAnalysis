@@ -22,7 +22,7 @@ cur = con.cursor()
 # Generate a table of BLAST results
 cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\n').split("\t")
     cur.execute("INSERT INTO desiredgenes VALUES (?);", (spl[gc], ) )
 
 # Generate a list of blast results with query matching one of the desiredgenes

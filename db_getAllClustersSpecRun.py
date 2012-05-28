@@ -19,7 +19,7 @@ con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()
 
 for line in fileinput.input("-"):
-    runid = line.strip()
+    runid = line.strip('\n')
     query = "SELECT * FROM clusters WHERE clusters.runid = ?;"
     cur.execute(query, (runid, ) )
     

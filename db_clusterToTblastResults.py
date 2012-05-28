@@ -29,7 +29,7 @@ cur = con.cursor()
 query = "CREATE TEMPORARY TABLE allclusters( runid VARCHAR(256), clusterid INT );"
 cur.execute(query);
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\n').split("\t")
     query = "INSERT INTO allclusters VALUES (?, ?);"
     con.execute(query, (spl[rc], spl[cc]))
     

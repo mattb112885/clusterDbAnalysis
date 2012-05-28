@@ -38,7 +38,7 @@ for line in open(args[0], "r"):
         geneToAliases[spl[0]] = "_%s" %(spl[1])
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\n').split("\t")
     if spl[geneColumn] in geneToAliases:
         spl[annoteColumn] += geneToAliases[spl[geneColumn]]
     print "\t".join(spl)

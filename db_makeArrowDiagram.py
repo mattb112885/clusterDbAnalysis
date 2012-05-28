@@ -275,6 +275,11 @@ if not atLeastOne:
 clusterToNumber = {}
 for node in t.traverse():
     if node.is_leaf():
+        # We don't want to just crash if we have genes that don't have data in our database
+        # (e.g. if we include an outgroup in our tree)
+        if not node.name in geneToNeighbors:
+            sys.stderr.write("WARNING: Gene %s in the tree was not present in the database - it will be ignored and not have neighbors specified! \n" %(node.name) )
+            continue
         pairList = geneToNeighbors[node.name]
         for pair in pairList:
             if not pair[0] in geneToCluster:
@@ -310,12 +315,18 @@ geneToAnnote["NONE"] = "NONE"
 sys.stderr.write("Adding arrow objects to leaves of the tree...\n")
 for node in t.traverse():
     if node.is_leaf():
+
+        # Dont' crash because of e.g. outgroups put in. We already warned about this so don't need to do it again.
+        if not ( node.name in geneToNeighbors and node.name in geneToOrganism and node.name in geneToAnnote ):
+            continue
+
         # Add an annotation text with larger font to replace the crappy size-10 ish font that comes by default...
         newname = "_".join( [ node.name, geneToOrganism[node.name], geneToAnnote[node.name] ] )
         F = faces.TextFace(newname, ftype="Times", fsize=32)
         node.add_face(F, 0, position="aligned")
 
         genename = node.name
+
         geneNeighbors = geneToNeighbors[genename]
         for neighborPair in geneNeighbors:
             label = neighborPair[0]
@@ -325,7 +336,7 @@ for node in t.traverse():
             F = faces.DynamicItemFace(makeArrowNode,30,30,300,30, direction, label, color)
             node.add_face(F, neighborPair[1] + MAXK+1, position="aligned")
             anno = geneToAnnote[label]
-            trimmedAnno = anno[0:30] + "\n" + anno[30:60]
+            trimmedAnno = anno[0:40] + "\n" + anno[40:80]
             F = faces.TextFace(trimmedAnno, ftype="Times", fsize=20)
             node.add_face(F, neighborPair[1] + MAXK + 1, position="aligned")
 

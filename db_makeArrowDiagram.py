@@ -20,6 +20,8 @@ if len(sys.argv) == 4:
         exit(2)
     if MAXK <= 0:
         print "ERROR: Invalid maximum number of genes away"
+else:
+    MAXK = 3
 
 # Import lots of stuff for drawing...
 from PyQt4 import QtCore

@@ -1,29 +1,55 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Lets read input arguments first.
 import sys
+import optparse
 
-if not len(sys.argv) == 3 and not len(sys.argv) == 4:
-    print "Usage: ./TutorialArrow.py [Newick File] [Output basename] [number of genes away (optional)]"
-    print "Pipe in a run ID [only one!] to use for coloring."
-    print "Output file is just a file name"
-    print "Usage of this function requlres you to have a UI (i.e. you must have an X server up and running)"
-    print "Number of genes away must be less than or equal to 5"
+####################################
+# Lets read input arguments first.
+####################################
+usage = "%prog [options] Newick_file . Default activity is to do nothing - one of -s, -p, or -d must be specified..."
+parser = optparse.OptionParser(usage=usage)
+parser.add_option("-n", "--neighborhood", help="Max number of genes away from target to display (D=3)", action="store", type="int", dest="MAXK", default=3)
+parser.add_option("-d", "--display", help="Display result", action="store_true", dest="display", default=False)
+parser.add_option("-s", "--savesvg", help="Convert the file to svg (requires -b)", action="store_true", dest="savesvg", default=False)
+parser.add_option("-p", "--savepng", help="Convert the file to png (requires -b, implies -s)", action="store_true", dest="savepng", default=False)
+parser.add_option("-b", "--basename", help="Base name for file outputs (ignored without -s or -p)", action="store", type="str", dest="basename", default=None)
+parser.add_option("-r", "--rootgene", help="Root on this gene (default = keep same root as nwk file).", action="store", type="str", dest="rootgene", default=None)
+parser.add_option("-i", "--runid", help="Run id (default: read from stdin)", action="store", type="str", dest="runid", default=None)
+(options, args) = parser.parse_args()
+
+# Must specify a newick file
+if len(args) < 1:
+    sys.stderr.write("ERROR: Newick file must be specified. Use -h for help details\n")
     exit(2)
 
-if len(sys.argv) == 4:
-    MAXK = int(sys.argv[3])
-    print MAXK
-    if MAXK > 5:
-        print "ERROR: Number of genes away must be <= 5"
-        exit(2)
-    if MAXK <= 0:
-        print "ERROR: Invalid maximum number of genes away"
-else:
-    MAXK = 3
+# Make sure the MAXK specified is possible given what we actually calculated to put into the database.
+MAXK = options.MAXK
+if MAXK > 5:
+    sys.stderr.write("ERROR: Number of genes away must be <= 5 (this is the max that was pre-calculated)\n")
+    exit(2)
+if MAXK <= 0:
+    sys.stderr.write("ERROR: Invalid number of genes away (must be more than 0)")
+    exit(2)
 
+# At least one of -p, -s, and -d must be specified
+if not ( options.savesvg or options.savepng or options.display):
+    sys.stderr.write("ERROR: At least one of -p, -s, or -d must be specified. Use -h for help details\n")
+    exit(2)
+
+# Must specify a base file name if you want to save svg or png
+if ( options.savesvg or options.savepng ) and options.basename == None:
+    sys.stderr.write("ERROR: Calling with -p (savepng) or -s (savesvg) requires specification of a base filename to save to\n")
+    exit(2)
+
+# Since we need SVG to get PNG the savepng option overrides the savesvg option
+if options.savepng:
+    options.savesvg = True
+
+####################################
 # Import lots of stuff for drawing...
+####################################
+
 from PyQt4 import QtCore
 from PyQt4.QtCore import QPointF
 from PyQt4.QtGui import QGraphicsRectItem, QGraphicsSimpleTextItem, \
@@ -35,8 +61,10 @@ import fileinput
 import sqlite3
 import os
 
+##################################################
 # Create a QT object that is shaped like an arrow
 # given its dimensions, directions, and color.
+##################################################
 def makeArrowNode(node, *args, **kargs):
     arrowLength = args[0][0]
     arrowWidth = args[0][1]
@@ -160,11 +188,26 @@ colorTable = [
 
 # Read Newick file
 sys.stderr.write("Reading tree file...\n")
-t = Tree(sys.argv[1])
+t = Tree(args[0])
 
-# Read geneinfo file (should include ALL of the genes across all the organisms)
-# We need it to include all the genes because we need annotations not only for the genes
-# on the tree but also for their neighbors.
+# If outgroup is specified, re-root now before doing anything else.
+# This will just fail if the specified protein isn't present in the tree.
+if not options.rootgene == None:
+    done = False
+    for node in t.traverse():
+        if node.name == options.rootgene:
+            t.set_outgroup(node)
+            done = True
+            break
+    if not done:
+        sys.stderr.write("ERROR: Specified outgroup %s not found in tree\n" %(options.rootgene))
+        exit(2)
+
+##############################################
+# Get various gene / organism / annotation / neighborhood / cluster info out of the database
+##############################################
+
+# Annotation and organism
 geneToAnnote = {}
 geneToOrganism = {}
 sys.stderr.write("Reading gene annotations and organisms from database...\n")
@@ -178,17 +221,11 @@ for l in cur:
     geneToAnnote[spl[0]] = spl[9]
     geneToOrganism[spl[0]] = spl[1]
 
-# Read neighborhood file - NOTE that we want BOTH strands
-# rather than just neighbors on the same strand for this
-# analysis. Make sure you call the correct function to generate
-# the neighborhood file!
-#
-# Also this should be a concatinated file.
+# Neighborhoods
 sys.stderr.write("Pulling gene neighborhoods out of the database...\n")
 
 cur.execute("SELECT * FROM neighborhoods;")
 geneToNeighbors = {}
-
 for l in cur:
     spl = [ str(s) for s in list(l) ]
     spl[2] = int(spl[2])
@@ -236,7 +273,6 @@ for gene in geneToNeighbors:
             newPairList.append(pair)
         geneToNeighbors[gene] = newPairList
 
-
 # Sort all of the neighborPair lists by k (number of genes away)
 # This ensures that the genes are actually listed in the same order!
 for gene in geneToNeighbors:
@@ -250,13 +286,14 @@ for gene in geneToNeighbors:
 
 sys.stderr.write("Gathering cluster information for specified run ID...\n")
 done = False
-runid = ""
-for line in fileinput.input("-"):
-    if done == True:
-        sys.stderr.write("ERROR: Must only pipe in ONE run ID\n")
-        exit(2)
-    done = True
-    runid = line.strip()
+runid = options.runid
+if runid == None:
+    for line in fileinput.input("-"):
+        if done == True:
+            sys.stderr.write("ERROR: Must only pipe in ONE run ID\n")
+            exit(2)
+        done = True
+        runid = line.strip('\n')
 
 cur.execute("SELECT * FROM clusters WHERE clusters.runid=?;", (runid, ) )
 atLeastOne = False
@@ -266,11 +303,11 @@ for l in cur:
     geneToCluster[str(l[2])] = str(l[1])
 
 if not atLeastOne:
-    sys.stderr.write("ERROR: piped in run ID not found in database\n")
+    sys.stderr.write("ERROR: Specified run ID %s not found in database\n" %(runid))
     exit(2)
 
 ############
-# Set up cluster list to have the most-used ones first
+# Set up cluster list to have the most-prevalent clusters colored first
 ############
 
 # Count instances of each cluster
@@ -352,19 +389,21 @@ ts.show_branch_support = True
 ts.show_leaf_name = False
 # The default width of the tree is too squished.
 ts.tree_width = 1000
-t.render("%s.svg" %(sys.argv[2]), tree_style=ts)
 
-# Convert the svg file into a high-quality (300 dpi) PNG file...
-# The PNG converter in ETE gives a terrible quality image
-# as does the "convert" function (which is probably what ETE uses)
-# so this is the best I could come up with...
-os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(sys.argv[2], sys.argv[2]) )
-# Then trim off the edges
-os.system("convert -trim %s_temp.png %s.png" %(sys.argv[2], sys.argv[2]))
-os.system("rm %s_temp.png" %(sys.argv[2]))
+if options.savesvg:
+    t.render("%s.svg" %(options.basename), tree_style=ts)
 
-# This is an interactive part. Uncomment this if you want interaction with the tree.
-# As of right now the interaction doesn't DO anything. I will consider making it a hover-over thing
-t.show(tree_style=ts)
+if options.savepng:
+    # Convert the svg file into a high-quality (300 dpi) PNG file...
+    # The PNG converter in ETE gives a terrible quality image
+    # as does the "convert" function (which is probably what ETE uses)
+    # so this is the best I could come up with...
+    os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(options.basename, options.basename) )
+    # Then trim off the edges
+    os.system("convert -trim %s_temp.png %s.png" %(options.basename, options.basename))
+    os.system("rm %s_temp.png" %(options.basename))
+
+if options.display:
+    t.show(tree_style=ts)
 
 con.close()

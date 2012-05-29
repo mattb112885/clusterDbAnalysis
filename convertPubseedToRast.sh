@@ -30,4 +30,10 @@ cat "${ORGANISM}.tbl" | svr_fasta -c 1 | svr_fasta -c 1 -protein > "${ORGANISM}.
 # This function will convert as best it can from the tabular fromat of the pubseed
 # (with sequences added) into the RAST "raw" format.
 
-cat "${ORGANISM}.int" | ./pubseed2rast.py > "${ORGANISM}.rast_txt"
+FILESIZE=$(du ${ORGANISM}.int | cut -f 1)
+if [ ${FILESIZE} -eq 0 ]; then
+    echo "Error: No proteins available for organism ${ORGANISM}"
+    exit 0;
+fi
+
+cat "${ORGANISM}.int" | ./src/pubseed2rast.py > "${ORGANISM}.rast_txt"

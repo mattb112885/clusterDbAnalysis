@@ -42,7 +42,7 @@ sys.stderr.write("Reading best hits and calculating scores... this could take so
 n = 0
 for s in cur:
 
-    if n - (n/10000)*10000 == 0:
+    if n - (n/100000)*100000 == 0:
         sys.stderr.write("%d\n" %(n) )
 
     ls = [ str(k) for k in s ]
@@ -70,7 +70,11 @@ for s in cur:
 sys.stderr.write("Calculating bidirectional bests...\n")
 for pair in Best_pairs:
     forward_hit = Best_pairs[pair]
-    backward_hit = Best_pairs(forward_hit[0], pair[1])
+    back_pair = ( forward_hit[0], pair[1] )
+    if not back_pair in Best_pairs:
+        sys.stderr.write("WARNING: Hit %s,%s,%s,%1.4f had no backwards hit\n" %(pair[0], forward_hit[0], pair[1], forward_hit[1]))
+        continue
+    backward_hit = Best_pairs[ back_pair ]
     # Bidirectional best: The best hit in the forward and backward direction was the same!
     # I print the forward and backward scores because E-values aren't necessarily symmetric...
     if backward_hit[0] == pair[0]:

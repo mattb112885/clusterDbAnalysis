@@ -15,8 +15,8 @@ CREATE TABLE rawdata(
        "aliases" VARCHAR(2048),
        "figfam" VARCHAR(128),
        "evidence" VARCHAR(128),
-       "nucseq" VARCHAR(45000),
-       "aaseq" VARCHAR(15000)
+       "nucseq" VARCHAR(90000),
+       "aaseq" VARCHAR(30000)
        );
 
 CREATE TABLE blastresults(
@@ -58,7 +58,7 @@ CREATE TABLE geneinfo(
        FOREIGN KEY(organismid) REFERENCES organisms(organismid),
        FOREIGN KEY(organism) REFERENCES organisms(organism),
        FOREIGN KEY(organismabbrev) REFERENCES organisms(organismabbrev),
-       CHECK (aalen < 15000)
+       CHECK (aalen < 30000)
        );
 
 /* Note - distance is number of genes */

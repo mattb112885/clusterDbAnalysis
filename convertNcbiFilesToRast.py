@@ -2,7 +2,7 @@
 
 #####
 #
-# NITS / Things I need to fix:
+# NITS / Things I need to fix. PLEASE READ THIS CAREFULLY BEFORE RUNNING.
 #
 #####
 #
@@ -22,7 +22,8 @@
 #
 #####
 #
-# THIS FUNCTION DOES NOT YET DEAL WITH TRNA / RRNA.
+# THIS FUNCTION DOES NOT YET DEAL WITH TRNA / RRNA. IT RETURNS PROTEINS ONLY
+#
 # These are in the frn file (not the ffn file), and the location formatting is different.
 # Unlike the proteins, there is no "c" for - strand genes, and the DNA sequence
 # in the RNA FASTA file is not complemented
@@ -68,10 +69,18 @@
 from Bio import SeqIO
 import sys
 import re
+import random
 
 if not len(sys.argv) == 4:
-    print "Usage: convertGenbankToRast.py [gff file] [faa file] [ffn file]"
+    print "Usage: convertGenbankToRast.py [gff file] [faa file] [ffn file] > [RAST_tab_delmited_file]"
     exit(2)
+
+# org_id - we make a nice big number
+# (say, 10000000) that is too big for actual RAST output
+# and add a random number to it.
+org_id = "%d.%d" %(10000000 + random.randint(0,9999999), 1 + random.randint(0,10) )
+
+sys.stderr.write("IMPORTANT: Add the following organism ID to the organisms file: %s \n" %(org_id))
 
 aaHeaderToSeq = {}
 faa_recs = SeqIO.parse(open(sys.argv[2], "r"), "fasta")
@@ -85,7 +94,6 @@ for record in ffn_recs:
     nucHeaderToSeq[record.description] = str(record.seq)
 
 gffIdFinder = re.compile("protein_id=([^;]*)")
-rnaIdFinder = re.compile("ID=([^;]*)")
 rnaFunctionFinder = re.compile("product=([^;]*)")
 
 # I haven't dealt with RNAs in the pubseed converter either, and
@@ -94,6 +102,8 @@ rnaFunctionFinder = re.compile("product=([^;]*)")
 # 
 # Until I understand that, this function will deal with proteins only.
 acceptableTypes = [ "CDS" ]
+
+feature_counter = 1
 
 for line in open(sys.argv[1], "r"):
     # Discard comment lines
@@ -148,7 +158,7 @@ for line in open(sys.argv[1], "r"):
         # for RNAs we need still need an ID number - it'll just be "rnaxx" but whatever. They're arbitrary anyway...
         # But we don't bother looking for an AA sequence since it's an RNA...
         function = rnaFunctionFinder.search(idstring).group(1)
-        feature_id = rnaIdFinder.search(idstring).group(1)
+        feature_id = "fig|%s.rna.%d" %(org_id, feature_counter)
     else:
         # What we actually want to match is the ID, not
         # the "protein_id=" or the ";"
@@ -169,6 +179,9 @@ for line in open(sys.argv[1], "r"):
         if not done:
             sys.stderr.write("WARNING: No sequence found in the fasta file for protein ID %s ... \n" %(protId) )
             continue
+        # Since many scripts I wrote expect a very specific format for the protein IDs
+        # I go ahead and assign one.
+        feature_id = "fig|%s.peg.%d" %(org_id, feature_counter)
 
     # Nucleotide sequences must be matched up by location on the chromosome.
     # This information is saved in a particular format in the ffn file...
@@ -197,6 +210,9 @@ for line in open(sys.argv[1], "r"):
         # format for encoding their location is not the same.
         sys.stderr.write("WARNING: No sequence found in the fasta file for location: %s ... \n" %(stri) )
         continue
+
+    # Now that we have success, lets increase our feature counter.
+    feature_counter += 1
 
     # Generate a new line to print out
     ln = "\t".join( [ contig, feature_id, feature_type, location, start, stop, strand, function, "", "", "", nucseq, protseq])

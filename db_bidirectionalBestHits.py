@@ -43,12 +43,11 @@ n = 0
 for s in cur:
 
     if n - (n/10000)*10000 == 0:
-        print n
+        sys.stderr.write("%d\n" %(n) )
 
     ls = [ str(k) for k in s ]
     # (Query gene, target organism)
     mypair = ( ls[0], ls[14] )
-
     # Smaller E-values are better (hence the - sign)
     if options.method == "evalue":
         myscore = -float(ls[10])

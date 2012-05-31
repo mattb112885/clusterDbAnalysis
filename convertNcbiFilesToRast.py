@@ -4,6 +4,9 @@
 #
 # NITS / Things I need to fix. PLEASE READ THIS CAREFULLY BEFORE RUNNING.
 #
+# You MUST concatinate all plasmids, chromosomes, contigs, etc. before running this
+# or the gene IDs we make in the expected format will not be incremented correctly.
+#
 #####
 #
 # THIS FUNCTION WILL NOT WORK WITH EUKARYOTES since it does not yet deal with spliced genes properly. 
@@ -69,18 +72,10 @@
 from Bio import SeqIO
 import sys
 import re
-import random
 
 if not len(sys.argv) == 4:
     print "Usage: convertGenbankToRast.py [gff file] [faa file] [ffn file] > [RAST_tab_delmited_file]"
     exit(2)
-
-# org_id - we make a nice big number
-# (say, 10000000) that is too big for actual RAST output
-# and add a random number to it.
-org_id = "%d.%d" %(10000000 + random.randint(0,9999999), 1 + random.randint(0,10) )
-
-sys.stderr.write("IMPORTANT: Add the following organism ID to the organisms file: %s \n" %(org_id))
 
 aaHeaderToSeq = {}
 faa_recs = SeqIO.parse(open(sys.argv[2], "r"), "fasta")
@@ -95,23 +90,40 @@ for record in ffn_recs:
 
 gffIdFinder = re.compile("protein_id=([^;]*)")
 rnaFunctionFinder = re.compile("product=([^;]*)")
+taxIdFinder = re.compile("Dbxref=taxon:(\d*)")
 
 # I haven't dealt with RNAs in the pubseed converter either, and
 # it is not at all clear to me how the frn file (which contains the 
 # nucleotide sequences) works.
 # 
 # Until I understand that, this function will deal with proteins only.
-acceptableTypes = [ "CDS" ]
+acceptableTypes = [ "CDS", "region" ]
 
 feature_counter = 1
+
+# We will parse this out of the "region"-tagged line, which I hope is the first one...
+# If there are more than one region line they should at LEAST all link to the same
+# organism, and in my experience it's always the first line.
+org_id = "" 
 
 for line in open(sys.argv[1], "r"):
     # Discard comment lines
     if line.startswith("#"):
         continue
+
     spl = line.strip().split("\t")
-    # We want the actual gene locations only.
+
+    # We want the actual coding regions only.
     if not spl[2] in acceptableTypes:
+        continue
+
+    # Only the region line has a link to the TaxID.
+    # We need to pull the TaxID out because it gives us a stable id consistent with the PubSEED
+    # After pulling it out once we don't need to do it again.
+    if spl[2] == "region" and org_id == "":
+        org_id = "%s.%d" %(taxIdFinder.search(spl[8]).group(1), 1)
+        continue
+    elif spl[2] == "region":
         continue
 
     # Save data we actually need from the gff file
@@ -120,7 +132,6 @@ for line in open(sys.argv[1], "r"):
     feature_type = ""
     if spl[2] == "CDS":
         feature_type = "peg"
-
     location = "%s_%s_%s" %(spl[0], spl[3], spl[4])
 
     # RAST uses a different convention for "-" strand genes start and stop than
@@ -158,6 +169,9 @@ for line in open(sys.argv[1], "r"):
         # for RNAs we need still need an ID number - it'll just be "rnaxx" but whatever. They're arbitrary anyway...
         # But we don't bother looking for an AA sequence since it's an RNA...
         function = rnaFunctionFinder.search(idstring).group(1)
+        if org_id == "":
+            sys.stderr.write("ERROR: I could not find an organism ID before trying to write protein IDs!\n")
+            exit(2)
         feature_id = "fig|%s.rna.%d" %(org_id, feature_counter)
     else:
         # What we actually want to match is the ID, not
@@ -181,6 +195,9 @@ for line in open(sys.argv[1], "r"):
             continue
         # Since many scripts I wrote expect a very specific format for the protein IDs
         # I go ahead and assign one.
+        if org_id == "":
+            sys.stderr.write("ERROR: I could not find an organism ID before attempting to write protein IDs!\n")
+            exit(2)
         feature_id = "fig|%s.peg.%d" %(org_id, feature_counter)
 
     # Nucleotide sequences must be matched up by location on the chromosome.
@@ -217,3 +234,6 @@ for line in open(sys.argv[1], "r"):
     # Generate a new line to print out
     ln = "\t".join( [ contig, feature_id, feature_type, location, start, stop, strand, function, "", "", "", nucseq, protseq])
     print ln
+
+sys.stderr.write("IMPORTANT: Add the following organism ID to the organisms file: %s \n" %(org_id))
+

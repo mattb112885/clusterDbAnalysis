@@ -13,18 +13,23 @@
 #
 
 import sqlite3, fileinput, re
+import optparse
 
-# FIXME: Option for organism column
+description = "Calculates core genes for all available cluster runs from a piped-in list of organisms (NOT organism IDs)"
+parser = optparse.OptionParser(description=description)
+parser.add_option("-o", "--orgcol", help="Column number for organism (start from 1. D = 1)", action="store", type="int", dest="orgcol", default=1)
 
-con = sqlite3.connect("db/methanosarcina")
-cur = con.cursor()
+(options, args) = parser.parse_args()
 
-oc = 0
+oc = options.orgcol - 1
 
 orgs = []
 for line in fileinput.input("-"):
     spl = line.strip().split("\t")
     orgs.append(spl[oc])
+
+con = sqlite3.connect("db/methanosarcina")
+cur = con.cursor()
 
 cur.execute("DROP TABLE IF EXISTS myorganisms;")
 cur.execute("DROP TABLE IF EXISTS clusterorgs_my;")

@@ -36,7 +36,7 @@ if options.name == None:
 
 runid = options.name
 if len(runid) > 64:
-    print sys.stderr.write("WARNING: Resulting clusterID is too long - will truncate to 64 characters")
+    sys.stderr.write("WARNING: Resulting clusterID is too long - will truncate to 64 characters\n")
     runid = runid[0:64]
 
 rowIdx = 1

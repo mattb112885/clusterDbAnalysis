@@ -381,13 +381,19 @@ for node in t.traverse():
             trimmedAnno = anno[0:40] + "\n" + anno[40:80]
             F = faces.TextFace(trimmedAnno, ftype="Times", fsize=20)
             node.add_face(F, neighborPair[1] + MAXK + 1, position="aligned")
+    else:
+        # Make the branch support bigger
+        F = faces.TextFace(node._support, ftype="Times", fsize=32)
+        node.add_face(F, 0, position="branch-top")
+
 
 # Note - PDF and PNG export are both horrid-quality - I will try to fix this but for now I'll just export to SVG...
 # My suggestion is to find something that doesn't crash and that isn't horrible quality to convert this to another format.
 # Is there such a thing though??? Sigh...
 ts = TreeStyle()
-# We DO want to show bootstraps
-ts.show_branch_support = True
+# We DO want to show bootstraps but we already put bigger fond on those up above.
+# No sense doing it again.
+ts.show_branch_support = False
 # We'll be putting thse in separately
 ts.show_leaf_name = False
 # The default width of the tree is too squished.

@@ -31,7 +31,7 @@ parser.add_option("-n", "--name", help="Run name (should have descriptions of In
 (options, args) = parser.parse_args()
 
 if options.name == None:
-    sys.stderr.write("ERROR in flattenClusterFile: -I, -c, and -m are all required")
+    sys.stderr.write("ERROR in flattenClusterFile: -n is required")
     exit(2)
 
 runid = options.name

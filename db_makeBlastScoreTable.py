@@ -36,6 +36,7 @@ validmethods = ['minbit', 'maxbit', 'avgbit', 'normhsp']
 parser = optparse.OptionParser()
 parser.add_option("-m", "--method", help="Method name", action="store", type="str", dest="method", default=None)
 parser.add_option("-c", "--cutoff", help="Score cutoff to use", action="store", type="float", dest="cutoff", default=None)
+parser.add_option("-n", "--noprint", help="Set this flag if you do not want to print edges less than the cutoff as zeros (default = False - print those edges", action="store_true", dest="noprint", default=False)
 (options, args) = parser.parse_args()
 
 if not options.method in validmethods:
@@ -67,6 +68,9 @@ for line in fileinput.input("-"):
         score = normhsp(bitscore, hsplen)
 
     if score < options.cutoff:
-        score = 0
+        if options.noprint:
+            continue
+        else:
+            score = 0
 
     print "%s\t%s\t%1.3f" % (qgene, tgene, score)

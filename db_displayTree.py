@@ -82,8 +82,8 @@ if not options.rootorg == None:
             t.set_outgroup(node)
             done = True
     if not done:
-        sys.stderr.write("ERROR: No representatives of specified organism %s found - are you using the organism name instead of the ID?\n" %(options.rootorg) )
-        exit(2)
+        sys.stderr.write("WARNING No representatives of specified organism %s found - are you using the organism name instead of the ID?\n" %(options.rootorg) )
+#        exit(2)
 
 ##############################################
 # Get various gene / organism / annotation / neighborhood / cluster info out of the database
@@ -103,10 +103,11 @@ for l in cur:
     geneToAnnote[spl[0]] = spl[9]
     geneToOrganism[spl[0]] = spl[1]
 
-#############
-# Add actual arrow objects to the tree
-#############
-sys.stderr.write("Adding arrow objects to leaves of the tree...\n")
+######################
+# Add annotations and
+# larger bootstrap values to tree
+######################
+
 for node in t.traverse():
     if node.is_leaf():
         # Dont' crash because of e.g. outgroups put in. We already warned about this so don't need to do it again.

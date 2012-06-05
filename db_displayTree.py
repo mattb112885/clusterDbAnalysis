@@ -7,6 +7,7 @@
 
 import sys
 import optparse
+import os
 
 ####################################
 # Lets read input arguments first.
@@ -134,8 +135,19 @@ ts = TreeStyle()
 ts.show_branch_support = False
 # We'll be putting these in separately
 ts.show_leaf_name = False
+
 # The default width of the tree is too squished.
-ts.tree_width = 1000
+# Lets determine a width based on the maximum distance to the root.
+maxdist = 0
+root = t.get_tree_root()
+for node in t.traverse():
+    if node.is_leaf():
+        dist = t.get_distance(node, root)
+        if dist > maxdist:
+            maxdist = dist
+
+# Heuristic... I'll play with this.
+ts.tree_width = maxdist * 20
 
 if options.savenewick:
     t.write(outfile="%s.nwk" %(options.basename), format=0)

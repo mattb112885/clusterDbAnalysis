@@ -15,8 +15,9 @@
 import sqlite3, fileinput, re
 import optparse
 
+usage = "%prog [options] < organism_list > list_of_core_clusters"
 description = "Calculates core genes for all available cluster runs from a piped-in list of organisms (NOT organism IDs)"
-parser = optparse.OptionParser(description=description)
+parser = optparse.OptionParser(description=description, usage=usage)
 parser.add_option("-o", "--orgcol", help="Column number for organism (start from 1. D = 1)", action="store", type="int", dest="orgcol", default=1)
 
 (options, args) = parser.parse_args()

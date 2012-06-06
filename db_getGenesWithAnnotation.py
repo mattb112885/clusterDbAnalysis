@@ -7,8 +7,8 @@
 
 import optparse, sqlite3
 
-usage = "%prog \"Annotation 1\" \"Annotation 2\" ..."
-description = "Given list of run IDs, returns a list of genes and clusters containing given word(s) in the annotation"
+usage = "%prog \"Annotation 1\" \"Annotation 2\" ... > [Gene_id_list]"
+description = "Get a list of genes in the database matching at least one of the specified annotations (Note - does not have to match ALL of them)"
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()
 

@@ -10,7 +10,9 @@
 
 import fileinput, sqlite3, optparse, os
 
-parser = optparse.OptionParser()
+usage = "%prog -n numgenes [options] < run_ids > clusters_with_specified_num_genes"
+description = "Get all of the clusters with the specified number of genes in the specified cluster runs"
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--rcolumn", help="Column number (start from 1) for run ID", action="store", type="int", dest="runcolumn", default=1)
 parser.add_option("-n", "--numcluster", help="Desired number of genes in each cluster to extract", action="store", type="int", dest="numcluster", default=None)
 (options, args) = parser.parse_args()

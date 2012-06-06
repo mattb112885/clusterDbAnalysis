@@ -3,11 +3,20 @@
 # Generates a table that looks like this:
 #
 #[]	    []	    [Org 1] [Org 2]    ...  [Org n]
-#[RunID]    [ClID]  [+/-]   [+/-]      ...  [+/-]
+#[RunID]    [ClID]  [0/1]   [0/1]      ...  [0/1]
 #
 # from the "clusterorgs"
+#
+# Does not take any input arguments.
 
 import sqlite3
+import optparse
+
+# This is only for self-documenting purposes - this function takes no arguments.
+usage="%prog > presence_absence_01_table"
+description="Generates a 0/1 presence/absence table for every cluster in every run in the database. This one is the one you should use as a starting point for a presence/absence fasta file if you want to make a tree out of that. Takes no input arguments and exports the table to stdout. NOTE: Any organisms not included in a cluster run will be given 0's for all clusters in that run - be aware of this!"
+parser = optparse.OptionParser(usage=usage, description=description)
+(options,args) = parser.parse_args()
 
 con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()

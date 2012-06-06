@@ -8,6 +8,13 @@
 # from the "clusterorgs"
 
 import sqlite3
+import optparse
+
+# This is only for self-documenting purposes - this function takes no arguments.                                                                                                                              
+usage="%prog > presence_absence_+-_table"
+description="Generates a +/- presence/absence table for every cluster in every run in the database. Takes no input arguments and exports the table to stdout. NOTE: Any organisms not included in a cluster run will be given -'s for all clusters in that run - be aware of this!"
+parser = optparse.OptionParser(usage=usage, description=description)
+(options,args) = parser.parse_args()
 
 con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()

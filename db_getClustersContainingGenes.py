@@ -10,7 +10,9 @@
 
 import sqlite3, fileinput, optparse
 
-parser = optparse.OptionParser()
+usage = "%prog [options] < gene_ids > clusters_containing_genes"
+description = "Given a list of gene IDs, gets a list of clusters containing those genes (in all run IDs)"
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
 (options, args) = parser.parse_args()
 gc = options.genecolumn - 1 # Convert to Pythonic indexes                                                                                                                                                      

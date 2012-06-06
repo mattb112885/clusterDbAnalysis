@@ -10,7 +10,7 @@
 
 import sqlite3, optparse
 
-usage = "%prog [options] > run_id_list"
+usage = "%prog > run_id_list"
 description = "Return list of all run IDs from the database"
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()

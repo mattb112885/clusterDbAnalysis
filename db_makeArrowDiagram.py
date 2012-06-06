@@ -7,8 +7,11 @@ import optparse
 ####################################
 # Lets read input arguments first.
 ####################################
-usage = "%prog [options] Newick_file . Default activity is to do nothing - one of -s, -p, or -d must be specified..."
-parser = optparse.OptionParser(usage=usage)
+
+usage = "%prog [options] Newick_file < runid or %prog -i runid [options] Newick_file . Default activity is to do nothing - one of -s, -p, or -d must be specified..."
+description = "Draws gene context with specified number of genes as arrows with the appropraite direction (not to scale) alongside a phylogenetic tree. Only can draw arrows if the IDs in the tree agree with what is available in the database but does not crash when outgroups are also present (just nothing is drawn)."
+
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--neighborhood", help="Max number of genes away from target to display (D=3)", action="store", type="int", dest="MAXK", default=3)
 parser.add_option("-d", "--display", help="Display result", action="store_true", dest="display", default=False)
 parser.add_option("-s", "--savesvg", help="Convert the file to svg (requires -b)", action="store_true", dest="savesvg", default=False)

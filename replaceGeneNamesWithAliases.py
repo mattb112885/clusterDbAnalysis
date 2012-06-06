@@ -11,17 +11,25 @@
 
 import sys
 import fileinput
+import optparse
 
-if not len(sys.argv) == 2:
-    print "Usage: replaceGeneInNewick [Replacement table]"
-    exit(2)
+description="Replace one name of a gene with another name as given in a specified replacement table"
+usage="%prog (options) replacement_table < file > file_with_geneids_replaced"
+parser = optparse.OptionParser()
+parser.add_option("-n", "--nooriginal", help="Set this flag to NOT keep the original name. To use this the new aliases must be unique (D=False)", action="store_true", dest="nooriginal", default=False)
+(options, args) = parser.parse_args()
+
+transfile = args[0]
 
 newickString = ''.join( [ line.strip() for line in fileinput.input("-") ] )
-
 geneToAnnotation = {}
 for line in open(sys.argv[1], "r"):
     spl = line.strip().split("\t")
     geneToAnnotation[spl[0]] = spl[1]
+
+if options.nooriginal and not len(geneToAnnotation) == len(set(geneToAnnotation.values())):
+    sys.stderr.write("ERROR: Replaced aliases must be unique when original names are not kept\n")
+    exit(2)
 
 # Remove special characters that can confound the newick parser from the annotation strings.
 # Replace with underscores
@@ -33,7 +41,10 @@ for gene in geneToAnnotation:
 # Actually replace the annotations now. We need to keep the original ID as well to make sure the names stay unique
 # (grumble grumble)
 for gene in geneToAnnotation:
-    newickString = newickString.replace(gene, gene + "_" + geneToAnnotation[gene])
+    if options.nooriginal:
+        newickString = newickString.replace(gene, geneToAnnotation[gene])
+    else:
+        newickString = newickString.replace(gene, gene + "_" + geneToAnnotation[gene])
 
 print newickString
     

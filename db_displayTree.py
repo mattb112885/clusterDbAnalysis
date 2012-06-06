@@ -13,7 +13,8 @@ import os
 # Lets read input arguments first.
 ####################################
 usage = "%prog [options] Newick_file . Default activity is to do nothing - one of -s, -p, -n, or -d must be specified..."
-parser = optparse.OptionParser(usage=usage)
+description="Display a tree with annotations and specified root and formats"
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-d", "--display", help="Display result", action="store_true", dest="display", default=False)
 parser.add_option("-s", "--savesvg", help="Convert the file to svg (requires -b)", action="store_true", dest="savesvg", default=False)
 parser.add_option("-p", "--savepng", help="Convert the file to png (requires -b, implies -s)", action="store_true", dest="savepng", default=False)

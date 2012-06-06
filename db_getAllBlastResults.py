@@ -5,6 +5,12 @@
 # 
 
 import sqlite3
+import optparse
+
+usage="%prog > all_blast_results"
+description="Print all blast results available in the database (without further filtering)"
+parser = optparse.OptionParser(usage=usage, description=description)
+(options, args)=parser.parse_args()
 
 con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()

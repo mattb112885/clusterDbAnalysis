@@ -12,8 +12,9 @@ import optparse
 import sys
 import math
 
-description = "Return a list of bidirectional best blast hits based on the specified scoring criteria"
-parser = optparse.OptionParser(description=description)
+usage="%prog [options] > BBH_table"
+description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"
+parser = optparse.OptionParser(description=description, usage=usage)
 parser.add_option("-m", "--method", help="Scoring metric to use to define best hit (D=evalue)", action="store", type="str", dest="method", default="evalue")
 (options, args) = parser.parse_args()
 

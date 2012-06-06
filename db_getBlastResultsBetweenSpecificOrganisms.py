@@ -14,7 +14,7 @@
 
 import sqlite3, optparse
 
-usage = "%prog \"Organism 1\" \"Organism 2\" ..."
+usage = "%prog \"Organism 1\" \"Organism 2\" ... > blast_results"
 description = "Given list of organism keywords to match, returns a list of BLAST results between genes only in organisms matching ALL of the keywords. Use ! for NOT"
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()

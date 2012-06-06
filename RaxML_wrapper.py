@@ -21,8 +21,9 @@ from Bio import AlignIO
 from Bio import SeqIO
 from optparse import OptionParser
 
+usage="%prog [options] < FASTA_file > Newick_file"
 description = "Wrapper for RAXML to take care of some nits (takes input in FASTA format and does not discard existing gene names; takes care of putting in seed arguments for you)."
-parser = OptionParser(description=description)
+parser = OptionParser(description=description,usage=usage)
 parser.add_option("-b", "--bootstraps", help="Number of bootstraps (D=0)", action="store", type="int", dest="NUMBOOTS", default=0)
 parser.add_option("-T", "--numthreads", help="Number of threads, must be more than 1 (D=2)", action="store", type="int", dest="NTHREADS", default=2)
 parser.add_option("-k", "--nocleanup", help="Set this flag to keep intermediate RAXML and PHYLIP files (D=false, delete these files)", action="store_false", dest="CLEANUP", default=True)

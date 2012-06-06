@@ -10,7 +10,7 @@
 
 import sqlite3, optparse
 
-usage = "%prog"
+usage = "%prog > [genes_with_internal_stops]"
 description="Find genes with internal stops that are present in the database. Internal stops are defined as internal TAG, TGA, or TAA codons"
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()

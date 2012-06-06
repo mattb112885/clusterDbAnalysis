@@ -10,7 +10,8 @@ import fileinput
 import optparse
 
 description = "Add the organism name to a tab-delimited file containing gene IDs"
-parser = optparse.OptionParser(description=description)
+usage="%prog [optiopns] < gene_ids > gene_ids_with_organism"
+parser = optparse.OptionParser(description=description, usage=usage)
 parser.add_option("-g", "--genecol", help="Column number for gene IDs starting from 1 (D=1)", action="store", type="int", dest="genecol", default=1)
 
 (options, args) = parser.parse_args()

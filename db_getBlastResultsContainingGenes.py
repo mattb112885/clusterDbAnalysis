@@ -11,11 +11,12 @@
 
 import fileinput, optparse, sqlite3
 
-usage = "%prog "
-description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"
+usage = "%prog [options] < gene_ids > blast_results"
+description = "Given list of genes to match, returns a list of BLAST results containing any gene ID in your list as either a query or a target (for blast results only BETWEEN the query genes, see db_getBlastResultsBetweenSpecificGenes.py)"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
 (options, args) = parser.parse_args()
+
 gc = options.genecolumn - 1
 
 con = sqlite3.connect("db/methanosarcina")

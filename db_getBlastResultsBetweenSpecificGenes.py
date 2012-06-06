@@ -9,7 +9,7 @@
 
 import sqlite3, optparse, fileinput
 
-usage = "%prog "
+usage = "%prog [options] < gene_ids > blast_results"
 description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)

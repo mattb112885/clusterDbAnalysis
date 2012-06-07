@@ -152,29 +152,22 @@ ts.tree_width = maxdist * 20
 
 # Make ordering the closer for identical trees.
 # Direction = 0 - make the outgroup on top.
-t.ladderize()
+t.ladderize(direction=0)
 
 # Ladderize doesn't always break ties the same way. Lets fix that, shall we?
+# I break ties according to the names of leaves descended from a given node.
+# Essentially this amounts to sorting first by number of branches and then by alphabetical order
 for node in t.traverse(strategy="levelorder"):
     if not node.is_leaf():
         children = node.get_children()
         if not len(children) == 2:
             sys.stderr.write("INTERNAL ERROR: Should always have 2 children per node?\n")
             exit(2)
-        desc0 = children[0].get_descendants()
-        desc1 = children[1].get_descendants()
-        # We only have to be concerned if they are the same - otherwise, it will always come out the same in the ladderize function
-        if len(desc0) == len(desc1):
-            names0 = set()
-            names1 = set()
-            for desc in desc0:
-                if desc.is_leaf():
-                    names0.add(desc.name)
-            names0 = "".join(list(sorted(names0)))
-            for desc in desc1:
-                if desc.is_leaf():
-                    names1.add(desc.name)
-            names1 = "".join(list(sorted(names1)))
+        nl0 = len(children[0].get_leaves())
+        nl1 = len(children[1].get_leaves())
+        if nl0 == nl1:
+            names0 = "".join(sorted(children[0].get_leaf_names()))
+            names1 = "".join(sorted(children[1].get_leaf_names()))
             if names0 > names1:
                 node.swap_children()
 

@@ -160,9 +160,11 @@ t.ladderize(direction=0)
 for node in t.traverse(strategy="levelorder"):
     if not node.is_leaf():
         children = node.get_children()
+        print children
         if not len(children) == 2:
-            sys.stderr.write("INTERNAL ERROR: Should always have 2 children per node?\n")
-            exit(2)
+            sys.stderr.write("WARNING: Node found with more than two children... Should always have 2 children per node?\n")
+            continue
+#            exit(2)
         nl0 = len(children[0].get_leaves())
         nl1 = len(children[1].get_leaves())
         if nl0 == nl1:

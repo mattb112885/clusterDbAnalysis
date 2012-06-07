@@ -412,6 +412,27 @@ for node in t.traverse():
 # This heuristic seems to work pretty well 
 ts.tree_width = maxdist * 20
 
+# Make ordering the closer for identical trees.
+# Start by sorting by number of branches...
+t.ladderize(direction=0)
+
+# Ladderize doesn't always break ties the same way. Lets fix that, shall we?
+# I break ties according to the names of leaves descended from a given node.
+# Essentially this amounts to sorting first by number of branches and then by alphabetical order
+for node in t.traverse(strategy="levelorder"):
+    if not node.is_leaf():
+        children = node.get_children()
+        if not len(children) == 2:
+            sys.stderr.write("INTERNAL ERROR: Should always have 2 children per node?\n")
+            exit(2)
+        nl0 = len(children[0].get_leaves())
+        nl1 = len(children[1].get_leaves())
+        if nl0 == nl1:
+            names0 = "".join(sorted(children[0].get_leaf_names()))
+            names1 = "".join(sorted(children[1].get_leaf_names()))
+            if names0 > names1:
+                node.swap_children()
+
 if options.savesvg:
     t.render("%s.svg" %(options.basename), tree_style=ts)
 

@@ -9,11 +9,11 @@ from Bio import SeqIO
 import optparse
 import sys
 
-usage = "%prog -gb [genbankefile] -tsv [tab-delimited file from RAST]"
-description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"
+usage = "%prog -gb [genbank_file] -tsv [tab-delimited file from RAST]"
+description = "Add gene IDs from the RAST tsv file to the genbank file. Only works if the contig name is short enough."
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.add_option("--tsv", help="Tab-delimited file from RAST", action="store", type="string", dest="tsv")
-parser.add_option("--gb",  help="GENBANK file from RAST", action="store", type="string", dest="genbank")
+parser.add_option("--tsv", help="Tab-delimited file from RAST", action="store", type="string", dest="tsv", default=None)
+parser.add_option("--gb",  help="GENBANK file from RAST", action="store", type="string", dest="genbank", default=None)
 parser.add_option("--o", help="Output file (default = stdout)", action="store", type="string", dest="outfile", default=None)
 
 (options, args) = parser.parse_args()

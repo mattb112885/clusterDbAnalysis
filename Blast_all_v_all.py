@@ -4,12 +4,11 @@
 # Run (in parallel) blast jobs blasting all fasta files in the FASTA folder against
 # all the other fasta files in that folder
 #
-# Fasta files must have a .fasta extension
+# Fasta files must have a .fasta extension or a .faa extension (to prevent trying to blast against the database files)
 #
-# Results are outputted into FIRSTFILENAME_SECONDFILENAME.xml in the XML folder designated below.
-# It will be the job of some other code to actually do the correct concatenation
-#
-# I may convert to table instead of XML format later...
+# Results are outputted in a standard name combining the names of the two fasta files used
+# to generate them. Format is -m9 (or -outfmt 6 with the new BLAST) - tab-delimited with default fields
+# and no comments.
 #
 # Matthew Benedict
 

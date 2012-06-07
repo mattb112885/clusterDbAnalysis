@@ -15,7 +15,9 @@ import fileinput
 import sys
 import optparse
 
-parser = optparse.OptionParser()
+usage="%prog -f orgfile [options] < text_file > text_file_with_orgname"
+description="Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file (e.g. a newick file)"
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-f", "--orgfile", help="Organism file (required)", action="store", type="str", dest="orgfile", default=None)
 parser.add_option("-a", "--useabbrev", help="Use abbreviation? (If specified, use the abbreviated form of the organism name. If not specified, use the entire organism name)", 
                   action="store_true", dest="useabbrev", default=False)

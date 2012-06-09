@@ -424,7 +424,7 @@ for node in t.traverse(strategy="levelorder"):
         children = node.get_children()
         if not len(children) == 2:
             sys.stderr.write("INTERNAL ERROR: Should always have 2 children per node?\n")
-            exit(2)
+            continue;
         nl0 = len(children[0].get_leaves())
         nl1 = len(children[1].get_leaves())
         if nl0 == nl1:

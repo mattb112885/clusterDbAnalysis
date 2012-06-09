@@ -14,15 +14,17 @@
 
 import optparse
 import fileinput
+import sys
 
-usage = "%prog [options] aliasFile"
+usage = "%prog [options] aliasFile < gene_annotation_file > gene_annotation_file with aliases added to annotation"
+description = "Adds aliases from an alias file to the annotations in a file (by default, a Raw file)"
 parser = optparse.OptionParser(usage=usage)
 parser.add_option("-a", "--annotecolumn", help="Column number for annotation (start from 1)", action="store", type="int", dest="annotec", default=8)
 parser.add_option("-g", "--geneidcolumn", help="Column number for gene id (start from 1)", action="store", type="int", dest="genec", default=2)
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
-    print "ERROR: in %prog: Alias file must be provided"
+    sys.stderr.write("ERROR: Alias file must be provided\n")
     exit(2)
 
 annoteColumn = options.annotec - 1

@@ -2,6 +2,13 @@
 
 # Compare all of the clusters between two specified cluster runs
 #
+#
+# Output format:
+#
+# Run ID 1 | Cluster ID 1 | Run ID 2 | Cluster ID 2 | Overlapping genes | Genes only in (RunID1,clusterID1) | Genes only in (RunID2,ClusterID2)
+#
+# Any genes that aren't in the other run at all are ignored unless -i is specified, in which case they are included as non-overlapping genes
+# and clusters containing only genes not in the other run are given a file corresponding to a dummy cluster (NO_OVERLAP) in the other run ID
 
 import optparse
 import sqlite3

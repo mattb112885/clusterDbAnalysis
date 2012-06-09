@@ -5,10 +5,17 @@
 # Annotation (col 7)
 # Also reads organism file (argument 1) and matches the strings.
 
+import optparse
 import sys
 
-fname = sys.argv[1]
-fid = open(fname, "r")
+usage = "%prog Organism_file < RAW_file > Processed_file"
+description="Processes organism file into a nicer format, adding organism and gene length information to the table and removing unneeded columns. The raw file must have organism / gene IDs similar to what is given by RAST and peg in teh appropriate column to designate proteins rather than nucleic acid entries."
+parser = optparse.OptionParser(usage=usage, description=description)
+(options, args) = parser.parse_args()
+
+if len(args) < 1:
+    sys.stderr.write("ERROR: Organism file is a required input argument (see help text -h for details)\n")
+    exit(2)
 
 orgNames = {}
 orgIds = {}
@@ -25,8 +32,8 @@ def sign(num):
         return None
 
 # Organisms file
-for line in fid:
-    spl = line.strip().split('\t')
+for line in open(args[0], "r"):
+    spl = line.strip('\r\n').split('\t')
     # Organism ID is the key and orgnaism is the data
     # Critical that we include the extra "." here because we want to 
     # search for only the ID itself, which is always followed by a . in the SEED IDs
@@ -38,7 +45,7 @@ for line in fid:
 
 import fileinput
 for line in fileinput.input("-"):
-    spl = line.strip().split('\t')
+    spl = line.strip('\r\t').split('\t')
     # Protein-coding DNAs only (this also cuts off the title row)
     if not spl[2] == "peg":
         continue
@@ -60,4 +67,3 @@ for line in fileinput.input("-"):
     modln = spl[1] + "\t" + myid + "\t" + myorg + "\t" + myabbrev + "\t" + contig + "\t" + str(sign(int(spl[5]) - int(spl[4]))) + "\t" + str(len(spl[11])) + "\t" + str(len(spl[12]))
     print modln
 
-fid.close()

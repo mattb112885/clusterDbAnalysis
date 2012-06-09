@@ -34,14 +34,14 @@ keeppeg = options.keeppeg
 orgAbbrev = {}
 fid = open(options.orgfile, "r")
 for line in fid:
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     if useabbrev:
         orgAbbrev[spl[2]] = spl[1].replace(" ", "_")
     else:
         orgAbbrev[spl[2]] = spl[0].replace(" ", "_")
 
 for line in fileinput.input("-"):
-    myline = line.strip()
+    myline = line.strip('\r\n')
 
     if not keeppeg:
         myline = myline.replace("fig|", "")

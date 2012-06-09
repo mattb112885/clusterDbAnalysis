@@ -10,6 +10,6 @@ import fileinput, sys
 idCutoff = float(sys.argv[1])
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     if(float(spl[2]) > idCutoff):
         print "\t".join(spl)

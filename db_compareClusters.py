@@ -76,3 +76,5 @@ for gene in genelist:
             # SAME: The two clusters are identical
             if isSame:
                 print "%s\t%s\t%s\t%s\t%s\t%s\t%s" %( gene, clustList[i][0], clustList[i][1], clustList[j][0], clustList[j][1], "SAME", "" )
+
+con.close()

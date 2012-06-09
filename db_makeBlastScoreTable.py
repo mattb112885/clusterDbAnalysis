@@ -48,7 +48,7 @@ if not options.method in validmethods:
     exit(2)
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     # Required information
     bitscore = spl[11]
     qselfbit = spl[12]

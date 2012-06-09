@@ -32,7 +32,7 @@ lastone = None
 fid = -1
 labelfid = -1
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     myrunid = spl[0]
     if not spl[1] == lastone:
         if not fid == -1:

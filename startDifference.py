@@ -28,7 +28,7 @@ lastgene = None
 lastannote = None
 
 for line in fileinput.input("-"):
-    spl = line.strip('\n').split("\t")
+    spl = line.strip('\r\n').split("\t")
     if firstone:
         laststart = int(spl[4])
         laststop = int(spl[5])

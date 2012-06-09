@@ -4,7 +4,7 @@
 
 import fileinput
 for line in fileinput.input("-"):
-    spl = line.strip().split('\t')
+    spl = line.strip('\r\n').split('\t')
     # Protein-coding DNAs only (this also cuts off the title row)
     if not spl[2] == "peg":
         continue

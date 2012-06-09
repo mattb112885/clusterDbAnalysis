@@ -47,7 +47,7 @@ query = query + ");"
 
 for line in fileinput.input("-"):
     # Note - "+" for tuples is the concatination operator
-    spl = line.strip('\n').split("\t")
+    spl = line.strip('\r\n').split("\t")
     cur.execute(query, (spl[rc],) + teststr)
     for l in cur:
         s = list(l)

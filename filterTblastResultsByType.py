@@ -37,7 +37,7 @@ ub = 1.25
 import fileinput
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     # abs is needed because negatives occur due to strand differences...
     R1 = abs(float(spl[13])/float(spl[5]))
     R2 = abs(float(spl[16])/float(spl[13]))

@@ -21,7 +21,7 @@ cur = con.cursor()
 
 desiredGenes = []
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     desiredGenes.append(spl[gc])
 
 cur.execute("CREATE TEMPORARY TABLE s ( geneid VARCHAR(256) );")

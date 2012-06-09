@@ -17,7 +17,7 @@ MAXK = 5
 
 geneTuples = []
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
 
     # Protein-coding genes only
     if not spl[2] == "peg":

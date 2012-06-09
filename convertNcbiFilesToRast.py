@@ -111,7 +111,7 @@ for line in open(sys.argv[1], "r"):
     if line.startswith("#"):
         continue
 
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
 
     # We want the actual coding regions only.
     if not spl[2] in acceptableTypes:
@@ -149,14 +149,14 @@ for line in open(sys.argv[1], "r"):
         start = spl[4]
         stop = spl[3]
     else:
-        sys.stderr.write("ERROR: Unrecognized strand type %s in the following line: \n %s \n " %(strand, line.strip()))
+        sys.stderr.write("ERROR: Unrecognized strand type %s in the following line: \n %s \n " %(strand, line.strip('\r\n')))
         exit(2)
 
     # This is just an insanity check. If offset is not 0 I don't know what to do and won't know unless I see an example of it.
     # For now I just look for that case and throw an error...
     _offset = spl[7]
     if not _offset == "0":
-        sys.stderr.write("WARNING: Offset is not equal to 0 in the following line: \n %s \n " %(line.strip()) )
+        sys.stderr.write("WARNING: Offset is not equal to 0 in the following line: \n %s \n " %(line.strip('\r\n')) )
 
     idstring = spl[8]
 

@@ -26,7 +26,7 @@ tsv = open(options.tsv, "r")
 # Gene ID is on the 2nd and AA on the 13th column.
 seqs = {}
 for line in tsv:
-    spl = line.strip('\n').split("\t")
+    spl = line.strip('\r\n').split("\t")
     # Skip over things with no AA sequence like RNA genes...
     if(len(spl) < 13):
         continue

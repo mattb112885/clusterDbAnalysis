@@ -3,7 +3,7 @@
 # This is a pipe command.
 #
 # Plot a scatterplot using the piped in numbers and print the result to file.
-#
+# Plots using relatively nice font sizes, dot sizes, etc...
 # 
 
 from matplotlib import pyplot, rcParams, axis
@@ -11,14 +11,13 @@ import optparse
 import fileinput
 import numpy
 
-
 fig = pyplot.figure(1)
 fig.clf()
 
 x = []
 y = []
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     # Skip over zeros.
     if float(spl[2]) == 0:
         continue

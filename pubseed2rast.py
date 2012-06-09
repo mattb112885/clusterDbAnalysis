@@ -10,7 +10,7 @@
 import fileinput
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
 
     # Coding sequences only.
     if not spl[6] == "CDS":

@@ -100,9 +100,9 @@ os.system(raxcmd);
 # The fallback is to just return the ML tree ("bestTree") without any labels, since without
 # bootstraps there are no labels anyway.
 if NUMBOOTS > 0:
-    treestr = "".join([ line.strip() for line in open("RAxML_bipartitions.%s" %(OUTFILE)) ])
+    treestr = "".join([ line.strip('\r\n') for line in open("RAxML_bipartitions.%s" %(OUTFILE)) ])
 else:
-    treestr = "".join([ line.strip() for line in open("RAxML_bestTree.%s" %(OUTFILE)) ])
+    treestr = "".join([ line.strip('\r\n') for line in open("RAxML_bestTree.%s" %(OUTFILE)) ])
 
 # To use CONSEL or to use RAXML again we need to save a copy of the tree with the substituted names.
 # We also print out a translation table so we can back-translate again later.

@@ -44,7 +44,7 @@ query = "CREATE TEMPORARY TABLE desiredclusters( runid VARCHAR(256), clusterid I
 cur.execute(query);
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     query = "INSERT INTO desiredclusters VALUES (?, ?);"
     con.execute(query, (spl[rc], spl[cc]))
 

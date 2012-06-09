@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # This is a pipe command.
-# Pipe in a newick file
+# Pipe in a file in which you want the genenames replaced
 #
 # The input argument is the "geneinfo" table containing gene IDs in the first column
 # and what to replace them with in the second column.
@@ -15,16 +15,16 @@ import optparse
 
 description="Replace one name of a gene with another name as given in a specified replacement table"
 usage="%prog (options) replacement_table < file > file_with_geneids_replaced"
-parser = optparse.OptionParser()
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--nooriginal", help="Set this flag to NOT keep the original name. To use this the new aliases must be unique (D=False)", action="store_true", dest="nooriginal", default=False)
 (options, args) = parser.parse_args()
 
 transfile = args[0]
 
-newickString = ''.join( [ line.strip() for line in fileinput.input("-") ] )
+newickString = ''.join( [ line.strip('\r\n') for line in fileinput.input("-") ] )
 geneToAnnotation = {}
 for line in open(sys.argv[1], "r"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     geneToAnnotation[spl[0]] = spl[1]
 
 if options.nooriginal and not len(geneToAnnotation) == len(set(geneToAnnotation.values())):

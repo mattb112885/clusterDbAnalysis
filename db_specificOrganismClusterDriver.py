@@ -27,7 +27,7 @@ method=sys.argv[4]
 fid = open(groupfile, "r")
 
 for line in fid:
-    spl = line.strip().split('\t')
+    spl = line.strip('\r\n').split('\t')
     # In case the desired organisms have spaces in them (e.g. Methanosarcina acetivorans), we need quotes in order to have a functional command.
     # Use single quotes becuase double quotes cause the ! character to be escaped and mess up the SQL command...
     safepart = ['\'' + k + '\'' for k in spl]

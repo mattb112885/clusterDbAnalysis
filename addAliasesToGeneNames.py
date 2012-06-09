@@ -31,14 +31,14 @@ geneColumn = options.genec - 1
 geneToAliases = {}
 for line in open(args[0], "r"):
     # I specify '\n' because otherwise RNAs and such things as that get truncated to 12 lines. BAD.
-    spl = line.strip('\n').split("\t")
+    spl = line.strip('\r\n').split("\t")
     if spl[0] in geneToAliases:
         geneToAliases[spl[0]] += "_%s" %(spl[1])
     else:
         geneToAliases[spl[0]] = "_%s" %(spl[1])
 
 for line in fileinput.input("-"):
-    spl = line.strip('\n').split("\t")
+    spl = line.strip('\r\n').split("\t")
     if spl[geneColumn] in geneToAliases:
         spl[annoteColumn] += geneToAliases[spl[geneColumn]]
     print "\t".join(spl)

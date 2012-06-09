@@ -30,7 +30,7 @@ con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     cur.execute("""SELECT runid, clusterid FROM clusters WHERE clusters.runid = ?
                    GROUP BY clusterid HAVING count(*) = ?;""", (spl[rc], int(nc)))
 

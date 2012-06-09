@@ -296,7 +296,7 @@ if runid == None:
             sys.stderr.write("ERROR: Must only pipe in ONE run ID\n")
             exit(2)
         done = True
-        runid = line.strip('\n')
+        runid = line.strip('\r\n')
 
 cur.execute("SELECT * FROM clusters WHERE clusters.runid=?;", (runid, ) )
 atLeastOne = False

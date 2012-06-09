@@ -26,7 +26,7 @@ con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()
 
 for gene in fileinput.input("-"):
-    spl = gene.strip('\n').split("\t")
+    spl = gene.strip('\r\n').split("\t")
     cur.execute("""SELECT neighborhoods.*, processed.annotation FROM neighborhoods
                    INNER JOIN processed ON processed.geneid = neighborhoods.neighborgene
                    WHERE neighborhoods.centergene=? AND ABS(neighborhoods.distance) <= ?;""", (spl[gc],nsize))

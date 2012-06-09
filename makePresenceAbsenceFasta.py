@@ -14,7 +14,7 @@ presabsdict = {}
 orgdict = {}
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     if firstline:
         for s in range(3,len(spl)):
             presabsdict[s] = []

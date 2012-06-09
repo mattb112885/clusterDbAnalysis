@@ -28,7 +28,7 @@ c = options.column - 1 # Convert to Pythonic indexes
 
 numarr = []
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
     numarr.append(float(spl[c]))
 
 if options.start == None:

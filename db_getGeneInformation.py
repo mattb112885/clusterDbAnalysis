@@ -30,7 +30,7 @@ con = sqlite3.connect("db/methanosarcina")
 cur = con.cursor()
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\r\n').split("\t")
 
     # Allow shortcuts if we start by looking at the seedviewer website for the fig ID
     if not spl[gc].startswith("fig|"):

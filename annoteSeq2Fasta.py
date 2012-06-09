@@ -19,7 +19,7 @@ annotecol = options.annotecol - 1
 seqcol = options.seqcol - 1
 
 for line in fileinput.input("-"):
-    spl = line.strip('\n').split("\t")
+    spl = line.strip('\r\n').split("\t")
     geneid = spl[geneidcol]
     annote = spl[annotecol]
     seq = spl[seqcol]

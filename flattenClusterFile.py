@@ -41,7 +41,7 @@ if len(runid) > 64:
 
 rowIdx = 1
 for line in fileinput.input("-"):
-    spl = line.strip().split('\t')
+    spl = line.strip('\r\n').split('\t')
     for gene in spl:
         string = str(runid) + "\t" + str(rowIdx) + "\t" + gene
         print string

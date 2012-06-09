@@ -35,9 +35,9 @@ if options.name == None:
     exit(2)
 
 runid = options.name
-if len(runid) > 240:
-    sys.stderr.write("WARNING: Resulting clusterID is too long - will truncate to 240 characters\n")
-    runid = runid[0:240]
+if len(runid) > 255:
+    sys.stderr.write("WARNING: Resulting clusterID is too long - will truncate to 255 characters\n")
+    runid = runid[0:255]
 
 rowIdx = 1
 for line in fileinput.input("-"):

@@ -6,7 +6,7 @@ DROP VIEW IF EXISTS distinctorgs;
    The two scripts are separated in order to allow us to generate clusters
    based on querying the blast results from the database. */
 CREATE TABLE clusters(
-       "runid" VARCHAR(128),
+       "runid" VARCHAR(256),
        "clusterid" INT,
        "geneid" VARCHAR(32),
        FOREIGN KEY(geneid) REFERENCES rawdata(geneid)

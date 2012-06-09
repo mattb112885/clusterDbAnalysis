@@ -5,7 +5,17 @@
 #
 # This is a pipe function. Pipe in the RAW file
 
+#
+# FIXME : If I want to keep this function around I should have it
+# sort things and identify if they're in the same contig and such...
 import fileinput
+import optparse
+
+usage = "%prog < RAW_file > Min_distance_file"
+description="Calculates the minimum distance between consecutive genes. Negative values indicaite overlaps. Does not look at whether contigs are the same or not."
+parser = optparse.OptionParser(usage=usage, description=description)
+(options, args) = parser.parse_args()
+
 firstone = True
 
 start = None
@@ -18,7 +28,7 @@ lastgene = None
 lastannote = None
 
 for line in fileinput.input("-"):
-    spl = line.strip().split("\t")
+    spl = line.strip('\n').split("\t")
     if firstone:
         laststart = int(spl[4])
         laststop = int(spl[5])
@@ -33,7 +43,7 @@ for line in fileinput.input("-"):
     annote = spl[7]
 
     minval = min( start - laststart, start - laststop, stop - laststart, stop - laststop)
-    print str(minval) + "\t" + lastgene + "\t" + lastannote + "\t" +  gene + "\t" + annote
+    print "%d\t%s\t%s\t%s\t%s" %(minval, lastgene, lastannote, gene, annote)
 
     laststart = int(spl[4])
     laststop = int(spl[5])

@@ -15,11 +15,13 @@
 import fileinput, sqlite3, optparse
 
 # Get input arguments
-parser = optparse.OptionParser()
+usage = "%prog [options] < runid_clusterid_table > gene_id_list"
+description = "Given a list of run IDs and cluster IDs, returns a list of all genes present in those run ID \ cluster ID pairs"
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--rcolumn", help="Column number (start from 1) for run ID", action="store", type="int", dest="runcolumn", default=1)
 parser.add_option("-c", "--ccolumn", help="Column number (start from 1) for cluster ID", action="store", type="int", dest="clustercolumn", default=2)
-
 (options, args) = parser.parse_args()
+
 rc = options.runcolumn - 1 # Convert to Pythonic indexes
 cc = options.clustercolumn - 1
 

@@ -13,8 +13,9 @@ from Bio import AlignIO
 from Bio import SeqIO
 import optparse
 
+usage = "%prog [options] < fasta_file > phylip file"
 description = "Convert a fasta file to a phylip file"
-parser = optparse.OptionParser(description=description)
+parser = optparse.OptionParser(description=description, usage=usage)
 parser.add_option("-c", "--convfile", help="File to convert new IDs back to original IDs (D = don't save file)", action="store", type="str", dest="convfile", default=None)
 (options, args) = parser.parse_args()
 

@@ -26,7 +26,9 @@ import fileinput
 import optparse
 import sys
 
-parser = optparse.OptionParser()
+usage = "%prog -n runname < MCL_cluster_file > flattened_file"
+description = "Turn MCL cluster file into a more database-friendly format, the run is given its own ID (input to this function) and each cluster within it is given a cluster ID"
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--name", help="Run name (should have descriptions of Inflation, method and cutoff)", action="store", type="string", dest="name", default=None)
 (options, args) = parser.parse_args()
 

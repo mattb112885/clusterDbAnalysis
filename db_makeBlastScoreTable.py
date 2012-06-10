@@ -33,7 +33,9 @@ import optparse, fileinput
 
 validmethods = ['minbit', 'maxbit', 'avgbit', 'normhsp']
 
-parser = optparse.OptionParser()
+usage="%prog -m [method] -c [cutoff] [options]"
+description = "Given a blast score table (augmented with self-bit scores for query and target genes), calculates a similarity value based on the desired scoring metric. Currently implemented metrics: %s" %(" ".join(validmethods))
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-m", "--method", help="Method name", action="store", type="str", dest="method", default=None)
 parser.add_option("-c", "--cutoff", help="Score cutoff to use", action="store", type="float", dest="cutoff", default=None)
 parser.add_option("-n", "--noprint", help="Set this flag if you do not want to print edges less than the cutoff as zeros (default = False - print those edges", action="store_true", dest="noprint", default=False)

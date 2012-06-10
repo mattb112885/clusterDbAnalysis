@@ -19,7 +19,7 @@
 
 import sqlite3, fileinput, optparse
 
-usage = "%prog \"Annotation 1\" \"Annotation 2\" ... < run_ids > clusters_with_genes_containing_annotation_words"
+usage = "%prog [options] \"Annotation 1\" \"Annotation 2\" ... < run_ids > clusters_with_genes_containing_annotation_words"
 description = "Given list of run IDs, returns a list of genes and clusters containing given word(s) in the annotation - separate inputs are combined with OR statements"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--runcol", help="Column number for run ID, starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)

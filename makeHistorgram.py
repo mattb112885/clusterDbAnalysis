@@ -17,7 +17,9 @@ import numpy
 import optparse
 import fileinput
 
-parser = optparse.OptionParser()
+usage = "%prog [options] < numeric_values > histogram_numbers"
+description = "Calculates and prints as text the number of elements in each bin with parameters specified (does not actually make a graph for you)"
+parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-c", "--column", help="Column number (start from 1) for numeric value (default = 1)", action="store", type="int", dest="column", default=1)
 parser.add_option("-s", "--start", help="Beginning of first bin to calculate histogram for (default = min[numbers])", action="store", type="float", dest="start", default=None)
 parser.add_option("-e", "--end", help="End of last bin to calculate histogram for (default = max[numbers]", action="store", type="float", dest="end", default=None)

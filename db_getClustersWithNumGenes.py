@@ -8,7 +8,7 @@
 # and the cluster ID's with the specified number of genes (regardless of organisms) in the
 # second column.
 
-import fileinput, sqlite3, optparse, os
+import fileinput, sqlite3, optparse, os, sys
 
 usage = "%prog -n numgenes [options] < run_ids > clusters_with_specified_num_genes"
 description = "Get all of the clusters with the specified number of genes in the specified cluster runs"
@@ -20,8 +20,7 @@ parser.add_option("-n", "--numcluster", help="Desired number of genes in each cl
 rc = options.runcolumn - 1 # Convert to Pythonic indexes                                                                                                                                                      
 
 if options.numcluster == None:
-    print "ERROR in db_getClustersWithNumGenes: Must specify number of elements desired in each cluster!"
-    os.system("./src/db_getClustersWithNumGenes.py -h");
+    sys.stderr.write("ERROR in db_getClustersWithNumGenes: Must specify number of elements desired in each cluster!\n")
     raise IOError
 else:
     nc = options.numcluster

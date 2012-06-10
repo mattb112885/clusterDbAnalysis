@@ -1,6 +1,6 @@
 INSTALLATION
 
-The pipeline requires installation of some tools:
+The pipeline works only on linux (and possibly on macOS) and requires installation of some tools:
 
 - Blast+ (including blastp and, if you want to use it, tblastn)
 - Python (2.6 works)
@@ -21,6 +21,10 @@ The program also needs some input files. Here's how to generate them:
    from all of your genomes in the SEED and place them in the "raw" directory.
 
 You can also, if your genomes are in pubseed, download the fasta file and the tab-delimited file from the SEED's FTP server and run convertPubseedToRast.py on them to get a file in the same format as you would get from RAST. The annotations thus gotten will probably be more accurate (particularly for those in the seed viewer, as opposed to the pubseed) than what one would obtain by running through RAST only.
+
+You can also download the GFF and fasta files (nucleotide and amino acid) and run the convertNcbiFilesToRast.py function to make a tab-delimited table out of that. The conversion script isn't perfect so make sure you heed any warnings about possibly missing proteins.
+
+Only proteins are converted - no tRNAs or rRNAs end up in the database.
 
 2) (Optionally) Download the genbank files and place them in the "genbank" directory.
 
@@ -74,6 +78,12 @@ Call the file "organisms" and place it in the root directory.
 
 DESCRIPTION OF PIPELINE - PART 1 ("main.sh")
 
+To run:
+
+./main.sh
+
+(must be run from the root directory of the repository)
+
 This first part of the pipeline begins with the above-mentioned files and ends with
 some processed gene tables with easier access to gene lengths and organisms, and
 all of the BLAST results and gene neighborhoods pre-computed for easy access.
@@ -106,6 +116,10 @@ The steps performed are as follows:
 
 DESCRIPTION OF PIPELINE - PART 2 ("main2.sh")
 
+To run: ONLY AFTER running main1.sh:
+
+./main2.sh [Inflation] [Measurement_technique] [Cutoff]
+
 For each line of the "groups" file:
 - Use the database to generate a list of blast hits for only the organisms 
 - Call MCL to generate clusters
@@ -115,7 +129,6 @@ For each line of the "groups" file:
 Concatinate all of the flattened results files (with unique identifiers) and import them into the
   database as the "clusters" table. Also makes a couple other tables for convenience, including "clusterorgs" which
   lists the organisms in each cluster.
-
 
 #########################
 # SQL building scripts

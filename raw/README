@@ -1,0 +1,16 @@
+IMPORTANT: make sure you put all of your RAW data files
+in this folder!
+
+RAW data files are tab-delmited files that look like this:
+
+contig_id       feature_id      type    location        start   stop    strand  function        aliases figfam  evidence_codes  nucleotide_sequence     aa_sequence
+
+You have three options in this package for generating these files (roughly in order of preference):
+
+1: You can run your own genome in RAST and download the tab-delmited file, which has exactly this format.
+2: If you know the PubSEED genome identifier (i.e. 83333.1 for E. coli) you can run the Pubseed2Rast.sh to
+automatically download the tab-delimited file from PubSEED and then convert it into RAST format.
+3: You can download the .gff, .fna, and .faa files from the NCBI FTP server and run Ncbi2Rast.py to convert it
+(make sure to heed any warnings about things I couldn't match up - those will probably have to be added yourself).
+
+Only proteins should be considered - RNAs (i.e. tRNAs, rRNAs) are ignored.

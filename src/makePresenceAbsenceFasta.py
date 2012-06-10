@@ -6,6 +6,12 @@
 # The presence-absence table starts with interesting stuff on the third column
 
 import fileinput
+import optparse
+
+usage = "%prog < presence_absence_01_table > presence_absence_fasta_file"
+description="Create a presence/absence fasta file from a presence / absence 0-1 table"
+parser = optparse.OptionParser(usage=usage, description=description)
+parser.parse_args()
 
 # On the first line lie the labels.
 firstline = True
@@ -25,7 +31,7 @@ for line in fileinput.input("-"):
     for s in range(3, len(spl)):
         presabsdict[s].append(int(spl[s]))
 
-print orgdict
+#print orgdict
 
 for key in presabsdict:
     print ">%s" %(orgdict[key])

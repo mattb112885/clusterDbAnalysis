@@ -20,13 +20,19 @@
 
 import sys, os
 import fileinput
+import optparse
 
-if not len(sys.argv) == 3:
-    print "Usage: ./getClusterFastas.py [fastafolder] [labelfolder]"
+usage = "%prog [fastafolder] [labelfolder] < cluster_info_file"
+description="Generate a FASTA file for each cluster present in the specified clusterinfo file (as generated from e.g. db_getClusterGeneInfo). The file must be in order by cluster"
+parser = optparse.OptionParser(usage=usage, description=description)
+(options, args) = parser.parse_args()
+
+if not len(args) == 2:
+    sys.stderr.write("ERROR: Both fastafolder and labelfolder are required (see -h for usage details)\n")
     exit(2)
 
-outputfolder = sys.argv[1]
-labelfolder = sys.argv[2]
+outputfolder = args[0]
+labelfolder = args[1]
 
 lastone = None
 fid = -1

@@ -12,6 +12,12 @@ import sys
 from operator import itemgetter
 import re
 import fileinput
+import optparse
+
+usage = "%prog < raw_file > neighborhood_file"
+description = "Compute neighbors of each gene from their location (the neighbors do not have to share a strand). Neighborhood is based on number of genes, not on number of base pairs. The function correctly deals with multiple contigs present in the file"
+parser = optparse.OptionParser(usage=usage, description=description)
+parser.parse_args()
 
 MAXK = 5
 

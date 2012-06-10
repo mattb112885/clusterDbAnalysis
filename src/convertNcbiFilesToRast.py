@@ -72,19 +72,25 @@
 from Bio import SeqIO
 import sys
 import re
+import optparse
 
-if not len(sys.argv) == 4:
-    print "Usage: convertGenbankToRast.py [gff file] [faa file] [ffn file] > [RAST_tab_delmited_file]"
+usage="%prog [gff_file] [faa_file] [ffn_file] > [RAST_tab_delimited_file]"
+description="Given CONCATINATED gff, faa, and ffn files (i.e. download all the contigs available and concatinate the gff files into a single file, the faa files into a signle file, etc.) from genbank, does the ID matching and converts it into a tab-delimited file with one row for each protein (no RNAs are dealt with)"
+parser = optparse.OptionParser(usage=usage, description=description)
+(options, args) = parser.parse_args()
+
+if not len(args) == 3:
+    sys.stderr.write("ERROR: Expected exactly three input arguments (gff, faa, and fna files). Try -h for details.\n")
     exit(2)
 
 aaHeaderToSeq = {}
-faa_recs = SeqIO.parse(open(sys.argv[2], "r"), "fasta")
+faa_recs = SeqIO.parse(open(args[1], "r"), "fasta")
 for record in faa_recs:
     aaHeaderToSeq[record.description] = str(record.seq)
 
 
 nucHeaderToSeq = {}
-ffn_recs = SeqIO.parse(open(sys.argv[3], "r"), "fasta")
+ffn_recs = SeqIO.parse(open(args[2], "r"), "fasta")
 for record in ffn_recs:
     nucHeaderToSeq[record.description] = str(record.seq)
 
@@ -106,7 +112,7 @@ feature_counter = 1
 # organism, and in my experience it's always the first line.
 org_id = "" 
 
-for line in open(sys.argv[1], "r"):
+for line in open(args[0], "r"):
     # Discard comment lines
     if line.startswith("#"):
         continue

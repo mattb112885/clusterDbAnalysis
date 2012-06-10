@@ -18,12 +18,18 @@
 
 import sys
 import fileinput
+import optparse
 
-if len(sys.argv) < 2:
-    print "ERROR: in clusterIdToTable.py - must provide at least one cluster ID"
+usage="%prog [clusterID1] [clusterID2] ... < runID > runID_clusterID_table"
+description="Given a RunID from stdin and cluster IDs as arguments, makes a table duplicating the runID and adding the clusterID to each in a tab-delimited table"
+parser = optparse.OptionParser(usage=usage, description=description)
+(options, args) = parser.parse_args()
+
+if len(args) == 0:
+    sys.stderr.write("ERROR: in clusterIdToTable.py - must provide at least one cluster ID\n")
     exit(2)
 
-clusterIds = sys.argv[1:]
+clusterIds = args[0:]
 
 for line in fileinput.input("-"):
     for s in clusterIds:

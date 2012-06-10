@@ -9,29 +9,36 @@ from Bio import SeqIO
 import os
 import re
 import sys
+import optparse
 
-if not len(sys.argv) == 3:
-    print "Usage: ./catAlignments.py [alignment path] [Searchkey]"
-    print "Searchkey is a pattern in the files to search for."
-    print "It is generally the first part of a run ID for which you want to generate"
-    print "a tree, e.g. 8XCM"
+usage="%prog [ -k Searchkey ] alignment_path"
+description="Concatinate all alignments in alignment_path (all must have exactly one represenative from each organism, as determined from the gene ID). Searchkey is a pattern in the files to search from, e.t. part of the RunID for which you want to generate a concatinated alignment."
+parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-k", "--key", help="Pattern to match (by regex) in any files you want to use, e.g. a run ID (default: use all files in alignment_path)", action="store", type="str", dest="key", default=None)
+(options, args) = parser.parse_args()
+
+if not len(args) == 1:
+    sys.stderr.write("ERROR: alignment_path is a required argument (it should contain all the multiple alignments you wish to concatinate)\n")
     exit(2)
 
 filelist = []
-for filename in os.listdir(sys.argv[1]):
-    # Search for files with the keyword in them and with at least fasta_aln (maybe fasta_aln_trimmed)
-    if re.search("fasta_aln", filename) != None and re.search(sys.argv[2], filename) != None:
+for filename in os.listdir(args[0]):
+    # No key given --> use everything in that directory, assuming they're all what we need
+    if options.key == None:
         filelist.append(filename)
+    else:
+        if re.search(options.key, filename) != None:
+            filelist.append(filename)
 
 if len(filelist) == 0:
-    print "ERROR: No files found with expected extension fasta_aln and search key Searchkey"
+    sys.stderr.write("ERROR: No files found in alignment_path or none found that match the specified key\n")
     exit(2)
 
 # Mapping between organism ID and (aligned) sequences...
 seqs = {}
 
 for filename in filelist:
-    fid = open(os.path.join(sys.argv[1], filename), "r")
+    fid = open(os.path.join(args[0], filename), "r")
 
     records = SeqIO.parse(fid, "fasta")
     for r in records:

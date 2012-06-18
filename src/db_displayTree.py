@@ -137,6 +137,10 @@ ts.show_branch_support = False
 # We'll be putting these in separately
 ts.show_leaf_name = False
 
+# Label face columns [This will be useful for labeling tables next to the tree!]
+F = faces.TextFace("Annotation", ftype="Times", fsize=20)
+ts.aligned_header.add_face(F, 0)
+
 # The default width of the tree is too squished.
 # Lets determine a width based on the maximum distance to the root.
 maxdist = 0
@@ -147,7 +151,7 @@ for node in t.traverse():
         if dist > maxdist:
             maxdist = dist
 
-# Heuristic... I'll play with this.
+# Heuristically determine tree width to prevent the tree from getting too squished ...
 ts.tree_width = maxdist * 20
 
 # Make ordering the closer for identical trees.

@@ -8,6 +8,12 @@
 #
 
 import fileinput
+import optparse
+
+usage = "%prog < [Pubseed file with sequences attached] > RAST-formatted file"
+description="This is a function intended for internal use. Call convertPubseedToRast.sh to get a RAST-formatted file from a pubSEED ID."
+parser = optparse.OptionParser(usage=usage, description=description)
+parser.parse_args()
 
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")

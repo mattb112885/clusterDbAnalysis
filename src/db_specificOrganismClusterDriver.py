@@ -16,17 +16,23 @@
 # Note - this function itself doesn't specifically call the database but depends on two functions that do.
 
 import os, sys
+import optparse
 
-if not len(sys.argv) == 5:
-    sys.stderr.write("Usage: ./db_specificOrganismClusterDriver.py [groupfile] [Inflation] [cutoff] [scoremethod]\n")
+usage = "%prog [groupfile] [Inflation] [cutoff] [scoremethod]"
+description = "This file is intended to be run as part of Main1.sh. Run MCL clustering on the organisms specified in the file 'groupfile' with specified parameters (Automatically dumps result file into clusters/ folder)"
+parser = optparse.OptionParser(usage=usage, description=description)
+(options, args) = parser.parse_args()
+
+if not len(args) == 4:
+    sys.stderr.write("Input arguments missing - try -h for usage details!\n")
     exit(2)
 
-groupfile = sys.argv[1]
-inflation=sys.argv[2]
-cutoff=sys.argv[3]
-method=sys.argv[4]
+groupfile=args[0]
+inflation=args[1]
+cutoff=args[2]
+method=args[3]
 
-for line in open(groupfile, "r")
+for line in open(groupfile, "r"):
     # Skip comment lines
     if line.startswith("#"):
         continue

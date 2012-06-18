@@ -16,5 +16,11 @@
 # so it is interpreted literally...
 
 import sys
+import optparse
+
+usage="%prog [Things to separate with tabs] > Tab-delimited file"
+description = "Turn all arguments into a single row separated by tabs"
+parser = optparse.OptionParser(usage=usage, description=description)
+parser.parse_args()
 
 print "\t".join(sys.argv[1:])

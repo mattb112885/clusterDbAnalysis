@@ -17,6 +17,7 @@
 
 import os, sys
 import optparse
+from locateDatabase import *
 
 usage = "%prog [groupfile] [Inflation] [cutoff] [scoremethod]"
 description = "This file is intended to be run as part of Main1.sh. Run MCL clustering on the organisms specified in the file 'groupfile' with specified parameters (Automatically dumps result file into clusters/ folder)"
@@ -59,8 +60,8 @@ for line in open(groupfile, "r"):
         fid.close()
     except IOError:
         # Generate and run an MCL command
-        cmd = ("python src/db_getBlastResultsBetweenSpecificOrganisms.py " + safewhole + 
-               " | python src/db_makeBlastScoreTable.py -m " + str(method) + " -c " + str(cutoff) +
+        cmd = ("db_getBlastResultsBetweenSpecificOrganisms.py " + safewhole + 
+               " | db_makeBlastScoreTable.py -m " + str(method) + " -c " + str(cutoff) +
                " | mcl - --abc -I " + str(inflation) + " -o " + foutname + ";")
         sys.stderr.write("%s\n" %(cmd) )
         os.system(cmd)

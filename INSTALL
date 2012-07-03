@@ -1,0 +1,84 @@
+# INSTALLATION INSTRUCTIONS
+#
+# First off, system stuff. The package is only available for linux\unix (it might work for mac too).
+# - make sure all the .py and .sh files in the src/ directory are executable (chmod u+x)
+# - Add the src/ directory to your path by adding the following line to your .bashrc file:
+# PATH=$PATH:[path_to_src_dir]
+#
+# The packages have a variety of dependencies depending on how you want to run them.
+#
+# The most essential ones are:
+#
+# BLASTP \ TBLASTN: BlastP is used as a basis for generating gene clusters.
+# Ruffus: Python parallelization package. Used to parallelize BLAST and TBLASTN functions.
+# MCL: Clustering tool used to generate gene clusters.
+# Sqlite3: Used to store and query blast, cluster and alignment\tree data.
+# Python (I used 2.6): Most of the code is written for python
+#
+# Other tools needed \ supported for certain functions:
+# BioPython: Used for reading and writing various alignment formats
+# MyRAST (http://blog.theseed.org/downloads/sas.tgz) - has a lot of 
+#   scripts for analyzing genomes present in the PubSEED / SEED viewer, 
+#   including tools for analyzing trees and alignments, efficient calculation of representative genes, etc.
+#   A list of easy-to-use functions is available here: http://pubseed.theseed.org/sapling/server.cgi?pod=ServerScripts
+# MaFFT - Fast and accurate multiple-alignment software
+# Clustalw - Multiple-alignment software
+# FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program
+# RaxML - Highly accurate but slow treeing program.
+# ETE and PyQT4 - Used for tree visualization.
+# Inkscape - used for high-quality conversion of vector to raster (PNG) formats. If anyone knows a good-quality
+# converter \ how to make Unix convert not destroy the images, Id be open to suggestions.
+
+### DATA SETUP ###
+# To actually RUN the programs you need some data. I'll consider the directory created when
+# you check this out of git the "root" directory.
+#
+### 1 ###
+# - organism file: Place this in the root directory.
+# It should be a tab-delimited file that looks like this.
+#
+# Methanosarcina acetivorans C2A  aceC2A  188937.1
+# Methanosarcina mazei GO1        mazGO1  192952.1
+# ...
+# The first column is the name of the organism, the second is an abbreviation and the third is an ID number.
+# Note that some functions (e.g. core gene finding) require the IDs to be in this format, #.#
+#
+### 2 ###
+# - Groups file: Place this in the root directory.
+# This allows you to specify multiple groups of organisms that you want to cluster with the same set of
+# parameters. In it, place organism names that ALL must match any organisms you want to cluster.
+#
+# e.g. 
+# Methanosarcina
+#
+# will cluster all Methanosarcina while
+# Methanosarcina   mazei
+# will cluster all things that match both Methanosarcina and mazei. Matching is not case-sensitive.
+#
+# Use "!" to specify NOT, i.e.
+#
+# !Methanosarcina
+#
+# will cluster any organisms in your database whose names don't match Methanosarcina
+#
+### 3 ###
+# - raw files: Tab-delimited files that look like this.
+#
+# contig_id       feature_id      type    location        start   stop    strand  function        aliases figfam  evidence_codes  nucleotide_sequence     aa_sequence
+#
+# The feature_id should have the format:
+# fig|#.#.peg.# (e.g. fig|83333.1.peg.1)
+# The first two numbers (83333.1) must match the organism ID for certain functions to work.
+# Type should be "peg" for all proteins. Anything not a protein is ignored.
+# Start/stop is the start/stop of the actual gene on the specified contig (start > stop for - strand genes).
+# Strand is + or -
+# Function is the functional annotation.
+# nucleotide_sequence is the nucleotide sequence of the protein and aa_sequence is the amino acid sequence.
+# All other fields (location, aliases, figfam, evidence_codes, ...) are ignored.
+#
+# There are three ways (listed roughly in order of how hard they are) to make these files:
+# - Upload your genomes to RAST for annotation (recommended) and then download the tab-delimited file, which is in this format.
+# - Run the convertPubseedToRast.sh script with the genome ID from the SEED (pubseed.theseed.org), which will automatically
+# download the files from the SEED FTP servers and convert them into the appropriate format. Using this requires you to install
+# MyRAST (a good idea since many functions I use require this anyway).
+# - Download the .gff, 

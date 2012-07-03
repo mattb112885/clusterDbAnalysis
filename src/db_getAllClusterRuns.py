@@ -9,13 +9,14 @@
 # Must be run from the root directory
 
 import sqlite3, optparse
+from locateDatabase import *
 
 usage = "%prog > run_id_list"
 description = "Return list of all run IDs from the database"
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 cur.execute("SELECT DISTINCT runid FROM clusters;")

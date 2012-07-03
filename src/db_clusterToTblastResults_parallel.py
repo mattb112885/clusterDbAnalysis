@@ -23,6 +23,7 @@
 
 import os, fileinput, optparse
 from ruffus import *
+from locateDatabase import *
 
 # Max number of genes in a cluster (note - there isn't too much of a time penalty if this is an overestimate
 # but if it is an underestimate we could miss the biggest clusters)
@@ -52,7 +53,7 @@ params = []
 for runid  in unqruns:
     for i in range(1, maxn):
         fname = "tblastn_by_cluster/RUN_" + runid[1:10] + "_N_" + str(i) + "_tblastn"
-        cmd = "echo \"" + runid + "\" | python src/db_getClustersWithNumGenes.py " + str(i) + " | python src/db_clusterToTblastResults.py > " + fname
+        cmd = "echo \"" + runid + "\" | python db_getClustersWithNumGenes.py " + str(i) + " | python db_clusterToTblastResults.py > " + fname
         params.append([cmd,])
 
 # Setup for ruffus

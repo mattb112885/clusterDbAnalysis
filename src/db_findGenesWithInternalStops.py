@@ -9,13 +9,14 @@
 # genes are added to the TBLASTN hits
 
 import sqlite3, optparse
+from locateDatabase import *
 
 usage = "%prog > [genes_with_internal_stops]"
 description="Find genes with internal stops that are present in the database. Internal stops are defined as internal TAG, TGA, or TAA codons"
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 # STOP codons

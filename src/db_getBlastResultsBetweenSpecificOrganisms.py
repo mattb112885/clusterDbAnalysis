@@ -13,6 +13,7 @@
 # 
 
 import sqlite3, optparse
+from locateDatabase import *
 
 usage = "%prog \"Organism 1\" \"Organism 2\" ... > blast_results"
 description = "Given list of organism keywords to match, returns a list of BLAST results between genes only in organisms matching ALL of the keywords. Use ! for NOT"
@@ -24,7 +25,7 @@ teststr = list('%' + s + '%' for s in args)
 # Double quotes cause any ! to be escaped. We need to remove the \ so that they dont appear in the SQL query.
 teststr = [ s.replace("\\", "") for s in teststr ]
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 # Generate a temporary table (desiredorgs) containing the list of
@@ -61,6 +62,5 @@ for l in cur:
     s = list(l)
     stri = "\t".join(str(t) for t in s)
     print stri
-
 
 con.close()

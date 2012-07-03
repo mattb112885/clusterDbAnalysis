@@ -8,6 +8,7 @@
 # (starting from 1 as the first column)
 
 import fileinput, sqlite3, optparse
+from locateDatabase import *
 
 # Get input arguments
 description = "Given a list of genes (from stdin), finds all TBLASTN results between those genes only"
@@ -16,7 +17,7 @@ parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene
 (options, args) = parser.parse_args()
 gc = options.runcolumn - 1 # Convert to Pythonic indexes
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 # Get list of gene IDs

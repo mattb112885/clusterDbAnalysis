@@ -13,6 +13,7 @@
 import optparse
 import sqlite3
 import sys
+from locateDatabase import *
 
 usage = "%prog RUNID1 RUNID2 > comparison_file"
 description="Generates a file comparing each overlapping pair of clusters between the two specified run IDs. The tab-delimited file has one row for each overlapping pair of clusters and has one column with the overlapping genes and one column with the non-overlapping genes from each cluster"
@@ -70,7 +71,7 @@ def getComparisonStrings(run1_clusterid, run2_clusterid, run1_clusterToGenes, ru
 # Main script
 ##############
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 run1_geneToCluster, run1_clusterToGenes = getClusterRunDictionaries(args[0], cur)

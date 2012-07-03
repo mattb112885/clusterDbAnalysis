@@ -1,92 +1,3 @@
-INSTALLATION
-
-First, path stuff... installation of this package itself involves only adding the following line to your .bashrc file:
-
-PATH=PATH:[base_directory]/src
-
-However, the pipeline works only on linux (and possibly on macOS) and requires installation of some tools for its core functions:
-
-- Blast+ (including blastp and, if you want to use it, tblastn)
-- Python (2.6 works)
-- Mcl
-- Sqlite3
-- Ruffus (python package for parallelization of blast)
-
-Some of the individual scripts have additional requirements:
-- alignment and tree programs (I currently support mafft and fasttree/raxml)
-- Biopython for genbank \ phylip \ fasta parsing and inter-conversion functions
-- ETE and PyQT4 (ETE dependency) for tree visualizating
-- inkscape for converting tree images to high-quality PNG files
-- numpy (Histogram calculation only)
-- Obviously, using a wrapper for a particular tool (e.g. RaxML, FastTree, GBlocks) requires you to have that tool installed.
-
-The program also needs some input files to set up. Here's how to generate them:
-
-1) Download the "spreadsheet (tab delimited)" format 
-   from all of your genomes in the SEED and place them in the "raw" directory.
-
-   You can also, if your genomes are in pubseed, run convertPubseedToRast.py 
-   to automatically download necessary files and convert them same format as you would get from RAST.
-   The annotations thus gotten will probably be more accurate (particularly for those in the seed 
-   viewer, not just in the pubseed) than what one would obtain by running through RAST only.
-
-   You can also download the GFF and fasta files (nucleotide and amino acid) and run the convertNcbiFilesToRast.py function to make a 
-   tab-delimited table out of that. The conversion script isn't perfect so make sure you heed any warnings about possibly missing proteins.
-
-   Only proteins are converted - no tRNAs or rRNAs end up in the database.
-
-   The protein IDs must be in a format similar to RAST - these functions will take care of that automatically. The expected format is:
-   fig|[genomeID].peg.[gene number]
-
-   The genome ID is [taxid].[integer]
-
-   taxid is the same as the taxonomy ID from NCBI, it's just an integer. The second integer is used in RAST to distinguish between different versions
-   of the same genome (e.g. for finishing, or if someone wants to re-annotate with different settings, and so on)
-
-2) (Optionally) Download the genbank files and place them in the "genbank" directory.
-
-3) Generate a tab-delimited list of organisms that looks like this:
-
-   Genus/species/strain	   Organism ID	      Organism abbreviation (1-6 characters)
-
-   For example,
-
-   Methanosarcina naples 100		nap100	2207.3
-   Methanosarcina acetivorans C2A	aceC2A	188937.5 
-
-Call the file "organisms" and place it in the root directory. 
-
-4) You will need to specify which groups of organisms to cluster. This should be in a tab-delimited file
-   called "groups" in the root diretory. There should be one line per group of organisms that you wish to cluster together.
-
-   mazei
-
-   And the clustering resulting will include all organisms with "mazei" in the name. Names with spaces are acceptable (the python
-   code deals with putting the quotation marks around them). Organism names with quotation marks in them are not allowed.
-
-   You can include multiple identifiers - the resulting cluters will contain all organisms that match ALL of the chosen identifiers.
-   You can also specify NOT by using "!" in front of names:
-
-   !methanosarcina
-
-   will cluster everything that is not methanosarcina, while
-
-   Methanosarcina	   !mazei
-
-   will cluster everything in methanosarcina and not in mazei (the key rule is that all of them are always linked by AND)
-
-   Final note - the organism specifications must match whatever is in the "Organisms" file.
-
-
-After this, run main1.sh and main2.sh to set up the database (descriptions below)
-and then you can query the database using any of the suite of functions in the src
-directory (also described below). Any python script can be described and its usage 
-and options defined simply by typing
-
-[name of script] -h
-
-
--------------------------------
 -------------------------------
 
 DESCRIPTION OF PIPELINE - PART 1 ("main.sh")
@@ -97,7 +8,7 @@ To run:
 
 (must be run from the root directory of the repository)
 
-This first part of the pipeline begins with the above-mentioned files and ends with
+This first part of the pipeline begins with the input files (see INSTALL) and ends with
 some processed gene tables with easier access to gene lengths and organisms, and
 all of the BLAST results and gene neighborhoods pre-computed for easy access.
 
@@ -106,8 +17,7 @@ into the functions that are necessary and outputs the results of these functions
 are redirected to the appropriate output folder.
 
 Any of the python scripts can be run individually as well - many of them are pipe commands.
-The condition is that they MUST be run from the root directory (because they have to know where they are
- in the directory structure)
+Unlike the main.sh and main2.sh the individual scripts can be run from anywhere.
 
 The steps performed are as follows: 
 
@@ -154,7 +64,7 @@ with information from other analysis functions is located in builddb_1.sql (blas
 # Utility functions
 ##########################
 
-These don't require access to the database, and therefore can be run from anywhere.
+These don't require access to the database.
 See the individual function help text for how to run them.
 
 ---> addGeneIdsToGenbank.py
@@ -285,9 +195,8 @@ Run tblastn in parallel for all amino acids in one folder against all the genome
 # Database access functions
 ##########################
 
-I have written several functions to generate specific tables from the database. All of them MUST
-be run from the root directory so that they can correctly find the location of the sqlite database.
-This requirement will be removed in a soon-to-come version.
+I have written several functions to generate specific tables from the database. They can now be run from anywhere
+in the filesystem.
 
 Here is a description of them. See the individual function's help text for how to run them. Most functions expect something to be piped in and export something to stdout:
 

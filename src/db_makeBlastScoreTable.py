@@ -30,6 +30,7 @@ def normhsp(bitscore, hsplen):
     return float(bitscore)/float(hsplen)
 
 import optparse, fileinput
+from locateDatabase import *
 
 validmethods = ['minbit', 'maxbit', 'avgbit', 'normhsp']
 
@@ -42,11 +43,8 @@ parser.add_option("-n", "--noprint", help="Set this flag if you do not want to p
 (options, args) = parser.parse_args()
 
 if not options.method in validmethods:
-    print "ERROR: Invalid method passed to db_makeBlastScoreTable."
-    print "Passed method:"
-    print options.method
-    print "Current valid methods are:"
-    print validmethods
+    sys.stderr.write("ERROR: Invalid method passed to db_makeBlastScoreTable\n")
+    sys.stderr.write("Current valid methods are:\n%s\n" %("\t".join(validmethods)))
     exit(2)
 
 for line in fileinput.input("-"):

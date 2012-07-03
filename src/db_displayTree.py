@@ -8,6 +8,7 @@
 import sys
 import optparse
 import os
+from locateDatabase import *
 
 ####################################
 # Lets read input arguments first.
@@ -96,7 +97,7 @@ geneToAnnote = {}
 geneToOrganism = {}
 sys.stderr.write("Reading gene annotations and organisms from database...\n")
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 cur.execute("SELECT * FROM processed;")
 

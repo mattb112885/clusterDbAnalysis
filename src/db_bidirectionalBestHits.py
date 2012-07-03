@@ -11,6 +11,7 @@ import sqlite3
 import optparse
 import sys
 import math
+from locateDatabase import *
 
 usage="%prog [options] > BBH_table"
 description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"
@@ -21,11 +22,11 @@ parser.add_option("-m", "--method", help="Scoring metric to use to define best h
 okmethods = [ "evalue", "maxbit", "minbit" ]
 
 if not options.method in okmethods:
-    print "ERROR: Specified method in db_bidirectionalBestHits.py not implemented."
-    print "Implemented methods: %s" %("\t".join(okmethods))
+    sys.stderr.write("ERROR: Specified method in db_bidirectionalBestHits.py not implemented.\n")
+    sys.stderr.write("Implemented methods: %s\n" %("\t".join(okmethods)))
     exit(2)
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 # Get a list of BLAST results with

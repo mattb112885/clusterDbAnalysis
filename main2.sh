@@ -17,8 +17,13 @@ RCUTOFF=$3;
 
 ##########################
 
-# Main function that generates blast results, (later) tblastn results,
-# and clusters for all of the organisms in the raw data folder.
+# This is the second main function for database building.
+#
+# As input arguments, provide the scoring function, cutoff, and inflation parameter
+# you wish to use for clustering. These are used to make an ID that will be different 
+# for any different combination of these parameters that you wish to use. 
+#
+# This function must be run from the root install directory!
 #
 # Required input files:
 # - Tab-delimited seed files (in "raw" directrory)
@@ -43,7 +48,7 @@ mkdir flatclusters 2> /dev/null;
 # (if the cluster file for a particular group already exists, it is skipped over
 # since the results should generally be the same.)
 echo "Running MCL on organisms in the groups file...";
-python src/db_specificOrganismClusterDriver.py groups ${INFLATION} ${RCUTOFF} ${SCOREMETHOD};
+db_specificOrganismClusterDriver.py groups ${INFLATION} ${RCUTOFF} ${SCOREMETHOD};
 
 # Modify the format of cluster files to be SQL-friendly.
 # Each separate clustering is given a random (very highly likely unique) identifier
@@ -51,7 +56,7 @@ python src/db_specificOrganismClusterDriver.py groups ${INFLATION} ${RCUTOFF} ${
 # given a set of organism names
 cd clusters;
 for file in *; do
-    cat ${file} | python ../src/flattenClusterFile.py -n ${file} > ../flatclusters/${file};
+    cat ${file} | flattenClusterFile.py -n ${file} > ../flatclusters/${file};
 done
 cd ..;
 

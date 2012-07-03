@@ -5,9 +5,8 @@
 # and we will add the organism's name corresponding to that gene ID as an
 # extra column on the output.
 
-import sqlite3
-import fileinput
-import optparse
+import fileinput, optparse, sqlite3
+from locateDatabase import *
 
 usage="%prog [options] < gene_ids > gene_ids_with_organism"
 description = "Add the organism name to a tab-delimited file containing gene IDs. Also optionally add other stuff."
@@ -18,7 +17,7 @@ parser.add_option("-a", "--annotate", help="Also add annotation (D=False)", acti
 
 gc = options.genecol - 1
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 for line in fileinput.input("-"):

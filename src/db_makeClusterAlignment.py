@@ -8,6 +8,7 @@
 
 import fileinput, optparse, os, random, sqlite3, sys
 from Bio import AlignIO
+from locateDatabase import *
 
 usage="%prog -m Method [options] < Cluster_RunIDs > Final_alignment"
 description="Generates a new alignment from the piped-in list of cluster/runID pairs.  All of the cluster/runID sets you pipe in are assumed to be combined together (useful e.g. for combining paralogous clusters). No trimming is done - it is up to the user to trim however they want before further analysis."
@@ -64,7 +65,7 @@ for line in fileinput.input("-"):
 fid.close()
 
 fasta = "%d.fasta" %(rann)
-cmd = "cat %s | ./src/db_getClusterGeneInformation.py -r %d -c %d | ./src/annoteSeq2Fasta.py -g 3 -a 5 -s 6 > %s" %(fname, rc+1, cc+1, fasta)
+cmd = "cat %s | db_getClusterGeneInformation.py -r %d -c %d | annoteSeq2Fasta.py -g 3 -a 5 -s 6 > %s" %(fname, rc+1, cc+1, fasta)
 
 sys.stderr.write("%s\n" %(cmd) )
 os.system(cmd)
@@ -101,10 +102,10 @@ if options.median:
 	trimcmd = "cat %s | svr_trim_ali -m > %s " %(faa, trimaln)
 	trimmethod = "median"
 if options.gblocks_stringent:
-	trimcmd = "cat %s | ./src/Gblocks_wrapper.py -s > %s " %(faa, trimaln)
+	trimcmd = "cat %s | Gblocks_wrapper.py -s > %s " %(faa, trimaln)
 	trimmethod = "gblocks_stringent"
 if options.gblocks_permissive:
-	trimcmd = "cat %s | ./src/Gblocks_wrapper.py -r > %s " %(faa, trimaln)
+	trimcmd = "cat %s |Gblocks_wrapper.py -r > %s " %(faa, trimaln)
 	trimmethod = "gblocks_permissive"
 
 sys.stderr.write("Trimming with command:\n%s\n" %(trimcmd))
@@ -115,7 +116,7 @@ os.system("cat %s" %(trimaln) )
 
 # Now... lets insert this thing into our lovely database.
 if options.usedb:
-	con = sqlite3.connect("db/methanosarcina")
+	con = sqlite3.connect(locateDatabase())
 	cur = con.cursor()
 	# Note - the ID is autoincremented so we don't need to insert into that column.
 	cmd1 = "INSERT INTO alignments VALUES (?,?,?);"

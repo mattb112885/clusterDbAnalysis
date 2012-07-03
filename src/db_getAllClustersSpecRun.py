@@ -9,6 +9,7 @@
 # Results are printed to stdout.
 
 import fileinput, sqlite3, optparse, os
+from locateDatabase import *
 
 usage="%prog [options] < run_ids > cluster_runs"
 description="Given a set of run IDs (from stdin), returns all cluster IDs associated with that run ID"
@@ -18,7 +19,7 @@ parser.add_option("-r", "--runcol", help="Column number for run ID (start from 1
 
 rc = options.rc - 1
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 for line in fileinput.input("-"):

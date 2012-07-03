@@ -7,6 +7,7 @@ import fileinput
 import sqlite3
 import optparse
 import sys
+from locateDatabase import *
 
 usage = "%prog [options] < gene_id_list > gene_neighborhoods"
 description="Given a list of gene IDs, get the neighborhoods within the specified number of genes on the same contig on either strand from the specified gene"
@@ -22,7 +23,7 @@ if nsize > 5:
     sys.stderr.write("ERROR: Maximum neighborhood size is 5 (this is the size used when pre-calculating for input into the database\n")
     exit(2)
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 for gene in fileinput.input("-"):

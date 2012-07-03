@@ -17,7 +17,8 @@
 #
 # Multiple different annotations are combined with OR statements.
 
-import sqlite3, fileinput, optparse
+import sqlite3, fileinput, optparse, sys
+from locateDatabase import *
 
 usage = "%prog [options] \"Annotation 1\" \"Annotation 2\" ... < run_ids > clusters_with_genes_containing_annotation_words"
 description = "Given list of run IDs, returns a list of genes and clusters containing given word(s) in the annotation - separate inputs are combined with OR statements"
@@ -25,12 +26,16 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--runcol", help="Column number for run ID, starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)
 (options, args) = parser.parse_args()
 
+if len(args) < 1:
+    sys.stderr.write("ERROR: Must provide at least one annotation to match!\n")
+    exit(2)
+
 rc = options.rc - 1
 
 # Change the annotations so that they are all LIKE %name%
 teststr = tuple('%' + s + '%' for s in args)
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 query = """SELECT clusters.*, processed.annotation

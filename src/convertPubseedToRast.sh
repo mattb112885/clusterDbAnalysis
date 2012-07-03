@@ -36,7 +36,7 @@ if [ ${FILESIZE} -eq 0 ]; then
     exit 0;
 fi
 
-cat "${ORGANISM}.int" | ./src/pubseed2rast.py > "${ORGANISM}.rast_txt"
+cat "${ORGANISM}.int" | pubseed2rast.py > "${ORGANISM}.rast_txt"
 
 # CLean up
 rm "${ORGANISM}.tbl" "${ORGANISM}.int"

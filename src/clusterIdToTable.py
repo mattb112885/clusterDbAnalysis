@@ -5,11 +5,11 @@
 # 
 # Outputs to stdount a list of run and cluster ID pairs.
 # E.g. pipe in results of
-# ./src/db_getAllClusterRuns.py | grep "max"
+# db_getAllClusterRuns.py | grep "max"
 # (Methanosarcina_I_2.0_c_0.4_m_maxbit)
 #
 # and run
-# ./src/clusterIdToTable "1000" "1001" "1003"
+# clusterIdToTable "1000" "1001" "1003"
 #
 # results will be
 # Methanosarcina_I_2.0_c_0.4_m_maxbit  1000

@@ -10,6 +10,7 @@
 # The code is identical except the sql command has an OR instead of an AND...
 
 import fileinput, optparse, sqlite3
+from locateDatabase import *
 
 usage = "%prog [options] < gene_ids > blast_results"
 description = "Given list of genes to match, returns a list of BLAST results containing any gene ID in your list as either a query or a target (for blast results only BETWEEN the query genes, see db_getBlastResultsBetweenSpecificGenes.py)"
@@ -19,7 +20,7 @@ parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene
 
 gc = options.genecolumn - 1
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 # Generate a table of BLAST results                                                                                                                                                                            

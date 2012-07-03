@@ -126,7 +126,7 @@ os.system(FastTreeCmd)
 # Deal with global bootstrap if requested
 if GLOBALBOOTS:
     # Generate the phylip bootstrap file
-    os.system("./src/phylipSeqbootScript.sh %s %s_seqboot %d" %(fname, fname, NUMBOOTS))
+    os.system("phylipSeqbootScript.sh %s %s_seqboot %d" %(fname, fname, NUMBOOTS))
     # Run FastTree with the same parameters but on the bootstrap alignments
     FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, fname)
     os.system(FastTreeCmd)

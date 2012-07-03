@@ -10,6 +10,7 @@
 
 import sqlite3
 import optparse
+from locateDatabase import *
 
 # This is only for self-documenting purposes - this function takes no arguments.                                                                                                                              
 usage="%prog > presence_absence_pegid_table"
@@ -17,8 +18,7 @@ description="Generates a presence/absence table for every cluster in every run i
 parser = optparse.OptionParser(usage=usage, description=description)
 (options,args) = parser.parse_args()
 
-
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 def getOneClusterOrganismsPegs(runid, clusterid, cur):

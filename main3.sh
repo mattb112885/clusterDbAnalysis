@@ -22,7 +22,7 @@ echo "Converting genbank files to full-nucleotide fasta files...";
 
 cd genbank;
 for file in *; do
-    cat ${file} | python ../src/genbank2nucleotides.py > ../genomefasta/${file}.fna 2> /dev/null;
+    cat ${file} | python genbank2nucleotides.py > ../genomefasta/${file}.fna 2> /dev/null;
 done
 cd ..;
 
@@ -32,7 +32,7 @@ python src/tblastn_all_vs_all.py faa/ genomefasta/ tblastn/ ${NCORES};
 echo "tblastn done. processing (removing very weak hits)..."
 cd tblastn;
 for file in *; do
-    cat ${file} | python ../src/processTblastResults.py 50 > ../tblastn_cutoff/${file}.cut;
+    cat ${file} | python processTblastResults.py 50 > ../tblastn_cutoff/${file}.cut;
 done
 cd ..;
 

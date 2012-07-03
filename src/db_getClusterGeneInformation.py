@@ -24,9 +24,9 @@
 # -c or --ccolumn: Column number for cluster id (count from 1)
 
 import sqlite3, fileinput, optparse
+from locateDatabase import *
 
-# Get input arguments                                                                                                                                                                                         
-
+# Get input arguments                                                                         
 usage = "%prog [options] < [ runid_clusterid_table] > cluster_gene_info"
 description = "Given a list of run ID / cluster ID pairs (one pair in each row of the input table), get a list of info in each gene in those clusters including organism, strand, location, contig, and sequences" 
 parser = optparse.OptionParser(usage=usage, description=description)
@@ -36,7 +36,7 @@ parser.add_option("-c", "--ccolumn", help="Column number (start from 1) for clus
 rc = options.runcolumn - 1 # Convert to Pythonic indexes                                                                                                                                                      
 cc = options.clustercolumn - 1
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 # Make a temporary table with all of the clusters that we want to actually extract

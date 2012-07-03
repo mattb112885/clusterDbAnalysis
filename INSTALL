@@ -81,4 +81,6 @@
 # - Run the convertPubseedToRast.sh script with the genome ID from the SEED (pubseed.theseed.org), which will automatically
 # download the files from the SEED FTP servers and convert them into the appropriate format. Using this requires you to install
 # MyRAST (a good idea since many functions I use require this anyway).
-# - Download the .gff, 
+# - Download the NCBI files for your genome and CONCATINATE THE FILES OF THE SAME TYPE ACROSS CONTIGS. 
+# Then run convertNcbiFilesToRast.py to make files. Make sure to pay attention to any warnings
+# generated - these are due to formatting oddities and need to be fixed manually.

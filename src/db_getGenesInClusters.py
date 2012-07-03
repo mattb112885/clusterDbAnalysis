@@ -13,6 +13,7 @@
 # Note - this is quite slow so I don't suggest using it.
 
 import fileinput, sqlite3, optparse
+from locateDatabase import *
 
 # Get input arguments
 usage = "%prog [options] < runid_clusterid_table > gene_id_list"
@@ -25,7 +26,7 @@ parser.add_option("-c", "--ccolumn", help="Column number (start from 1) for clus
 rc = options.runcolumn - 1 # Convert to Pythonic indexes
 cc = options.clustercolumn - 1
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 # Make a temporary table with all of the clusters that we want to actually extract

@@ -8,7 +8,8 @@
 # and the cluster ID's with the specified number of genes (regardless of organisms) in the
 # second column.
 
-import fileinput, sqlite3, optparse, os, sys
+import fileinput, sqlite3, optparse, sys
+from locateDatabase import *
 
 usage = "%prog -n numgenes [options] < run_ids > clusters_with_specified_num_genes"
 description = "Get all of the clusters with the specified number of genes in the specified cluster runs"
@@ -25,7 +26,7 @@ if options.numcluster == None:
 else:
     nc = options.numcluster
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 for line in fileinput.input("-"):

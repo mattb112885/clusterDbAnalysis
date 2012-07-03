@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Input: a raw file [from e.g. ./src/db_getAllRawData.py]
+# Input: a raw file
 #
 # Outputs (up to k=12) the k-nearest neighbors of a gene on both sides. 
 # Does not include circularity in general...

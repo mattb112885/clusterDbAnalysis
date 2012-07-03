@@ -14,6 +14,7 @@
 
 import sqlite3, fileinput, re
 import optparse
+from locateDatabase import *
 
 usage = "%prog [options] < organism_list > list_of_core_clusters"
 description = "Calculates core genes for all available cluster runs from a piped-in list of organisms (NOT organism IDs)"
@@ -28,7 +29,7 @@ for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
     orgs.append(spl[oc])
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 cur.execute("DROP TABLE IF EXISTS myorganisms;")

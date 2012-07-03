@@ -6,16 +6,17 @@
 # returns all genes in the database matching that annotation.
 
 import optparse, sqlite3
+from locateDatabase import *
 
 usage = "%prog \"Annotation 1\" \"Annotation 2\" ... > [Gene_id_list]"
 description = "Get a list of genes in the database matching at least one of the specified annotations (Note - does not have to match ALL of them)"
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()
 
-# Change the annotations so that they are all LIKE %name%                                                                                                                                                      
+# Change the annotations so that they are all LIKE %name%
 teststr = tuple('%' + s + '%' for s in args)
 
-con = sqlite3.connect("db/methanosarcina")
+con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 query = """SELECT processed.geneid, processed.annotation

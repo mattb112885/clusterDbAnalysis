@@ -11,8 +11,8 @@ fi
 # 1: Make into tab-delimited format needed for other functions
 # 2: Get protein sequences
 # 3: Get representative sequences using default parameters
-echo $1 | ./src/clusterIdToTable.py $2 | ./src/db_getClusterGeneInformation.py \
-    | ./src/annoteSeq2Fasta.py -g 3 -a 5 -s 6 > /tmp/fasta_$1_$2
+echo $1 | clusterIdToTable.py $2 | db_getClusterGeneInformation.py \
+    | annoteSeq2Fasta.py -g 3 -a 5 -s 6 > /tmp/fasta_$1_$2
 
 # Get representatives
 # We are using a similarity higher than default becuase our organisms are all so similar.

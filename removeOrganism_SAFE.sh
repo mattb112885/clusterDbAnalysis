@@ -23,6 +23,12 @@ fi
 echo "Line to be removed from organisms file: "
 grep -w ${ORGANISM} organisms;
 
+if [ -f ./aliases/aliases ]; then
+    echo "To be removed from Aliases file";
+    # fig|organism.peg.genenum
+    grep -F "|${ORGANISM}." ./aliases/aliases
+fi    
+
 # Try to CD into each of the data folders and remove the organism's data
 # Be careful of things like xxxx.1 vs xxxx.10
 if [ -d ./blastres/ ]; then
@@ -111,3 +117,4 @@ if [ -d ./tblasn_cutoff ]; then
     ls | grep -P "_${ORGANISM}\.txt";
     cd ..;
 fi
+

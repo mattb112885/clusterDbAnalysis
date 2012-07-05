@@ -1,6 +1,11 @@
 IMPORTANT: make sure you put all of your RAW data files
 in this folder!
 
+If you want to be able to REMOVE the organism later you should name the files with the format
+[organismID].txt . This is because files to remove are identified by the organism ID in the file name.
+
+e.g. 83333.1.txt for E. coli K12
+
 RAW data files are tab-delmited files that look like this:
 
 contig_id       feature_id      type    location        start   stop    strand  function        aliases figfam  evidence_codes  nucleotide_sequence     aa_sequence

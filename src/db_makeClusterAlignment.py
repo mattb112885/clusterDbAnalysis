@@ -105,7 +105,7 @@ if options.gblocks_stringent:
 	trimcmd = "cat %s | Gblocks_wrapper.py -s > %s " %(faa, trimaln)
 	trimmethod = "gblocks_stringent"
 if options.gblocks_permissive:
-	trimcmd = "cat %s |Gblocks_wrapper.py -r > %s " %(faa, trimaln)
+	trimcmd = "cat %s | Gblocks_wrapper.py -r > %s " %(faa, trimaln)
 	trimmethod = "gblocks_permissive"
 
 sys.stderr.write("Trimming with command:\n%s\n" %(trimcmd))

@@ -35,12 +35,20 @@ echo "Removing line from organisms file: "
 grep -v -w ${ORGANISM} organisms > organisms_mod;
 mv organisms_mod organisms
 
+if [ -f ./aliases/aliases ]; then
+    echo "To be removed from Aliases file";
+    # fig|organism.peg.genenum
+    grep -v -F "|${ORGANISM}." ./aliases/aliases > ./aliases/aliases_mod
+    mv ./aliases/aliases_mod ./aliases/aliases
+fi
+
 # Try to CD into each of the data folders and remove the organism's data
 # Be careful of things like xxxx.1 vs xxxx.10
 if [ -d ./blastres/ ]; then
     echo "Blastres folder";
     # Beginning of filename
     cd ./blastres/;
+    # FIXME - this should actually look inside the file? (so it becomes file-name independent)
     ls | grep -P "^${ORGANISM}\.txt" | xargs rm;
     # Middle of filename
     ls | grep -P "_${ORGANISM}\.txt" | xargs rm;

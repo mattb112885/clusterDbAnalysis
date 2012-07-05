@@ -25,6 +25,12 @@ NCORES=12;
 #
 # See README file for more details
 
+./checkInputFormat.sh
+if [ $? -ne 0 ]; then
+    echo "Errors in input file format. Please fix and run again."
+    exit 1
+fi
+
 # In case the user has never run this script before...
 mkdir faa 2> /dev/null;
 mkdir fna 2> /dev/null;

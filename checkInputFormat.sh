@@ -36,17 +36,17 @@ if [ ! -d "raw" ]; then
     STATUS=1;
 else
     cd raw;
+    echo "Checking for existence of raw files for each organism..."
     for org in ${orgmatch}; do
 	fmatch=$(grep -o -F ${org} *);
-	echo "Testing existence of a raw file for organism ${org}...";
 	if [ $? -eq 1 ]; then
 	    echo "ERROR: No raw file match for organism ID ${org}";
 	    STATUS=1;
 	fi
     done
 
+    echo "Checking formatting of each raw file..."
     for file in $(ls | grep -v "README"); do
-	echo "Checking format of raw file ${file}..."
 	# Note  - all of these check for the existence of ONE thing with the right format in each column (they don't check that ALL of the rows are the right format)
 	# I dont check the following things that are still useful:
 	# contig (column 1) - no specific format required

@@ -62,6 +62,13 @@ if [ -d ./clusters/ ]; then
     cd ..;
 fi
 
+if [ -d ./flatclusters/ ]; then
+    echo "Clusters folder";
+    cd ./flatclusters/;
+    ls | xargs rm;
+    cd ..;
+fi
+
 if [ -d ./db/ ]; then
     echo "Database folder";
     cd ./db/;

@@ -66,7 +66,7 @@ cat blastres/* > db/blastres_cat;
 cat modtable/* > db/mod_cat;
 
 if [ -f aliases/aliases ]; then
-    cat raw/* | grep -v "feature_id" | addAliasesToGeneNames.py aliases/aliases > db/raw_cat;
+    cat raw/* | grep -v "feature_id" | addAliasesToGeneAnnotations.py aliases/aliases > db/raw_cat;
 else
     echo "WARNING: No alias file found (expected location: aliases/aliases). No aliases will be added to annotations."
     cat raw/* | grep -v "feature_id" > db/raw_cat;

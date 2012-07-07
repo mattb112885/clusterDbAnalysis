@@ -16,8 +16,9 @@ import sqlite3, optparse
 from locateDatabase import *
 
 usage = "%prog \"Organism 1\" \"Organism 2\" ... > blast_results"
-description = "Given list of organism keywords to match, returns a list of BLAST results between genes only in organisms matching ALL of the keywords. Use ! for NOT"
+description = "Given list of organism keywords to match, by default returns a list of BLAST results between genes only in organisms matching ALL of the keywords. Use ! for NOT or -o to use OR instead"
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-o", "--or", help="Use OR instead of AND between organism identifiers", action="store_true", dest="useor", default=False)
 (options, args) = parser.parse_args()
 
 teststr = list('%' + s + '%' for s in args)
@@ -44,7 +45,10 @@ for i in range(len(teststr)):
         query = query + "processed.organism LIKE ? "
 
     if not i == len(teststr) - 1:
-        query = query + "AND "
+        if options.useor:
+            query = query + "OR "
+        else:
+            query = query + "AND "
 
 query = query + ";"
 cur.execute(query, tuple(teststr))

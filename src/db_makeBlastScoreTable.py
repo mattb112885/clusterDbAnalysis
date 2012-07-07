@@ -34,7 +34,7 @@ from locateDatabase import *
 
 validmethods = ['minbit', 'maxbit', 'avgbit', 'normhsp']
 
-usage="%prog -m [method] -c [cutoff] [options]"
+usage="%prog -m [method] -c [cutoff] [options] < blast_result_table"
 description = "Given a blast score table (augmented with self-bit scores for query and target genes), calculates a similarity value based on the desired scoring metric. Currently implemented metrics: %s" %(" ".join(validmethods))
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-m", "--method", help="Method name", action="store", type="str", dest="method", default=None)

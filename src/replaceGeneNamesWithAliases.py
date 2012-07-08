@@ -21,7 +21,7 @@ parser.add_option("-n", "--nooriginal", help="Set this flag to NOT keep the orig
 
 transfile = args[0]
 
-newickString = ''.join( [ line.strip('\r\n') for line in fileinput.input("-") ] )
+newickString = '\n'.join( [ line.strip('\r\n') for line in fileinput.input("-") ] )
 geneToAnnotation = {}
 for line in open(sys.argv[1], "r"):
     spl = line.strip('\r\n').split("\t")

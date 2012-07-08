@@ -131,8 +131,8 @@ if GLOBALBOOTS:
     FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, fname)
     os.system(FastTreeCmd)
     # Run the CompareToBootstrap.pl program needed to do something with the global bootstrap values...
-    os.system("CompareToBootstrap.pl -tree %s -boot %s > %s_global.nwk")
-    os.system("mv %s_global.nwk %s.nwk")
+    os.system("CompareToBootstrap.pl -tree %s -boot %s > %s_global.nwk" %(fname, fname))
+    os.system("mv %s_global.nwk %s.nwk" %(fname, fname) )
 
 treestr = "".join([ line.strip('\r\n') for line in open("%s.nwk" %(fname)) ])
 # Substitute names back for the final tree output

@@ -26,7 +26,7 @@ parser.add_option("-o", "--orgcol", help="Column number for organism starting fr
 (options, args) = parser.parse_args()
 
 if not len(args) == 1:
-    sys.stderr.write("ERROR: Run ID must be provided")
+    sys.stderr.write("ERROR: Run ID must be provided\n")
     exit(2)
 
 if options.all and options.none:

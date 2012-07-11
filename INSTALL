@@ -41,7 +41,7 @@
 # Methanosarcina mazei GO1        mazGO1  192952.1
 # ...
 # The first column is the name of the organism, the second is an abbreviation and the third is an ID number.
-# Note that some functions (e.g. core gene finding) require the IDs to be in this format, #.#
+# Note that some functions (e.g. core gene finding) require the IDs to be in this format, "\d+\.\d+" in regex
 #
 ### 2 ###
 # - Groups file: Place this in the root directory.

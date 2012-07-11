@@ -7,7 +7,7 @@
 import fileinput, optparse, sqlite3, sys
 from locateDatabase import *
 
-usage="%prog [options] run_id > cluster_run_id_list"
+usage="%prog [options] run_id < organism_list > cluster_run_id_list"
 description="""Find clusters with a paritcular quality relative to the list of organisms you specified.
 Note: To find core gene clusters for a particular group, use both -a and -u
 To find core genes only in a parituclar group (to the exclusion of all the others in that cluster run), use -a, -u, and -s

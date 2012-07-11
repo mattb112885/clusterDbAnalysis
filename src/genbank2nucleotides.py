@@ -1,29 +1,38 @@
 #!/usr/bin/python
 
-# This is a pipe command. Pipe in a genbank file and
-# get out a nucleotide sequence FASTA file containing
-# all the contigs in the genome
+# THIS is a dumb genbank parser
+# Biopython is too smart and doesn't let me make a fna file with multiple contigs
+# if the contig name is longer than 10 characters.
+#
+# It is mostly intended to be used on the genbank files from RAST - it might not work
+# with genbank files from other websites...
+#
+# Contig IDs cannot have spaces.
 
-# Requires biopython.
-# Note - the actual stuff we want is printed to stdout.
-#   Python will generate some errors because the seed exports "UNK" as the date of
-#   modification (in the LOCUS field) instead of an actual valid date.
-#   As far as I can tell, these can be safely ignored.
+import fileinput
+import re
 
-from Bio import SeqIO
-import sys
+spaceRemover = re.compile("\s\s+")
+sequenceCleaner = re.compile("[\s\d]*")
 
-records = SeqIO.parse(sys.stdin, "genbank")
-
-# Make a nucleotide FASTA file and export to stdout.
-# Make sure the genome ID is exported... with the extra
-# period to make sure we don't only match subsets of the ID
-genome_id = ""
-for s in records:
-    if genome_id == "":
-        for l in s.features:
-            if l.type == "source":
-                genome_id = l.qualifiers["genome_id"][0]
-                break
-    print ">" + genome_id + "." + s.name
-    print s.seq
+contig = ""
+seq = ""
+issequence = False
+for line in fileinput.input("-"):
+    if line.startswith("LOCUS"):
+        sub = spaceRemover.sub(" ", line)
+        spl = sub.split(" ")
+        contig = spl[1]
+    # a line ORIGIN designates the beginning of the DNA sequence
+    if line.startswith("ORIGIN"):
+        issequence = True
+        seq = ""
+        continue
+    # A line "//" designates the end of the DNA sequence...
+    if line.startswith("//"):
+        print "%s\t%s" %(contig, seq)
+        issequence = False
+        continue
+    if issequence:
+        # We need to remove spaces and numbers
+        seq = seq + sequenceCleaner.sub("", line)

@@ -23,6 +23,7 @@ usage="%prog [options] < gene_ids > gene_info"
 description="Given a list of gene IDs, get their gene info, including annotations, contig, organism, strand, and sequences"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
+parser.add_option("-a", "--add", help="Add gene information to the end of the existing file (D: only return the gene information)", action="store_true", dest="keep", default=False)
 (options, args) = parser.parse_args()
 gc = options.genecolumn - 1 # Convert to Pythonic indexes               
 
@@ -41,6 +42,8 @@ for line in fileinput.input("-"):
     for l in cur:
         s = list(l)
         stri = "\t".join(str(t) for t in s)
+        if options.keep:
+            stri = "%s\t%s" %(line.strip('\r\n'), stri)
         print stri
     
 con.close()

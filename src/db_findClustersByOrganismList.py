@@ -22,6 +22,7 @@ parser.add_option("-s", "--only", help="Only include clusters that ONLY has matc
 parser.add_option("-n", "--none", help="Only include clusters that have DOES NOT have a representative in the specified organisms", action="store_true", dest="none", default=False)
 parser.add_option("-u", "--uniq", help="Only include clusters that contain exactly ONE representative in any matching organisms (D: Any number)", action="store_true", dest="uniq", default=False)
 parser.add_option("-o", "--orgcol", help="Column number for organism starting from 1 (D=1)", action="store", type="int", dest="oc", default=1)
+parser.add_option("-r", "--underscore", help="If specified, the names in the input file have spaces replaced by underscores (D: False)", action="store_true", dest="under", default=False)
 #parser.add_option("-m", "--minorgs", help="Minimum number of organisms in clusters to be included (D=no minimum)", action="store", type="int", dest="minorg", default=None)
 (options, args) = parser.parse_args()
 
@@ -51,6 +52,12 @@ orglist = []
 for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")
     orglist.append(spl[oc])
+
+if options.under:
+    for ii in range(len(orglist)):
+        orglist[ii] = orglist[ii].replace("_", " ")
+        print orglist[ii]
+    
 
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()

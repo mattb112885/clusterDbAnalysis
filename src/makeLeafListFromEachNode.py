@@ -25,13 +25,14 @@ n = 0
 # The strategy really doesn't matter, it's just for aesthetics...
 for node in t.traverse("postorder"):
     n = n + 1
-    leaflist = "\t".join(node.get_leaf_names())
     if options.filedir is not None:
         p = os.path.join(options.filedir, "%d" %(n) )
         fid = open(p, "w")
-        fid.write("%s\n" %(leaflist) )
+        fid.write( "\n".join(node.get_leaf_names()))
+        fid.write("\n")
         fid.close()
     else:
+        leaflist = "\t".join(node.get_leaf_names())
         print leaflist
     
         

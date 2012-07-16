@@ -49,6 +49,15 @@ if [ -d ./clusters/ ]; then
     cd ..;
 fi
 
+if [ -d ./flatclusters/ ]; then
+    echo "Flat Clusters folder";
+    cd ./flatclusters/;
+    # All files would be removed
+    ls;
+    cd ..;
+fi
+
+
 if [ -d ./db/ ]; then
     echo "Database folder";
     cd ./db/;

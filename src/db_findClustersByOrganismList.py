@@ -4,7 +4,7 @@
 # identify clusters within that run that only have representatives
 # within the specified list of organisms
 
-import fileinput, optparse, sqlite3, sys
+import fileinput, optparse, sqlite3, sys, os
 from locateDatabase import *
 
 usage="%prog [options] run_id < organism_list > cluster_run_id_list"
@@ -54,10 +54,14 @@ for line in fileinput.input("-"):
     orglist.append(spl[oc])
 
 if options.under:
+    allOrgsDict = {}
+    p = os.path.join(os.path.dirname(locateDatabase()), "..", "organisms")
+    orgfile = open(p, "r")
+    for line in orgfile:
+        spl = line.strip("\r\n").split("\t")
+        allOrgsDict[spl[0].replace(" ", "_")] = spl[0]
     for ii in range(len(orglist)):
-        orglist[ii] = orglist[ii].replace("_", " ")
-        print orglist[ii]
-    
+        orglist[ii] = allOrgsDict[orglist[ii]]
 
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()

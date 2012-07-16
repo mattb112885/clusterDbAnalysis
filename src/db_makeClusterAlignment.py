@@ -10,6 +10,16 @@ import fileinput, optparse, os, random, sqlite3, sys
 from Bio import AlignIO
 from locateDatabase import *
 
+#### MAFFT methods
+# Linsi: Highest accuracy and slowest (recommended for most clusters since they're small)
+# Einsi
+# Ginsi
+# Default: Lowest accuracy and fastest [mafft in > out]
+#### CLUSTALW methods
+# Default: Just cluster them with default parameters (not as accurate as mafft)
+valid_methods = ['mafft_linsi', 'mafft_einsi', 'mafft_ginsi', 'mafft_default', 
+	'clustalw_default']
+
 usage="%prog -m Method [options] < Cluster_RunIDs > Final_alignment"
 description="Generates a new alignment from the piped-in list of cluster/runID pairs.  All of the cluster/runID sets you pipe in are assumed to be combined together (useful e.g. for combining paralogous clusters). No trimming is done - it is up to the user to trim however they want before further analysis."
 parser = optparse.OptionParser(usage=usage, description=description)
@@ -17,7 +27,8 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--runcol", help="Column number for run ID starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)
 parser.add_option("-c", "--clustercol", help="Column number for cluster ID starting from 1 (D=2)", action="store", type="int", dest="cc", default=2)
 ### Alignment options
-parser.add_option("-m", "--alnmethod", help="Method used to generate alignment (no default)", action="store", type="str", dest="method", default=None)
+parser.add_option("-m", "--alnmethod", help="""Method used to generate alignment (no default)
+Valid methods: %s""" %(",".join(valid_methods)), action="store", type="str", dest="method", default=None)
 ### Trimming options
 parser.add_option("-n", "--notrim", help="Do not trim alignment (no default)", action="store_true", dest="notrim", default=False)
 parser.add_option("-t", "--trimtomedian", help="Use svr script to trim to median ends (no default)", action="store_true", dest="median", default=False)
@@ -29,16 +40,6 @@ parser.add_option("-a", "--addtodb", help="Add new alignment to the database (de
 (options, args) = parser.parse_args()
 rc = options.rc - 1
 cc = options.cc - 1
-
-#### MAFFT methods
-# Linsi: Highest accuracy and slowest (recommended for most clusters since they're small)
-# Einsi
-# Ginsi
-# Default: Lowest accuracy and fastest [mafft in > out]
-#### CLUSTALW methods
-# Default: Just cluster them with default parameters (not as accurate as mafft)
-valid_methods = ['mafft_linsi', 'mafft_einsi', 'mafft_ginsi', 'mafft_default', 
-	'clustalw_default']
 
 if not options.method in valid_methods:
 	sys.stderr.write("ERROR: Provided method was not in the available valid methods. Valid methods include:\n")

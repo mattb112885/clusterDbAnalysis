@@ -63,7 +63,7 @@ if [ -d ./clusters/ ]; then
 fi
 
 if [ -d ./flatclusters/ ]; then
-    echo "Clusters folder";
+    echo "Flat Clusters folder";
     cd ./flatclusters/;
     ls | xargs rm;
     cd ..;

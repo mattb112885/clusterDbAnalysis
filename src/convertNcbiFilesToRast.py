@@ -96,7 +96,8 @@ for record in ffn_recs:
 
 gffIdFinder = re.compile("protein_id=([^;]*)")
 rnaFunctionFinder = re.compile("product=([^;]*)")
-taxIdFinder = re.compile("Dbxref=taxon:(\d*)")
+# There are cases where there are multiple dbxref's (see e.g. Acetobacter_pasteurianus_IFO_3283_01_42C_uid158377)
+taxIdFinder = re.compile("Dbxref=.*taxon:(\d*)")
 
 # I haven't dealt with RNAs in the pubseed converter either, and
 # it is not at all clear to me how the frn file (which contains the 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NCORES=2;
+NCORES=12;
 
 # Note - for now the mcl parameters are located in the function
 # src/specificOrganismClusterDriver.py

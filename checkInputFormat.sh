@@ -81,12 +81,16 @@ else
 	    echo "ERROR: Strand (seventh column) must be + or - in file ${file}";
 	    STATUS=1;
 	fi
-        fmatch=$(cat ${file} | cut -f 12 | grep -o -i -P "^[acgt]+$");
+	# Note - NRWYMKSHBVD are ambiguous nucleotides
+	# ACGT are the standard nucleotides
+	# Anything that isn't one of these is an error.
+	# No gaps are allowed.
+        fmatch=$(cat ${file} | cut -f 12 | grep -o -i -P "^[acgtnrwymkshbvd]+$");
 	if [ $? -eq 1 ]; then
 	    echo "ERROR: Nucleotide sequence expected in 12th column in file ${file}";
 	    STATUS=1;
 	fi
-	# Note this wont match the header because fo the "_" in aa_sequences
+	# Note this wont match the header because of the "_" in aa_sequences
 	fmatch=$(cat ${file} | cut -f 13 | grep -o -i -P "^[A-Z]+$")
 	if [ $? -eq 1 ]; then
 	    echo "ERROR: Amino acid sequence expected in 13th column in file ${file}";

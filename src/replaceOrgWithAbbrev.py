@@ -25,7 +25,7 @@ parser.add_option("-k", "--keeppeg", help="Keep PEG ID? (if specified, keeps peg
 (options, args) = parser.parse_args()
 
 if options.orgfile == None:
-    print "ERROR: Orgfile (-f orgfile) is a required argument to replaceOrgWithAbbrev"
+    sys.stderr.write("ERROR: Orgfile (-f orgfile) is a required argument to replaceOrgWithAbbrev\n")
     exit(2)
 
 useabbrev = options.useabbrev

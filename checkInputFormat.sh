@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check for existence and formatting of required input files.
 # On success, will give no errors and retrun 0
@@ -21,11 +21,29 @@ if [ $? -eq 1 ]; then
     STATUS=1
 fi
 
+echo "Checking for uniqueness of organisms in organisms file..."
+nl=$(cat organisms | wc -l)
+numname=$(cat organisms | cut -f 1 | sort -u | wc -l);
+numabbrev=$(cat organisms | cut -f 2 | sort -u | wc -l);
+numid=$(cat organisms | cut -f 3 | sort -u | wc -l);
+if [ "${nl}" != "${numname}" ]; then
+    echo 'ERROR: Organism names must be unique (first column of organisms file)';
+    STATUS=1;
+fi
+if [ "${nl}" != "${numabbrev}" ]; then
+    echo 'ERROR: Organism abbreviations must be unique (second column of organisms file)';
+    STATUS=1;
+fi
+if [ "${nl}" != "${numid}" ]; then
+    echo 'ERROR: Organism IDs must be unique (third column of organisms file)';
+    STATUS=1;
+fi
+
 # Check existence of groups file (for clustering)
 echo "Checking existence of groups file..."
 if [ ! -f "groups" ]; then
     echo 'ERROR: groups file not found';
-    STATUS=1
+    STATUS=1;
 fi
 
 # Check that organism names in groups file match with organisms file?

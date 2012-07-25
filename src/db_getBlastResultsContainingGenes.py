@@ -16,6 +16,7 @@ usage = "%prog [options] < gene_ids > blast_results"
 description = "Given list of genes to match, returns a list of BLAST results containing any gene ID in your list as either a query or a target (for blast results only BETWEEN the query genes, see db_getBlastResultsBetweenSpecificGenes.py)"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
+parser.add_option("-c", "--cutoff", help="E-value cutoff (D: Show all results in database)", action="store", type="float", dest="cutoff", default=10)
 (options, args) = parser.parse_args()
 
 gc = options.genecolumn - 1
@@ -31,8 +32,8 @@ for line in fileinput.input("-"):
 
 # Generate a list of blast results with query matching one of the desiredgenes
 cur.execute("""SELECT blastres_selfbit.* FROM blastres_selfbit
-               WHERE blastres_selfbit.targetgene IN (select geneid from desiredgenes)
-               OR blastres_selfbit.querygene IN (select geneid from desiredgenes);""");
+               WHERE (blastres_selfbit.evalue < ?) AND ( blastres_selfbit.targetgene IN (select geneid from desiredgenes)
+               OR blastres_selfbit.querygene IN (select geneid from desiredgenes) ) ;""", (options.cutoff, ) );
 
 for l in cur:
     s = list(l)

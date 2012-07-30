@@ -51,8 +51,17 @@ aln = list(AlignIO.read(sys.stdin, "fasta"))
 
 # We will use this to convert back to the IDs in the fasta file
 subToReal = {}
+badchars = " (),:;"
 for i in range(len(aln)):
     newid = "S%09d" %(i)
+    # FastTree automatically sanitizes ID strings for special characters in Newick files ( (),:; and spaces ) but
+    # RaxML does not. I need to provide warning of this and replace if necessary
+    for char in badchars:
+        if char in aln[i].id:
+            sys.stderr.write("WARNING: Special character %s replaced by _ in id %s\n" %(char, newid))
+            st = aln[i].id
+            aln[i].id = st.replace(char, "_")
+
     subToReal[newid] = aln[i].id
     aln[i].id = newid
 

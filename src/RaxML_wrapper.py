@@ -20,6 +20,7 @@ import os
 from Bio import AlignIO
 from Bio import SeqIO
 from optparse import OptionParser
+from sanitizeString import *
 
 usage="%prog [options] < FASTA_file > Newick_file"
 description = "Wrapper for RAXML to take care of some nits (takes input in FASTA format and does not discard existing gene names; takes care of putting in seed arguments for you)."
@@ -56,12 +57,7 @@ for i in range(len(aln)):
     newid = "S%09d" %(i)
     # FastTree automatically sanitizes ID strings for special characters in Newick files ( (),:; and spaces ) but
     # RaxML does not. I need to provide warning of this and replace if necessary
-    for char in badchars:
-        if char in aln[i].id:
-            sys.stderr.write("WARNING: Special character %s replaced by _ in id %s\n" %(char, newid))
-            st = aln[i].id
-            aln[i].id = st.replace(char, "_")
-
+    aln[i].id = sanitizeString(aln[i].id, True)
     subToReal[newid] = aln[i].id
     aln[i].id = newid
 

@@ -6,6 +6,7 @@
 
 import fileinput, optparse, sqlite3, sys, os
 from locateDatabase import *
+from sanitizeString import *
 
 usage="%prog [options] run_id < organism_list > cluster_run_id_list"
 description="""Find clusters with a paritcular quality relative to the list of organisms you specified.
@@ -22,7 +23,7 @@ parser.add_option("-s", "--only", help="Only include clusters that ONLY has matc
 parser.add_option("-n", "--none", help="Only include clusters that have DOES NOT have a representative in the specified organisms", action="store_true", dest="none", default=False)
 parser.add_option("-u", "--uniq", help="Only include clusters that contain exactly ONE representative in any matching organisms (D: Any number)", action="store_true", dest="uniq", default=False)
 parser.add_option("-o", "--orgcol", help="Column number for organism starting from 1 (D=1)", action="store", type="int", dest="oc", default=1)
-parser.add_option("-r", "--underscore", help="If specified, the names in the input file have spaces replaced by underscores (D: False)", action="store_true", dest="under", default=False)
+parser.add_option("-r", "--sanitized", help="If specified, the names in the input file have been sanitized (with sanitizeString.py) (D: False)", action="store_true", dest="sanitized", default=False)
 #parser.add_option("-m", "--minorgs", help="Minimum number of organisms in clusters to be included (D=no minimum)", action="store", type="int", dest="minorg", default=None)
 (options, args) = parser.parse_args()
 
@@ -53,13 +54,14 @@ for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")
     orglist.append(spl[oc])
 
-if options.under:
+if options.sanitized:
     allOrgsDict = {}
     p = os.path.join(os.path.dirname(locateDatabase()), "..", "organisms")
     orgfile = open(p, "r")
     for line in orgfile:
         spl = line.strip("\r\n").split("\t")
-        allOrgsDict[spl[0].replace(" ", "_")] = spl[0]
+        allOrgsDict[sanitizeString(spl[0], False)] = spl[0]
+
     for ii in range(len(orglist)):
         orglist[ii] = allOrgsDict[orglist[ii]]
 

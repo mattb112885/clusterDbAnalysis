@@ -10,7 +10,7 @@
 # Will add aliases to the gene name (separated by underscores)
 # in order specified in the aliases file.
 #
-# By default expects a RAW file (gene 
+# By default expects a RAW file
 
 import optparse
 import fileinput

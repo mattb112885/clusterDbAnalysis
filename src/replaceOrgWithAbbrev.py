@@ -14,6 +14,7 @@
 import fileinput
 import sys
 import optparse
+from sanitizeString import *
 
 usage="%prog -f orgfile [options] < text_file > text_file_with_orgname"
 description="Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file (e.g. a newick file)"
@@ -36,9 +37,9 @@ fid = open(options.orgfile, "r")
 for line in fid:
     spl = line.strip('\r\n').split("\t")
     if useabbrev:
-        orgAbbrev[spl[2]] = spl[1].replace(" ", "_")
+        orgAbbrev[spl[2]] = sanitizeString(spl[1], False)
     else:
-        orgAbbrev[spl[2]] = spl[0].replace(" ", "_")
+        orgAbbrev[spl[2]] = sanitizeString(spl[0], False)
 
 for line in fileinput.input("-"):
     myline = line.strip('\r\n')

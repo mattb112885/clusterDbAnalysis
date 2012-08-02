@@ -15,12 +15,22 @@
 # Make sure anything with special characters in it is surrounded in single quotes when calling from bash
 # so it is interpreted literally...
 
-import sys
-import optparse
+import optparse, fileinput
 
-usage="%prog [Things to separate with tabs] > Tab-delimited file"
+usage="""%prog [Things to separate with tabs] > Tab-delimited line
+%prog -i [Input file] > Tab_delimited line"""
 description = "Turn all arguments into a single row separated by tabs"
-parser = optparse.OptionParser(usage=usage, description=description)
-parser.parse_args()
 
-print "\t".join(sys.argv[1:])
+parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-i", "--infile", help="Combine all lines of the input file and separate them by tabs. Use \"-\" for input from stdin", action="store", type="str", dest="infile", default=None)
+(options, args) = parser.parse_args()
+
+st = ""
+if options.infile == None:
+    st = "\t".join(args[0:])
+elif options.infile == "-":
+    st = "\t".join( [ s.strip("\r\n") for s in fileinput.input("-") ] )
+else:
+    st = "\t".join( [ s.strip("\r\n") for s in open(options.infile, "r") ] )
+
+print st

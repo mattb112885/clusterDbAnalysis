@@ -23,7 +23,11 @@ cur = con.cursor()
 desiredGenes = []
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
-    desiredGenes.append(spl[gc])
+    # If the file does not include fig|, go ahead and add it automatically.
+    if spl[gc].startswith("fig|"):
+        desiredGenes.append(spl[gc])
+    else:
+        desiredGenes.append("fig|%s" %(spl[gc]))
 
 cur.execute("CREATE TEMPORARY TABLE s ( geneid VARCHAR(256) );")
 

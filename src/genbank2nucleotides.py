@@ -11,6 +11,12 @@
 
 import fileinput
 import re
+import optparse
+
+usage="%prog < genbank_file > fna file"
+description="Make a contig nucleic acid FASTA file out of a genbank file. Contig names MUST have no spaces."
+parser = optparse.OptionParser(usage=usage, description=description)
+parser.parse_args()
 
 spaceRemover = re.compile("\s\s+")
 sequenceCleaner = re.compile("[\s\d]*")

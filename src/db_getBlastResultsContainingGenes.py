@@ -28,7 +28,11 @@ cur = con.cursor()
 cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
-    cur.execute("INSERT INTO desiredgenes VALUES (?);", (spl[gc], ) )
+    gn = spl[gc]
+    # fig| is optional...
+    if not gn.startswith("fig|"):
+        gn = "fig|%s" %(gn)
+    cur.execute("INSERT INTO desiredgenes VALUES (?);", (gn, ) )
 
 # Generate a list of blast results with query matching one of the desiredgenes
 cur.execute("""SELECT blastres_selfbit.* FROM blastres_selfbit

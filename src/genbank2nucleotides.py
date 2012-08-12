@@ -16,7 +16,8 @@ import optparse
 usage="%prog < genbank_file > fna file"
 description="Make a contig nucleic acid FASTA file out of a genbank file. Contig names MUST have no spaces."
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.parse_args()
+parser.add_option("-t", "--tab", help="Instead of a FASTA file, print a tab-delimited file with contig in column 1 and sequence in column 2", action="store_true", dest="tab", default=False)
+(opts, args) = parser.parse_args()
 
 spaceRemover = re.compile("\s\s+")
 sequenceCleaner = re.compile("[\s\d]*")
@@ -36,7 +37,10 @@ for line in fileinput.input("-"):
         continue
     # A line "//" designates the end of the DNA sequence...
     if line.startswith("//"):
-        print "%s\t%s" %(contig, seq)
+        if opts.tab:
+            print "%s\t%s" %(contig, seq)
+        else:
+            print ">%s\n%s" %(contig, seq)
         issequence = False
         continue
     if issequence:

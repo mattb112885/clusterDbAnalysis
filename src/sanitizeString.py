@@ -6,7 +6,9 @@
 import re, sys
 
 def sanitizeString(string, warnOfReplacement):
-    rem = re.compile("[^\.0-9A-Za-z]")
+    # I would've kept periods in here but RangerDTL chokes on them...
+    # sigh. That's all I can say.
+    rem = re.compile("[^0-9A-Za-z]")
     s = rem.sub("_", string)
     if warnOfReplacement and not string == s:
         sys.stderr.write("WARNING: String %s replaced with sanitized version  %s\n" %(string, s))

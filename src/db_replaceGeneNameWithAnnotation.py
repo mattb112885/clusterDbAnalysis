@@ -6,28 +6,35 @@ from locateDatabase import *
 
 usage="%prog [options] < infile > outfile"
 description="""Look for things that look like gene IDs (fig|#.#.peg.#) in the input file
-and replace them with their annotations (sanitized appropriately - so this will work in e.g. a Newick file)."""
+and replace them with annotation and\or organism name, properly sanitized to work in a Newick file.
+Replace with organism only: use -o
+Replace with annotation only: use -a
+Replace with organism and annotation and keep original gene id: use -a -o -k"""
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-a", "--annote", help="Include annotation (D: False)", action="store_true", dest="ann", default=False)
 parser.add_option("-o", "--organism", help="Include organism as part of the annotation (D: False)", action="store_true", dest="org", default=False)
 parser.add_option("-k", "--keepgene", help="Keep (sanitized) gene ID as part of the annotation (D: False)", action="store_true", dest="gene", default=False)
 (options, args) = parser.parse_args()
 
-geneFinder = re.compile("fig\|\d+\.\d+\.peg\.\d+")
+if not (options.ann or options.org or options.gene):
+    sys.stderr.write("ERROR: Must specify -a, -o, or -k in db_replaceNameWithAnnotation\n")
+    exit(2)
 
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-orgst = ""
-genest = ""
-annotest = "annotation"
+wanted = []
 if options.org:
-    orgst="organism,"
+    wanted.append("organism")
 if options.gene:
-    genest="geneid,"
+    wanted.append("geneid")
+if options.ann:
+    wanted.append("annotation")
+selstr = ",".join(wanted)
+query = "SELECT %s FROM processed WHERE processed.geneid=?;" %(selstr)
+print query
 
-# Organism first, then gene, and finally annotation
-query = "SELECT %s%s%s FROM processed WHERE processed.geneid=?;" %(orgst, genest, annotest)
-
+geneFinder = re.compile("fig\|\d+\.\d+\.peg\.\d+")
 
 for line in fileinput.input("-"):
     st = line.strip("\r\n")

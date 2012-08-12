@@ -153,7 +153,12 @@ for node in t.traverse():
             maxdist = dist
 
 # Heuristically determine tree width to prevent the tree from getting too squished ...
-ts.tree_width = maxdist * 20
+# I haven't figured out why but this doesn't work on some servers.
+# For now I just catch the error and move on...
+try:
+    ts.tree_width = maxdist * 20
+except ValueError:
+    sys.stderr.write("WARNING: Your ETE setup does not appear to support tree_width - the resulting tree might look strange!\n")
 
 # Make ordering the closer for identical trees.
 # Direction = 0 - make the outgroup on top.

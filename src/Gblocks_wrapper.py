@@ -101,7 +101,11 @@ else:
 # Don't bother redirecting stderr but I do redirect stdout since this is a pipe command...
 gblcmd = "%s %s -b1=%d -b2=%d -b3=%d -b4=%d -b5=%s -p=y > /dev/null" %(options.program, fname, b1, b2, b3, b4, b5)
 sys.stderr.write("Running GBlocks with command: \n %s\n" %(gblcmd))
-os.system(gblcmd);
+res = os.system(gblcmd);
+# Gblocks returns 256 on success...
+if not res == 256:
+    sys.stderr.write("ERROR: Running GBLOCKS failed. Aborting\n")
+    exit(2)
 
 # Open up the -gb file created by Gblocks
 # and put the real IDs back in there.

@@ -33,7 +33,7 @@ done
 cd ..;
 
 echo "Running tblastn...";
-python src/tblastn_all_vs_all.py faa/ contig_fasta/ tblastn/ ${NCORES};
+python src/tblastn_all_vs_all.py faa/ contig_fasta/ tblastn/ -t 1E-10 -n ${NCORES};
 
 echo "tblastn done. processing (removing very weak hits)..."
 cd tblastn;

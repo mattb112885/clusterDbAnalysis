@@ -34,7 +34,7 @@ if opts.orgid is None:
         sys.stderr.write("WARNING: No IDs in expected format \d+\.\d+ found in file name. You must specify -o to append organism IDs to the contig names\n")
     else:
         orgname = mtch.group(0)
-        sys.stderr.write("Found organism ID: %s" %(orgname))
+        sys.stderr.write("Found organism ID: %s\n" %(orgname))
 else:
     orgname = opts.orgid
 

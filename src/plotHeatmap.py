@@ -94,13 +94,13 @@ if options.columnlabels and not options.columndendrogram:
     sys.stderr.write("WARNING: Without specifying -c (--columndendrogram), column labels will not be printed on the graph\n")
 
 # Figure setup
-fig = pyplot.figure(1, figsize=(18,12))
+fig = pyplot.figure(1, figsize=(18,13))
 
 # First dendrogram (left)
 # Note - format is fraction from [ left, bottom, width, height] 
 # bottom-left is (0,0)
 if options.rowdendrogram:
-    ax = pyplot.axes([0.05,0.05,0.08,0.6], frameon=False)
+    ax = pyplot.axes([0.02,0.02,0.08,0.6], frameon=False)
     ax.set_xticks([])
     ax.set_yticks([])
     mat = displayDendrogram(mat, options.distancemetric, options.clustermethod, rowlabels, 1)
@@ -113,13 +113,13 @@ if options.columndendrogram:
     mat = displayDendrogram(mat, options.distancemetric, options.clustermethod, columnlabels, 2)
 
 # Heatmap
-ax = pyplot.axes([0.3,0.05,0.6,0.6])
+ax = pyplot.axes([0.3,0.02,0.6,0.6])
 ax.set_xticks([])
 ax.set_yticks([])
 im = pyplot.pcolor(mat, cmap=options.colormapscheme, vmin=options.minscore, vmax=options.maxscore)
 
 # Colorbar
-ax = pyplot.axes([0.91,0.05,0.02,0.6], frameon=False)
+ax = pyplot.axes([0.91,0.02,0.02,0.6], frameon=False)
 pyplot.colorbar(im, cax=ax)
 
 if options.outfile is not None:

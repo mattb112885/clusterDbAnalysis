@@ -3,7 +3,6 @@
 import scipy.spatial.distance as dist
 import scipy.cluster.hierarchy as hier
 import matplotlib.pyplot as pyplot
-import matplotlib
 import numpy
 import fileinput, optparse, sys
 
@@ -33,7 +32,13 @@ def displayDendrogram(mat, metric, method, labels, dimension):
 ####################
 
 usage = "%prog [options] < Input_tsv"
-description = "Generate a heat map for an input of numeric data. It comes with a rich set of options."
+description = """Generate a heat map for a tab-delimited input of numeric data. It comes with a rich set of options.
+If row labels or column labels are present in the file you must specify -w (row) or -o (column) or the tab-delimited file will fail to parse.
+Labels are only actually put on the graph if the appropriate dendrogram is desired (-r for row or -c for column).
+Distance method is passed directly to scipy.spatial.distance.pdist() - see docs on that function for details on valid parameters.
+Cluster method is passed directly to scipy.cluster.hierarchy.linkage() - see docs on that function for details on valid parameters.
+Color map is one of the colormaps recognized by pyplot - see http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html
+"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-f", "--outfile", help="Name of output file (D: Just display graph on screen)", action="store", type="str", dest="outfile", default=None)
 parser.add_option("-r", "--rowdendrogram", help="Make a row dendrogram (D: Heatmap only)", action="store_true", dest="rowdendrogram", default=False)
@@ -42,6 +47,9 @@ parser.add_option("-w", "--rowlabels", help="Specify this flag if the input file
 parser.add_option("-o", "--columnlabels", help="Specify this flag if the input file contains column labels (D: Label by position in original file)", action="store_true", dest="columnlabels", default=False)
 parser.add_option("-d", "--distancemetric", help="Distance metric between rows\columns of the input matrix (D: euclidean)", action="store", type="str", dest="distancemetric", default="euclidean")
 parser.add_option("-m", "--clustermethod", help="Clustering method to use (D:complete - complete-linkage clustering)", action="store", type="str", dest="clustermethod", default="complete")
+parser.add_option("-a", "--colormapscheme", help="Color map coloring scheme to use (D: gray)", action="store", type="str", dest="colormapscheme", default="gray")
+parser.add_option("-x", "--minscore", help="Minimum score to display on color map (D: Scale to provided values)", action="store", type="float", dest="minscore", default=None)
+parser.add_option("-y", "--maxscore", help="Maximum score to display on color map (D: Scale to provided values)", action="store", type="float", dest="maxscore", default=None)
 (options, args) = parser.parse_args()
 
 rowlabels = None
@@ -72,8 +80,21 @@ for line in fileinput.input("-"):
 # Need to convert matrix to float or pyplot will whine.
 mat = numpy.array(mat, dtype="float32")
 
+# Sanity checks
+flatmat = numpy.ndarray.flatten(mat)
+if options.minscore is not None and min(flatmat) < options.minscore:
+    sys.stderr.write("WARNING: The requested minimum score on the color bar would leave off some data in the provided data file. Is this a mistake?\n")
+    sys.stderr.write("Requested minimum: %1.4f ; Data minimum: %1.4f\n" %(options.minscore, min(flatmat)))
+if options.maxscore is not None and max(flatmat) > options.maxscore:
+    sys.stderr.write("WARNING: The requested maximum score on the color bar would leave off some data in the provided data file. Is this a mistake?.\n")
+    sys.stderr.write("Requested maximum: %1.4f ; Data maximum: %1.4f\n" %(options.maxscore, max(flatmat)))
+if options.rowlabels and not options.rowdendrogram:
+    sys.stderr.write("WARNING: Without specifying -r (--rowdendrogram), row labels will not be printed on the graph\n")
+if options.columnlabels and not options.columndendrogram:
+    sys.stderr.write("WARNING: Without specifying -c (--columndendrogram), column labels will not be printed on the graph\n")
+
 # Figure setup
-fig = pyplot.figure(1)
+fig = pyplot.figure(1, figsize=(18,10))
 
 # First dendrogram (left)
 # Note - format is fraction from [ left, bottom, width, height] 
@@ -95,13 +116,13 @@ if options.columndendrogram:
 ax = pyplot.axes([0.3,0.1,0.6,0.6])
 ax.set_xticks([])
 ax.set_yticks([])
-im = pyplot.pcolor(mat, cmap="gray")
+im = pyplot.pcolor(mat, cmap=options.colormapscheme, vmin=options.minscore, vmax=options.maxscore)
 
 # Colorbar
-ax = pyplot.axes([0.91,0.1,0.02,0.8], frameon=False)
+ax = pyplot.axes([0.91,0.1,0.02,0.6], frameon=False)
 pyplot.colorbar(im, cax=ax)
 
 if options.outfile is not None:
-    pyplot.savefig(options.outfile)
+    pyplot.savefig(options.outfile, dpi=300)
 
 pyplot.show() 

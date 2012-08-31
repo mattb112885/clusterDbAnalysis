@@ -32,7 +32,6 @@ if options.ann:
     wanted.append("annotation")
 selstr = ",".join(wanted)
 query = "SELECT %s FROM processed WHERE processed.geneid=?;" %(selstr)
-print query
 
 geneFinder = re.compile("fig\|\d+\.\d+\.peg\.\d+")
 

@@ -13,13 +13,14 @@ usage = "%prog [options] Newick_file < runid or %prog -i runid [options] Newick_
 description = "Draws gene context with specified number of genes as arrows with the appropraite direction (not to scale) alongside a phylogenetic tree. Only can draw arrows if the IDs in the tree agree with what is available in the database but does not crash when outgroups are also present (just nothing is drawn)."
 
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-i", "--runid", help="Run id (default: read from stdin)", action="store", type="str", dest="runid", default=None)
 parser.add_option("-n", "--neighborhood", help="Max number of genes away from target to display (D=3)", action="store", type="int", dest="MAXK", default=3)
+parser.add_option("-a", "--annotation", help="Show annotations for neighboring genes underneath them (D: Show annotations in a legend underneath the tree)", action="store_true", dest="annotation", default=False)
 parser.add_option("-d", "--display", help="Display result", action="store_true", dest="display", default=False)
 parser.add_option("-s", "--savesvg", help="Convert the file to svg (requires -b)", action="store_true", dest="savesvg", default=False)
 parser.add_option("-p", "--savepng", help="Convert the file to png (requires -b, implies -s)", action="store_true", dest="savepng", default=False)
 parser.add_option("-b", "--basename", help="Base name for file outputs (ignored without -s or -p)", action="store", type="str", dest="basename", default=None)
 parser.add_option("-r", "--rootgene", help="Root on this gene (default = keep same root as nwk file).", action="store", type="str", dest="rootgene", default=None)
-parser.add_option("-i", "--runid", help="Run id (default: read from stdin)", action="store", type="str", dest="runid", default=None)
 (options, args) = parser.parse_args()
 
 # Must specify a newick file
@@ -70,18 +71,19 @@ import os
 # given its dimensions, directions, and color.
 ##################################################
 def makeArrowNode(node, *args, **kargs):
+    # node: An ETE Node object
+    # Args: (arrowlength, arrowwidth, rectanglelength, rectanglewidth, direction (+ or -), annotation (gene ID), color)
     arrowLength = args[0][0]
     arrowWidth = args[0][1]
     rectLength = args[0][2]
     rectWidth = args[0][3]
-    # If direction is "-" we just do rectLength - all of the coordinates...
     direction = args[0][4]
     annotation = args[0][5]
     hexcolor = args[0][6]
 
     ## Creates a main master Item that will contain all other elements
-    masterItem = QGraphicsRectItem(0, 0, 40+rectLength, 40+2*arrowWidth)    
-    # Keep a link within the item to access node info 
+    masterItem = QGraphicsRectItem(0, 0, 40+rectLength, 40+2*arrowWidth)
+    # Keep a link within the item to access node info
     masterItem.node = node 
     # I dont want a border around the masterItem
     masterItem.setPen(QPen(QtCore.Qt.NoPen))
@@ -123,6 +125,7 @@ def makeArrowNode(node, *args, **kargs):
     Sx7 = Sx6 - (rectLength - arrowLength)
     Sy7 = Sy6 
 
+    # Deal with left-facing arrows. This is just a reflection...
     maxl = 40 + rectLength
     if direction == "-":
         Sx0 = maxl - Sx0
@@ -134,6 +137,7 @@ def makeArrowNode(node, *args, **kargs):
         Sx6 = maxl - Sx6
         Sx7 = maxl - Sx7
 
+    # Actually draw the arrow
     points = [ QPointF(Sx0, Sy0),  
                QPointF(Sx1, Sy1),
                QPointF(Sx2, Sy2),
@@ -144,7 +148,7 @@ def makeArrowNode(node, *args, **kargs):
                QPointF(Sx7, Sy7) ]
     poly = QPolygonF(points)
 
-    # Set up a drawing object
+    # Add the arrow to the master object.
     arrow = QGraphicsPolygonItem(poly, masterItem)
     pen = QPen(QtCore.Qt.black, 2, QtCore.Qt.SolidLine)
     arrow.setPen(pen)
@@ -152,7 +156,7 @@ def makeArrowNode(node, *args, **kargs):
     # Change arrow's color
     arrow.setBrush(QBrush(QColor(hexcolor)))
 
-    # Add annotation to the arrow
+    # Add annotation (gene ID) to the arrow
     text = QGraphicsSimpleTextItem(annotation)
     text.setParentItem(arrow)
     text.setPen(QPen(QPen(QColor("black"), 2, QtCore.Qt.SolidLine)))
@@ -314,8 +318,9 @@ if not atLeastOne:
 # Set up cluster list to have the most-prevalent clusters colored first
 ############
 
-# Count instances of each cluster
+# Count instances of each cluster and obtain a representative annotation for each one
 clusterToNumber = {}
+clusterToAnnote = {}
 for node in t.traverse():
     if node.is_leaf():
         # We don't want to just crash if we have genes that don't have data in our database
@@ -331,6 +336,7 @@ for node in t.traverse():
                     sys.stderr.write("WARNING: The tree contains gene %s that is not present in the clustering run specified. These will not be colored!\n" %(pair[0]) )
                 continue
             cluster = geneToCluster[pair[0]]
+            clusterToAnnote[cluster] = geneToAnnote[pair[0]]
             if cluster in clusterToNumber:
                 clusterToNumber[cluster] += 1
             else:
@@ -343,12 +349,12 @@ clusterTuples = sorted(clusterToNumber.iteritems(), key=itemgetter(1), reverse=T
 clusterToColor = {}
 currentIdx = 0
 for tup in clusterTuples:
-    print tup
     clusterToColor[tup[0]] = colorTable[currentIdx]
     if currentIdx < len(colorTable) - 1:
         currentIdx += 1
 
 clusterToColor["NONE"] = "#FFFFFF"
+clusterToAnnote["NONE"] = "NONE or OTHER"
 geneToCluster["NONE"] = "NONE"
 geneToAnnote["NONE"] = "NONE"
 
@@ -358,7 +364,6 @@ geneToAnnote["NONE"] = "NONE"
 sys.stderr.write("Adding arrow objects to leaves of the tree...\n")
 for node in t.traverse():
     if node.is_leaf():
-
         # Dont' crash because of e.g. outgroups put in. We already warned about this so don't need to do it again.
         if not ( node.name in geneToNeighbors and node.name in geneToOrganism and node.name in geneToAnnote ):
             # We still want to make the text face though so that it is visible!
@@ -372,36 +377,58 @@ for node in t.traverse():
         node.add_face(F, 0, position="aligned")
 
         genename = node.name
-
         geneNeighbors = geneToNeighbors[genename]
         for neighborPair in geneNeighbors:
             label = neighborPair[0]
             color = clusterToColor[geneToCluster[neighborPair[0]]]
             direction = neighborPair[2]
-            # For now I make all the arrows the same length.
+            # Create arrow object and add to tree
             F = faces.DynamicItemFace(makeArrowNode,30,30,300,30, direction, label, color)
             node.add_face(F, neighborPair[1] + MAXK+1, position="aligned")
-            anno = geneToAnnote[label]
-            trimmedAnno = anno[0:40] + "\n" + anno[40:80]
-            F = faces.TextFace(trimmedAnno, ftype="Times", fsize=20)
-            node.add_face(F, neighborPair[1] + MAXK + 1, position="aligned")
+            # If desired, add annotations below the arrows.
+            if options.annotation:
+                anno = geneToAnnote[label]
+                trimmedAnno = anno[0:40] + "\n" + anno[40:80]
+                F = faces.TextFace(trimmedAnno, ftype="Times", fsize=20)
+                node.add_face(F, neighborPair[1] + MAXK + 1, position="aligned")
     else:
         # Make the branch support bigger
         F = faces.TextFace(node._support, ftype="Times", fsize=32)
         node.add_face(F, 0, position="branch-top")
 
 
-# Note - PDF and PNG export are both horrid-quality - I will try to fix this but for now I'll just export to SVG...
-# My suggestion is to find something that doesn't crash and that isn't horrible quality to convert this to another format.
-# Is there such a thing though??? Sigh...
 ts = TreeStyle()
-# We DO want to show bootstraps but we already put bigger fond on those up above.
-# No sense doing it again.
+
+#####################
+# Make legend for arrow colors
+#####################
+currentcol = 0
+for cluster in clusterToAnnote:
+    # Limit the number of annotations in a row but let it be more than 1 since otherwise it's a huge waste of space.
+    if currentcol > 7:
+        currentcol = 0
+    # Color box
+    fc1 = faces.TextFace("")
+    fc1.background.color = clusterToColor[cluster]
+    boxsize = 20
+    fc1.margin_left = boxsize
+    fc1.margin_right = boxsize
+    ts.legend.add_face(fc1, column=currentcol)
+    # Annotation box
+    fc2 = faces.TextFace(clusterToAnnote[cluster], ftype="Times", fsize=20)
+    ts.legend.add_face(fc2, column=currentcol + 1)
+    currentcol += 2
+
+######################
+# Other setup \ tree prettying
+######################
+
+# We already made big bootstrap labels so don't bother showing the crappy small ones.
+# Same with the leaf labels.
 ts.show_branch_support = False
-# We'll be putting thse in separately
 ts.show_leaf_name = False
 
-# Lets determine a width based on the maximum distance to the root.                                                                                                                                           
+# Estimate a reasonable tree width according to the maximum distance on the tree
 maxdist = 0
 root = t.get_tree_root()
 for node in t.traverse():
@@ -409,17 +436,16 @@ for node in t.traverse():
         dist = t.get_distance(node, root)
         if dist > maxdist:
             maxdist = dist
-
-# This heuristic seems to work pretty well 
 ts.tree_width = maxdist * 20
 
-# Make ordering the closer for identical trees.
-# Start by sorting by number of branches...
+# If the trees are identical and identically rooted, we want them to always appear the same.
+# Start by sorting by number of branches (ladderize)
+#
+# I then break ties according to the names of leaves descended from a given node.
+# Essentially this amounts to sorting first by number of branches and then by alphabetical order
+# This SHOULD always give a consistent result for identical trees (regardless of how they appear in the file).
 t.ladderize(direction=0)
 
-# Ladderize doesn't always break ties the same way. Lets fix that, shall we?
-# I break ties according to the names of leaves descended from a given node.
-# Essentially this amounts to sorting first by number of branches and then by alphabetical order
 for node in t.traverse(strategy="levelorder"):
     if not node.is_leaf():
         children = node.get_children()
@@ -434,14 +460,20 @@ for node in t.traverse(strategy="levelorder"):
             if names0 > names1:
                 node.swap_children()
 
+################
+# Outputs
+################
+
 if options.savesvg:
     t.render("%s.svg" %(options.basename), tree_style=ts)
 
+# Convert the svg file into a high-quality (300 dpi) PNG file...
+# The PNG converter in ETE gives a terrible quality image
+# as does the "convert" function (which is probably what ETE uses)
+# so this is the best I could come up with... sadly it adds another dependency on inkscape.
+#
+# It also depends on the built-in convert function to trim edges off the image
 if options.savepng:
-    # Convert the svg file into a high-quality (300 dpi) PNG file...
-    # The PNG converter in ETE gives a terrible quality image
-    # as does the "convert" function (which is probably what ETE uses)
-    # so this is the best I could come up with...
     os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(options.basename, options.basename) )
     # Then trim off the edges
     os.system("convert -trim %s_temp.png %s.png" %(options.basename, options.basename))

@@ -53,7 +53,7 @@ sys.stderr.write("Now executing TBLASTN with command: \n%s\n" %(cmd))
 os.system(cmd)
 
 sys.stderr.write("Generating gene overlap report...\n")
-q = "SELECT geneid, genestart, geneend FROM processed WHERE contig_mod = ? AND MIN(genestart, geneend) <= MAX(?,?) AND MIN(?,?) <= MAX(genestart, geneend);"
+q = "SELECT geneid, genestart, geneend, annotation FROM processed WHERE contig_mod = ? AND MIN(genestart, geneend) <= MAX(?,?) AND MIN(?,?) <= MAX(genestart, geneend);"
 for line in open(ofile, "r"):
     spl = line.strip("\r\n").split("\t")
     tblaststart = int(spl[2])
@@ -67,16 +67,17 @@ for line in open(ofile, "r"):
         geneid = rec[0]
         genestart = int(rec[1])
         geneend = int(rec[2])
+        annotation = rec[3]
         overlap = min(max(tblaststart, tblastend), max(genestart, geneend)) - max(min(tblaststart, tblastend), min(genestart, geneend))
         overlappct = float(overlap)/abs(float(genestart - geneend))
         # Same strand?
         if ( genestart < geneend and tblaststart < tblastend ) or ( genestart > geneend and tblaststart > tblastend ):
-            print "%s\tSAMESTRAND\t%s\t%d\t%d\t%d\t%1.2f" %(line.strip("\r\n"), geneid, genestart, geneend, overlap, overlappct)
+            print "%s\tSAMESTRAND\t%s\t%d\t%d\t%d\t%1.2f\t%s" %(line.strip("\r\n"), geneid, genestart, geneend, overlap, overlappct, annotation)
         else:
-            print "%s\tOTHERSTRAND\t%s\t%d\t%d\t%d\t%1.2f" %(line.strip("\r\n"), geneid, genestart, geneend, overlap, overlappct)
+            print "%s\tOTHERSTRAND\t%s\t%d\t%d\t%d\t%1.2f\t%s" %(line.strip("\r\n"), geneid, genestart, geneend, overlap, overlappct, annotation)
     # No gene matches the loation
     if not atleastone:
-        print "%s\tNOGENE\t\t\t\t\t" %(line.strip("\r\n"))
+        print "%s\tNOGENE\t\t\t\t\t\t" %(line.strip("\r\n"))
 
 # Clean up
 os.system("rm %d.*" %(rn))

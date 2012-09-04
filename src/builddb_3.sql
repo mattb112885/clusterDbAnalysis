@@ -5,10 +5,15 @@
 
  The second one is a table meant for holding TBLASTN hits that are inconsistent with
  or missing from the current annotation. */ 
+
+DROP TABLE IF EXISTS contigs;
+DROP TABLE IF EXISTS tblastn;
+
 CREATE TABLE contigs(
        "contig_mod" VARCHAR(256),
        "seq" VARCHAR(8000000),
-       FOREIGN KEY(contig_mod) REFERENCES processed(contig_mod)
+       "organismid" VARCHAR(256),
+       FOREIGN KEY(organismid) REFERENCES organisms(organismid)
 );
 
 CREATE TABLE tblastn(
@@ -33,3 +38,5 @@ CREATE TABLE tblastn(
 
 .separator "\t"
 .import db/contigs contigs
+
+CREATE INDEX contigcontigs ON contigs(contig_mod);

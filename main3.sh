@@ -16,4 +16,4 @@ for file in *; do
 done
 cd ..;
 
-sqlite3 db/methanosarcina < src/builddb_3.sql;
+sqlite3 db/DATABASE.sqlite < src/builddb_3.sql;

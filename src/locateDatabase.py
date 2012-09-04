@@ -6,6 +6,6 @@ import os
 def locateDatabase():
     fileloc = os.path.abspath(__file__)
     path = os.path.dirname(fileloc)
-    s = os.path.abspath(os.path.join(path, "..", "db", "methanosarcina"))
+    s = os.path.abspath(os.path.join(path, "..", "db", "DATABASE.sqlite"))
     return s
 

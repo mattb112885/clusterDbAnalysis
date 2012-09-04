@@ -77,5 +77,5 @@ cat db/raw_cat | getNeighbors_bothStrands_rast.py  > db/neighborhoods
 # Generate the first part of the SQL database
 # (for use with generating the clusters for a specific group of organisms)
 echo "Rebuilding database...";
-rm db/methanosarcina 2> /dev/null;
-sqlite3 db/methanosarcina < src/builddb_1.sql;
+rm db/DATABASE.sqlite 2> /dev/null;
+sqlite3 db/DATABASE.sqlite < src/builddb_1.sql;

@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 # Concatenate alignments (from FASTA format)
-# alignments are all of the files with extension fasta_aln
+# Alignments are all of the files that match the specified search key.
+# All of the files must have exactly one representative from each organism and the
+# set of organisms in each alignment must be the same.
 #
 # Result is exported to stdout
 

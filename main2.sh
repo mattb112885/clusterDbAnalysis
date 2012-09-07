@@ -64,4 +64,4 @@ cat flatclusters/* > db/flat_clusters;
 
 # Import clusters into the db
 echo "Importing cluster information into database...";
-sqlite3 db/methanosarcina < src/builddb_2.sql;
+sqlite3 db/DATABASE.sqlite < src/builddb_2.sql;

@@ -119,3 +119,4 @@ CREATE TABLE processed AS
 
 CREATE INDEX processedgeneids ON processed(geneid);
 CREATE INDEX processedcontigs ON processed(contig_mod);
+CREATE INDEX processedorganismids ON processed(organismid);

@@ -31,7 +31,10 @@ if opts.orgid is None:
     idFinder = re.compile("\d+\.\d+")
     mtch = idFinder.search(opts.genbank)
     if mtch is None:
-        sys.stderr.write("WARNING: No IDs in expected format \d+\.\d+ found in file name. You must specify -o to append organism IDs to the contig names\n")
+        # Organism name must be specified in order to import any of this info into the database. Since that
+        # is the primary purpose of this file, we make this an error rather than a warning
+        sys.stderr.write("ERROR: No IDs in expected format \d+\.\d+ found in file name. You must specify -o to append organism IDs to the contig names\n")
+        exit(2)
     else:
         orgname = mtch.group(0)
         sys.stderr.write("Found organism ID: %s\n" %(orgname))
@@ -57,7 +60,7 @@ for line in open(opts.genbank, "r"):
     # A line "//" designates the end of the DNA sequence...
     if line.startswith("//"):
         if opts.tab:
-            print "%s\t%s" %(contig, seq)
+            print "%s\t%s\t%s" %(contig, seq, orgname)
         else:
             print ">%s\n%s" %(contig, seq)
         issequence = False

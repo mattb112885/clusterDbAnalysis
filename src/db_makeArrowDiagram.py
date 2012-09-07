@@ -445,7 +445,11 @@ for node in t.traverse():
         dist = t.get_distance(node, root)
         if dist > maxdist:
             maxdist = dist
-ts.tree_width = maxdist * 20
+# Old versions of ETE don't support the tree_width specifier
+try:
+    ts.tree_width = maxdist * 20
+except ValueError:
+    sys.stderr.write("WARNING: Your version of ETE does not support the tree_width specification - consider upgrading to get nicer looking trees!\n")
 
 # If the trees are identical and identically rooted, we want them to always appear the same.
 # Start by sorting by number of branches (ladderize)

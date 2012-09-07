@@ -72,7 +72,7 @@ import os
 ##################################################
 def makeArrowNode(node, *args, **kargs):
     # node: An ETE Node object
-    # Args: (arrowlength, arrowwidth, rectanglelength, rectanglewidth, direction (+ or -), annotation (gene ID), color)
+    # Args: (arrowlength, arrowwidth, rectanglelength, rectanglewidth, direction (+ or -), annotation (gene ID), color, brushstyle)
     arrowLength = args[0][0]
     arrowWidth = args[0][1]
     rectLength = args[0][2]
@@ -80,6 +80,7 @@ def makeArrowNode(node, *args, **kargs):
     direction = args[0][4]
     annotation = args[0][5]
     hexcolor = args[0][6]
+    brushstyle = args[0][7]
 
     ## Creates a main master Item that will contain all other elements
     masterItem = QGraphicsRectItem(0, 0, 40+rectLength, 40+2*arrowWidth)
@@ -192,6 +193,13 @@ colorTable = [
     "#E9967A", # Dark salmon
     "#FFD700", # Gold
     "#FFFFFF"  # White (for nothing there)
+    ]
+
+styleTable = [ 
+    "Solid", # Solid (default)
+    "Dots", # Sparse dots
+    "HorLines", # Horizontal lines
+    "VertLines" # Vertical lines
     ]
 
 # Read Newick file
@@ -410,6 +418,7 @@ for cluster in clusterToAnnote:
     # Color box
     fc1 = faces.TextFace("")
     fc1.background.color = clusterToColor[cluster]
+    print fc1.background
     boxsize = 20
     fc1.margin_left = boxsize
     fc1.margin_right = boxsize

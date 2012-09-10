@@ -27,11 +27,14 @@ Automatically transposes the DNA and rotates it around so that it should be poss
 """
 
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.add_option("-n", "--numupstream", help="Number of NT to go upstream (D = 100)", action="store", type="int", dest="numupstream", default=100)
+parser.add_option("-n", "--numupstream", help="Number of NT to go upstream (D = 100). For 'up to the next gene' use a large number and do not specify -o", action="store", type="int", dest="numupstream", default=100)
 parser.add_option("-w", "--gapwarn", help="Number of N's in the upstream region before warning about a gap (D = 1, warn if any Ns are present)", action="store", type="int", dest="gapwarn", default=1)
-parser.add_option("-o", "--allowgeneoverlap", help="If specified, always try to reach the number of upstream nucleotides even if another called gene is there (D: Cut it off with warning)", 
+parser.add_option("-o", "--allowgeneoverlap", 
+                  help="If specified, always try to reach the number of upstream nucleotides even if another called gene is there (D: Cut it off with warning)", 
                   action="store_true", dest="allowgeneoverlap", default=False)
+parser.add_option("-l", "--othergenelength", help="If allowing gene overlaps, still ignore called genes less than this length (in nucleotides) within the upstream region (D=0 - cut off after ANY gene)", action="store", type="int", dest="othergenelength", default=0)
 parser.add_option("-g", "--genecolumn", help="Column number for gene ID in input, starting from 1 (D=1)", action="store", type="int", dest="gc", default=1)
+parser.add_option("-i", "--ingene", help="Number of nucleotides WITHIN the gene to gather in addition to the upstream region (D=3 - i.e. grab the start codon only)", action="store", type="int", dest="ingene", default=3)
 (options, args) = parser.parse_args()
 
 # Read stdin to get gene IDs
@@ -55,8 +58,12 @@ for rec in cur:
     contigToSeq[rec[0]] = rec[1]
 
 q1 = "SELECT geneid, genestart, geneend, strand, processed.contig_mod FROM processed WHERE geneid = ?"
-# The ? here are the start and stop sites of the upstream region (which must not overlap with the query gene) and the contig for the query gene
-q2 = "SELECT geneid, genestart, geneend, strand FROM processed WHERE MAX(genestart, geneend) >= MIN(?,?) AND MIN(genestart, geneend) <= MAX(?,?) AND contig_mod = ?"
+# The ? here are the start and stop sites of the upstream region (which must not overlap with the query gene)
+#, the contig for the query gene, and the specified minimum nucleotide length for the called ORF
+q2 = """SELECT geneid, genestart, geneend, strand FROM processed 
+        WHERE MAX(genestart, geneend) >= MIN(?,?) AND MIN(genestart, geneend) <= MAX(?,?) AND contig_mod = ?
+        AND ABS(genestart - geneend) > ?"""
+NUMINGENE = options.ingene
 
 for gene in geneids:
     # Where is this gene located?
@@ -90,8 +97,13 @@ for gene in geneids:
             if interval_end > contiglen:
                 interval_end = contiglen
 
-        # Is there a called gene in the interval?
-        cur.execute(q2, (interval_start, interval_end, interval_start, interval_end, rec[4]))
+        # Is there a called gene in the interval? (with at least the specified minimum length)
+        cur.execute(q2, (interval_start, interval_end, interval_start, interval_end, rec[4], options.othergenelength))
+        if strand == "-":
+            interval_start = interval_start - NUMINGENE
+        else:
+            interval_end = interval_end + NUMINGENE
+
         s = cur.fetchall()
         if len(s) > 0:
             warnings += "OTHERGENE,"
@@ -120,6 +132,8 @@ for gene in geneids:
         startidx = interval_start - 1
         stopidx = interval_end - 1
         seq = contigseq[startidx:stopidx+1]
+        if seq.lower().count("n") > options.gapwarn:
+            warnings += "CONTAINSGAP"
         # We need to do the reverse complement if we are on the "-" strand...
         if strand == "-":
             seq = str(Seq.Seq(seq).reverse_complement())

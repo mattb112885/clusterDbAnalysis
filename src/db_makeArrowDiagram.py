@@ -4,6 +4,7 @@
 import sys
 import optparse
 from locateDatabase import *
+from sanitizeString import *
 
 ####################################
 # Lets read input arguments first.
@@ -80,7 +81,6 @@ def makeArrowNode(node, *args, **kargs):
     direction = args[0][4]
     annotation = args[0][5]
     hexcolor = args[0][6]
-    brushstyle = args[0][7]
 
     ## Creates a main master Item that will contain all other elements
     masterItem = QGraphicsRectItem(0, 0, 40+rectLength, 40+2*arrowWidth)
@@ -195,13 +195,6 @@ colorTable = [
     "#FFFFFF"  # White (for nothing there)
     ]
 
-styleTable = [ 
-    "Solid", # Solid (default)
-    "Dots", # Sparse dots
-    "HorLines", # Horizontal lines
-    "VertLines" # Vertical lines
-    ]
-
 # Read Newick file
 sys.stderr.write("Reading tree file...\n")
 t = Tree(args[0])
@@ -234,8 +227,8 @@ cur.execute("SELECT * FROM processed;")
 
 for l in cur:
     spl = [ str(s) for s in list(l) ]
-    geneToAnnote[spl[0]] = spl[9]
-    geneToOrganism[spl[0]] = spl[1]
+    geneToAnnote[spl[0]] = sanitizeString(spl[9], False)
+    geneToOrganism[spl[0]] = sanitizeString(spl[1], False)
 
 # Neighborhoods
 sys.stderr.write("Pulling gene neighborhoods out of the database...\n")
@@ -478,19 +471,18 @@ for node in t.traverse(strategy="levelorder"):
 ################
 
 if options.savesvg:
+    # Some versions of ETE create (and do not delete) a "test.svg" file automatically
+    # and others do not.
+    # To avoid confusion, lets remove that one and make our own (using the specified tree style)...
+    os.system("rm test.svg 2> /dev/null")
     t.render("%s.svg" %(options.basename), tree_style=ts)
 
 # Convert the svg file into a high-quality (300 dpi) PNG file...
 # The PNG converter in ETE gives a terrible quality image
-# as does the "convert" function (which is probably what ETE uses)
-# so this is the best I could come up with... sadly it adds another dependency on inkscape.
 #
-# It also depends on the built-in convert function to trim edges off the image
+# Use convert to make something better and then trim the edges off.
 if options.savepng:
-    os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(options.basename, options.basename) )
-    # Then trim off the edges
-    os.system("convert -trim %s_temp.png %s.png" %(options.basename, options.basename))
-    os.system("rm %s_temp.png" %(options.basename))
+    os.system("convert -trim -depth 16 -background transparent %s.svg %s.png" %(options.basename, options.basename))
 
 if options.display:
     t.show(tree_style=ts)

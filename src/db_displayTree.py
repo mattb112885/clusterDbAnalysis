@@ -189,21 +189,19 @@ if options.savenewick:
     t.write(outfile="%s.nwk" %(options.basename), format=0)
 
 if options.savesvg:
+    # Some versions of ETE create a "test.svg" and others do not.
+    # To avoid confusion (and in case TreeStyle isn't enforced)
+    # I just create a new one.
+    os.system("rm test.svg 2> /dev/null")
     t.render("%s.svg" %(options.basename), tree_style=ts)
 
-print "ok so far..."
+# Convert the svg file into a high-quality (300 dpi) PNG file...
+# The PNG converter in ETE gives a terrible quality image 
+# 
+# Use convert to make something better and then trim the edges off. 
 
 if options.savepng:
-    # Convert the svg file into a high-quality (300 dpi) PNG file...
-    # The PNG converter in ETE gives a terrible quality image
-    # as does the "convert" function (which is probably what ETE uses)
-    # so this is the best I could come up with...
-#    os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(options.basename, options.basename) )
-    os.system("convert -depth 16 -background transparent %s.svg %s_temp.png" %(options.basename, options.basename))
-    print "still ok..."
-    # Then trim off the edges
-    os.system("convert -trim %s_temp.png %s.png" %(options.basename, options.basename))
-#    os.system("rm %s_temp.png" %(options.basename))
+    os.system("convert -trim -depth 16 -background transparent %s.svg %s.png" %(options.basename, options.basename))
 
 if options.display:
     t.show(tree_style=ts)

@@ -194,10 +194,11 @@ if options.savepng:
     # The PNG converter in ETE gives a terrible quality image
     # as does the "convert" function (which is probably what ETE uses)
     # so this is the best I could come up with...
-    os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(options.basename, options.basename) )
+#    os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(options.basename, options.basename) )
+    os.system("convert -depth 16 -background transparent %s.svg %s_temp.png" %(options.basename, options.basename))
     # Then trim off the edges
     os.system("convert -trim %s_temp.png %s.png" %(options.basename, options.basename))
-    os.system("rm %s_temp.png" %(options.basename))
+#    os.system("rm %s_temp.png" %(options.basename))
 
 if options.display:
     t.show(tree_style=ts)

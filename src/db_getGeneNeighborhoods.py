@@ -28,9 +28,12 @@ cur = con.cursor()
 
 for gene in fileinput.input("-"):
     spl = gene.strip('\r\n').split("\t")
+    geneid = spl[gc]
+    if not geneid.startswith("fig|"):
+        geneid = "fig|%s" %(geneid)
     cur.execute("""SELECT neighborhoods.*, processed.annotation FROM neighborhoods
                    INNER JOIN processed ON processed.geneid = neighborhoods.neighborgene
-                   WHERE neighborhoods.centergene=? AND ABS(neighborhoods.distance) <= ?;""", (spl[gc],nsize))
+                   WHERE neighborhoods.centergene=? AND ABS(neighborhoods.distance) <= ?;""", (geneid,nsize))
     for l in cur:
         print "\t".join([ str(s) for s in list(l) ])
 

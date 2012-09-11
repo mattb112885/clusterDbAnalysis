@@ -9,6 +9,7 @@ import sys
 import optparse
 import os
 from locateDatabase import *
+from sanitizeString import *
 
 ####################################
 # Lets read input arguments first.
@@ -103,8 +104,9 @@ cur.execute("SELECT * FROM processed;")
 
 for l in cur:
     spl = [ str(s) for s in list(l) ]
-    geneToAnnote[spl[0]] = spl[9]
-    geneToOrganism[spl[0]] = spl[1]
+    # The SVG parser whines with some special characters (i.e. ' )
+    geneToAnnote[spl[0]] = sanitizeString(spl[9], False)
+    geneToOrganism[spl[0]] = sanitizeString(spl[1], False)
 
 ######################
 # Add annotations and
@@ -189,6 +191,8 @@ if options.savenewick:
 if options.savesvg:
     t.render("%s.svg" %(options.basename), tree_style=ts)
 
+print "ok so far..."
+
 if options.savepng:
     # Convert the svg file into a high-quality (300 dpi) PNG file...
     # The PNG converter in ETE gives a terrible quality image
@@ -196,6 +200,7 @@ if options.savepng:
     # so this is the best I could come up with...
 #    os.system("inkscape -e %s_temp.png -d 300 %s.svg" %(options.basename, options.basename) )
     os.system("convert -depth 16 -background transparent %s.svg %s_temp.png" %(options.basename, options.basename))
+    print "still ok..."
     # Then trim off the edges
     os.system("convert -trim %s_temp.png %s.png" %(options.basename, options.basename))
 #    os.system("rm %s_temp.png" %(options.basename))

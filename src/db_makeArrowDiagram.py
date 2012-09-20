@@ -411,7 +411,6 @@ for cluster in clusterToAnnote:
     # Color box
     fc1 = faces.TextFace("")
     fc1.background.color = clusterToColor[cluster]
-    print fc1.background
     boxsize = 20
     fc1.margin_left = boxsize
     fc1.margin_right = boxsize

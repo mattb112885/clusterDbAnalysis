@@ -24,3 +24,4 @@ for s in sorted(ls):
     sys.stdout.write(s.ljust(maxl) + "\t")
     c += 1
 
+sys.stdout.write("\n")

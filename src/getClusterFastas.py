@@ -7,24 +7,18 @@
 # in the results of "db_getClusterGeneInformation.py" ("infofile").
 # The fasta files are placed in "outputfolder"
 #
-# Organism name and annotation are placed in "labelfolder"
-#
 # Files outputted with run ID followed by the cluster ID
 #
-##############
-# WARNING!!!!!
-##############
-# Cluster ID MUST BE SORTED in the input file (this shouldn't be a problem
-# but if something weird happens it isn't my fault!!)
 #
 
 import sys, os
 import fileinput
 import optparse
 
-usage = "%prog [fastafolder] < cluster_info_file"
-description="Generate a FASTA file for each cluster present in the specified clusterinfo file (as generated from e.g. db_getClusterGeneInfo). The file must be in order by cluster"
+usage = "%prog [options] fastafolder < cluster_info_file"
+description="Generate a FASTA file for each cluster present in the specified clusterinfo file (as generated from e.g. db_getClusterGeneInfo)"
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-n", "--nucleotides", help="Export nucleotide fasta files, not protein (D: Protein fasta files)", action="store_true", dest="nuc", default=False)
 (options, args) = parser.parse_args()
 
 if not len(args) == 1:
@@ -33,18 +27,35 @@ if not len(args) == 1:
 
 outputfolder = args[0]
 
-lastone = None
-fid = -1
+# Make it not fail if the directory doesn't exist already.
+if not os.path.isdir(outputfolder):
+    if os.path.exists(outputfolder):
+        sys.stderr.write("ERROR: Specified output folder name already exists as an ordinary file\n")
+        exit(2)
+    os.mkdir(outputfolder)
+
+# Make a dictionary that will hold our outfile names and handles
+# This is used to remove any dependency on order of rows in the file and also
+# make it non-ambiguous if multiple clusters have the same cluster IDs but different run IDs
+outfiles = {}
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
     myrunid = spl[0]
-    if not spl[1] == lastone:
-        if not fid == -1:
-            fid.close()
-        fname = "%s_%s.fasta" %(myrunid, spl[1])
+    myclustid = spl[1]
+    fname = "%s_%s.fasta" %(myrunid, myclustid)
+    #if we haven't seen this cluster run and ID yet, add it's handle to out dictionary, and make it the current fid
+    if fname not in outfiles.keys(): 
         fid = open(os.path.join(outputfolder, fname), "w")
-        lastone = spl[1]
-    # Write to fasta
-    ln = ">%s %s\n%s\n" %(spl[2], spl[4], spl[5])
-    fid.write(ln)
+        outfiles[fname] = fid
+    if options.nuc:
+        sequence = spl[6]
+    else:
+        sequence = spl[5]
+    ln = ">%s %s\n%s\n" %(spl[2], spl[4], sequence)
+    outfiles[fname].write(ln)
+
+#close all files
+for fhandle in outfiles.values():
+    fhandle.close()
+
 

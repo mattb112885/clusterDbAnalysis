@@ -6,13 +6,17 @@
 
 cd genbank;
 for file in *; do
-    orgid=$(echo ${file} | grep -P -o "\d+\.\d+")
+    # Skip the readme file
+    if [ "${file}" == "README" ]; then
+	continue;
+    fi
+    orgid=$(echo "${file}" | grep -P -o "\d+\.\d+")
     if [ $? -ne 0 ]; then
 	echo "WARNING: No organism ID could be inferred from filename ${file} so it was not converted to a contig fasta file"
 	continue;
     fi
     echo ${orgid}
-    genbank2nucleotides.py -f ${file} -t -o ${orgid} >> ../db/contigs;
+    genbank2nucleotides.py -f "${file}" -t -o "${orgid}" >> ../db/contigs;
 done
 cd ..;
 

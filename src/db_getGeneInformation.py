@@ -37,7 +37,7 @@ for line in fileinput.input("-"):
     if not spl[gc].startswith("fig|"):
         spl[gc] = "fig|" + spl[gc]
 
-    cur.execute("SELECT * FROM processed WHERE processed.geneid = ?;", (spl[gc],))
+    cur.execute("SELECT processed.* FROM processed WHERE processed.geneid = ?;", (spl[gc],))
 
     for l in cur:
         s = list(l)

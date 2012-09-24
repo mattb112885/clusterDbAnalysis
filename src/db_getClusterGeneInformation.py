@@ -53,7 +53,7 @@ query = "CREATE TEMPORARY TABLE unqclusters AS SELECT DISTINCT * from desiredclu
 cur.execute(query)
 
 # Generate information about all of those clusters (for all genes, not just the ones piped into this command)
-cur.execute(""" SELECT clusters.*, processed.organism, processed.annotation, processed.aaseq, processed.nucseq
+cur.execute(""" SELECT processed.*, clusters.runid, clusters.clusterid
               FROM clusters
               INNER JOIN processed ON processed.geneid = clusters.geneid
               INNER JOIN unqclusters ON unqclusters.clusterid = clusters.clusterid

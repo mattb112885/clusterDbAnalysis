@@ -16,7 +16,12 @@ import fileinput
 import optparse
 
 usage = "%prog [options] fastafolder < cluster_info_file"
-description="Generate a FASTA file for each cluster present in the specified clusterinfo file (as generated from e.g. db_getClusterGeneInfo)"
+description="""Generate a FASTA file for each cluster present in the specified clusterinfo file 
+(as generated from e.g. db_getClusterGeneInformation.py)
+
+If cluster info is not available (i.e. the file was generated from db_getGeneInformation.py),
+it will generate a fasta file with the name "NOCLUSTER_.fasta" with all of the sequences
+in the file. """
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--nucleotides", help="Export nucleotide fasta files, not protein (D: Protein fasta files)", action="store_true", dest="nuc", default=False)
 (options, args) = parser.parse_args()
@@ -40,18 +45,24 @@ if not os.path.isdir(outputfolder):
 outfiles = {}
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
-    myrunid = spl[0]
-    myclustid = spl[1]
+    if len(spl) < 14:
+        myrunid="NOCLUSTER"
+        myclustid = ""
+    else:
+        myrunid = spl[12]
+        myclustid = spl[13]
     fname = "%s_%s.fasta" %(myrunid, myclustid)
     #if we haven't seen this cluster run and ID yet, add it's handle to out dictionary, and make it the current fid
     if fname not in outfiles.keys(): 
         fid = open(os.path.join(outputfolder, fname), "w")
         outfiles[fname] = fid
     if options.nuc:
-        sequence = spl[6]
+        mysequence = spl[10]
     else:
-        sequence = spl[5]
-    ln = ">%s %s\n%s\n" %(spl[2], spl[4], sequence)
+        mysequence = spl[11]
+    mygeneid = spl[0]
+    myannotation = spl[9]
+    ln = ">%s %s\n%s\n" %(mygeneid, myannotation, mysequence)
     outfiles[fname].write(ln)
 
 #close all files

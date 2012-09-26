@@ -16,6 +16,8 @@ CREATE TABLE clusters(
 .import db/flat_clusters clusters
 
 CREATE INDEX clusteridx ON clusters (geneid);
+CREATE INDEX clusterrunidx ON clusters (runid) ;
+CREATE INDEX clusterididx ON clusters (clusterid);
 
 /* Clusters adjacent to what organism they belong to */
 CREATE VIEW clusterorgs AS

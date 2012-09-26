@@ -4,6 +4,10 @@
 # with names containing the organism ID in them,
 # tmport the contigs into the sql database
 
+# Do a reset on the contig file so we don't keep adding the same genomes to the file over and over
+rm db/contigs 2> /dev/null;
+
+# Parse the genbank files and get the contigs out.
 cd genbank;
 for file in *; do
     # Skip the readme file

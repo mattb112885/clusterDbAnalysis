@@ -84,7 +84,7 @@ CREATE TABLE neighborhoods(
 CREATE INDEX blastqueryidx ON blastresults (querygene);
 CREATE INDEX blasttargetidx ON blastresults (targetgene);
 
-/* Add self-bit score */
+/* Add self-bit score to blast results table, (then delete it?) */
 CREATE TABLE blast_self AS
        SELECT * FROM blastresults 
        WHERE blastresults.querygene = blastresults.targetgene;
@@ -92,12 +92,12 @@ CREATE TABLE blast_self AS
 CREATE INDEX selfqueryidx ON blast_self(querygene);
 
 CREATE VIEW s AS
-       SELECT blastresults.*, blast_self.bitscore
+       SELECT blastresults.*, blast_self.bitscore AS queryselfbit
        FROM blastresults
        INNER JOIN blast_self ON blast_self.querygene = blastresults.querygene;
 
 CREATE TABLE blastres_selfbit AS
-       SELECT s.*, blast_self.bitscore FROM s
+       SELECT s.*, blast_self.bitscore AS targetselfbit FROM s
        INNER JOIN blast_self ON blast_self.querygene = s.targetgene;
 
 CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);

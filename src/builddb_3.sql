@@ -18,22 +18,24 @@ CREATE TABLE contigs(
 
 CREATE TABLE tblastn(
        "queryid" VARCHAR(256),
+       "querylen" INT,
        "targetcontig" VARCHAR(256),
-       "tstart" INT,
-       "tend" INT,
+       "targetorganism" VARCHAR(256),
+       "tblaststart" INT,
+       "tblastend" INT,
+       "tblastlen" INT,
+       "queryoverlappct" FLOAT,
        "evalue" FLOAT,
-       "bitscore" FLOAT,
-       "strand" INT,
-       "strandconsistency" VARCHAR(32),
-       "targetgene" VARCHAR(32),
-       "targetgenestart" INT,
-       "targetgeneend" INT,
-       "geneoverlap" INT,
-       "geneoverlappct" FLOAT,
-       "geneoverlapannote" VARCHAR(2048),
-       FOREIGN KEY(targetcontig) REFERENCES processed(contig_mod),
+       "bitscore FLOAT,
+       "hitframe" INT,
+       "strandedstring" VARCHAR(16),
+       "targetgeneid" VARCHAR(32),
+       "targetannotation" VARCHAR(2048),
+       "targetgenelen" INT,
+       "targetoverlappct" FLOAT,
+       FOREIGN KEY(targetorganism) REFERENCES organisms(organism),
        FOREIGN KEY(queryid) REFERENCES processed(geneid),
-       FOREIGN KEY(targetgene) REFERENCES processed(geneid)
+       FOREIGN KEY(targetcontig) REFERENCES contigs(contig_mod)
 );
 
 .separator "\t"

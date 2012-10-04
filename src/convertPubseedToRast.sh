@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Convert PUBSEED to RAST by calling appropriate server scripts, and then
 # rearranging the tables to the right format.

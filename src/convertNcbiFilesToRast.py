@@ -127,8 +127,10 @@ for line in open(args[0], "r"):
     # Only the region line has a link to the TaxID.
     # We need to pull the TaxID out because it gives us a stable id consistent with the PubSEED
     # After pulling it out once we don't need to do it again.
+    #
+    # I use 88888 as the revision number to make it unlikely to cause conflicts with existing SEED ids.
     if spl[2] == "region" and org_id == "":
-        org_id = "%s.%d" %(taxIdFinder.search(spl[8]).group(1), 1)
+        org_id = "%s.%d" %(taxIdFinder.search(spl[8]).group(1), 88888)
         continue
     elif spl[2] == "region":
         continue

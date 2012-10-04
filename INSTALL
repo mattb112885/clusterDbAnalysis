@@ -42,9 +42,11 @@
 # ...
 # The first column is the name of the organism, the second is an abbreviation and the third is an ID number.
 # Note that some functions (e.g. core gene finding) require the IDs to be in this format, "\d+\.\d+" in regex
+# and all the automated scripts for makign raw files (see 3 below) will assign organism IDs in this format.
 #
 ### 2 ###
 # - Groups file: Place this in the root directory.
+#
 # This allows you to specify multiple groups of organisms that you want to cluster with the same set of
 # parameters. In it, place organism names that ALL must match any organisms you want to cluster.
 #
@@ -62,25 +64,42 @@
 # will cluster any organisms in your database whose names don't match Methanosarcina
 #
 ### 3 ###
-# - raw files: Tab-delimited files that look like this.
+# - raw files: Tab-delimited files containing information needed for our analysis.
+#   They must be placed in the raw/ folder and nothing else can be there except the README file.
 #
 # contig_id       feature_id      type    location        start   stop    strand  function        aliases figfam  evidence_codes  nucleotide_sequence     aa_sequence
 #
 # The feature_id should have the format:
 # fig|#.#.peg.# (e.g. fig|83333.1.peg.1)
-# The first two numbers (83333.1) must match the organism ID for certain functions to work.
+# The first two numbers (83333.1) must match the organism ID for the organism containing that gene for certain functions to work.
+#
 # Type should be "peg" for all proteins. Anything not a protein is ignored.
+#
 # Start/stop is the start/stop of the actual gene on the specified contig (start > stop for - strand genes).
+#
 # Strand is + or -
+#
 # Function is the functional annotation.
+#
 # nucleotide_sequence is the nucleotide sequence of the protein and aa_sequence is the amino acid sequence.
+#
 # All other fields (location, aliases, figfam, evidence_codes, ...) are ignored.
 #
-# There are three ways (listed roughly in order of how hard they are) to make these files:
-# - Upload your genomes to RAST for annotation (recommended) and then download the tab-delimited file, which is in this format.
-# - Run the convertPubseedToRast.sh script with the genome ID from the SEED (pubseed.theseed.org), which will automatically
-# download the files from the SEED FTP servers and convert them into the appropriate format. Using this requires you to install
-# MyRAST (a good idea since many functions I use require this anyway).
-# - Download the NCBI files for your genome and CONCATINATE THE FILES OF THE SAME TYPE ACROSS CONTIGS. 
-# Then run convertNcbiFilesToRast.py to make files. Make sure to pay attention to any warnings
+# There are now four ways (listed roughly in order of how hard they are) to make these files. Only #1 will work with a
+#  newly-sequenced genome, the other three are for genomes deposited in other databases.
+# The other supported databases are:
+#   - The SEED (#2 or #3)
+#   - Microbes Online (#3)
+#   - Genbank (#4)
+#
+# 1: Upload your genomes to RAST (rast.nmpdr.org) for annotation and then download the tab-delimited file, which is in this format.
+# 2: Run the convertPubseedToRast.sh script with the genome ID from the SEED (pubseed.theseed.org), which will automatically
+# download the files from the SEED FTP servers and convert them into the appropriate format. Using this script requires you to install
+# MyRAST (http://blog.theseed.org/servers/installation/distribution-of-the-seed-server-packages.html)
+# 3: Run the convertKbaseToRast.sh script with a KBase ID as input. For now The KBase ID must correspond to either a SEED genome
+#   or a microbes online genome. Running this doesn't require MyRAST but does require access to a local install of the DOE KBase software
+#   available at http://kbase.science.energy.gov/developer-zone/downloads/
+# 4: Go into the Genbank FTP server
+# Download the NCBI files for your genome and CONCATINATE THE FILES OF THE SAME TYPE ACROSS CONTIGS. 
+# Then run convertNcbiFilesToRast.py to get the raw file you need. Make sure to pay attention to any warnings
 # generated - these are due to formatting oddities and need to be fixed manually.

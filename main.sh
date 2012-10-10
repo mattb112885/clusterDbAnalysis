@@ -36,6 +36,7 @@ mkdir faa 2> /dev/null;
 mkdir fna 2> /dev/null;
 mkdir modtable 2> /dev/null;
 mkdir blastres 2> /dev/null;
+mkdir blastn_res 2> /dev/null;
 mkdir db 2> /dev/null;
 mkdir aliases 2> /dev/null;
 
@@ -53,8 +54,11 @@ cd ..;
 
 # Haven't converted this one to a pipe yet...
 # Run blast all vs. all organisms (takes ~ 1 hour for 18 organisms and 8 cores)
-echo "Blast all vs all...";
+echo "Blast all vs all (BLASTP)...";
 Blast_all_v_all.py faa/ blastres/ ${NCORES};
+
+echo "Blast all vs all (BLASTN)..."
+Blast_all_v_all.py -n fna/ blastn_res/ ${NCORES};
 
 # Concatinate results files for input into the database
 # Strip titles to avoid whining about duplicate rows.
@@ -64,6 +68,7 @@ Blast_all_v_all.py faa/ blastres/ ${NCORES};
 # Also - add the gene aliases here (not above) because the annotations are ultimately built from the raw file.
 cat blastres/* > db/blastres_cat;
 cat modtable/* > db/mod_cat;
+cat blastn_res/* > db/blastnres_cat;
 
 if [ -f aliases/aliases ]; then
     ls raw/* | grep -v "README" | xargs cat | grep -v "feature_id" | addAliasesToGeneAnnotations.py aliases/aliases > db/raw_cat;

@@ -38,6 +38,7 @@ mkdir modtable 2> /dev/null;
 mkdir blastres 2> /dev/null;
 mkdir blastn_res 2> /dev/null;
 mkdir db 2> /dev/null;
+mkdir db/orthofasta 2> /dev/null;
 mkdir aliases 2> /dev/null;
 
 # Do some preprocessing required for inputs into various software tools

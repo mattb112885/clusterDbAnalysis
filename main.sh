@@ -52,6 +52,9 @@ for file in $(ls | grep -v "README"); do
 done
 cd ..;
 
+echo "Concatinating faa files..."
+cat faa/*.faa > db/allgenomes.faa;
+
 # Haven't converted this one to a pipe yet...
 # Run blast all vs. all organisms (takes ~ 1 hour for 18 organisms and 8 cores)
 echo "Blast all vs all (BLASTP)...";

@@ -312,5 +312,5 @@ sys.stderr.write("Running MCL on the orthoMCL outputs... (this could take some t
 os.system(cmd3)
 
 # Finally, remove the temporary files created by orthoMCL
-if deleteLogfile:
-    os.remove(options.logfile)
+#if deleteLogfile:
+#    os.remove(options.logfile)

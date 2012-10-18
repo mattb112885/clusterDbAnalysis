@@ -303,6 +303,10 @@ cmd1 = "orthomclPairs %s %s cleanup=%s" %(options.configfile, options.logfile, "
 sys.stderr.write("Calculating orthoMCL pairs files... (this will take a long time)\n")
 os.system(cmd1)
 
+# orthomclDumpPairs chokes if the "pairs" directory already exists.
+if os.path.exists("pairs"):
+    os.system("rm -r pairs")
+
 # Now we have pairs and we can extract them...
 cmd2 = "orthomclDumpPairsFiles %s" %(options.configfile)
 sys.stderr.write("Dumping orthoMCL results to files...\n")

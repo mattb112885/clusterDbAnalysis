@@ -45,6 +45,8 @@ parser.add_option("-a", "--inflation", help="Inflation value for MCL (D: 1.5)", 
 parser.add_option("-g", "--logfile", help="Orthomcl pairs Log file (D: Make a dummy name and delete it afterwards)", action="store", type="str", dest="logfile", default=None)
 parser.add_option("-r", "--forcereload", help="Force reload of the database with BLAST results (D: Only re-load if the reformatted BLAST info file is newly created)",
                   action="store_true", dest="forcereload", default=False)
+parser.add_option("-k", "--keeptemp", help="Keep temporary files made by orthoMCL (D: Delete them - except the new config file which is stored in the filename specified by -n)",
+                  action="store_true", dest="keeptemp", default=False)
 
 (options, args) = parser.parse_args()
 
@@ -74,7 +76,8 @@ def getWantedOption(line, optionfinder, cmdlineoption):
     value = match.group(2)
     if len(value) == 0:
         if cmdlineoption is None:
-            sys.stderr.write("ERROR: No option for configuration parameter %s found on command line or in the orthomcl config file.\n" %(option))
+            sys.stderr.write("""ERROR: No option for configuration parameter %s
+            found on command line or in the orthomcl config file.\n""" %(option))
             raise IOError
         else:
             return cmdlineoption
@@ -279,24 +282,24 @@ else:
     sys.stderr.write("BLAST results file in correct format already existed before running this script so it was assumed that the DB was loaded already. If this is not the case specify --forcereload\n")
     
 if options.logfile is None:
-    deleteLogfile = True
-    options.logfile = "TEMPORARY_ORTHOMCL_LOGFILE"
-else:
-    deleteLogfile = False
+    options.logfile = "ORTHOMCL_LOGFILE"
 
 # Check if the output file for the specified settings already exists.
 # Otherwise why bother re-doing all of this?
 
-expectedfilename = "orthomcl_all_I%1.4f_c_%d_%d" %(options.inflation, options.evalcut, options.pctcut)
+expectedfilename = "orthomcl_all_I_%1.4f_c_%d_%d" %(options.inflation, options.evalcut, options.pctcut)
 expectedoutput = os.path.join(os.path.dirname(locateDatabase()), "..", "clusters", expectedfilename)
 if not (options.forcereload or reloadDb):
     try:
         open(expectedoutput, "r")
+        sys.stderr.write("Expected output file %s already exists...\n" %(expectedoutput))
         exit(0)
     except IOError:
-        sys.stderr.write("OrthoMCL output %s does not already exist so creating it..\n")
+        sys.stderr.write("OrthoMCL output %s does not already exist so creating it..\n" %(expectedoutput))
 
 # Now that sanity checks are over lets run orthoMCL. First get pairs...
+# cleanup="yes" is necessary to make it possible to run orthoMCL multiple times with different settings.
+# Otherwise, it will refuse to run because a table that it attempts to create already exists.
 cmd1 = "orthomclPairs %s %s cleanup=%s" %(options.configfile, options.logfile, "yes")
 sys.stderr.write("Calculating orthoMCL pairs files... (this will take a long time)\n")
 os.system(cmd1)
@@ -307,10 +310,29 @@ sys.stderr.write("Dumping orthoMCL results to files...\n")
 os.system(cmd2)
 
 # ... and then run MCL on the resulting "MclInput" file
-cmd3 = "mcl mclInput --abc -I %1.4f -o %s" %(options.inflation, expectedoutput)
+# I make a temporary output file because I will need to re-make the gene IDs
+# in the format expected by our database.
+tmp_mcl_output = "mclOut_BADIDS"
+
+cmd3 = "mcl mclInput --abc -I %1.4f -o %s" %(options.inflation, tmp_mcl_output)
 sys.stderr.write("Running MCL on the orthoMCL outputs... (this could take some time)\n")
 os.system(cmd3)
 
+# Now I make the output file in the expected format.
+# This regex MUST be lazy because there are multiple genes on a line
+orgReplacer = re.compile("\S+?\|")
+fout = open(expectedoutput, "w")
+for line in open(tmp_mcl_output, "r"):
+    line = orgReplacer.sub("fig|", line)
+    fout.write(line)
+fout.close()
+
 # Finally, remove the temporary files created by orthoMCL
-#if deleteLogfile:
-#    os.remove(options.logfile)
+# NOT INCLUDING the new config file!!!
+if not options.keeptemp:
+    os.remove(options.logfile)
+    os.remove(tmp_mcl_output)
+    os.remove("mclInput")
+    # rmdir only works on empty directories.
+    os.system("rm -r pairs")
+    

@@ -93,7 +93,6 @@ def getWantedOption(line, optionfinder, cmdlineoption):
 # If there is a config file passed in, take the values from that but overwrite them with command-line arguments.
 if options.configfile is not None:
     optionfinder = re.compile("^(.*)=(.*)$")
-    fid = open(options.newconfigfile, "w")
     for line in open(options.configfile, "r"):
         if line.startswith("#"):
             continue

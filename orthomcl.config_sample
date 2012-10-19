@@ -1,7 +1,7 @@
 # this config assumes a mysql database named 'orthomcl'.  adjust according
 # to your situation.
-dbVendor=mysql 
-dbConnectString=dbi:mysql:orthomcl
+dbVendor=mysql
+dbConnectString=dbi:mysql:mysql_local_infile=1;database=orthomcl
 dbLogin=orthomcl
 dbPassword=
 similarSequencesTable=SimilarSequences

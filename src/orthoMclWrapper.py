@@ -101,7 +101,8 @@ def getWantedOption(line, optionfinder, cmdlineoption):
 
 # If there is a config file passed in, take the values from that but overwrite them with command-line arguments.
 if options.configfile is not None:
-    optionfinder = re.compile("^(.*)=(.*)$")
+    # The first of these must be lazy so that we can pass MYSQL options in as part of the DBI string.
+    optionfinder = re.compile("^(.*?)=(.*)$")
     for line in open(options.configfile, "r"):
         if line.startswith("#"):
             continue
@@ -336,11 +337,12 @@ os.system(cmd3)
 # Now I make the output file in the expected format.
 # This regex MUST be lazy because there are multiple genes on a line
 orgReplacer = re.compile("\S+?\|")
-fout = open(expectedoutput, "w")
-for line in open(tmp_mcl_output, "r"):
-    line = orgReplacer.sub("fig|", line)
-    fout.write(line)
-fout.close()
+if os.path.exists(tmp_mcl_output):
+    fout = open(expectedoutput, "w")
+    for line in open(tmp_mcl_output, "r"):
+        line = orgReplacer.sub("fig|", line)
+        fout.write(line)
+    fout.close()
 
 # Finally, remove the temporary files created by orthoMCL
 # NOT INCLUDING the new config file!!!

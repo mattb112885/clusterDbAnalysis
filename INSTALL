@@ -46,6 +46,12 @@
 #  $ sudo cpan DBI
 #  $ sudo cpan DBD::mysql
 # See the orthoMCL help for more details.
+# WARNING: the orthoMCL requires you to set the global variable local_infile to TRUE
+#   or else mysql will refuse to load your BLAST file
+#   (it will tell you "the used command is not allowed").
+# You can set that by executing the command (as the mySQL root)
+# SET GLOBAL local_infile=TRUE;
+# or include it in the DBI string like in the sample.
 
 ### DATA SETUP ###
 #

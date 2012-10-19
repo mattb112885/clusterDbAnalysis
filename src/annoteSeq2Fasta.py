@@ -11,9 +11,9 @@ import fileinput, optparse, sys
 usage = "%prog [options] < gene_seq_table > fasta_file"
 description = "Turn a table containing gene IDs, annotations, and sequences into a FASTA file"
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.add_option("-g", "--geneid", help="Column number (start from 1) for gene id", action="store", type="int", dest="geneidcol", default=1)
+parser.add_option("-g", "--geneid", help="Column number (start from 1) for gene id (D:1)", action="store", type="int", dest="geneidcol", default=1)
 parser.add_option("-a", "--annote", help="Column number (start from 1) for annotation / FASTA header (optional, by default no annotation is included)", action="store", type="int", dest="annotecol", default=None)
-parser.add_option("-s", "--seqcol", help="Column number (start from 1) for sequence column", action="store", type="int", dest="seqcol", default=3)
+parser.add_option("-s", "--seqcol", help="Column number (start from 1) for sequence column (D:12 - corresponds to the location in a geneinfo file)", action="store", type="int", dest="seqcol", default=12)
 (options, args) = parser.parse_args()
 
 geneidcol = options.geneidcol - 1

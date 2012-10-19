@@ -59,7 +59,7 @@ def estimateBounds(arr):
     return bestbounds[0]*10**max(oom), bestbounds[1]*10**max(oom)
 
 usage="%prog [options] < x,y"
-description="User interface to generate a single scatterploy. The default settings should make a pretty nice plot but I provide easy-to-understand options to change different aspects of the plot"
+description="User interface to generate a single scatterplot. The default settings should make a pretty nice plot but I provide easy-to-understand options to change different aspects of the plot"
 parser = optparse.OptionParser(usage=usage, description=description)
 # Input Data options
 parser.add_option("--xcol", help="Column number for x, starting from 1 (D = 1)", action="store", type="int", dest="xcol", default=1)

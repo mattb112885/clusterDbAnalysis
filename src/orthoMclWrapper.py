@@ -7,34 +7,43 @@ from locateDatabase import *
 usage = """%prog -l mysql_loginname -p mysql_password -d mysql_database_string [options]
 %prog -f orthomcl_config_file [options] """
 description = """
-  WARNING - This script is not yet complete, do NOT try to do analysis based on it yet!!
+  WARNING - This script is still a work in progress and is subject to random failures.
 
   This is a wrapper script for converting our data into a format in which it can be run with OrthoMCL and then
-  running it with the specified settings.
+  running it with the specified settings. It runs orthoMCL on ALL BLAST data that was used to build the database (not
+  on subsets).
 
-  The script requires installation of MYSQL and having a database created.  It also requires having the orthomcl binaries
-  (in $ORTHOMCLROOT/bin) added to your PATH variable. See OrthoMCL help for details on the steps performed here.
+  The script essentially performs (in sequence) the steps specified in the orthoMCL user guide but skips the ones that were
+  already done for construction of the SQLite database, and reformats things so that they will work with orthoMCL.
+
+  The script requires installation of MYSQL and having a database created (see OrthoMCL help file "mysqlInstallGuide.txt"). 
+  It also requires having the orthomcl binaries
+  (in $ORTHOMCLROOT/bin) added to your PATH variable.
 
   If redundant settings are present in the config file and in the inputs, the settings in the config file are overridden by
-  the command line input. """
+  the command line input and written to the file specified by -n (default: orthomcl.new.config).
+
+  If the script crashes or is killed between when the BLAST data is reformatted and when it is imported into the database,
+  you will get a segfault from MCL. If this happens run this script with --forcereload (-r)  - the error is related to 
+  not having any data to cluster becuase the data import failed. """
 
 parser = optparse.OptionParser(usage=usage, description=description)
 
 # Configuration options
-parser.add_option("-f", "--configfile", help="A previously-generated orthoMCL config file (D: Provide -l, -p, and -d instead and we will create a file)",
+parser.add_option("-f", "--configfile", help="A previously-generated orthoMCL config file (Required unless -l, -p, and -d are all specified)",
                   action="store", type="str", dest="configfile", default=None)
 parser.add_option("-n", "--newconfigfile", help="Name of new config file to create with command-line settings (D: orthomcl.new.config)", 
                   action="store", type="str", dest="newconfigfile", default="orthomcl.new.config")
-parser.add_option("-l", "--login", help="Login name for MySQL", action="store", type="str", dest="login", default=None)
-parser.add_option("-p", "--password", help="Password for MySQL (required)", action="store", type="str", dest="password", default=None)
+# Overwritable options for the config file
+parser.add_option("-l", "--login", help="Login name for MySQL (required if -f is not specified)", action="store", type="str", dest="login", default=None)
+parser.add_option("-p", "--password", help="Password for MySQL (required if -f is not specified)", action="store", type="str", dest="password", default=None)
 parser.add_option("-d", "--dbstring", 
-                  help=""" Database string for the MySQL database (required). 
+                  help=""" Database string for the MySQL database (required if -f is not specified). 
                            For a central install it will look like this:
                            dbi:MySql:[database_name]
                            For a local install it will instead look like:
                            dbi:MySql:[database_name]:localhost:[port]""",
                   action="store", type="str", dest="dbstring", default=None)
-# Overwritable options for the config file
 parser.add_option("-o", "--orthotable", help="Name of ortholog table to create in database (D: Ortholog)", action="store", type="str", dest="orthotable", default="Ortholog")
 parser.add_option("-i", "--inparalogtable", help="Name of inparalog table to create in database (D: InParalog)", action="store", type="str", dest="inparalogtable", default="InParalog")
 parser.add_option("-t", "--coortholog", help="Name of co-ortholog table to create in database (D: CoOrtholog)", action="store", type="str", dest="coorthologtable", default="CoOrtholog")
@@ -190,6 +199,9 @@ sys.stderr.write("Generating a FASTA file with orthomcl-compliant formatting...\
 # and searches that for all the fasta files (and yells at you if anything in there doesn't
 # have the right format).
 orthofastadir = os.path.join(os.path.dirname(locateDatabase()), "orthofasta")
+
+if not os.path.exists(orthofastadir):
+    os.mkdir(orthofastadir)
 
 origfastadir = os.path.join(os.path.dirname(locateDatabase()), "..", "faa")
 faafinder = re.compile(".*\.faa$")

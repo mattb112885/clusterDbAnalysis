@@ -11,7 +11,14 @@
 # Eventually they will also be usable from CPAN.
 
 if [ $# -ne 1 ]; then
-    echo "Usage: convertKbaseToRast.py [genome ID]";
+    echo "Usage: convertKbaseToRast.py (KBase genome ID)";
+    echo ""
+    echo "Description: Given a KBase genome ID, converts it into"
+    echo "the RAW format needed for input into the database."
+    echo "It will attempt to find a SEED ID for the genome if one"
+    echo "exists, and otherwise take the taxID (which must be available)"
+    echo "and append .99999 ."
+    echo "At the moment only SEED and MOL genomes are acceptable."
     exit 0;
 fi
 

@@ -4,7 +4,12 @@
 # obtain representative sequences for a specified cluster / run ID pair
 
 if [ $# -ne 2 ]; then
-    echo "Usage: getRepresentativesOfCluster.sh [run ID] [cluster ID]"
+    echo "Usage: getRepresentativesOfCluster.sh (run ID) (cluster ID)"
+    echo ""
+    echo "Description: Given a run and cluster ID, identify representatives"
+    echo "according to the MyRAST function svr_representative_sequences."
+    echo "WARNING: At the moment this is not a finished script and will likely be heavily"
+    echo "modified or removed."
     exit 0;
 fi
 

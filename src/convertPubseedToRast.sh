@@ -12,7 +12,12 @@
 # Example usage: convertToRast.sh 188937.1
 
 if [ $# -ne 1 ]; then
-    echo "Usage: convertPubseedToRast [genome ID]";
+    echo "Usage: convertPubseedToRast (PUBSEED genome ID)";
+    echo ""
+    echo "Description: Requires MYRast (svr_fasta) function"
+    echo "Creates a RAW file (genomeid).rast_txt that can be used"
+    echo "as input into the database."
+    echo "See pubseed.theseed.org ."
     exit 0;
 fi
 

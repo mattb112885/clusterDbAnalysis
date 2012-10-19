@@ -5,6 +5,8 @@
 
 if [ $# -ne 3 ]; then
     echo "USAGE: phylipSeqbootScript.sh [phylip_file] [out_file] [N_replicates]";
+    echo "DESCRIPTION: Wrapper script for Phylip's SEQBOOT package."
+    echo "It has not been thoroughly tested."
     exit 0;
 fi
 

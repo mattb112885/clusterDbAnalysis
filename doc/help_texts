@@ -1,0 +1,1318 @@
+*--------------------------------------------------------------------------------------------------------------------------*
+
+Blast_all_v_all.py
+
+Usage: Blast_all_v_all.py [-n] Fasta_dir Results_dir Ncores
+
+Automatically make blast databases for all files in fasta_dir  (must have .faa
+or .fasta extension) in parallel using ncores processers, and  store results
+in results_dir
+
+Options:
+  -h, --help    show this help message and exit
+  -n, --blastn  Perform BLASTN rather than BLASTP (D: BlastP). Runs actual
+                BLASTN, not MEGABLAST.
+*--------------------------------------------------------------------------------------------------------------------------*
+
+FastTree_wrapper.py
+
+Usage: FastTree_wrapper.py [options] < FASTA_file > Newick_file
+
+Wrapper for FASTTREE to allow for global bootstrapping in addition to normal
+functionality
+
+Options:
+  -h, --help            show this help message and exit
+  -b NUMBOOTS, --bootstraps=NUMBOOTS
+                        Number of bootstraps (D=none)
+  -g, --globalboots     Perform global bootstrapping analysis. Requires Phylip
+                        with SEQBOOT and CompareToBootstrap.pl from the
+                        FASTTREE doc page (D:Local bootstrap only)
+  -n, --nogamma         Do not apply gamma20 likelihood calculation
+  -m MODEL, --model=MODEL
+                        Specify model to use with FASTTREE (D=WAG)
+  -p PROGRAM, --program=PROGRAM
+                        Specify the name of the FASTTREE program to use - it
+                        must be in your PATH (D=FastTreeMP)
+  -t, --nucleotides     Set this flag if you are inputting a nucleotide
+                        alignment (D = Protein alignment)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+Gblocks_wrapper.py
+
+Usage: Gblocks_wrapper.py [options] < Fasta_alignment > Fasta_alignment_filtered
+
+Run GBLOCKS with specified parameter values. GBLOCKS is a program to filter
+low-quality sections out of a multiple alignment
+
+Options:
+  -h, --help            show this help message and exit
+  -p PROGRAM, --program=PROGRAM
+                        Name or location of your GBLOCKS program (D: Gblocks)
+  -s, --usestrict       Use 'strict' values according to the cited paper
+  -r, --userelaxed      Use 'relaxed' values according to the cited paper
+                        (Default parameters correspond to this because the
+                        paper claims it works better for shorter alignments)
+  -c B1, --mincons=B1   Minimum Number Of Sequences For A Conserved Position
+                        (D=9)
+  -f B2, --minflank=B2  Minimum Number Of Sequences For A Flank Position (D=9)
+  -n B3, --maxnoncons=B3
+                        Maximum Number Of Contiguous Nonconserved Positions
+                        (D=10)
+  -m B4, --minblock=B4  Minimum Length Of A Block (D=5)
+  -g B5, --gappos=B5    Allowable gaps (D=h, up to half gaps - must be h
+                        (half), n (none), or a (any number))
+*--------------------------------------------------------------------------------------------------------------------------*
+
+RaxML_wrapper.py
+
+Usage: RaxML_wrapper.py [options] < FASTA_file > Newick_file
+
+Wrapper for RAXML to take care of some nits (takes input in FASTA format and
+does not discard existing gene names; takes care of putting in seed arguments
+for you).
+
+Options:
+  -h, --help            show this help message and exit
+  -b NUMBOOTS, --bootstraps=NUMBOOTS
+                        Number of bootstraps (D=0)
+  -T NTHREADS, --numthreads=NTHREADS
+                        Number of threads, must be more than 1 (D=2)
+  -k, --nocleanup       Set this flag to keep intermediate RAXML and PHYLIP
+                        files (D=false, delete these files)
+  -m MODEL, --model=MODEL
+                        Specify model to use with RAXML (D=PROTGAMMAWAG)
+  -p PROGRAM, --program=PROGRAM
+                        Specify the name of the RAXML program to use (D
+                        =raxmlHPC-PTHREADS)
+  -c CONSELBASE, --conselfile=CONSELBASE
+                        Specify a file name to use as a base for files needed
+                        to run results with CONSEL. Overrides -k because afaik
+                        RAXML does not one to run multiple algorithms in a
+                        row...
+*--------------------------------------------------------------------------------------------------------------------------*
+
+addAliasesToGeneAnnotations.py
+
+Usage: addAliasesToGeneAnnotations.py [options] aliasFile < gene_annotation_file > gene_annotation_file with aliases added to annotation
+
+Options:
+  -h, --help            show this help message and exit
+  -a ANNOTEC, --annotecolumn=ANNOTEC
+                        Column number for annotation (start from 1)
+  -g GENEC, --geneidcolumn=GENEC
+                        Column number for gene id (start from 1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+annoteSeq2Fasta.py
+
+Usage: annoteSeq2Fasta.py [options] < gene_seq_table > fasta_file
+
+Turn a table containing gene IDs, annotations, and sequences into a FASTA file
+
+Options:
+  -h, --help            show this help message and exit
+  -g GENEIDCOL, --geneid=GENEIDCOL
+                        Column number (start from 1) for gene id (D:1)
+  -a ANNOTECOL, --annote=ANNOTECOL
+                        Column number (start from 1) for annotation / FASTA
+                        header (optional, by default no annotation is
+                        included)
+  -s SEQCOL, --seqcol=SEQCOL
+                        Column number (start from 1) for sequence column (D:12
+                        - corresponds to the location in a geneinfo file)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+blastResultsToDistanceMatrix.py
+
+Usage: blastResultsToDistanceMatrix.py [options] < BLAST_results > distance_matrix
+
+Turn a table of BLAST results into a distance matrix. The distance matrix will
+be suitable for conversion into a heatmap with plotHeatmap.py It is suggested
+that the user use this with the results of
+db_getBlastResultsBetweenSpecificGenes.py so that there are blast results
+available for ALL pairs of genes in a specified list.
+
+Options:
+  -h, --help            show this help message and exit
+  -m METHOD, --method=METHOD
+                        Scoring metric to use (D=maxbit). OK methods: pctid
+                        logevalue minbit maxbit
+  -d DEFAULT, --default=DEFAULT
+                        Default score to use in case of missing pairs. (D:
+                        None)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+catAlignments.py
+
+Usage: catAlignments.py [ -k Searchkey ] alignment_path
+
+Concatinate all alignments in alignment_path (all must have exactly one
+represenative from each organism, as determined from the gene ID). Searchkey
+is a pattern in the files to search from, e.t. part of the RunID for which you
+want to generate a concatinated alignment.
+
+Options:
+  -h, --help         show this help message and exit
+  -k KEY, --key=KEY  Pattern to match (by regex) in any files you want to use,
+                     e.g. a run ID (default: use all files in alignment_path)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+clusterIdToTable.py
+
+Usage: clusterIdToTable.py [clusterID1] [clusterID2] ... < runID > runID_clusterID_table
+
+Given a RunID from stdin and cluster IDs as arguments, makes a table
+duplicating the runID and adding the clusterID to each in a tab-delimited
+table
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+convertNcbiFilesToRast.py
+
+Usage: convertNcbiFilesToRast.py [gff_file] [faa_file] [ffn_file] > [RAST_tab_delimited_file]
+
+Given CONCATINATED gff, faa, and ffn files (i.e. download all the contigs
+available and concatinate the gff files into a single file, the faa files into
+a signle file, etc.) from genbank, does the ID matching and converts it into a
+tab-delimited file with one row for each protein (no RNAs are dealt with)
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+countClusters.py
+
+Usage: countClusters.py < cluster_file > counts
+
+Generate counts of the number of elements of each cluster from the MCL output
+file that has all the elements of one cluster in each row
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_TBlastN_wrapper.py
+
+Usage: db_TBlastN_wrapper.py (-d|-f|-o) contig_inputs [options] < Protein_ids > Tblastn_table
+
+Attempts to run TBLASTN and identify missing genes. It identifies called genes
+that match the hit location and also tries to find genes on the opposite
+strand that conflict.  Either you must specify the compiled contig database or
+must have run ./main3.sh and specify a single organism or list of organism IDs
+against which to perform the BLAST.  Output table columns:  queryid, querylen,
+subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct,
+evalue, bitscore, hitframe,                        strandedString,
+targetgeneid, targetannotation, targetgenelen, targetoverlappct
+
+Options:
+  -h, --help            show this help message and exit
+  -o ORG, --organism=ORG
+                        Organism ID to BLAST against.
+  -f ORGFILE, --orgfile=ORGFILE
+                        File of organism IDs to BLAST against (use this option
+                        if you want to test against multiple organisms
+  -d DB, --db=DB        BLAST database to use for BLASTing (use this option if
+                        you already have generated a blast database)
+  -c CUTOFF, --cutoff=CUTOFF
+                        E-value cutoff for TBLASTN (D=1E-5)
+  -t TRANSLATION, --translation=TRANSLATION
+                        Translation table number for TBLASTN (D=11 - bacteria,
+                        archaea and plant plastids)
+  -g GC, --genecol=GC   Column number for gene ID starting from 1 (D=1)
+  -r OC, --orgcol=OC    Column number for organism ID starting from 1 (D=1,
+                        ignored unless -f is specified)
+  -k, --keep            Keep temporary files (D: Delete them)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_addOrganismNameToTable.py
+
+Usage: db_addOrganismNameToTable.py [options] < gene_ids > gene_ids_with_organism
+
+Add the organism name to a tab-delimited file containing gene IDs. Also
+optionally add other stuff.
+
+Options:
+  -h, --help            show this help message and exit
+  -g GENECOL, --genecol=GENECOL
+                        Column number for gene IDs starting from 1 (D=1)
+  -a, --annotate        Also add annotation (D=False)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_bidirectionalBestHits.py
+
+Usage: db_bidirectionalBestHits.py [options] > BBH_table
+
+Return a list of bidirectional best blast hits based on the specified scoring
+criteria. Output table has (tab-delimited): Query gene, target gene, query
+genome, forward score, backward score
+
+Options:
+  -h, --help            show this help message and exit
+  -m METHOD, --method=METHOD
+                        Scoring metric to use to define best hit (D=evalue)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_compareClusters.py
+
+Usage: db_compareClusters.py RUNID1 RUNID2 > comparison_file
+
+Generates a file comparing each overlapping pair of clusters between the two
+specified run IDs. The tab-delimited file has one row for each overlapping
+pair of clusters and has one column with the overlapping genes and one column
+with the non-overlapping genes from each cluster
+
+Options:
+  -h, --help        show this help message and exit
+  -i, --includeall  If specified, include organisms not in common between the
+                    two runs as non-overlapping genes. Default is to omit
+                    those genes
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_displayTree.py
+
+Usage: db_displayTree.py [options] Newick_file . Default activity is to do nothing - one of -s, -p, -n, or -d must be specified...
+
+Display a tree with annotations and specified root and formats
+
+Options:
+  -h, --help            show this help message and exit
+  -d, --display         Display result
+  -s, --savesvg         Convert the file to svg (requires -b)
+  -p, --savepng         Convert the file to png (requires -b, implies -s)
+  -n, --savenewick      Save re-rooted tree as a newick file (requires -b)
+  -b BASENAME, --basename=BASENAME
+                        Base name for file outputs (ignored without -s or -p)
+  -r ROOTGENE, --rootgene=ROOTGENE
+                        Root on this gene (default = keep same root as nwk
+                        file).
+  -o ROOTORG, --rootorg=ROOTORG
+                        Root on this organism ID (e.g. 83333.1) (default =
+                        keep same root as nwk file)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_dumpAllFasta.py
+
+Usage: $prog > Fasta_file
+
+Generates a fasta file with all the annotations in the database including
+aliases added to the raw annotations...
+
+Options:
+  -h, --help        show this help message and exit
+  -n, --nucleotide  Make nucleotide fasta file (D: Protein)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_evaluateReactionsFromGpr.py
+
+Usage: db_evaluateReactionsFromGpr.py -g [GPR_file] -i [RunID] > Rxn_presence_absence
+
+This function takes a two-column table containing gene protein reaction
+relationships (GPR) and produces a table telling whether the reaction is
+present in each organism in a given cluster run based on the presencebsence
+of individual genes from the clustering results.  The GPR_file should have
+exactly two columns: - A column of reaction IDs (first column) - A column of
+Gene-protein relationships [I.E. "GeneX and GeneY"] (second column)  This will
+only work if the gene IDs are the same in the GPRs as they are in the
+database.  The gene IDs MUST be formatted the same way as they are in the
+database, i.e. in the  fig\|\d+\.\d+\.peg\.\d+ format
+
+Options:
+  -h, --help            show this help message and exit
+  -g GPRFILE, --gprfile=GPRFILE
+                        GPR file (required, D=None)
+  -i RUNID, --runid=RUNID
+                        Run ID to use to identify presencebsence of genes
+                        (requried, D=None)
+  -o, --or              Replace all AND in the input GPR with OR (useful for
+                        diagnosing issues with missing subunits). D = False,
+                        evaluate as written
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_findClustersByOrganismList.py
+
+Usage: db_findClustersByOrganismList.py [options] run_id < organism_list > cluster_run_id_list
+
+Find clusters with a paritcular quality relative to the list of organisms you
+specified. Note: To find core gene clusters for a particular group, use both
+-a and -u To find core genes only in a parituclar group (to the exclusion of
+all the others in that cluster run), use -a, -u, and -s By some group's
+definitions core genes can be duplicates in some genomes. In such a case
+exclude the -u. To find clusers that exclude all the specified organisms use
+-n Using only -u will result in an error.
+
+Options:
+  -h, --help          show this help message and exit
+  -a, --all           Only include clusters that have at least one
+                      representative in ALL of the specified organisms
+  -y, --any           Only include clusters that have at least one
+                      representative in AT LEAST ONE of the specified
+                      organisms
+  -s, --only          Only include clusters that ONLY has matches in the
+                      specified organisms
+  -n, --none          Only include clusters that have DOES NOT have a
+                      representative in the specified organisms
+  -u, --uniq          Only include clusters that contain exactly ONE
+                      representative in any matching organisms (D: Any number)
+  -o OC, --orgcol=OC  Column number for organism starting from 1 (D=1)
+  -r, --sanitized     If specified, the names in the input file have been
+                      sanitized (with sanitizeString.py) (D: False)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_findGenesWithInternalStops.py
+
+Usage: db_findGenesWithInternalStops.py > [genes_with_internal_stops]
+
+Find genes with internal stops that are present in the database. Internal
+stops are defined as internal TAG, TGA, or TAA codons
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getAlignmentBetweenGenes.py
+
+Usage: db_getAlignmentBetweenGenes.py [options] < gene_list > alignment
+
+Get a quick and dirty (whole-gene) alignment between a set of genes of
+interest piped from stdin. Does not do any trimming.
+
+Options:
+  -h, --help           show this help message and exit
+  -g GC, --genecol=GC  Column number for gene starting from 1 (D=1)
+  -p, --phylip         Output alignment as PHYLIP (D: FASTA)
+  -k, --keep           Keep temporary files (D: Delete them)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getAllBlastResults.py
+
+Usage: db_getAllBlastResults.py > all_blast_results
+
+Print all blast results available in the database (without further filtering)
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getAllClusterRuns.py
+
+Usage: db_getAllClusterRuns.py > run_id_list
+
+Return list of all run IDs from the database
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getAllClustersSpecRun.py
+
+Usage: db_getAllClustersSpecRun.py [options] < run_ids > cluster_runs
+
+Given a set of run IDs (from stdin), returns all cluster IDs associated with
+that run ID
+
+Options:
+  -h, --help          show this help message and exit
+  -r RC, --runcol=RC  Column number for run ID (start from 1, D=1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getBlastResultsBetweenSpecificGenes.py
+
+Usage: db_getBlastResultsBetweenSpecificGenes.py [options] < gene_ids > blast_results
+
+Given list of genes to match, returns a list of BLAST results between genes in
+the list only
+
+Options:
+  -h, --help            show this help message and exit
+  -g GENECOLUMN, --gcolumn=GENECOLUMN
+                        Column number (start from 1) for gene ID
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getBlastResultsBetweenSpecificOrganisms.py
+
+Usage: db_getBlastResultsBetweenSpecificOrganisms.py "Organism 1" "Organism 2" ... > blast_results
+
+Given list of organism keywords to match, by default returns a list of BLAST
+results between genes only in organisms matching ALL of the keywords. Use !
+for NOT or -o to use OR instead
+
+Options:
+  -h, --help  show this help message and exit
+  -o, --or    Use OR instead of AND between organism identifiers
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getBlastResultsContainingGenes.py
+
+Usage: db_getBlastResultsContainingGenes.py [options] < gene_ids > blast_results
+
+Given list of genes to match, returns a list of BLAST results containing any
+gene ID in your list as either a query or a target (for blast results only
+BETWEEN the query genes, see db_getBlastResultsBetweenSpecificGenes.py)
+
+Options:
+  -h, --help            show this help message and exit
+  -g GENECOLUMN, --gcolumn=GENECOLUMN
+                        Column number (start from 1) for gene ID
+  -c CUTOFF, --cutoff=CUTOFF
+                        E-value cutoff (D: Show all results in database)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getClusterGeneInformation.py
+
+Usage: db_getClusterGeneInformation.py [options] < [ runid_clusterid_table] > cluster_gene_info
+
+Given a list of run ID / cluster ID pairs (one pair in each row of the input
+table), get a list of info in each gene in those clusters including organism,
+strand, location, contig, and sequences
+
+Options:
+  -h, --help            show this help message and exit
+  -r RUNCOLUMN, --rcolumn=RUNCOLUMN
+                        Column number (start from 1) for run ID
+  -c CLUSTERCOLUMN, --ccolumn=CLUSTERCOLUMN
+                        Column number (start from 1) for cluster ID
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getClustersContainingGenes.py
+
+Usage: db_getClustersContainingGenes.py [options] < gene_ids > clusters_containing_genes
+
+Given a list of gene IDs, gets a list of clusters containing those genes (in
+all run IDs)
+
+Options:
+  -h, --help            show this help message and exit
+  -g GENECOLUMN, --gcolumn=GENECOLUMN
+                        Column number (start from 1) for gene ID
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getClustersWithAnnotation.py
+
+Usage: db_getClustersWithAnnotation.py [options] "Annotation 1" "Annotation 2" ... < run_ids > clusters_with_genes_containing_annotation_words
+
+Given list of run IDs, returns a list of genes and clusters containing given
+word(s) in the annotation - separate inputs are combined with OR statements
+
+Options:
+  -h, --help          show this help message and exit
+  -r RC, --runcol=RC  Column number for run ID, starting from 1 (D=1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getClustersWithNumGenes.py
+
+Usage: db_getClustersWithNumGenes.py -n numgenes [options] < run_ids > clusters_with_specified_num_genes
+
+Get all of the clusters with the specified number of genes in the specified
+cluster runs
+
+Options:
+  -h, --help            show this help message and exit
+  -r RUNCOLUMN, --rcolumn=RUNCOLUMN
+                        Column number (start from 1) for run ID
+  -n NUMCLUSTER, --numcluster=NUMCLUSTER
+                        Desired number of genes in each cluster to extract
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getClustersWithSamePAPattern.py
+
+Usage: db_getClustersWithSamePAPattern.py < runid_clusterid_pair > same_clusters
+
+Generate a list of clusters with the same organism presence/absence pattern as
+the specified cluster/runID pair Only looks in the same run as specified, and
+does not account for the number of genes present in each organism.
+
+Options:
+  -h, --help            show this help message and exit
+  -r RC, --runcol=RC    Column number for run ID starting from 1 (D=1)
+  -c CC, --clustercol=CC
+                        Column number for cluster ID starting from 1 (D=2)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getGeneInformation.py
+
+Usage: db_getGeneInformation.py [options] < gene_ids > gene_info
+
+Given a list of gene IDs, get their gene info, including annotations, contig,
+organism, strand, and sequences
+
+Options:
+  -h, --help            show this help message and exit
+  -g GENECOLUMN, --gcolumn=GENECOLUMN
+                        Column number (start from 1) for gene ID
+  -a, --add             Add gene information to the end of the existing file
+                        (D: only return the gene information)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getGeneNeighborhoods.py
+
+Usage: db_getGeneNeighborhoods.py [options] < gene_id_list > gene_neighborhoods
+
+Given a list of gene IDs, get the neighborhoods within the specified number of
+genes on the same contig on either strand from the specified gene
+
+Options:
+  -h, --help            show this help message and exit
+  -n NSIZE, --neighborhood=NSIZE
+                        Size of desired neighborhood in number of genes from
+                        center (maximum of 5, D=3)
+  -g GC, --genecol=GC   Column number starting from 1 for gene ID (D=1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getGenesInClusters.py
+
+Usage: db_getGenesInClusters.py [options] < runid_clusterid_table > gene_id_list
+
+Given a list of run IDs and cluster IDs, returns a list of all genes present
+in those run ID \ cluster ID pairs
+
+Options:
+  -h, --help            show this help message and exit
+  -r RUNCOLUMN, --rcolumn=RUNCOLUMN
+                        Column number (start from 1) for run ID
+  -c CLUSTERCOLUMN, --ccolumn=CLUSTERCOLUMN
+                        Column number (start from 1) for cluster ID
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getGenesWithAnnotation.py
+
+Usage: db_getGenesWithAnnotation.py "Annotation 1" "Annotation 2" ... > [Gene_id_list]
+
+Get a list of genes in the database matching at least one of the specified
+annotations (Note - does not have to match ALL of them)
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getOrganismsInCluster.py
+
+Usage: db_getOrganismsInCluster.py < runid_clusterid_pair > organism_list
+
+Get a list of organisms included in the specified run / cluster ID pair
+
+Options:
+  -h, --help            show this help message and exit
+  -r RC, --runcol=RC    Column number for run ID starting from 1 (D=1)
+  -c CC, --clustercol=CC
+                        Column number for cluster ID starting from 1 (D=2)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getOrganismsInClusterRun.py
+
+Usage: db_getOrganismsInClusterRun.py [options] < runid > organism_list
+
+Get a list of organisms included in each piped-in cluster run (Note - the
+results are most useful if you only provide ONE)
+
+Options:
+  -h, --help          show this help message and exit
+  -r RC, --runcol=RC  Column number for run ID starting from 1 (D=1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getPresenceAbsenceTable.py
+
+Usage: db_getPresenceAbsenceTable.py > presence_absence_+-_table
+
+Generates a +/- presence/absence table for every cluster in every run in the
+database. Takes no input arguments and exports the table to stdout. NOTE: Any
+organisms not included in a cluster run will be given -'s for all clusters in
+that run - be aware of this!
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getPresenceAbsenceTable_01.py
+
+Usage: db_getPresenceAbsenceTable_01.py > presence_absence_01_table
+
+Generates a 0/1 presence/absence table for every cluster in every run in the
+database. This one is the one you should use as a starting point for a
+presence/absence fasta file if you want to make a tree out of that. Takes no
+input arguments and exports the table to stdout. NOTE: Any organisms not
+included in a cluster run will be given 0's for all clusters in that run - be
+aware of this!
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getPresenceAbsenceTable_pegs.py
+
+Usage: db_getPresenceAbsenceTable_pegs.py > presence_absence_pegid_table
+
+Generates a presence/absence table for every cluster in every run in the
+database and puts the peg IDs for any genes in the cluster in the appropriate
+row or NONE for absent genes. Takes no input arguments and exports the table
+to stdout. NOTE: Any organisms not included in a cluster run will be given
+NONE's for all clusters in that run - be aware of this!
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getSequencesFromBlastResults.py
+
+Usage: db_getSequencesFromBlastResults.py [options] < table > table_with_sequences
+
+Identify the sequence of the HSP based on the provided ID (contig or gene) and
+the start and stop locations of the HSP.  The user must specify one of -p, -n,
+and -c - it gets too ambiguous otherwise (especially between -p and -n). This
+tells the program what type of data to use to obtain the result.  -p is for
+BLASTP results, -n is for BLASTN results against genes, and -c is for getting
+the sequence for a certain location on a contig from BLASTN\TBLASTN results.
+For DNA sequences, start < stop is assumed to mean + strand and stop < start
+means - strand.  If the "translate DNA" (-t) option is specified, it will pull
+out the DNA sequence, do the reverse-complement if necessary, and then
+translate that.
+
+Options:
+  -h, --help            show this help message and exit
+  -n, --nucleotide      Specify this flag if the piped-in locations are on
+                        _genes_ (i.e. BLASTN vs genes rather than BLASTP
+                        against proteins)
+  -c, --contig          Specify this flag if the piped-in locations are on a
+                        _contig_ (i.e. from BLASTN or TBLASTN vs the whole
+                        contig)
+  -p, --protein         Specify this flag is the piped-in locations are within
+                        a _protein_ sequence
+  -i IDCOL, --idcol=IDCOL
+                        Column number for ID to use starting from 1 (D: 2 -
+                        use the target ID)
+  -s STARTCOL, --startcol=STARTCOL
+                        Column number for start location to use - NOTE this
+                        will be different from the default for TBLASTN results
+                        (D: 9 - target start location for BLASTP and BLASTN)
+  -e ENDCOL, --endcol=ENDCOL
+                        Column number for end \ stop location to use - NOTE
+                        this will be different from the default for TBLASTN
+                        results (D: 10 - target stop location for BLASTP and
+                        BLASTN)
+  -t, --translate_dna   Given a set of options that would result in a DNA
+                        sequence, translate that sequence and return the
+                        translated sequence instead. (D: If relevant, just
+                        returns the DNA sequence) - WARNING: Do not use for
+                        BLASTN since it can cause issues with translation
+                        frame! Use for TBLASTN only
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getUpstreamRegion.py
+
+Usage: db_getUpstreamRegion.py [options] < geneids > geneids_with_upstream
+
+Get the upstream nucleotide sequence of the given set of genes.    Requires
+you to have the contigs loaded into the database.     Optionally, only print
+up to the next called gene.     Output: A three-column table    geneid
+warnings\OK    upstream NT sequence  Explanation of warnings: CONTIGEND -
+Upstream region reached the end of a contig. NOUPSTREAM - There is no upstream
+region (either another gene overlaps or immediately abuts, or the gene reaches
+the very end of a contig) CONTAINSGAP - if there are a large number of n's
+(user-defined but default is to warn if any N's are present). OTHERGENE - If
+there is another gene within N nucleotides upstream of the query gene.
+Automatically transposes the DNA and rotates it around so that it should be
+possible to directly compare motifs...
+
+Options:
+  -h, --help            show this help message and exit
+  -n NUMUPSTREAM, --numupstream=NUMUPSTREAM
+                        Number of NT to go upstream (D = 100). For 'up to the
+                        next gene' use a large number and do not specify -o
+  -w GAPWARN, --gapwarn=GAPWARN
+                        Number of N's in the upstream region before warning
+                        about a gap (D = 1, warn if any Ns are present)
+  -o, --allowgeneoverlap
+                        If specified, always try to reach the number of
+                        upstream nucleotides even if another called gene is
+                        there (D: Cut it off with warning)
+  -l OTHERGENELENGTH, --othergenelength=OTHERGENELENGTH
+                        If allowing gene overlaps, still ignore called genes
+                        less than this length (in nucleotides) within the
+                        upstream region (D=0 - cut off after ANY gene)
+  -g GC, --genecolumn=GC
+                        Column number for gene ID in input, starting from 1
+                        (D=1)
+  -i INGENE, --ingene=INGENE
+                        Number of nucleotides WITHIN the gene to gather in
+                        addition to the upstream region (D=3 - i.e. grab the
+                        start codon only)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_listDbFiles.py
+
+Usage: db_listDbFiles.py [options] > filelist
+
+List all executable files provided as part of this software package
+
+Options:
+  -h, --help            show this help message and exit
+  -w MAXW, --maxw=MAXW  Maximum number of characters wide (D=Print each file
+                        on its own line)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_makeArrowDiagram.py
+
+Usage: db_makeArrowDiagram.py [options] Newick_file < runid or db_makeArrowDiagram.py -i runid [options] Newick_file . Default activity is to do nothing - one of -s, -p, or -d must be specified...
+
+Draws gene context with specified number of genes as arrows with the
+appropraite direction (not to scale) alongside a phylogenetic tree. Only can
+draw arrows if the IDs in the tree agree with what is available in the
+database but does not crash when outgroups are also present (just nothing is
+drawn).
+
+Options:
+  -h, --help            show this help message and exit
+  -i RUNID, --runid=RUNID
+                        Run id (default: read from stdin)
+  -n MAXK, --neighborhood=MAXK
+                        Max number of genes away from target to display (D=3)
+  -a, --annotation      Show annotations for neighboring genes underneath them
+                        (D: Show annotations in a legend underneath the tree)
+  -d, --display         Display result
+  -s, --savesvg         Convert the file to svg (requires -b)
+  -p, --savepng         Convert the file to png (requires -b, implies -s)
+  -b BASENAME, --basename=BASENAME
+                        Base name for file outputs (ignored without -s or -p)
+  -r ROOTGENE, --rootgene=ROOTGENE
+                        Root on this gene (default = keep same root as nwk
+                        file).
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_makeBlastScoreTable.py
+
+Usage: db_makeBlastScoreTable.py -m [method] -c [cutoff] [options] < blast_result_table
+
+Given a blast score table (augmented with self-bit scores for query and target
+genes), calculates a similarity value based on the desired scoring metric.
+Currently implemented metrics: minbit maxbit avgbit normhsp
+
+Options:
+  -h, --help            show this help message and exit
+  -m METHOD, --method=METHOD
+                        Method name
+  -c CUTOFF, --cutoff=CUTOFF
+                        Score cutoff to use
+  -n, --noprint         Set this flag if you do not want to print edges less
+                        than the cutoff as zeros (default = False - print
+                        those edges
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_makeClusterAlignment.py
+
+Usage: db_makeClusterAlignment.py -m Method [options] < Cluster_RunIDs > Final_alignment
+
+Generates a new alignment from the piped-in list of cluster/runID pairs.  All
+of the cluster/runID sets you pipe in are assumed to be combined together
+(useful e.g. for combining paralogous clusters). No trimming is done - it is
+up to the user to trim however they want before further analysis.
+
+Options:
+  -h, --help            show this help message and exit
+  -r RC, --runcol=RC    Column number for run ID starting from 1 (D=1)
+  -c CC, --clustercol=CC
+                        Column number for cluster ID starting from 1 (D=2)
+  -m METHOD, --alnmethod=METHOD
+                        Method used to generate alignment (no default) Valid
+                        methods: mafft_linsi,mafft_einsi,mafft_ginsi,mafft_def
+                        ault,clustalw_default
+  -n, --notrim          Do not trim alignment (no default)
+  -t, --trimtomedian    Use svr script to trim to median ends (no default)
+  -g, --gblocks_stringent
+                        Use gblocks stringent criteria to trim (no default)
+  -p, --gblocks_permissive
+                        Use gblocks permissive criteria to trim (no default)
+  -k, --noclean         Do not clean up temporary files (default: Delete them)
+  -a, --addtodb         Add new alignment to the database (default: Do not add
+                        it)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_replaceGeneNameWithAnnotation.py
+
+Usage: db_replaceGeneNameWithAnnotation.py [options] < infile > outfile
+
+Look for things that look like gene IDs (fig|#.#.peg.#) in the input file and
+replace them with annotation and\or organism name, properly sanitized to work
+in a Newick file. Replace with organism only: use -o Replace with annotation
+only: use -a Replace with organism and annotation and keep original gene id:
+use -a -o -k
+
+Options:
+  -h, --help      show this help message and exit
+  -a, --annote    Include annotation (D: False)
+  -o, --organism  Include organism as part of the annotation (D: False)
+  -k, --keepgene  Keep (sanitized) gene ID as part of the annotation (D:
+                  False)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_specificOrganismClusterDriver.py
+
+Usage: db_specificOrganismClusterDriver.py [groupfile] [Inflation] [cutoff] [scoremethod]
+
+This file is intended to be run as part of Main1.sh. Run MCL clustering on the
+organisms specified in the file 'groupfile' with specified parameters
+(Automatically dumps result file into clusters/ folder)
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+fastaToPhylip.py
+
+Usage: fastaToPhylip.py [options] < fasta_file > phylip file
+
+Convert a fasta file to a phylip file
+
+Options:
+  -h, --help            show this help message and exit
+  -c CONVFILE, --convfile=CONVFILE
+                        File to convert new IDs back to original IDs (D =
+                        don't save file)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+flattenClusterFile.py
+
+Usage: flattenClusterFile.py -n runname < MCL_cluster_file > flattened_file
+
+Turn MCL cluster file into a more database-friendly format, the run is given
+its own ID (input to this function) and each cluster within it is given a
+cluster ID
+
+Options:
+  -h, --help            show this help message and exit
+  -n NAME, --name=NAME  Run name (should have descriptions of Inflation,
+                        method and cutoff)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+genbank2nucleotides.py
+
+Usage: genbank2nucleotides.py -f [genbank_file] > fna file
+
+Make a contig nucleic acid FASTA file out of a genbank file. Contig names MUST
+have no spaces. You should pass to this an organism ID so that the contig
+names are unique for particular organisms (and so that they match what is in
+the database) If no organism ID is passed and it cannot be inferred from the
+file name we throw an error.
+
+Options:
+  -h, --help            show this help message and exit
+  -t, --tab             Instead of a FASTA file, print a tab-delimited file
+                        with contig in column 1 and sequence in column 2
+  -o ORGID, --org=ORGID
+                        Organism ID (e.g. 83333.1) (D=Try to read from
+                        filename)
+  -f GENBANK, --file=GENBANK
+                        genbank file [D: None]
+*--------------------------------------------------------------------------------------------------------------------------*
+
+getClusterFastas.py
+
+Usage: getClusterFastas.py [options] fastafolder < cluster_info_file
+
+Generate a FASTA file for each cluster present in the specified clusterinfo
+file  (as generated from e.g. db_getClusterGeneInformation.py)  If cluster
+info is not available (i.e. the file was generated from
+db_getGeneInformation.py), it will generate a fasta file with the name
+"NOCLUSTER_.fasta" with all of the sequences in the file.
+
+Options:
+  -h, --help         show this help message and exit
+  -n, --nucleotides  Export nucleotide fasta files, not protein (D: Protein
+                     fasta files)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+getNeighbors_bothStrands_rast.py
+
+Usage: getNeighbors_bothStrands_rast.py < raw_file > neighborhood_file
+
+Compute neighbors of each gene from their location (the neighbors do not have
+to share a strand). Neighborhood is based on number of genes, not on number of
+base pairs. The function correctly deals with multiple contigs present in the
+file
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+getSequenceRegion.py
+
+*--------------------------------------------------------------------------------------------------------------------------*
+
+kbase2rast.py
+
+Usage: kbase2rast.py [ID] < [Infile] > Raw_file
+
+This is a function for internal use. Call convertKbaseToRast.sh instead.  This
+function takes an intermediate file created by convertKbaseToRast.sh and an
+assigned genome ID, and converts all of the IDs to the approrpiate format for
+use with the database.
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+locateDatabase.py
+
+*--------------------------------------------------------------------------------------------------------------------------*
+
+makeHistorgram.py
+
+Usage: makeHistorgram.py [options] < numeric_values > histogram_numbers
+
+Calculates and prints as text the number of elements in each bin with
+parameters specified (does not actually make a graph for you)
+
+Options:
+  -h, --help            show this help message and exit
+  -c COLUMN, --column=COLUMN
+                        Column number (start from 1) for numeric value
+                        (default = 1)
+  -s START, --start=START
+                        Beginning of first bin to calculate histogram for
+                        (default = min[numbers])
+  -e END, --end=END     End of last bin to calculate histogram for (default =
+                        max[numbers]
+  -n NUMBER, --number=NUMBER
+                        Number of bins (default = 10)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+makeLeafListFromEachNode.py
+
+Usage: makeLeafListFromEachNode.py [options] newick_file > leaflist
+
+Given a newick file as input, generate a list of all bunches of leaves in
+specified format. Default format is tab-delimited - each bunch gets its own
+row, and each leaf has a column. Can also specify to make a separate file for
+each bunch with one row for each leaf.
+
+Options:
+  -h, --help            show this help message and exit
+  -f FILEDIR, --files=FILEDIR
+                        Create a separate file for each group in the specified
+                        folder (D: False)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+makePresenceAbsenceFasta.py
+
+Usage: makePresenceAbsenceFasta.py < presence_absence_01_table > presence_absence_fasta_file
+
+Create a presence/absence fasta file from a presence / absence 0-1 table
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+makeTabDelimitedRow.py
+
+Usage: makeTabDelimitedRow.py [Things to separate with tabs] > Tab-delimited line
+makeTabDelimitedRow.py -i [Input file] > Tab_delimited line
+
+Turn all arguments into a single row separated by tabs
+
+Options:
+  -h, --help            show this help message and exit
+  -i INFILE, --infile=INFILE
+                        Combine all lines of the input file and separate them
+                        by tabs. Use "-" for input from stdin
+*--------------------------------------------------------------------------------------------------------------------------*
+
+orthoMclWrapper.py
+
+Usage: orthoMclWrapper.py -l mysql_loginname -p mysql_password -d mysql_database_string [options]
+orthoMclWrapper.py -f orthomcl_config_file [options] 
+
+   WARNING - This script is still a work in progress and is subject to random
+failures.    This is a wrapper script for converting our data into a format in
+which it can be run with OrthoMCL and then   running it with the specified
+settings. It runs orthoMCL on ALL BLAST data that was used to build the
+database (not   on subsets).    The script essentially performs (in sequence)
+the steps specified in the orthoMCL user guide but skips the ones that were
+already done for construction of the SQLite database, and reformats things so
+that they will work with orthoMCL.    The script requires installation of
+MYSQL and having a database created (see OrthoMCL help file
+"mysqlInstallGuide.txt").    It also requires having the orthomcl binaries
+(in $ORTHOMCLROOT/bin) added to your PATH variable.    If redundant settings
+are present in the config file and in the inputs, the settings in the config
+file are overridden by   the command line input and written to the file
+specified by -n (default: orthomcl.new.config).    If the script crashes or is
+killed between when the BLAST data is reformatted and when it is imported into
+the database,   you will get a segfault from MCL. If this happens run this
+script with --forcereload (-r)  - the error is related to    not having any
+data to cluster becuase the data import failed.
+
+Options:
+  -h, --help            show this help message and exit
+  -f CONFIGFILE, --configfile=CONFIGFILE
+                        A previously-generated orthoMCL config file (Required
+                        unless -l, -p, and -d are all specified)
+  -n NEWCONFIGFILE, --newconfigfile=NEWCONFIGFILE
+                        Name of new config file to create with command-line
+                        settings (D: orthomcl.new.config)
+  -l LOGIN, --login=LOGIN
+                        Login name for MySQL (required if -f is not specified)
+  -p PASSWORD, --password=PASSWORD
+                        Password for MySQL (required if -f is not specified)
+  -d DBSTRING, --dbstring=DBSTRING
+                         Database string for the MySQL database (required if
+                        -f is not specified).                             For
+                        a central install it will look like this:
+                        dbi:MySql:[database_name]
+                        For a local install it will instead look like:
+                        dbi:MySql:[database_name]:localhost:[port]
+  -o ORTHOTABLE, --orthotable=ORTHOTABLE
+                        Name of ortholog table to create in database (D:
+                        Ortholog)
+  -i INPARALOGTABLE, --inparalogtable=INPARALOGTABLE
+                        Name of inparalog table to create in database (D:
+                        InParalog)
+  -t COORTHOLOGTABLE, --coortholog=COORTHOLOGTABLE
+                        Name of co-ortholog table to create in database (D:
+                        CoOrtholog)
+  -e EVALCUT, --evalcut=EVALCUT
+                        Cutoff for log-E value (int, D=-5 i.e. cut off if
+                        E-value is bigger than 1E-5)
+  -c PCTCUT, --pctcut=PCTCUT
+                        Percent match cutoff for OrthoMCL (int, D=50, i.e.
+                        cutoff if percent match is less than 50)
+  -a INFLATION, --inflation=INFLATION
+                        Inflation value for MCL (D: 1.5)
+  -g LOGFILE, --logfile=LOGFILE
+                        Orthomcl pairs Log file (D: Make a dummy name and
+                        delete it afterwards)
+  -r, --forcereload     Force reload of the database with BLAST results (D:
+                        Only re-load if the reformatted BLAST info file is
+                        newly created)
+  -k, --keeptemp        Keep temporary files made by orthoMCL (D: Delete them
+                        - except the new config file which is stored in the
+                        filename specified by -n)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+plotHeatmap.py
+
+Usage: plotHeatmap.py [options] < Input_tsv
+
+Generate a heat map for a tab-delimited input of numeric data. It comes with a
+rich set of options. If row labels or column labels are present in the file
+you must specify -w (row) or -o (column) or the tab-delimited file will fail
+to parse. Labels are only actually put on the graph if the appropriate
+dendrogram is desired (-r for row or -c for column). Distance method is passed
+directly to scipy.spatial.distance.pdist() - see docs on that function for
+details on valid parameters. Cluster method is passed directly to
+scipy.cluster.hierarchy.linkage() - see docs on that function for details on
+valid parameters. Color map is one of the colormaps recognized by pyplot - see
+http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html
+
+Options:
+  -h, --help            show this help message and exit
+  -f OUTFILE, --outfile=OUTFILE
+                        Name of output file (D: Just display graph on screen)
+  -r, --rowdendrogram   Make a row dendrogram (D: Heatmap only)
+  -c, --columndendrogram
+                        Make a column dendrogram (D: Heatmap only)
+  -w, --rowlabels       Specify this flag if the input file contains row
+                        labels (D: Label by position in original file)
+  -o, --columnlabels    Specify this flag if the input file contains column
+                        labels (D: Label by position in original file)
+  -d DISTANCEMETRIC, --distancemetric=DISTANCEMETRIC
+                        Distance metric between rows\columns of the input
+                        matrix (D: euclidean)
+  -m CLUSTERMETHOD, --clustermethod=CLUSTERMETHOD
+                        Clustering method to use (D:complete - complete-
+                        linkage clustering)
+  -a COLORMAPSCHEME, --colormapscheme=COLORMAPSCHEME
+                        Color map coloring scheme to use (D: gray)
+  -x MINSCORE, --minscore=MINSCORE
+                        Minimum score to display on color map (D: Scale to
+                        provided values)
+  -y MAXSCORE, --maxscore=MAXSCORE
+                        Maximum score to display on color map (D: Scale to
+                        provided values)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+plotScatters.py
+
+Usage: plotScatters.py [options] < x,y
+
+User interface to generate a single scatterplot. The default settings should
+make a pretty nice plot but I provide easy-to-understand options to change
+different aspects of the plot
+
+Options:
+  -h, --help           show this help message and exit
+  --xcol=XCOL          Column number for x, starting from 1 (D = 1)
+  --ycol=YCOL          Column number for y, starting from 1 (D = 2)
+  --noshow             Do not display plot (displaying requires X server)
+  --png=PNGOUT         Save plot as the specified file in png format
+  --minx=MINX          Minimum value for x-axis (Default: Auto-estimate)
+  --maxx=MAXX          Maximum value for x-axis (Default: Auto-estimate)
+  --miny=MINY          Maximum value for y-axis (Default: Auto-estimate)
+  --maxy=MAXY          Maximum value for y-axis (Default: Auto-estimate)
+  --fontsize=FONTSIZE  Font size for axis labels (Default: 16)
+  --xlog               Put x-axis on log scale (Default: Linear scale)
+  --ylog               Put y-axis on log scale (Default: Linear scale)
+  --xlabel=XLABEL      Label for X-axis (default: warning - no label
+  --ylabel=YLABEL      Label for Y-axis (default: warning - no label
+  --title=TITLE        Label for title (default: warning - no title
+  --connect            If set, connect the dots, otherwise they're just
+                       sepatate
+  --connectdots        If set, connect dots and display the dots in addition
+                       to the connecting line (implies --connect)
+  --color=COLOR        Set color of dots (default: as chosen by matplotlib)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+pubseed2rast.py
+
+Usage: pubseed2rast.py < [Pubseed file with sequences attached] > RAST-formatted file
+
+This is a function intended for internal use. Call convertPubseedToRast.sh to
+get a RAST-formatted file from a pubSEED ID.
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+raw2faa.py
+
+Usage: raw2faa.py < RAW_file > faa_file
+
+Make an amino-acid fasta file for all the proteins in the piped-in RAW file
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+raw2fna.py
+
+Usage: raw2fna.py < RAW_file > fna_file
+
+Make a nucleic-acid fasta file for all the genes in the piped-in RAW file
+(coding sequences only!)
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+raw2processed.py
+
+Usage: raw2processed.py Organism_file < RAW_file > Processed_file
+
+Processes organism file into a nicer format, adding organism and gene length
+information to the table and removing unneeded columns. The raw file must have
+organism / gene IDs similar to what is given by RAST and peg in teh
+appropriate column to designate proteins rather than nucleic acid entries.
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+replaceGeneNamesWithAliases.py
+
+Usage: replaceGeneNamesWithAliases.py (options) replacement_table < file > file_with_geneids_replaced
+
+Replace one name of a gene with another name as given in a specified
+replacement table
+
+Options:
+  -h, --help        show this help message and exit
+  -n, --nooriginal  Set this flag to NOT keep the original name. To use this
+                    the new aliases must be unique (D=False)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+replaceOrgWithAbbrev.py
+
+Usage: replaceOrgWithAbbrev.py -f orgfile [options] < text_file > text_file_with_orgname
+
+Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file
+(e.g. a newick file)
+
+Options:
+  -h, --help            show this help message and exit
+  -f ORGFILE, --orgfile=ORGFILE
+                        Organism file (required)
+  -a, --useabbrev       Use abbreviation? (If specified, use the abbreviated
+                        form of the organism name. If not specified, use the
+                        entire organism name)
+  -k, --keeppeg         Keep PEG ID? (if specified, keeps peg id. If not,
+                        throws it away)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+sanitizeString.py
+
+*--------------------------------------------------------------------------------------------------------------------------*
+
+startDifference.py
+
+Usage: startDifference.py < RAW_file > Min_distance_file
+
+Calculates the minimum distance between consecutive genes. Negative values
+indicaite overlaps. Does not look at whether contigs are the same or not.
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+tblastn_all_vs_all.py
+
+Usage: tblastn_all_vs_all.py [Faa_folder] [Contig_folder] [Output_folder] [Options]
+
+Run TBLASTN all vs. all for faa files in the faa_folder and fna files in the
+contig_folder The program expects all protein fasta files to end with .faa or
+.fasta and all contig files to end with .fna
+
+Options:
+  -h, --help            show this help message and exit
+  -t THRESHOLD, --threshold=THRESHOLD
+                        E-value threshold (D=1E-5)
+  -n NCORES, --ncores=NCORES
+                        Number of cores (D=1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+unsanitizeGeneIds.py
+
+Usage: unsanitizeGeneIds.py < infile > outfile
+
+Replace the gene IDs in infile from fig_\d+_\d+_peg_\d+ to fig|\d+.\d+.peg.\d+
+(the former comes from some of the sanitation scripts)
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+convertKbaseToRast.sh
+
+Usage: convertKbaseToRast.py (KBase genome ID)
+
+Description: Given a KBase genome ID, converts it into
+the RAW format needed for input into the database.
+It will attempt to find a SEED ID for the genome if one
+exists, and otherwise take the taxID (which must be available)
+and append .99999 .
+At the moment only SEED and MOL genomes are acceptable.
+*--------------------------------------------------------------------------------------------------------------------------*
+
+convertPubseedToRast.sh
+
+Usage: convertPubseedToRast (PUBSEED genome ID)
+
+Description: Requires MYRast (svr_fasta) function
+Creates a RAW file (genomeid).rast_txt that can be used
+as input into the database.
+See pubseed.theseed.org .
+*--------------------------------------------------------------------------------------------------------------------------*
+
+getRepresentativesOfCluster.sh
+
+Usage: getRepresentativesOfCluster.sh (run ID) (cluster ID)
+
+Description: Given a run and cluster ID, identify representatives
+according to the MyRAST function svr_representative_sequences.
+WARNING: At the moment this is not a finished script and will likely be heavily
+modified or removed.
+*--------------------------------------------------------------------------------------------------------------------------*
+
+phylipSeqbootScript.sh
+
+USAGE: phylipSeqbootScript.sh [phylip_file] [out_file] [N_replicates]
+DESCRIPTION: Wrapper script for Phylip's SEQBOOT package.
+It has not been thoroughly tested.

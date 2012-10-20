@@ -4,7 +4,8 @@ import fileinput, optparse, sys, sqlite3
 from locateDatabase import *
 
 usage="%prog [options] < runid > organism_list"
-description="Get a list of organisms included in each piped-in cluster run (Note - the results are most useful if you only provide ONE)"
+description="""Get a list of organisms included in each piped-in cluster run 
+(Note - the results are most useful if you only provide ONE)"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--runcol", help="Column number for run ID starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)
 (options, args) = parser.parse_args()

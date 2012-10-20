@@ -3,7 +3,8 @@
 import fileinput, optparse, re
 
 usage = "%prog < infile > outfile"
-description="Replace the gene IDs in infile from fig_\d+_\d+_peg_\d+ to fig|\d+.\d+.peg.\d+ (the former comes from some of the sanitation scripts)"
+description="""Replace the gene IDs in infile from fig_\d+_\d+_peg_\d+ to fig|\d+.\d+.peg.\d+ 
+(the former comes from some of the sanitation scripts)"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.parse_args()
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mkdir "doc" 2> /dev/null
-rm doc/*
+rm doc/help_texts
 
 cd src;
 for file in *.py; do

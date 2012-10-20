@@ -9,7 +9,8 @@ import optparse, sqlite3, sys
 from locateDatabase import *
 
 usage = "%prog \"Annotation 1\" \"Annotation 2\" ... > [Gene_id_list]"
-description = "Get a list of genes in the database matching at least one of the specified annotations (Note - does not have to match ALL of them)"
+description = """Get a list of genes in the database matching at least
+one of the specified annotations (Note - does not have to match ALL of them)"""
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()
 

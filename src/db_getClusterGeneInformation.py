@@ -28,11 +28,14 @@ from locateDatabase import *
 
 # Get input arguments                                                                         
 usage = "%prog [options] < [ runid_clusterid_table] > cluster_gene_info"
-description = "Given a list of run ID / cluster ID pairs (one pair in each row of the input table), get a list of info in each gene in those clusters including organism, strand, location, contig, and sequences" 
+description = """Given a list of run ID / cluster ID pairs (one pair in each row of the input table), 
+get a list of info in each gene in those clusters including organism, strand, location, contig, and sequences""" 
 parser = optparse.OptionParser(usage=usage, description=description)
+
 parser.add_option("-r", "--rcolumn", help="Column number (start from 1) for run ID", action="store", type="int", dest="runcolumn", default=1)
 parser.add_option("-c", "--ccolumn", help="Column number (start from 1) for cluster ID", action="store", type="int", dest="clustercolumn", default=2)
 (options, args) = parser.parse_args()
+
 rc = options.runcolumn - 1 # Convert to Pythonic indexes                                                                                                                                                      
 cc = options.clustercolumn - 1
 

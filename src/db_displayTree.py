@@ -14,8 +14,9 @@ from sanitizeString import *
 ####################################
 # Lets read input arguments first.
 ####################################
-usage = "%prog [options] Newick_file . Default activity is to do nothing - one of -s, -p, -n, or -d must be specified..."
-description="Display a tree with annotations and specified root and formats"
+usage = "%prog (-s -b basename|-p -b basename|-n -b basename|-d) [options] Newick_file"
+description="""Display a tree with annotations and specified root and formats.
+There is no default acticity; one of -s, -p, -n, or -d must be specified.."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-d", "--display", help="Display result", action="store_true", dest="display", default=False)
 parser.add_option("-s", "--savesvg", help="Convert the file to svg (requires -b)", action="store_true", dest="savesvg", default=False)

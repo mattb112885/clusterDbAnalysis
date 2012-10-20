@@ -9,7 +9,8 @@ import fileinput, optparse, sqlite3
 from locateDatabase import *
 
 usage="%prog [options] < gene_ids > gene_ids_with_organism"
-description = "Add the organism name to a tab-delimited file containing gene IDs. Also optionally add other stuff."
+description = """Add the organism name to a tab-delimited file containing gene IDs. 
+Optionally, add annotations as well."""
 parser = optparse.OptionParser(description=description, usage=usage)
 parser.add_option("-g", "--genecol", help="Column number for gene IDs starting from 1 (D=1)", action="store", type="int", dest="genecol", default=1)
 parser.add_option("-a", "--annotate", help="Also add annotation (D=False)", action="store_true", dest="annotate", default=False)

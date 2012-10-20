@@ -5,7 +5,6 @@ from sanitizeString import *
 
 usage="%prog [ID] < [Infile] > Raw_file"
 description="""This is a function for internal use. Call convertKbaseToRast.sh instead.
-
 This function takes an intermediate file created by convertKbaseToRast.sh and
 an assigned genome ID, and converts all of the IDs to the approrpiate format for use
 with the database.

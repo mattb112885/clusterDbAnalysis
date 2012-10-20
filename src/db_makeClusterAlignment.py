@@ -20,8 +20,10 @@ from locateDatabase import *
 valid_methods = ['mafft_linsi', 'mafft_einsi', 'mafft_ginsi', 'mafft_default', 
 	'clustalw_default']
 
-usage="%prog -m Method [options] < Cluster_RunIDs > Final_alignment"
-description="Generates a new alignment from the piped-in list of cluster/runID pairs.  All of the cluster/runID sets you pipe in are assumed to be combined together (useful e.g. for combining paralogous clusters). No trimming is done - it is up to the user to trim however they want before further analysis."
+usage="%prog -m Method (-n|-t|-g|-p) [options] < Cluster_RunIDs > Final_alignment"
+description="""Generates a new alignment from the piped-in list of cluster/runID pairs.  
+All of the cluster/runID sets you pipe in are combined into a singla alignment
+(useful e.g. for combining paralogous clusters)."""
 parser = optparse.OptionParser(usage=usage, description=description)
 ### Input options
 parser.add_option("-r", "--runcol", help="Column number for run ID starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)

@@ -4,7 +4,6 @@
 # consecutive genes
 #
 # This is a pipe function. Pipe in the RAW file
-
 #
 # FIXME : If I want to keep this function around I should have it
 # sort things and identify if they're in the same contig and such...
@@ -12,7 +11,8 @@ import fileinput
 import optparse
 
 usage = "%prog < RAW_file > Min_distance_file"
-description="Calculates the minimum distance between consecutive genes. Negative values indicaite overlaps. Does not look at whether contigs are the same or not."
+description="""Calculates the minimum distance between consecutive genes. Negative values indicaite overlaps. 
+WARNING: Does not look at whether contigs are the same or not."""
 parser = optparse.OptionParser(usage=usage, description=description)
 (options, args) = parser.parse_args()
 

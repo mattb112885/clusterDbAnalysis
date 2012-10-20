@@ -10,7 +10,11 @@ import sys
 from locateDatabase import *
 
 usage = "%prog [options] < gene_id_list > gene_neighborhoods"
-description="Given a list of gene IDs, get the neighborhoods within the specified number of genes on the same contig on either strand from the specified gene"
+description="""Given a list of gene IDs, get the neighborhoods within the specified 
+number of genes on the same contig on either strand from the specified gene.
+Note that start location is always the first base of a start codon (so start > stop for - strand genes).
+The neighborhoods table has the following fields:
+querygene:::neighbor_gene:::gene_distance:::contig:::start_location:::strand:::annotation"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--neighborhood", help="Size of desired neighborhood in number of genes from center (maximum of 5, D=3)", action="store", type="int", dest="nsize", default=3)
 parser.add_option("-g", "--genecol", help="Column number starting from 1 for gene ID (D=1)", action="store", type="int", dest="gc", default=1)

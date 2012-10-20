@@ -3,7 +3,7 @@
 import os, optparse, pprint, sys
 
 usage = "%prog [options] > filelist"
-description="List all executable files provided as part of this software package"
+description="List all files in the src/ directory provided as part of this software package"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-w", "--maxw", help="Maximum number of characters wide (D=Print each file on its own line)", action="store", type="int", dest="maxw", default=1)
 (options, args) = parser.parse_args()

@@ -1,97 +1,5 @@
 *--------------------------------------------------------------------------------------------------------------------------*
 
-Blast_all_v_all.py
-
-Usage: Blast_all_v_all.py [-n] Fasta_dir Results_dir Ncores
-
-Automatically make blast databases for all files in fasta_dir  (must have .faa
-or .fasta extension) in parallel using ncores processers, and  store results
-in results_dir
-
-Options:
-  -h, --help    show this help message and exit
-  -n, --blastn  Perform BLASTN rather than BLASTP (D: BlastP). Runs actual
-                BLASTN, not MEGABLAST.
-*--------------------------------------------------------------------------------------------------------------------------*
-
-FastTree_wrapper.py
-
-Usage: FastTree_wrapper.py [options] < FASTA_file > Newick_file
-
-Wrapper for FASTTREE to allow for global bootstrapping in addition to normal
-functionality
-
-Options:
-  -h, --help            show this help message and exit
-  -b NUMBOOTS, --bootstraps=NUMBOOTS
-                        Number of bootstraps (D=none)
-  -g, --globalboots     Perform global bootstrapping analysis. Requires Phylip
-                        with SEQBOOT and CompareToBootstrap.pl from the
-                        FASTTREE doc page (D:Local bootstrap only)
-  -n, --nogamma         Do not apply gamma20 likelihood calculation
-  -m MODEL, --model=MODEL
-                        Specify model to use with FASTTREE (D=WAG)
-  -p PROGRAM, --program=PROGRAM
-                        Specify the name of the FASTTREE program to use - it
-                        must be in your PATH (D=FastTreeMP)
-  -t, --nucleotides     Set this flag if you are inputting a nucleotide
-                        alignment (D = Protein alignment)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-Gblocks_wrapper.py
-
-Usage: Gblocks_wrapper.py [options] < Fasta_alignment > Fasta_alignment_filtered
-
-Run GBLOCKS with specified parameter values. GBLOCKS is a program to filter
-low-quality sections out of a multiple alignment
-
-Options:
-  -h, --help            show this help message and exit
-  -p PROGRAM, --program=PROGRAM
-                        Name or location of your GBLOCKS program (D: Gblocks)
-  -s, --usestrict       Use 'strict' values according to the cited paper
-  -r, --userelaxed      Use 'relaxed' values according to the cited paper
-                        (Default parameters correspond to this because the
-                        paper claims it works better for shorter alignments)
-  -c B1, --mincons=B1   Minimum Number Of Sequences For A Conserved Position
-                        (D=9)
-  -f B2, --minflank=B2  Minimum Number Of Sequences For A Flank Position (D=9)
-  -n B3, --maxnoncons=B3
-                        Maximum Number Of Contiguous Nonconserved Positions
-                        (D=10)
-  -m B4, --minblock=B4  Minimum Length Of A Block (D=5)
-  -g B5, --gappos=B5    Allowable gaps (D=h, up to half gaps - must be h
-                        (half), n (none), or a (any number))
-*--------------------------------------------------------------------------------------------------------------------------*
-
-RaxML_wrapper.py
-
-Usage: RaxML_wrapper.py [options] < FASTA_file > Newick_file
-
-Wrapper for RAXML to take care of some nits (takes input in FASTA format and
-does not discard existing gene names; takes care of putting in seed arguments
-for you).
-
-Options:
-  -h, --help            show this help message and exit
-  -b NUMBOOTS, --bootstraps=NUMBOOTS
-                        Number of bootstraps (D=0)
-  -T NTHREADS, --numthreads=NTHREADS
-                        Number of threads, must be more than 1 (D=2)
-  -k, --nocleanup       Set this flag to keep intermediate RAXML and PHYLIP
-                        files (D=false, delete these files)
-  -m MODEL, --model=MODEL
-                        Specify model to use with RAXML (D=PROTGAMMAWAG)
-  -p PROGRAM, --program=PROGRAM
-                        Specify the name of the RAXML program to use (D
-                        =raxmlHPC-PTHREADS)
-  -c CONSELBASE, --conselfile=CONSELBASE
-                        Specify a file name to use as a base for files needed
-                        to run results with CONSEL. Overrides -k because afaik
-                        RAXML does not one to run multiple algorithms in a
-                        row...
-*--------------------------------------------------------------------------------------------------------------------------*
-
 addAliasesToGeneAnnotations.py
 
 Usage: addAliasesToGeneAnnotations.py [options] aliasFile < gene_annotation_file > gene_annotation_file with aliases added to annotation
@@ -108,7 +16,9 @@ annoteSeq2Fasta.py
 
 Usage: annoteSeq2Fasta.py [options] < gene_seq_table > fasta_file
 
-Turn a table containing gene IDs, annotations, and sequences into a FASTA file
+Turn a table containing gene IDs, annotations, and sequences into a FASTA
+file. By default, the input file is a 'geneinfo' file from one of the
+functions db_getGeneInformation.py or db_getClusterGeneInformation.py
 
 Options:
   -h, --help            show this help message and exit
@@ -121,6 +31,20 @@ Options:
   -s SEQCOL, --seqcol=SEQCOL
                         Column number (start from 1) for sequence column (D:12
                         - corresponds to the location in a geneinfo file)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+Blast_all_v_all.py
+
+Usage: Blast_all_v_all.py [-n] Fasta_dir Results_dir Ncores
+
+Automatically make blast databases for all files in fasta_dir  (must have .faa
+or .fasta extension) in parallel using ncores processers, and  store results
+in results_dir
+
+Options:
+  -h, --help    show this help message and exit
+  -n, --blastn  Perform BLASTN rather than BLASTP (D: BlastP). Runs actual
+                BLASTN, not MEGABLAST.
 *--------------------------------------------------------------------------------------------------------------------------*
 
 blastResultsToDistanceMatrix.py
@@ -194,45 +118,12 @@ Options:
   -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
-db_TBlastN_wrapper.py
-
-Usage: db_TBlastN_wrapper.py (-d|-f|-o) contig_inputs [options] < Protein_ids > Tblastn_table
-
-Attempts to run TBLASTN and identify missing genes. It identifies called genes
-that match the hit location and also tries to find genes on the opposite
-strand that conflict.  Either you must specify the compiled contig database or
-must have run ./main3.sh and specify a single organism or list of organism IDs
-against which to perform the BLAST.  Output table columns:  queryid, querylen,
-subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct,
-evalue, bitscore, hitframe,                        strandedString,
-targetgeneid, targetannotation, targetgenelen, targetoverlappct
-
-Options:
-  -h, --help            show this help message and exit
-  -o ORG, --organism=ORG
-                        Organism ID to BLAST against.
-  -f ORGFILE, --orgfile=ORGFILE
-                        File of organism IDs to BLAST against (use this option
-                        if you want to test against multiple organisms
-  -d DB, --db=DB        BLAST database to use for BLASTing (use this option if
-                        you already have generated a blast database)
-  -c CUTOFF, --cutoff=CUTOFF
-                        E-value cutoff for TBLASTN (D=1E-5)
-  -t TRANSLATION, --translation=TRANSLATION
-                        Translation table number for TBLASTN (D=11 - bacteria,
-                        archaea and plant plastids)
-  -g GC, --genecol=GC   Column number for gene ID starting from 1 (D=1)
-  -r OC, --orgcol=OC    Column number for organism ID starting from 1 (D=1,
-                        ignored unless -f is specified)
-  -k, --keep            Keep temporary files (D: Delete them)
-*--------------------------------------------------------------------------------------------------------------------------*
-
 db_addOrganismNameToTable.py
 
 Usage: db_addOrganismNameToTable.py [options] < gene_ids > gene_ids_with_organism
 
-Add the organism name to a tab-delimited file containing gene IDs. Also
-optionally add other stuff.
+Add the organism name to a tab-delimited file containing gene IDs.
+Optionally, add annotations as well.
 
 Options:
   -h, --help            show this help message and exit
@@ -273,9 +164,10 @@ Options:
 
 db_displayTree.py
 
-Usage: db_displayTree.py [options] Newick_file . Default activity is to do nothing - one of -s, -p, -n, or -d must be specified...
+Usage: db_displayTree.py (-s -b basename|-p -b basename|-n -b basename|-d) [options] Newick_file
 
-Display a tree with annotations and specified root and formats
+Display a tree with annotations and specified root and formats. There is no
+default acticity; one of -s, -p, -n, or -d must be specified..
 
 Options:
   -h, --help            show this help message and exit
@@ -377,7 +269,8 @@ db_getAlignmentBetweenGenes.py
 Usage: db_getAlignmentBetweenGenes.py [options] < gene_list > alignment
 
 Get a quick and dirty (whole-gene) alignment between a set of genes of
-interest piped from stdin. Does not do any trimming.
+interest piped from stdin. Runs the alignment using mafft with the --auto and
+--reorder flags. Does not do any trimming.
 
 Options:
   -h, --help           show this help message and exit
@@ -465,7 +358,7 @@ db_getClusterGeneInformation.py
 Usage: db_getClusterGeneInformation.py [options] < [ runid_clusterid_table] > cluster_gene_info
 
 Given a list of run ID / cluster ID pairs (one pair in each row of the input
-table), get a list of info in each gene in those clusters including organism,
+table),  get a list of info in each gene in those clusters including organism,
 strand, location, contig, and sequences
 
 Options:
@@ -535,7 +428,7 @@ db_getGeneInformation.py
 
 Usage: db_getGeneInformation.py [options] < gene_ids > gene_info
 
-Given a list of gene IDs, get their gene info, including annotations, contig,
+Given a list of gene IDs, get their gene info,  including annotations, contig,
 organism, strand, and sequences
 
 Options:
@@ -550,8 +443,12 @@ db_getGeneNeighborhoods.py
 
 Usage: db_getGeneNeighborhoods.py [options] < gene_id_list > gene_neighborhoods
 
-Given a list of gene IDs, get the neighborhoods within the specified number of
-genes on the same contig on either strand from the specified gene
+Given a list of gene IDs, get the neighborhoods within the specified  number
+of genes on the same contig on either strand from the specified gene. Note
+that start location is always the first base of a start codon (so start > stop
+for - strand genes). The neighborhoods table has the following fields: queryge
+ne:::neighbor_gene:::gene_distance:::contig:::start_location:::strand:::annota
+tion
 
 Options:
   -h, --help            show this help message and exit
@@ -565,7 +462,7 @@ db_getGenesInClusters.py
 
 Usage: db_getGenesInClusters.py [options] < runid_clusterid_table > gene_id_list
 
-Given a list of run IDs and cluster IDs, returns a list of all genes present
+Given a list of run IDs and cluster IDs,  returns a list of all genes present
 in those run ID \ cluster ID pairs
 
 Options:
@@ -604,25 +501,12 @@ db_getOrganismsInClusterRun.py
 
 Usage: db_getOrganismsInClusterRun.py [options] < runid > organism_list
 
-Get a list of organisms included in each piped-in cluster run (Note - the
+Get a list of organisms included in each piped-in cluster run  (Note - the
 results are most useful if you only provide ONE)
 
 Options:
   -h, --help          show this help message and exit
   -r RC, --runcol=RC  Column number for run ID starting from 1 (D=1)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-db_getPresenceAbsenceTable.py
-
-Usage: db_getPresenceAbsenceTable.py > presence_absence_+-_table
-
-Generates a +/- presence/absence table for every cluster in every run in the
-database. Takes no input arguments and exports the table to stdout. NOTE: Any
-organisms not included in a cluster run will be given -'s for all clusters in
-that run - be aware of this!
-
-Options:
-  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getPresenceAbsenceTable_01.py
@@ -649,6 +533,19 @@ database and puts the peg IDs for any genes in the cluster in the appropriate
 row or NONE for absent genes. Takes no input arguments and exports the table
 to stdout. NOTE: Any organisms not included in a cluster run will be given
 NONE's for all clusters in that run - be aware of this!
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getPresenceAbsenceTable.py
+
+Usage: db_getPresenceAbsenceTable.py > presence_absence_+-_table
+
+Generates a +/- presence/absence table for every cluster in every run in the
+database. Takes no input arguments and exports the table to stdout. NOTE: Any
+organisms not included in a cluster run will be given -'s for all clusters in
+that run - be aware of this!
 
 Options:
   -h, --help  show this help message and exit
@@ -744,7 +641,7 @@ db_listDbFiles.py
 
 Usage: db_listDbFiles.py [options] > filelist
 
-List all executable files provided as part of this software package
+List all files in the src/ directory provided as part of this software package
 
 Options:
   -h, --help            show this help message and exit
@@ -801,12 +698,11 @@ Options:
 
 db_makeClusterAlignment.py
 
-Usage: db_makeClusterAlignment.py -m Method [options] < Cluster_RunIDs > Final_alignment
+Usage: db_makeClusterAlignment.py -m Method (-n|-t|-g|-p) [options] < Cluster_RunIDs > Final_alignment
 
-Generates a new alignment from the piped-in list of cluster/runID pairs.  All
-of the cluster/runID sets you pipe in are assumed to be combined together
-(useful e.g. for combining paralogous clusters). No trimming is done - it is
-up to the user to trim however they want before further analysis.
+Generates a new alignment from the piped-in list of cluster/runID pairs.   All
+of the cluster/runID sets you pipe in are combined into a singla alignment
+(useful e.g. for combining paralogous clusters).
 
 Options:
   -h, --help            show this help message and exit
@@ -858,6 +754,39 @@ Options:
   -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_TBlastN_wrapper.py
+
+Usage: db_TBlastN_wrapper.py (-d|-f|-o) contig_inputs [options] < Protein_ids > Tblastn_table
+
+Attempts to run TBLASTN and identify missing genes. It identifies called genes
+that match the hit location and also tries to find genes on the opposite
+strand that conflict.  Either you must specify the compiled contig database or
+must have run ./main3.sh and specify a single organism or list of organism IDs
+against which to perform the BLAST.  Output table columns:  queryid, querylen,
+subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct,
+evalue, bitscore, hitframe,                        strandedString,
+targetgeneid, targetannotation, targetgenelen, targetoverlappct
+
+Options:
+  -h, --help            show this help message and exit
+  -o ORG, --organism=ORG
+                        Organism ID to BLAST against.
+  -f ORGFILE, --orgfile=ORGFILE
+                        File of organism IDs to BLAST against (use this option
+                        if you want to test against multiple organisms
+  -d DB, --db=DB        BLAST database to use for BLASTing (use this option if
+                        you already have generated a blast database)
+  -c CUTOFF, --cutoff=CUTOFF
+                        E-value cutoff for TBLASTN (D=1E-5)
+  -t TRANSLATION, --translation=TRANSLATION
+                        Translation table number for TBLASTN (D=11 - bacteria,
+                        archaea and plant plastids)
+  -g GC, --genecol=GC   Column number for gene ID starting from 1 (D=1)
+  -r OC, --orgcol=OC    Column number for organism ID starting from 1 (D=1,
+                        ignored unless -f is specified)
+  -k, --keep            Keep temporary files (D: Delete them)
+*--------------------------------------------------------------------------------------------------------------------------*
+
 fastaToPhylip.py
 
 Usage: fastaToPhylip.py [options] < fasta_file > phylip file
@@ -869,6 +798,30 @@ Options:
   -c CONVFILE, --convfile=CONVFILE
                         File to convert new IDs back to original IDs (D =
                         don't save file)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+FastTree_wrapper.py
+
+Usage: FastTree_wrapper.py [options] < FASTA_file > Newick_file
+
+Wrapper for FASTTREE to allow for global bootstrapping in addition to normal
+functionality
+
+Options:
+  -h, --help            show this help message and exit
+  -b NUMBOOTS, --bootstraps=NUMBOOTS
+                        Number of bootstraps (D=none)
+  -g, --globalboots     Perform global bootstrapping analysis. Requires Phylip
+                        with SEQBOOT and CompareToBootstrap.pl from the
+                        FASTTREE doc page (D:Local bootstrap only)
+  -n, --nogamma         Do not apply gamma20 likelihood calculation
+  -m MODEL, --model=MODEL
+                        Specify model to use with FASTTREE (D=WAG)
+  -p PROGRAM, --program=PROGRAM
+                        Specify the name of the FASTTREE program to use - it
+                        must be in your PATH (D=FastTreeMP)
+  -t, --nucleotides     Set this flag if you are inputting a nucleotide
+                        alignment (D = Protein alignment)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 flattenClusterFile.py
@@ -883,6 +836,32 @@ Options:
   -h, --help            show this help message and exit
   -n NAME, --name=NAME  Run name (should have descriptions of Inflation,
                         method and cutoff)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+Gblocks_wrapper.py
+
+Usage: Gblocks_wrapper.py [options] < Fasta_alignment > Fasta_alignment_filtered
+
+Run GBLOCKS with specified parameter values. GBLOCKS is a program to filter
+low-quality sections out of a multiple alignment
+
+Options:
+  -h, --help            show this help message and exit
+  -p PROGRAM, --program=PROGRAM
+                        Name or location of your GBLOCKS program (D: Gblocks)
+  -s, --usestrict       Use 'strict' values according to the cited paper
+  -r, --userelaxed      Use 'relaxed' values according to the cited paper
+                        (Default parameters correspond to this because the
+                        paper claims it works better for shorter alignments)
+  -c B1, --mincons=B1   Minimum Number Of Sequences For A Conserved Position
+                        (D=9)
+  -f B2, --minflank=B2  Minimum Number Of Sequences For A Flank Position (D=9)
+  -n B3, --maxnoncons=B3
+                        Maximum Number Of Contiguous Nonconserved Positions
+                        (D=10)
+  -m B4, --minblock=B4  Minimum Length Of A Block (D=5)
+  -g B5, --gappos=B5    Allowable gaps (D=h, up to half gaps - must be h
+                        (half), n (none), or a (any number))
 *--------------------------------------------------------------------------------------------------------------------------*
 
 genbank2nucleotides.py
@@ -943,7 +922,7 @@ kbase2rast.py
 
 Usage: kbase2rast.py [ID] < [Infile] > Raw_file
 
-This is a function for internal use. Call convertKbaseToRast.sh instead.  This
+This is a function for internal use. Call convertKbaseToRast.sh instead. This
 function takes an intermediate file created by convertKbaseToRast.sh and an
 assigned genome ID, and converts all of the IDs to the approrpiate format for
 use with the database.
@@ -1206,6 +1185,34 @@ Options:
   -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
+RaxML_wrapper.py
+
+Usage: RaxML_wrapper.py [options] < FASTA_file > Newick_file
+
+Wrapper for RAXML to take care of some nits (takes input in FASTA format and
+does not discard existing gene names; takes care of putting in seed arguments
+for you).
+
+Options:
+  -h, --help            show this help message and exit
+  -b NUMBOOTS, --bootstraps=NUMBOOTS
+                        Number of bootstraps (D=0)
+  -T NTHREADS, --numthreads=NTHREADS
+                        Number of threads, must be more than 1 (D=2)
+  -k, --nocleanup       Set this flag to keep intermediate RAXML and PHYLIP
+                        files (D=false, delete these files)
+  -m MODEL, --model=MODEL
+                        Specify model to use with RAXML (D=PROTGAMMAWAG)
+  -p PROGRAM, --program=PROGRAM
+                        Specify the name of the RAXML program to use (D
+                        =raxmlHPC-PTHREADS)
+  -c CONSELBASE, --conselfile=CONSELBASE
+                        Specify a file name to use as a base for files needed
+                        to run results with CONSEL. Overrides -k because afaik
+                        RAXML does not one to run multiple algorithms in a
+                        row...
+*--------------------------------------------------------------------------------------------------------------------------*
+
 replaceGeneNamesWithAliases.py
 
 Usage: replaceGeneNamesWithAliases.py (options) replacement_table < file > file_with_geneids_replaced
@@ -1246,7 +1253,8 @@ startDifference.py
 Usage: startDifference.py < RAW_file > Min_distance_file
 
 Calculates the minimum distance between consecutive genes. Negative values
-indicaite overlaps. Does not look at whether contigs are the same or not.
+indicaite overlaps.  WARNING: Does not look at whether contigs are the same or
+not.
 
 Options:
   -h, --help  show this help message and exit

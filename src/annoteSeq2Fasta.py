@@ -9,7 +9,9 @@
 import fileinput, optparse, sys
 
 usage = "%prog [options] < gene_seq_table > fasta_file"
-description = "Turn a table containing gene IDs, annotations, and sequences into a FASTA file"
+description = """Turn a table containing gene IDs, annotations, and sequences into a FASTA file.
+By default, the input file is a 'geneinfo' file from one of the functions db_getGeneInformation.py or
+db_getClusterGeneInformation.py"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--geneid", help="Column number (start from 1) for gene id (D:1)", action="store", type="int", dest="geneidcol", default=1)
 parser.add_option("-a", "--annote", help="Column number (start from 1) for annotation / FASTA header (optional, by default no annotation is included)", action="store", type="int", dest="annotecol", default=None)

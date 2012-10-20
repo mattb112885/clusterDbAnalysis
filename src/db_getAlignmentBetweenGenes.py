@@ -6,7 +6,9 @@ import fileinput, optparse, os, random, sqlite3, sys
 from locateDatabase import *
 
 usage="%prog [options] < gene_list > alignment"
-description="Get a quick and dirty (whole-gene) alignment between a set of genes of interest piped from stdin. Does not do any trimming."
+description="""Get a quick and dirty (whole-gene) alignment between a set of genes of interest piped from stdin.
+Runs the alignment using mafft with the --auto and --reorder flags.
+Does not do any trimming."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--genecol", help="Column number for gene starting from 1 (D=1)", action="store", type="int", dest="gc", default=1)
 parser.add_option("-p", "--phylip", help="Output alignment as PHYLIP (D: FASTA)", action="store_true", dest="phylip", default=False)

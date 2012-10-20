@@ -16,7 +16,8 @@ import optparse
 description="Replace one name of a gene with another name as given in a specified replacement table"
 usage="%prog (options) replacement_table < file > file_with_geneids_replaced"
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.add_option("-n", "--nooriginal", help="Set this flag to NOT keep the original name. To use this the new aliases must be unique (D=False)", action="store_true", dest="nooriginal", default=False)
+parser.add_option("-n", "--nooriginal", help="Set this flag to NOT keep the original name. To use this the new aliases must be unique (D=False)", 
+                  action="store_true", dest="nooriginal", default=False)
 (options, args) = parser.parse_args()
 
 transfile = args[0]

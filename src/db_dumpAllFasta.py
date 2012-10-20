@@ -8,7 +8,7 @@
 import optparse, sqlite3, sys
 from locateDatabase import *
 
-usage="$prog > Fasta_file"
+usage="%prog > Fasta_file"
 description="Generates a fasta file with all the annotations in the database including aliases added to the raw annotations..."
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--nucleotide", help="Make nucleotide fasta file (D: Protein)", action="store_true", dest="nt", default=False)

@@ -187,7 +187,7 @@ Options:
 
 db_dumpAllFasta.py
 
-Usage: $prog > Fasta_file
+Usage: db_dumpAllFasta.py > Fasta_file
 
 Generates a fasta file with all the annotations in the database including
 aliases added to the raw annotations...
@@ -933,6 +933,14 @@ Options:
 
 locateDatabase.py
 
+Usage: locateDatabase.py [options]
+
+This file contains a function for internal use - locating the sqlite database
+to allow the scripts to be run from anywhere without explicitly specifying the
+location in a config script
+
+Options:
+  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 makeHistorgram.py
@@ -1246,6 +1254,14 @@ Options:
 
 sanitizeString.py
 
+Usage: sanitizeString.py [options]
+
+This is an internal function to standardize sanitation of strings for unput
+into various formats. Any character that is not a letter or number is replaced
+with an underscore.
+
+Options:
+  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 startDifference.py

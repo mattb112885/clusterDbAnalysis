@@ -43,9 +43,8 @@ for line in fid:
 
 for line in fileinput.input("-"):
     myline = line.strip('\r\n')
-
-    if not keeppeg:
-        myline = myline.replace("fig|", "")
+    # I always replace this since it shouldn't break anything to leave it out anyway
+    myline = myline.replace("fig|", "")
 
     for s in orgAbbrev:
         if keeppeg:

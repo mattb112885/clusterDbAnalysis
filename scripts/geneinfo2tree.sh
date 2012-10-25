@@ -2,7 +2,7 @@
 
 if [ $# -ne 2 ]; then
     echo ""
-    echo "USAGE: ./geneinfo2tree.sh [geneinfo_file] [organism_file] > [newick_file]"
+    echo "USAGE: ./geneinfo2tree.sh [geneinfo_file] [organism_file]"
     echo ""
     echo "DESCRIPTION: Given a geneinfo file (from db_getGeneInformation.py or"
     echo "db_getClusterGeneInformation.py), uses MAFFT and FastTreeMP to compute"

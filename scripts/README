@@ -1,0 +1,9 @@
+This folder is intended to contain convenient scripts that can be run with
+standardized inputs with some convenient default settings.
+
+Most of them have specific dependencies. Please document those
+as part of the script so that if you run
+
+./[scriptname]
+
+it will just come up with the documentation.

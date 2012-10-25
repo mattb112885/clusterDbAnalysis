@@ -268,15 +268,26 @@ db_getAlignmentBetweenGenes.py
 
 Usage: db_getAlignmentBetweenGenes.py [options] < gene_list > alignment
 
-Get a quick and dirty (whole-gene) alignment between a set of genes of
+Get a quick and dirty (whole-gene) alignment between  a set of genes of
 interest piped from stdin. Runs the alignment using mafft with the --auto and
---reorder flags. Does not do any trimming.
+--reorder flags. Does not do any trimming. To get a nucleotide alignment you
+can run MAFFT with the nucleotides directly (-n) or align the proteins and
+then uses the PAL2NAL package available at
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1538804/ (-l or --pal2nal)
+Aligning the proteins first should give more accuracy and allow calculations
+of DN\DS and other such parameters.
 
 Options:
   -h, --help           show this help message and exit
   -g GC, --genecol=GC  Column number for gene starting from 1 (D=1)
   -p, --phylip         Output alignment as PHYLIP (D: FASTA)
   -k, --keep           Keep temporary files (D: Delete them)
+  -n, --nucleotide     Make a nucleotide rather than an amino acid alignment.
+                       Runs MAFFT directly on nucleotide sequenced. (D: Amino
+                       acids)
+  -l, --pal2nal        Make a nucleotide alignment by first making an AA
+                       alignment then reverse-translating using PAL2NAL (D:
+                       Amino acids)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getAllBlastResults.py

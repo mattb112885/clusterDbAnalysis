@@ -4,7 +4,7 @@ if [ $# -ne 2 ]; then
     echo ""
     echo "USAGE: ./annotation2clustergeneinfo.sh [annotation] [run ID] > geneinfo_file"
     echo ""
-    echo "DESCRIPTION: Given a gene annotation\alias\anything that is found in the"
+    echo "DESCRIPTION: Given a gene annotation,alias, or anything that is found in the"
     echo "annotation (NOT a gene ID as given in the database), e.g. 'MA0001',"
     echo "generates a geneinfo file for the cluster(s) containing matching genes"
     echo ""

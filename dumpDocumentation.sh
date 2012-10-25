@@ -17,7 +17,17 @@ for file in *.sh; do
     echo "" >> ../doc/help_texts
     echo "${file}" >> ../doc/help_texts
     echo "" >> ../doc/help_texts
-    ${file} >> ../doc/help_texts
+    sh ${file} >> ../doc/help_texts
 done
 
 cd ..;
+
+cd scripts;
+
+for file in *.sh; do
+    echo "*--------------------------------------------------------------------------------------------------------------------------*" >> ../doc/help_texts
+    echo "" >> ../doc/help_texts
+    echo "${file}" >> ../doc/help_texts
+    echo "" >> ../doc/help_texts
+    sh ${file} >> ../doc/help_texts
+done

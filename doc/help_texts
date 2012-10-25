@@ -1351,3 +1351,52 @@ phylipSeqbootScript.sh
 USAGE: phylipSeqbootScript.sh [phylip_file] [out_file] [N_replicates]
 DESCRIPTION: Wrapper script for Phylip's SEQBOOT package.
 It has not been thoroughly tested.
+*--------------------------------------------------------------------------------------------------------------------------*
+
+annotation2clustergeneinfo.sh
+
+
+USAGE: ./annotation2clustergeneinfo.sh [annotation] [run ID] > geneinfo_file
+
+DESCRIPTION: Given a gene annotation,alias, or anything that is found in the
+annotation (NOT a gene ID as given in the database), e.g. 'MA0001',
+generates a geneinfo file for the cluster(s) containing matching genes
+
+SEE ALSO ./geneid2clustergeneinfo.sh
+
+DEPENDENCIES: The database must be loaded (with main.sh) and the specified run ID
+must be one of the possible run IDs (from db_getAllClusterRuns.py).
+
+*--------------------------------------------------------------------------------------------------------------------------*
+
+geneid2clustergeneinfo.sh
+
+
+USAGE: ./geneid2clustergeneinfo.sh [gene ID] [run ID] (alternate_base) > geneinfo_file
+
+DESCRIPTION: Given a gene ID as given in the database (e.g. fig|83333.1.peg.1, the fig| is optional),
+generates a geneinfo file for the cluster(s) containing matching genes
+
+Optionally: specify an alternate base name for the file (default: the gene ID)
+
+SEE ALSO ./annotation2clustergeneinfo.sh
+
+DEPENDENCIES: The database must be loaded (with main.sh) and the specified run ID
+must be one of the possible run IDs (from db_getAllClusterRuns.py). The gene ID must
+also be the gene for one of the genes in the database. Failure results in an empty file.
+
+*--------------------------------------------------------------------------------------------------------------------------*
+
+geneinfo2tree.sh
+
+
+USAGE: ./geneinfo2tree.sh [geneinfo_file] [organism_file]
+
+DESCRIPTION: Given a geneinfo file (from db_getGeneInformation.py or
+db_getClusterGeneInformation.py), uses MAFFT and FastTreeMP to compute
+a tree of all the proteins in that gene info file.
+MAFFT is allowed to automatically pick the optimal algorithm for alignment
+while FastTree is used with -gamma and -wag
+
+DEPENDENCIES: MAFFT, FastTreeMP
+

@@ -1,0 +1,50 @@
+Files included in this folder ($ROOT):
+
+These scripts should be run in the following order to set up the database,
+once all of the input data is placed correctly.
+
+main.sh - Checks formatting of input files and throws an error if something is inconsistent.
+          Adds organisms to the raw files in $ROOT/raw/ using the data in the "organisms" file.
+          (Optionally) adds aliases in $ROOT/aliases/aliases file to the annotations if that file exists.
+          Set up fasta files and BLAST databases from the raw files in $ROOT/raw (NOT from the genbank files).
+          Runs BLASTP and BLASTN all vs. all and dumps the results into a sqlite database $ROOT/db/Database.SQLite
+main2.sh - Runs clustering with the specified parameters (cutoff, inflation value and method\metric for clustering).
+              The subset of organisms to cluster is specified in the "groups" file.
+           Processes the clustering results into a flat table format for input into the database.	   
+main3.sh - Parses Genbank files in the genbank/ folder to get whole-genome nucleotide sequences.
+	 Adds the sequences to the datbase (WARNING: Do not do this for human-sized genomes!)
+
+Other files:
+
+checkInputFormat.sh - Check for existence of required input files (organisms, groups, and raw files in raw/)
+		    Check format of the organism file and of the organism IDs within the organisms file.
+		    Fast check for format of the raw files (not a complete check but should catch many errors)
+		    Check that each organism ID in the organism file is represented in at least one raw file
+		    If genbank files are provided in /genbank/, check that one of the organism IDs matches an organism ID in the filename.
+dumpDocumentation.sh - Automatically generate documentation files for scripts in src/ and in scripts/ and save it to doc/
+removeOrganism_SAFE.sh - Automatically identify files that would be deleted if removeOrganism was run on a specific organism in the database.
+removeOrganism.sh - Removes any results dependent on a given organism and the raw data associated with that organism.
+		  WARNING: This is NOT reversible! It is highly recommended to run removeOrganism_SAFE.sh first to see what files would be removed!!
+
+Folders included with this installation:
+
+This folder ($ROOT): Contains scripts needed to set up and maintain the database
+$ROOT/aliases/: Folder in which alias tables should be placed if available
+$ROOT/doc/: Software documentation (including installation directions)
+$ROOT/genbank/: Location for all GENBANK files (see /doc/INSTALL for details)
+$ROOT/raw/: Location for all RAW files (see /doc/INSTALL for details)
+$ROOT/scripts/: Contains "dead-end" \ convenient wrapper scripts to do common analysis tasks.
+$ROOT/src/: Contains modules that can be executed after loading up the data using main scripts.
+
+Folders created by the main scripts:
+
+$ROOT/blastn_res/: BLASTN all vs. all results
+$ROOT/blastres/: BLASTP all vs. all results
+$ROOT/clusters/: Cluster files outputted by MCL
+$ROOT/db/: Contains the SQLite database and tables used as sources for that database
+$ROOT/faa/: Protein FASTA files (generated from raw files for each organism) and their compiled BLAST databases.
+$ROOT/flatclusters: "Flattened" cluster files - runID and clusterID assigned to each cluster and put into a database-friendly format.
+$ROOT/fna/: Nucleotide (gene) FASTA files (generated from raw files for each organism) and their compiled BLAST databases.
+$ROOT/modtable/: Raw tables reformatted for input into database. Obsolete?
+
+See documentation in $ROOT/doc for more details.

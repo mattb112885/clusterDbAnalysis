@@ -45,7 +45,7 @@ for file in $(ls | grep -v "README"); do
 	exit 0;
     fi
     ABBREV=$(echo "${ABBREV} + 1" | bc)
-    makeTabDelimitedRow.py "${ORGANISM}" "${ABBREV}" "${TAXID}" >> ../organisms
+    makeTabDelimitedRow.py "${ORGANISM}" "${ABBREV}" "${ORGID}" >> ../organisms
 done
 
 cd ..;

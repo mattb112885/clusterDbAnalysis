@@ -16,12 +16,18 @@ import sqlite3, optparse
 from locateDatabase import *
 
 usage = "%prog \"Organism 1\" \"Organism 2\" ... > blast_results"
-description = """Given list of organism keywords to match, returns a list
+description = """Given list of organism names to match, returns a list
 of BLAST results between organisms matching any of those keywords."""
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-s", "--strict", help="Require exact name matches for organisms (D: Partial name matches are OK)",
+                   action="store_true", dest="strict", default=False)
 (options, args) = parser.parse_args()
 
-teststr = list('%' + s + '%' for s in args)
+# We want exact matches now.
+if options.strict:
+    teststr = args
+else:
+    teststr = list('%' + s + '%' for s in args)
 
 #  We need to remove the \ so that they dont appear in the SQL query.
 teststr = [ s.replace("\\", "") for s in teststr ]

@@ -63,7 +63,7 @@ for line in open(groupfile, "r"):
     except IOError:
         # Generate and run an MCL command
         # FIXME - or orthoMCL!!!
-        cmd = ("db_getBlastResultsBetweenSpecificOrganisms.py " + safewhole + 
+        cmd = ("db_getBlastResultsBetweenSpecificOrganisms.py -s " + safewhole + 
                " | db_makeBlastScoreTable.py -m " + str(method) + " -c " + str(cutoff) +
                " | mcl - --abc -I " + str(inflation) + " -o " + foutname + ";")
         sys.stderr.write("%s\n" %(cmd) )

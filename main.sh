@@ -25,6 +25,18 @@ NCORES=12;
 #
 # See README file for more details
 
+# Back up organism file if it isn't already
+if [ -f organisms ]; then
+    TM=$(date +%s)
+    NEWNAME="organisms.${TM}.bk"
+    mv organisms ${NEWNAME}
+    echo "WARNING: organism file backed up to ${NEWNAME} to preserve existing abbreviations."
+fi
+
+# Automatically generate a organism file and a default groups file containing all the organisms
+./generateOrganismFileFromGbk.sh
+./addGroupByMatch.py -o organisms -g groups -n all
+
 ./checkInputFormat.sh
 if [ $? -ne 0 ]; then
     echo "Errors in input file format. Please fix and run again."

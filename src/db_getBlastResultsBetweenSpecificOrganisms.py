@@ -16,14 +16,14 @@ import sqlite3, optparse
 from locateDatabase import *
 
 usage = "%prog \"Organism 1\" \"Organism 2\" ... > blast_results"
-description = "Given list of organism keywords to match, by default returns a list of BLAST results between genes only in organisms matching ALL of the keywords. Use ! for NOT or -o to use OR instead"
+description = """Given list of organism keywords to match, returns a list
+of BLAST results between organisms matching any of those keywords."""
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.add_option("-o", "--or", help="Use OR instead of AND between organism identifiers", action="store_true", dest="useor", default=False)
 (options, args) = parser.parse_args()
 
 teststr = list('%' + s + '%' for s in args)
 
-# Double quotes cause any ! to be escaped. We need to remove the \ so that they dont appear in the SQL query.
+#  We need to remove the \ so that they dont appear in the SQL query.
 teststr = [ s.replace("\\", "") for s in teststr ]
 
 con = sqlite3.connect(locateDatabase())
@@ -38,18 +38,11 @@ cur = con.cursor()
 query = "CREATE TEMPORARY TABLE desiredorgs AS SELECT DISTINCT organism FROM processed WHERE "
 for i in range(len(teststr)):
     # ! in front of an organism wildcard means NOT
-    if teststr[i].count("!") > 0:
-        teststr[i] = teststr[i].replace("!", "")
-        query = query + "processed.organism NOT LIKE ? "
-    else:
-        query = query + "processed.organism LIKE ? "
+    query = query + "processed.organism LIKE ? "
 
     if not i == len(teststr) - 1:
-        if options.useor:
-            query = query + "OR "
-        else:
-            query = query + "AND "
-
+        query = query + "OR "
+        
 query = query + ";"
 cur.execute(query, tuple(teststr))
 

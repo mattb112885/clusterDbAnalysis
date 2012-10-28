@@ -25,12 +25,14 @@ cd genbank;
 
 ABBREV=0
 for file in $(ls | grep -v "README"); do
-    ORGLINE=$(cat "${file}"| grep -P -i "^\s*/organism\=\".*?\"")
+    # Our genbank files will be concatinated across all the contigs, so we don't want to get the
+    # same string every time for each contig. Just grab the first one.
+    ORGLINE=$(cat "${file}"| grep -P -i -m 1 "^\s*/organism\=\".*?\"")
     ORGANISM=$(echo "${ORGLINE}" | sed -r "s/.*?\"(.*?)\"/\1/g")
     # Do a sanity check on the genbank file name vs. its TaxID
     # The "extension" is rather arbitrary so I don't worry about that.
     # The file name must be [organismid].gbk which is [taxid].[extension].gbk
-    TAXALINE=$(cat "${file}" | grep -P -i "^\s*/db_xref=\"Taxon\:\s*\d+\s*\"")
+    TAXALINE=$(cat "${file}" | grep -P -i -m 1 "^\s*/db_xref=\"Taxon\:\s*\d+\s*\"")
     TAXID=$(echo "${TAXALINE}" | sed -r "s/.*?\"[Tt]axon:[ ]*([0-9]+)[ ]*\"/\1/g")
     OK=$(echo "${file}" | grep -F "${TAXID}.")
     if [ $? -eq 1 ]; then

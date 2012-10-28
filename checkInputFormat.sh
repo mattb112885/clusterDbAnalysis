@@ -10,7 +10,7 @@ STATUS=0
 # before calling this function but if something goes wrong this will alert us to it.
 echo "Checking for existence of organisms file..."
 if [ ! -f "organisms" ]; then
-    echo "ERROR: organisms file not found";
+    echo "ERROR: organisms file not found in expected location";
     STATUS=1
 fi
 
@@ -43,11 +43,19 @@ fi
 # Check existence of groups file (for clustering)
 echo "Checking existence of groups file..."
 if [ ! -f "groups" ]; then
-    echo 'ERROR: groups file not found';
+    echo 'ERROR: groups file not found in expected location';
     STATUS=1;
 fi
 
-# Check that organism names in groups file match with organisms file?
+# Check whether the organisms are found in the groups file
+# (this isn't a fatal error if it fails)
+orgnames=$(cat organisms | cut -f 1);
+for orgname in ${orgnames}; do
+    ok=$(grep -F "${orgname}" groups)
+    if [ $? -eq 1 ]; then
+	echo "WARNING: Organism ${orgname} was in the organisms file but did not appear in any groups. Did you forget something?"
+    fi
+done
 
 # For each orgmatch see if there is a raw file containing genes with that ID
 cd raw;

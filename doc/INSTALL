@@ -58,39 +58,22 @@
 # To actually run the programs you need some data. I'll consider the directory created when
 # you check this out of git the "root" ${ROOTDIR} directory.
 #
-### 1: organism file ###
+### 1: Genbank files (required) ###
+# 
+# You need a genbank file for every organism. The following information is taken from the genbank files at a minimum:
+# - Organism (in the /organism="[organism name]" line )
+# - Tax ID (in a /db_xref="Taxon:[taxid]" line )
 #
-# You need to specify names, abbreviations, and IDs for all organisms you are including in the database.
-# It should be a tab-delimited file and placed in ${ROOTDIR} (same directory as this INSTALL file).
-# ALL IDs should match the regex \d+\.\d+
+# These should be present in all the genbank files from Genbank (ftp.ncbi.nih.gov/genomes/Bacteria). 
 #
-# Methanosarcina acetivorans C2A  aceC2A  188937.1
-# Methanosarcina mazei GO1        mazGO1  192952.1
+# Additional requirements: 
+# 1: You need ONE genbank file per organism. Concatinate the genbank files for all the contigs (after generating a raw file, if you need one)
+# 2: 
 #
-### 2: groups file ###
-#
-# Place this file in ${ROOTDIR}.
-#
-# This file allows you to specify multiple groups of organisms that you want to cluster with the same set of
-# parameters. In it, place organism names that ALL must match any organisms you want to cluster.
-#
-# e.g. 
-# Methanosarcina
-#
-# will cluster all Methanosarcina while
-# Methanosarcina   mazei
-# will cluster all things that match both Methanosarcina and mazei. Matching is not case-sensitive.
-#
-# Use "!" to specify NOT, i.e.
-#
-# !Methanosarcina
-#
-# will cluster any organisms in your database whose names don't match Methanosarcina
-#
-### 3: raw files ###
+### 2: raw files ###
 #
 # Raw files are tab-delimited files containing information needed for our analysis.
-# They must be placed in the ${ROOTDIR}/raw folder and nothing else can be there except the README file.
+# They must be placed in the ${ROOTDIR}/raw folder.
 #
 # The columns of a raw file are as follows:
 #
@@ -113,21 +96,43 @@
 #
 # All other fields (location, aliases, figfam, evidence_codes, ...) are ignored.
 #
-# There are now four ways (listed roughly in order of how hard they are) to make these files. 
-# Only method #1 will work with a newly-sequenced genome.
-# The other three methods work with genomes deposited in other databases, which include:
-#   - The SEED (method #2 or #3)
+# There are a number of ways to make a raw file.
+# Tested interfaces are available for hooking into:
+#   - Genbank (method #2)
+#   - The SEED (method #3)
 #   - Microbes Online (method #3)
-#   - Genbank (method #4)
 #
 # Method #1: Upload your genomes to RAST (rast.nmpdr.org) for annotation and then download the tab-delimited file, which is in this format.
-# Method #2: Run the convertPubseedToRast.sh script with the genome ID from the SEED (pubseed.theseed.org), which will automatically
-# download the files from the SEED FTP servers and convert them into the appropriate format. Using this script requires you to install
-# MyRAST (http://blog.theseed.org/servers/installation/distribution-of-the-seed-server-packages.html)
-# Method #3: Run the convertKbaseToRast.sh script with a KBase ID as input. For now The KBase ID must correspond to either a SEED genome
+# Method #2: Given a set of genbank files (one per contig) with enough info to infer all the above information,
+#   run [TODO: JAMES'S SCRIPT] to get it.
+# Method #3: Run the convertKbaseToRast.sh script with a KBase ID as input.
+#   For now The KBase ID must correspond to either a SEED genome
 #   or a microbes online genome. Running this doesn't require MyRAST but does require access to a local install of the DOE KBase software
 #   available at http://kbase.science.energy.gov/developer-zone/downloads/
-# Method #4: Go into the Genbank FTP server
-# Download the NCBI files for your genome and CONCATINATE THE FILES OF THE SAME TYPE ACROSS CONTIGS. 
-# Then run convertNcbiFilesToRast.py to get the raw file you need. Make sure to pay attention to any warnings
-# generated - these are due to formatting oddities and need to be fixed manually.
+#
+### 3: organism file ###
+#
+# This is automatically generated from the genbank files, except for abbreviations which must be edited manually
+# if you need them (the default is to just use incremental numbers).
+#
+# The file is always in ${ROOTDIR} and has three columns: Organism name, abbreviation, and ID.
+#
+# Methanosarcina acetivorans C2A  aceC2A  188937.1
+# Methanosarcina mazei GO1        mazGO1  192952.1
+#
+### 4: groups file ###
+#
+# This file comes automatically-generated with a default group containing all the organisms. You should
+# add or remove groups according to the analyses you want to perform.
+#
+# This file allows you to specify multiple groups of organisms that you want to cluster with the same set of
+# parameters. In it, the first column is a (unique but arbitrary) name of the organism group, and the second one
+# contains a semicolon-delimited list of all of the strains you are analyzing. For example:
+#
+# Methanosarcina	Methanosarcina acetivorans C2A;Methanosarcina barkeri Fusaro; Methanosarcina mazei GO1
+# mazei			Methanosarcina mazei Go1
+#
+# Use the addGroupByMatch.sh function to add groups to the groups file based on searches through the organism file,
+# or make the lists manually. The run IDs will use the group names as their base (along with user-defined clustering parameters).
+#
+# FIXME: Need function to remove a group and all clustering results belonging to that group.

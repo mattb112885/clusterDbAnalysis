@@ -6,7 +6,8 @@
 
 STATUS=0
 
-# Check existence of organism file
+# Check existence of organism file. It will be automatically generated
+# before calling this function but if something goes wrong this will alert us to it.
 echo "Checking for existence of organisms file..."
 if [ ! -f "organisms" ]; then
     echo "ERROR: organisms file not found";
@@ -49,94 +50,85 @@ fi
 # Check that organism names in groups file match with organisms file?
 
 # For each orgmatch see if there is a raw file containing genes with that ID
-if [ ! -d "raw" ]; then
-    echo 'ERROR: Raw files must be placed in the "raw" folder';
-    STATUS=1;
-else
-    cd raw;
-    echo "Checking for existence of raw files for each organism..."
-    for org in ${orgmatch}; do
-	fmatch=$(grep -o -F ${org} *);
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: No raw file match for organism ID ${org}";
-	    STATUS=1;
-	fi
-    done
-
-    echo "Checking formatting of each raw file..."
-    for file in $(ls | grep -v "README"); do
-	# Note  - all of these check for the existence of ONE thing with the right format in each column (they don't check that ALL of the rows are the right format)
-	# I dont check the following things that are still useful:
-	# contig (column 1) - no specific format required
-	# function (column 8) - no specific format required
-	# The following columns are never used by my programs:
-	# column 4 (location) - use columns 1,5,6, and 7 instead.
-	# column 9 (aliases) - use the "aliases" file instead.
-	# column 10 (figfam)
-	# column 11 (evidence codes)
-	fmatch=$(cat "${file}" | cut -f 2 | grep -o -P "^fig\|\d+\.\d+\.peg\.\d+$");
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: Gene IDs in raw file ${file} were not in expected format (fig|#.#.peg.# where the first two are the organism ID) or not in the expected place (second column)";
-	    STATUS=1;
-	fi
-	fmatch=$(cat "${file}" | cut -f 3 | grep -o -P "^peg$");
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: No objects of type peg (third column) identified in file ${file}. Only pegs (protein encoding genes) are considered in our clustering analysis!";
-	    STATUS=1;
-	fi
-	fmatch=$(cat "${file}" | cut -f 5 | grep -o -P "^\d+$");
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: Gene start location (fifth column) expected to be a number in file ${file}";
-	    STATUS=1;
-	fi
-	fmatch=$(cat "${file}" | cut -f 6 | grep -o -P "^\d+$");
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: Stop location (sixth column) expected to be a number in file ${file}";
-	    STATUS=1;
-	fi
-        fmatch=$(cat "${file}" | cut -f 7 | grep -o -P "^[+-]$");
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: Strand (seventh column) must be + or - in file ${file}";
-	    STATUS=1;
-	fi
-	# Note - NRWYMKSHBVD are ambiguous nucleotides
-	# ACGT are the standard nucleotides
-	# Anything that isn't one of these is an error.
-	# No gaps are allowed.
-        fmatch=$(cat "${file}" | cut -f 12 | grep -o -i -P "^[acgtnrwymkshbvd]+$");
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: Nucleotide sequence expected in 12th column in file ${file}";
-	    STATUS=1;
-	fi
-	# Note this wont match the header because of the "_" in aa_sequences
-	fmatch=$(cat "${file}" | cut -f 13 | grep -o -i -P "^[A-Z]+$")
-	if [ $? -eq 1 ]; then
-	    echo "ERROR: Amino acid sequence expected in 13th column in file ${file}";
-	    STATUS=1;
-	fi
-    done
-    cd ..;
-fi
-
-# Check genbank files.
-# Unfortunately the organism ID is not present in the genbank file necessarily.
-# Therefore the only way for me to know that the ID matches is to look at the name of the file.
-echo "Checking naming consistency in genbank files..."
-cd genbank;
-for file in $(ls | grep -v "README"); do
-    orgid=$(echo "${file}" | grep -o -P "\d+\.\d+")
+cd raw;
+echo "Checking for existence of raw files for each organism..."
+for org in ${orgmatch}; do
+    # File name must exactly be [organismID].txt
+    fmatch=$(ls | grep -w -F "${org}.txt");
     if [ $? -eq 1 ]; then
-	echo "ERROR: The name of genbank file ${file} does not contain a genome ID. It must contain one so that we can link the data correctly in the database."
-	STATUS=1
+	echo "ERROR: No raw file match for organism ID ${org} - file name must be ${org}.txt";
+	STATUS=1;
     fi
-    orgfilematch=$(grep -F -w "${orgid}" ../organisms)
+done
+
+echo "Checking formatting of each raw file..."
+for file in $(ls | grep -v "README"); do
+    # Note  - all of these check for the existence of ONE thing with the right format in each column (they don't check that ALL of the rows are the right format)
+    # I dont check the following things that are still useful:
+    # contig (column 1) - no specific format required
+    # function (column 8) - no specific format required
+    # The following columns are never used by my programs:
+    # column 4 (location) - use columns 1,5,6, and 7 instead.
+    # column 9 (aliases) - use the "aliases" file instead.
+    # column 10 (figfam)
+    # column 11 (evidence codes)
+    fmatch=$(cat "${file}" | cut -f 2 | grep -o -P "^fig\|\d+\.\d+\.peg\.\d+$");
     if [ $? -eq 1 ]; then
-	echo "ERROR: The organism ID ${orgid} inferred by the name of the genbank file ${file} does not match any organism IDs in the organism file"
-	STATUS=1
+	echo "ERROR: Gene IDs in raw file ${file} were not in expected format (fig|#.#.peg.# where the first two are the organism ID) or not in the expected place (second column in raw file)";
+	STATUS=1;
+    fi
+    fmatch=$(cat "${file}" | cut -f 3 | grep -o -P "^peg$");
+    if [ $? -eq 1 ]; then
+	echo "ERROR: No objects of type peg (third column) identified in file ${file}. Only pegs (protein encoding genes) are considered in our clustering analysis!";
+	STATUS=1;
+    fi
+    fmatch=$(cat "${file}" | cut -f 5 | grep -o -P "^\d+$");
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Gene start location (fifth column) expected to be a number in file ${file}";
+	STATUS=1;
+    fi
+    fmatch=$(cat "${file}" | cut -f 6 | grep -o -P "^\d+$");
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Stop location (sixth column) expected to be a number in file ${file}";
+	STATUS=1;
+    fi
+    fmatch=$(cat "${file}" | cut -f 7 | grep -o -P "^[+-]$");
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Strand (seventh column) must be + or - in file ${file}";
+	STATUS=1;
+    fi
+    # Note - NRWYMKSHBVD are ambiguous nucleotides
+    # ACGT are the standard nucleotides
+    # Anything that isn't one of these is an error.
+    # No gaps are allowed.
+    fmatch=$(cat "${file}" | cut -f 12 | grep -o -i -P "^[acgtnrwymkshbvd]+$");
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Nucleotide sequence expected in 12th column in file ${file}";
+	STATUS=1;
+    fi
+    # Note this wont match the header because of the "_" in aa_sequences but its a bit fragile.
+    fmatch=$(cat "${file}" | cut -f 13 | grep -o -i -P "^[A-Z]+$")
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Amino acid sequence expected in 13th column in file ${file}";
+	STATUS=1;
     fi
 done
 cd ..;
 
+# Check genbank files.
+echo "Checking naming consistency in genbank files..."
+cd genbank;
+for org in ${orgmatch}; do
+    # File name must exactly be [organismID].gbk
+    fmatch=$(ls | grep -w -F "${org}.gbk");
+    if [ $? -eq 1 ]; then
+	echo "ERROR: No genbank file match for organism ID ${org} - file name must be ${org}.gbk and placed in the genbank folder";
+	STATUS=1;
+    fi
+done
+cd ..;
+
+# The aliases file is optional but recommended!
 if [ ! -f ./aliases/aliases ]; then
     echo "WARNING: No aliases file found - no alias subsitution will be performed for gene names"
 fi

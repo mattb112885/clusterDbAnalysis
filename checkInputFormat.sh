@@ -58,19 +58,19 @@ for orgname in ${orgnames}; do
     fi
 done
 
-# For each orgmatch see if there is a raw file containing genes with that ID
+### RAW file tests
 cd raw;
 
 echo "Checking the format of raw file names..."
 for file in $(ls | grep -v "README"); do
     ok=$(echo "${file}" | grep -x -P "\d+\.\d+\.txt")
     if [ $? -eq 1 ]; then
-	echo "ERROR: Raw file ${file} does not have a name in the expected format (organismid.txt)"
+	echo "ERROR: Raw file ${file} does not have a name in the expected format ( [organismid].txt)"
 	STATUS=1
     fi
 done
 
-echo "Checking for existence of raw files for each organism..."
+echo "Checking for existence of appropriately-named raw files for each organism in the organisms file..."
 for org in ${orgmatch}; do
     # File name must exactly be [organismID].txt
     fmatch=$(ls | grep -w -F "${org}.txt");
@@ -80,7 +80,6 @@ for org in ${orgmatch}; do
     fi
 done
 
-# Check that there arent any raw files that have no entry in the organism table
 echo "Checking that all raw file organism IDs have an entry in the organisms file..."
 for file in $(ls | grep -v "README"); do
     orgid=$(echo "${file}" | grep -o -P "\d+\.\d+");
@@ -145,7 +144,7 @@ for file in $(ls | grep -v "README"); do
 done
 cd ..;
 
-# Check genbank files.
+### Check genbank files.
 cd genbank;
 
 echo "Checking the format of genbank file names..."

@@ -49,6 +49,7 @@ fi
 
 # Check whether the organisms are found in the groups file
 # (this isn't a fatal error if it fails)
+echo "Checking whether organisms are found in the groups file..."
 orgnames=$(cat organisms | cut -f 1);
 for orgname in ${orgnames}; do
     ok=$(grep -F "${orgname}" groups)
@@ -59,6 +60,16 @@ done
 
 # For each orgmatch see if there is a raw file containing genes with that ID
 cd raw;
+
+echo "Checking the format of raw file names..."
+for file in $(ls | grep -v "README"); do
+    ok=$(echo "${file}" | grep -x -P "\d+\.\d+\.txt")
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Raw file ${file} does not have a name in the expected format (organismid.txt)"
+	STATUS=1
+    fi
+done
+
 echo "Checking for existence of raw files for each organism..."
 for org in ${orgmatch}; do
     # File name must exactly be [organismID].txt
@@ -66,6 +77,17 @@ for org in ${orgmatch}; do
     if [ $? -eq 1 ]; then
 	echo "ERROR: No raw file match for organism ID ${org} - file name must be ${org}.txt";
 	STATUS=1;
+    fi
+done
+
+# Check that there arent any raw files that have no entry in the organism table
+echo "Checking that all raw file organism IDs have an entry in the organisms file..."
+for file in $(ls | grep -v "README"); do
+    orgid=$(echo "${file}" | grep -o -P "\d+\.\d+");
+    ok=$(cat ../organisms | cut -f 3 | grep -F -w "${orgid}")
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Organism ID in raw file ${file} has no entry in the organism file"
+	STATUS=1
     fi
 done
 
@@ -124,8 +146,18 @@ done
 cd ..;
 
 # Check genbank files.
-echo "Checking naming consistency in genbank files..."
 cd genbank;
+
+echo "Checking the format of genbank file names..."
+for file in $(ls | grep -v "README"); do
+    ok=$(echo "${file}" | grep -x -P "\d+\.\d+\.gbk")
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Genbank file ${file} does not have a name in the expected format ([organismid].gbk)"
+	STATUS=1
+    fi
+done
+
+echo "Checking for existence of genbank files for every organism in the organisms file..."
 for org in ${orgmatch}; do
     # File name must exactly be [organismID].gbk
     fmatch=$(ls | grep -w -F "${org}.gbk");
@@ -134,6 +166,18 @@ for org in ${orgmatch}; do
 	STATUS=1;
     fi
 done
+
+echo "Checking that all organism IDs in the genbank files have an entry in the organisms file..."
+for file in $(ls | grep -v "README"); do
+    orgid=$(echo "${file}" | grep -o -P "\d+\.\d+");
+    echo "${orgid}"
+    ok=$(cat ../organisms | cut -f 3 | grep -F -w "${orgid}")
+    if [ $? -eq 1 ]; then
+	echo "ERROR: Organism ID ${orgid} in genbank file ${file} has no entry in the organism file"
+	STATUS=1
+    fi
+done
+
 cd ..;
 
 # The aliases file is optional but recommended!

@@ -65,3 +65,8 @@ cat flatclusters/* > db/flat_clusters;
 # Import clusters into the db
 echo "Importing cluster information into database...";
 sqlite3 db/DATABASE.sqlite < src/builddb_2.sql;
+
+# Once clusters are loaded, make a pre-built presence\absence table.
+# This is a python script because it involves some operations that would be impossible or hard in pure SQL.
+echo "Making a pre-built presence\absence table in the database..."
+db_loadPresenceAbsence.py;

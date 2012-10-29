@@ -1,71 +1,45 @@
 #!/usr/bin/python
 
-# Generates a table that looks like this:
-#
-#[]	    []	    [Org 1] [Org 2]    ...  [Org n]
-#[RunID]    [ClID]  [+/-]   [+/-]      ...  [+/-]
-#
-# from the "clusterorgs"
-
 import sqlite3
+import sys
 import optparse
 from locateDatabase import *
 
-# This is only for self-documenting purposes - this function takes no arguments.                                                                                                                              
-usage="%prog > presence_absence_+-_table"
-description="Generates a +/- presence/absence table for every cluster in every run in the database. Takes no input arguments and exports the table to stdout. NOTE: Any organisms not included in a cluster run will be given -'s for all clusters in that run - be aware of this!"
+usage="%prog [options] > presence_absence_table"
+description="""Generates a presence\absence table (or slices thereof) based on
+the one automatically loaded as part of main2.sh. 
+Default activity is to dump the database as is (pegs)."""
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-n", "--number", help="Rather than printing PEGs, print the number of representatives in each organism (D: Prints pegs)", 
+                  action="store_true", dest="number", default=False)
+parser.add_option("-b", "--binary", help="Rather than printing PEGs, print 0 if there are no representatives and 1 if there are representatives (D: prints pegs)",
+                  action = "store_true", dest="binary", default=False)
+parser.add_option("-r", "--runid", help="Only print results for the specified run ID (D: Prints the table for all of them)", action="store", type="str", dest="runid", default=None)
 (options,args) = parser.parse_args()
+
+if options.number and options.binary:
+    sys.stderr.write("ERROR: Cannot specify both -n and -b (can either print 0\1 or number of represenatitives, not both)\n")
+    exit(2)
 
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-def getOneClusterOrganisms(runid, clusterid, cur):
-    cur.execute("""SELECT organism, annotation FROM X
-                   WHERE X.runid = ? AND X.clusterid = ?;""",
-                  (runid, clusterid) )
+if options.runid is None:
+    cur.execute("SELECT * FROM presenceabsence;")
+else:
+    cur.execute("SELECT * FROM presenceabsence WHERE runid = ?", (options.runid,))
 
-    orgs = []
-    annotes = []
-    for l in cur:
-        s = list(l)
-        orgs.append(s[0])
-        annotes.append(s[1])
-
-    return set(orgs), max(set(annotes), key=annotes.count)
-
-# Generate table list
-cur.execute("SELECT organism FROM organisms;")
-orgList = set()
-for l in cur:
-    s = list(l)
-    orgList.add(s[0])
-titleRow = "\t".join(orgList)
-print "%s\t%s\t%s\t%s" %("RunID", "ClusterID", "SampleAnnote", titleRow)
-
-# Iterate over clusters and Run IDs and get +/- for each...
-cur.execute("SELECT DISTINCT runid, clusterid FROM clusters;")
-execList = []
-for l in cur:
-    execList.append(list(l))
-
-cur.execute("""CREATE TEMPORARY TABLE X AS
-               SELECT clusters.*, processed.organism, processed.annotation  
-               FROM processed                                                                                                                              
-               INNER JOIN clusters ON clusters.geneid = processed.geneid;""")
-
-cur.execute("CREATE INDEX tmpXRuns ON X(runid);")
-cur.execute("CREATE INDEX tmpXclusters ON X(clusterid);")
-
-for e in execList:
-    oneRunOrglist, annote = getOneClusterOrganisms(e[0], e[1], cur)
-    # Note- comma after the last argument means no newline
-    print "%s\t%s\t%s" %(e[0], e[1], annote),
-    
-    for org in orgList:
-        if org in oneRunOrglist:
-            print "\t%s" %("+"),
-        else:
-            print "\t%s" %("-"),
-    # Now we want a new line
-    print ""
+collist = [tup[0] for tup in cur.description]
+print "\t".join(collist)
+for rec in cur:
+    lst = [ str(s) for s in rec ]
+    for ii in range(len(lst)):
+        if ii < 3:
+            continue
+        if (options.number or options.binary) and lst[ii] == "NONE":
+            lst[ii] = "0"
+        elif options.binary:
+            lst[ii] = "1"
+        elif options.number:
+            lst[ii] = str(lst[ii].count(";") + 1)
+    print "\t".join(lst)

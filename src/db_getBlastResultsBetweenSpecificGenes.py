@@ -14,6 +14,7 @@ usage = "%prog [options] < gene_ids > blast_results"
 description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
+parser.add_option("-n", "--blastn", help="Get BLASTN results (D: BLASTP results)", action="store_true", dest="blastn", default=False)
 (options, args) = parser.parse_args()
 gc = options.genecolumn - 1
 
@@ -26,10 +27,18 @@ for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
     cur.execute("INSERT INTO desiredgenes VALUES (?);", (spl[gc], ) )
 
+
 # Generate a list of blast results with query matching one of the desiredgenes
-cur.execute("""SELECT blastres_selfbit.* FROM blastres_selfbit
-               WHERE blastres_selfbit.targetgene IN (select geneid from desiredgenes)
-               AND blastres_selfbit.querygene IN (select geneid from desiredgenes);""");
+if options.blastn:
+    tbl = "blastnres_selfbit"
+else:
+    tbl = "blastres_selfbit"
+
+cmd = """SELECT %s.* FROM %s
+         WHERE %s.targetgene IN (select geneid from desiredgenes)
+         AND %s.querygene IN (select geneid from desiredgenes);""" %(tbl, tbl, tbl, tbl)
+
+cur.execute(cmd)
 
 for l in cur:
     s = list(l)

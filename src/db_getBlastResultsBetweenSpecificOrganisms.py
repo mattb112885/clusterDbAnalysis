@@ -21,15 +21,18 @@ of BLAST results between organisms matching any of those keywords."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-s", "--strict", help="Require exact name matches for organisms (D: Partial name matches are OK)",
                    action="store_true", dest="strict", default=False)
+parser.add_option("-n", "--blastn", help="Return BLASTN hits rather than BLASTP hits. (D: BLASTP)",
+                  action="store_true", dest="blastn", default=False)
 (options, args) = parser.parse_args()
 
-# We want exact matches now.
+# Do we want exact matches or LIKE %org%?
 if options.strict:
     teststr = args
 else:
     teststr = list('%' + s + '%' for s in args)
 
-#  We need to remove the \ so that they dont appear in the SQL query.
+# We need to remove any \ in the inputs so that they dont appear in the SQL query.
+# SQL doesn't understand escape characters.
 teststr = [ s.replace("\\", "") for s in teststr ]
 
 con = sqlite3.connect(locateDatabase())
@@ -53,13 +56,21 @@ query = query + ";"
 cur.execute(query, tuple(teststr))
 
 # Generate a list of gene IDs to search for in the BLAST results
-cur.execute("""CREATE TEMPORARY TABLE desiredgenes AS SELECT processed.* FROM processed 
+cur.execute("""CREATE TEMPORARY TABLE desiredgenes AS 
+                 SELECT processed.* FROM processed 
                  INNER JOIN desiredorgs ON desiredorgs.organism = processed.organism; """)
 
 # Generate a list of blast results with query matching one of the desiredgenes
-cur.execute("""SELECT blastres_selfbit.* FROM blastres_selfbit
-               WHERE blastres_selfbit.targetgene IN (select geneid from desiredgenes)
-               AND blastres_selfbit.querygene IN (select geneid from desiredgenes);""");
+if options.blastn:
+    tbl = "blastnres_selfbit"
+else:
+    tbl = "blastres_selfbit"
+
+cmd = """SELECT %s.* FROM %s
+         WHERE %s.targetgene IN (select geneid from desiredgenes)
+         AND   %s.querygene  IN (select geneid from desiredgenes);""" %(tbl, tbl, tbl, tbl)
+
+cur.execute(cmd)
 
 for l in cur:
     s = list(l)

@@ -333,6 +333,7 @@ Options:
   -h, --help            show this help message and exit
   -g GENECOLUMN, --gcolumn=GENECOLUMN
                         Column number (start from 1) for gene ID
+  -n, --blastn          Get BLASTN results (D: BLASTP results)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getBlastResultsBetweenSpecificOrganisms.py
@@ -346,6 +347,7 @@ Options:
   -h, --help    show this help message and exit
   -s, --strict  Require exact name matches for organisms (D: Partial name
                 matches are OK)
+  -n, --blastn  Return BLASTN hits rather than BLASTP hits. (D: BLASTP)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getBlastResultsContainingGenes.py
@@ -362,6 +364,8 @@ Options:
                         Column number (start from 1) for gene ID
   -c CUTOFF, --cutoff=CUTOFF
                         E-value cutoff (D: Show all results in database)
+  -n, --blastn          Base the results on BLASTN instead of BLASTP (D:
+                        BLASTP)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getClusterGeneInformation.py
@@ -680,25 +684,6 @@ Options:
                         file).
 *--------------------------------------------------------------------------------------------------------------------------*
 
-db_makeBlastScoreTable.py
-
-Usage: db_makeBlastScoreTable.py -m [method] -c [cutoff] [options] < blast_result_table
-
-Given a blast score table (augmented with self-bit scores for query and target
-genes), calculates a similarity value based on the desired scoring metric.
-Currently implemented metrics: minbit maxbit avgbit normhsp
-
-Options:
-  -h, --help            show this help message and exit
-  -m METHOD, --method=METHOD
-                        Method name
-  -c CUTOFF, --cutoff=CUTOFF
-                        Score cutoff to use
-  -n, --noprint         Set this flag if you do not want to print edges less
-                        than the cutoff as zeros (default = False - print
-                        those edges
-*--------------------------------------------------------------------------------------------------------------------------*
-
 db_makeClusterAlignment.py
 
 Usage: db_makeClusterAlignment.py -m Method (-n|-t|-g|-p) [options] < Cluster_RunIDs > Final_alignment
@@ -946,6 +931,25 @@ location in a config script
 
 Options:
   -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+makeBlastScoreTable.py
+
+Usage: makeBlastScoreTable.py -m [method] -c [cutoff] [options] < blast_result_table
+
+Given a blast score table (augmented with self-bit scores for query and target
+genes), calculates a similarity value based on the desired scoring metric.
+Currently implemented metrics: minbit maxbit avgbit normhsp
+
+Options:
+  -h, --help            show this help message and exit
+  -m METHOD, --method=METHOD
+                        Method name
+  -c CUTOFF, --cutoff=CUTOFF
+                        Score cutoff to use
+  -n, --noprint         Set this flag if you do not want to print edges less
+                        than the cutoff as zeros (default = False - print
+                        those edges
 *--------------------------------------------------------------------------------------------------------------------------*
 
 makeHistorgram.py

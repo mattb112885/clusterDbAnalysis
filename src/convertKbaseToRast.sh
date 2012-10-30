@@ -46,13 +46,17 @@ elif [ "${SOURCE}" = "MOL:Genome" ]; then
     ID="${ID}.99999";
     echo "Assigned MOL genome the ID ${ID}";
 else
-    echo "ERROR: Specified organism ${ORGANISM} either not found in the KBASE or was not from one of the acceptable genome sources (SEED and MOL)"
+    echo "ERROR: Specified organism ${ORGANISM} either not found in the KBASE or"
+    echo "was not from one of the acceptable genome sources (SEED and MOL)"
     exit 1;
 fi
 
 # Now that we've got some IDs we like, lets pull out some data.
-OUTFILE="${ID}.kbase_txt"
+OUTFILE="${ID}.txt"
 
 # The final 2> /dev/null is to get rid of things with no protein sequences (which the DB
 # doesn't support anyway)
-echo "${ORGANISM}" | get_relationship_IsComposedOf -to id | get_relationship_IsLocusFor -rel begin,len,dir -to id,function,feature_type | fids_to_dna_sequences -c 6 -fasta=0 | fids_to_protein_sequences -c 6 -fasta=0 2> /dev/null | kbase2rast.py "${ID}" > "${OUTFILE}"
+echo "${ORGANISM}" | get_relationship_IsComposedOf -to id | \
+    get_relationship_IsLocusFor -rel begin,len,dir -to id,function,feature_type | \
+    fids_to_dna_sequences -c 6 -fasta=0 | \
+    fids_to_protein_sequences -c 6 -fasta=0 2> /dev/null | kbase2rast.py "${ID}" > "${OUTFILE}"

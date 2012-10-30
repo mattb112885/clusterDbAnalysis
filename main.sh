@@ -25,16 +25,25 @@ NCORES=12;
 #
 # See README file for more details
 
-# Back up organism file if it isn't already
+# If we have existing abbreviations we want to keep them around in the new version
+# of the organisms file.
 if [ -f organisms ]; then
     TM=$(date +%s)
     NEWNAME="organisms.${TM}.bk"
-    mv organisms ${NEWNAME}
-    echo "WARNING: organism file backed up to ${NEWNAME} to preserve existing abbreviations."
+    mv organisms "${NEWNAME}"
+    ./generateOrganismFileFromGbk.sh
+    mergeAbbreviations.py "${NEWNAME}" organisms
+    echo "WARNING: The old organism file has been backed up to ${NEWNAME}."
+    echo "The new organism file has consistent abbreviations with previous one"
+    echo "but any organisms not in genbank or raw folders are removed"
+#    rm "${NEWNAME}"
+else
+   # Automatically generate a organism file and a default groups file containing all the organisms
+   # Since no previously-existing organism file is available I just assign default (unique) abbreviations
+   # for each organism. 
+   ./generateOrganismFileFromGbk.sh
 fi
 
-# Automatically generate a organism file and a default groups file containing all the organisms
-./generateOrganismFileFromGbk.sh
 ./addGroupByMatch.py -o organisms -g groups -n all
 
 ./checkInputFormat.sh

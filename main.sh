@@ -44,11 +44,18 @@ else
    ./generateOrganismFileFromGbk.sh
 fi
 
+# Remove the existing "all" group from the groups file if it exists
+# Any other groups are ignored in that file.
+if [ -f "groups" ]; then
+    cat "groups" | grep -v -P "^all\s" > "groupmod"
+    mv "groupmod" "groups"
+fi
+
 ./addGroupByMatch.py -o organisms -g groups -n all
 
 ./checkInputFormat.sh
 if [ $? -ne 0 ]; then
-    echo "Errors in input file format. Please fix and run again."
+    echo "Errors in input file format (see printout for details). Please fix and run again."
     exit 1
 fi
 

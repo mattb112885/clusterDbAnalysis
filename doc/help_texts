@@ -339,13 +339,13 @@ db_getBlastResultsBetweenSpecificOrganisms.py
 
 Usage: db_getBlastResultsBetweenSpecificOrganisms.py "Organism 1" "Organism 2" ... > blast_results
 
-Given list of organism keywords to match, by default returns a list of BLAST
-results between genes only in organisms matching ALL of the keywords. Use !
-for NOT or -o to use OR instead
+Given list of organism names to match, returns a list of BLAST results between
+organisms matching any of those keywords.
 
 Options:
-  -h, --help  show this help message and exit
-  -o, --or    Use OR instead of AND between organism identifiers
+  -h, --help    show this help message and exit
+  -s, --strict  Require exact name matches for organisms (D: Partial name
+                matches are OK)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getBlastResultsContainingGenes.py
@@ -520,46 +520,24 @@ Options:
   -r RC, --runcol=RC  Column number for run ID starting from 1 (D=1)
 *--------------------------------------------------------------------------------------------------------------------------*
 
-db_getPresenceAbsenceTable_01.py
-
-Usage: db_getPresenceAbsenceTable_01.py > presence_absence_01_table
-
-Generates a 0/1 presence/absence table for every cluster in every run in the
-database. This one is the one you should use as a starting point for a
-presence/absence fasta file if you want to make a tree out of that. Takes no
-input arguments and exports the table to stdout. NOTE: Any organisms not
-included in a cluster run will be given 0's for all clusters in that run - be
-aware of this!
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-db_getPresenceAbsenceTable_pegs.py
-
-Usage: db_getPresenceAbsenceTable_pegs.py > presence_absence_pegid_table
-
-Generates a presence/absence table for every cluster in every run in the
-database and puts the peg IDs for any genes in the cluster in the appropriate
-row or NONE for absent genes. Takes no input arguments and exports the table
-to stdout. NOTE: Any organisms not included in a cluster run will be given
-NONE's for all clusters in that run - be aware of this!
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
 db_getPresenceAbsenceTable.py
 
-Usage: db_getPresenceAbsenceTable.py > presence_absence_+-_table
+Usage: db_getPresenceAbsenceTable.py [options] > presence_absence_table
 
-Generates a +/- presence/absence table for every cluster in every run in the
-database. Takes no input arguments and exports the table to stdout. NOTE: Any
-organisms not included in a cluster run will be given -'s for all clusters in
-that run - be aware of this!
+Generates a presencebsence table (or slices thereof) based on the one
+automatically loaded as part of main2.sh.  Default activity is to dump the
+database as is (pegs).
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help            show this help message and exit
+  -n, --number          Rather than printing PEGs, print the number of
+                        representatives in each organism (D: Prints pegs)
+  -b, --binary          Rather than printing PEGs, print 0 if there are no
+                        representatives and 1 if there are representatives (D:
+                        prints pegs)
+  -r RUNID, --runid=RUNID
+                        Only print results for the specified run ID (D: Prints
+                        the table for all of them)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getSequencesFromBlastResults.py
@@ -660,6 +638,20 @@ Options:
                         on its own line)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_loadPresenceAbsence.py
+
+Usage: db_loadPresenceAbsence.py > presence_absence_pegid_table
+
+Generates a presence/absence table for every cluster in every run in the
+database and puts the peg IDs for any genes in the cluster in the appropriate
+row or NONE for absent genes. Takes no input arguments and exports the table
+to stdout. NOTE: Any organisms not included in a cluster run will be given
+NONE's for all clusters in that run - be aware of this!
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_makeArrowDiagram.py
 
 Usage: db_makeArrowDiagram.py [options] Newick_file < runid or db_makeArrowDiagram.py -i runid [options] Newick_file . Default activity is to do nothing - one of -s, -p, or -d must be specified...
@@ -757,9 +749,11 @@ db_specificOrganismClusterDriver.py
 
 Usage: db_specificOrganismClusterDriver.py [groupfile] [Inflation] [cutoff] [scoremethod]
 
-This file is intended to be run as part of Main1.sh. Run MCL clustering on the
-organisms specified in the file 'groupfile' with specified parameters
-(Automatically dumps result file into clusters/ folder)
+This file is intended to be run as part of Main1.sh.  Run MCL clustering on
+the organisms specified in the file 'groupfile'  with specified parameters
+(Automatically dumps result file into clusters/ folder)  Alternatively, if
+scoremethod=orthomcl, runs OrthoMCL with specified inflation and  (log
+E-value) cutoff
 
 Options:
   -h, --help  show this help message and exit
@@ -1326,7 +1320,7 @@ and append .99999 .
 At the moment only SEED and MOL genomes are acceptable.
 *--------------------------------------------------------------------------------------------------------------------------*
 
-convertPubseedToRast.sh
+getInputFilesFromPubseed.sh
 
 Usage: convertPubseedToRast (PUBSEED genome ID)
 

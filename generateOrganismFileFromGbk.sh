@@ -27,7 +27,11 @@ ABBREV=0
 for file in $(ls | grep -v "README"); do
     # Our genbank files will be concatinated across all the contigs, so we don't want to get the
     # same string every time for each contig. Just grab the first one.
-    ORGLINE=$(cat "${file}"| grep -P -i -m 1 "^\s*/organism\=\".*?\"")
+    # I have to do some hacky things here because organism fields can be spread across multiple lines. 
+    # The sed command is to get rid of nonsensical amounts of space that results from said hack.
+    # The head -1 is needed because -o prints ALL of the matches in each single line and -m 1 doesn't help since that
+    # only separates by line number...
+    ORGLINE=$(cat "${file}"| tr '\n' ' ' | sed -r "s/[ ]{2,}/\ /g" | grep -o -P "/organism\=\".*?\"" | head -1)
     ORGANISM=$(echo "${ORGLINE}" | sed -r "s/.*?\"(.*?)\"/\1/g")
     # Do a sanity check on the genbank file name vs. its TaxID
     # The "extension" is rather arbitrary so I don't worry about that.

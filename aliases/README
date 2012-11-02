@@ -1,11 +1,12 @@
 This folder is for files containing PEG IDs in one column and any aliases you want
 added to the annotations in the second column.
 
-In the conversion from "raw" to "processed" tables, we go ahead and add them.
+In the conversion from "raw" to "processed" tables, we go ahead and add them to the annotation.
+This makes it easy to search for particular genes.
 
 Format:
 
 PEG ID   |  Alias to add
 
 You can add more than one alias to a particular peg ID. The aliases are all added with underscores (_)
-in the order in which they appear in the final file.
+in the order in which they appear in the aliases file.

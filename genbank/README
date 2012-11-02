@@ -1,35 +1,50 @@
 ### GENBANK Readme file
 #
 
-This folder is intended to contain Genbank files for any organisms
-for which you want to run functions that depend on having the whole genome
-sequence available. As of the time of writing this includes:
+This folder is intended to contain Genbank files. We now require genbank
+files for every organism because they are needed to automatically generate
+intermediates and also for TBLASTN and other whole-genome analyses.
 
-- TBLASTN analysis
-- Identification and analysis of upstream regions of genes
-
-The clustering analysis itself does NOT depend on genbank files.
-
-To put the information in the database required for these analysis, first
+To put the whole-genome info into the database, first
 put genbank files in this folder and then run ./main3.sh from the root folder
 of this distribution. This function parses out the necessary info and puts
 the genome nucleotide sequences into the database.
 
-There is no fundamental need to put in the genomes for all organisms - but
-if you try to run one of the analysis scripts that requires a genome that isn't
-present you will get an error.
+#############################
+#  FILE NAMING REQUIREMENTS #
+#############################
 
-NAMING REQUIREMENTS:
+File names must have the format
 
-In order to match up the genome with its proteins, it is necessary to
-name the genbank files with the organism ID in the file name.
+[organismid].gbk 
+
+The organism ID must match the regex "\d+\.\d+" (or [0-9]+\.[0-9]+).
+The first number must be the tax ID specified in the genbank file. 
+The second number is arbitrary.
 
 For example:
 
 83333.1.gbk
 
-would be the filename for E. coli. It doesn't matter what else is in there as long
-as the genome ID is there; the genome ID is extracted from the file name using a regex
-that it must match (this is the same requirement as elsewhere in the package):
+would be the filename for E. coli.
 
-grep -P -o "\d+\.\d+"
+The organism ID must match an organism ID in at least one raw file.
+
+#############################
+# WHAT MUST BE IN THE FILES #
+#############################
+
+Fundamentally, the program requires the following fields from the genbank files. 
+Everything else is ignored (including any gene IDs, sequences, etc. - they are
+imported to the database from the raw file instead).
+
+- /organism="[organism name]" : Used to generate the organisms file
+- /dbxref="taxid:[taxid]" : Used to check consistency with the organism ID. The first number in the
+  organism ID should be the taxID.
+- A LOCUS field containing a contig name (without spaces but length does not matter). The contig 
+  name must be consistent with the contig name in the raw file.
+- The contig's sequence.
+
+If you have multiple contigs (or multiple chromosomes, or a chromosome and a plasmid, etc.), 
+you should concatinate the genbank files for each one into a single file with a name consistent
+with the file naming requirements above.

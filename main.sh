@@ -31,11 +31,12 @@ if [ -f organisms ]; then
     TM=$(date +%s)
     NEWNAME="organisms.${TM}.bk"
     mv organisms "${NEWNAME}"
+    echo "WARNING: The old organism file has been backed up to ${NEWNAME}."
+    echo "Automatically generating a new organisms file..."
     ./generateOrganismFileFromGbk.sh
     mergeAbbreviations.py "${NEWNAME}" organisms
-    echo "WARNING: The old organism file has been backed up to ${NEWNAME}."
-    echo "The new organism file has consistent abbreviations with previous one"
-    echo "but any organisms not in genbank or raw folders are removed"
+    echo "WARNING: The new organism file has consistent abbreviations with previous one"
+    echo "but any organisms not in genbank or raw folders have been removed"
 #    rm "${NEWNAME}"
 else
    # Automatically generate a organism file and a default groups file containing all the organisms

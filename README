@@ -3,7 +3,8 @@ Files included in this folder ($ROOT):
 These scripts should be run in the following order to set up the database,
 once all of the input data is placed correctly.
 
-main.sh - Checks formatting of input files and throws an error if something is inconsistent.
+main.sh - Backs up existing organisms file, generates a new one from the genbank files, and reconciles abbreviations.
+	  Checks formatting of input files and throws an error if something is inconsistent.
           Adds organisms to the raw files in $ROOT/raw/ using the data in the "organisms" file.
           (Optionally) adds aliases in $ROOT/aliases/aliases file to the annotations if that file exists.
           Set up fasta files and BLAST databases from the raw files in $ROOT/raw (NOT from the genbank files).
@@ -16,15 +17,23 @@ main3.sh - Parses Genbank files in the genbank/ folder to get whole-genome nucle
 
 Other files:
 
-checkInputFormat.sh - Check for existence of required input files (organisms, groups, and raw files in raw/)
+addGroupByMatch.py - Given a key or a set of keys, searches through the organisms file for all of the organism names matching
+		   at least one of the provided keys, and adds all the matching organisms to a new group in the groups file.
+		   Example: ./addGroupByMatch.py -o organisms -g groups -n Escherichia_and_shigella "Escherichia" "Shigella"
+		   would make a new group called "Escherichia_and_shigella" containing all organisms matching either "Escherichia" or
+		   "Shigella" in part of their names.
+checkInputFormat.sh - Check for existence of required input files (genbank files in genbank/, raw files in raw/)
 		    Check format of the organism file and of the organism IDs within the organisms file.
 		    Fast check for format of the raw files (not a complete check but should catch many errors)
 		    Check that each organism ID in the organism file is represented in at least one raw file
-		    If genbank files are provided in /genbank/, check that one of the organism IDs matches an organism ID in the filename.
 dumpDocumentation.sh - Automatically generate documentation files for scripts in src/ and in scripts/ and save it to doc/
-removeOrganism_SAFE.sh - Automatically identify files that would be deleted if removeOrganism was run on a specific organism in the database.
-removeOrganism.sh - Removes any results dependent on a given organism and the raw data associated with that organism.
-		  WARNING: This is NOT reversible! It is highly recommended to run removeOrganism_SAFE.sh first to see what files would be removed!!
+generateOrganismFileFromGbk.sh - This function is meant for internal use. It will delete the existing organism file and replace it
+			       with one automatically generated from the genbank files (it looks for the field /organism="[organismname]"
+			       and pulls out the organism name from that, and gets the organism ID from the file name)
+removeOrganism.sh - Remove all traces of the specified organism, including BLAST results, raw data and genbank file, all clusters 
+		      containining the specified gene, etc. 
+		  By default, lists what files and\or lines from data files would be deleted. 
+		  If you specify "TRUE" as an argument, actually performs the deletion.
 
 Folders included with this installation:
 

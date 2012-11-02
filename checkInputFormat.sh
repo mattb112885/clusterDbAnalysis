@@ -106,6 +106,12 @@ for file in $(ls | grep -v "README"); do
 	echo "ERROR: Gene IDs in raw file ${file} were not in expected format (fig|#.#.peg.# where the first two are the organism ID) or not in the expected place (second column in raw file)";
 	STATUS=1;
     fi
+    expectedorg=$(echo "${file}" | grep -o -P "\d+\.\d+")
+    actualorg=$(cat "${file}" | cut -f 2 | tail -1 | grep -o -P "\d+\.\d+")
+    if [ "${expectedorg}" != "${actualorg}" ]; then
+	echo "ERROR: Gene ID ${expectedorg} in the name of raw file ${file} does not match the organism ID ${actualorg} within the file itself."
+	STATUS=1;
+    fi
     fmatch=$(cat "${file}" | cut -f 3 | grep -o -P "^peg$");
     if [ $? -eq 1 ]; then
 	echo "ERROR: No objects of type peg (third column) identified in file ${file}. Only pegs (protein encoding genes) are considered in our clustering analysis!";
@@ -169,7 +175,6 @@ done
 echo "Checking that all organism IDs in the genbank files have an entry in the organisms file..."
 for file in $(ls | grep -v "README"); do
     orgid=$(echo "${file}" | grep -o -P "\d+\.\d+");
-    echo "${orgid}"
     ok=$(cat ../organisms | cut -f 3 | grep -F -w "${orgid}")
     if [ $? -eq 1 ]; then
 	echo "ERROR: Organism ID ${orgid} in genbank file ${file} has no entry in the organism file"

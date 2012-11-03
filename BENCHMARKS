@@ -1,0 +1,39 @@
+---------
+
+main.sh 
+
+BLAST benchmark:
+
+Time to run blast will go roughly as N^2 where N is the number
+of organisms (assuming they have roughly the same number of genes)
+and as k^2 where k is the number of genes per organism.
+
+Running on 12 (reasonably fast) cores BLASTP took on average
+somewhere around 6 seconds per pair of organisms... so on my test set
+of 69 organisms it took
+
+69^2 * 6 seconds * 1 min/60 sec * 1 hrou / 60 min = 8 hours
+
+to run BLASTP all vs. all. The algorithm is embarassingly parallel,
+so scale up or down according to the number of cores you have.
+
+BLASTN all vs. all takes less time but will still be in the hours+
+range. The scaling rules are the same.
+
+Loading up the SQLite database took about 4 hours beyond these steps.
+This will roughly increase as O(N^2) as well (depending on the number
+of BLAST hits between each pair of organisms, whcih could vary wildly).
+Unlike BLAST, this step is not parallelized.
+
+Everything else done in main.sh is completely insignificant in time
+compared to these two steps.
+
+--------
+
+main2.sh
+
+MCL benchmark:
+
+Running MCL on all BLAST hits with 69 organisms took about
+[TODO: How long?]
+

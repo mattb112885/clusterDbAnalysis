@@ -28,6 +28,9 @@ if options.groupfile is None:
 if options.groupname is None:
     sys.stderr.write("ERROR: group name (-n) is a required argument\n")
     exit(2)
+if len(args) == 0:
+    sys.stderr.write("ERROR: At least one key to match must be provided\n")
+    exit(2)
 
 orglist = set()
 for line in open(options.orgfile, "r"):
@@ -66,7 +69,7 @@ if matchingorgs in group2orglist.values():
     exit(2)
 
 # Now that our sanity checks have passed...
-linetoadd = "%s\t%s\n" %(options.groupname, ";".join(list(matchingorgs)))
+linetoadd = "%s\t%s\n" %(options.groupname, ";".join(sorted(list(matchingorgs))))
 groupfid = open(options.groupfile, "a+")
 groupfid.write(linetoadd)
 groupfid.close()

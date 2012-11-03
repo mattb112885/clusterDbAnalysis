@@ -51,7 +51,7 @@ fi
 # (this isn't a fatal error if it fails)
 echo "Checking whether organisms are found in the groups file..."
 orgnames=$(cat organisms | cut -f 1);
-for orgname in ${orgnames}; do
+for orgname in "${orgnames}"; do
     ok=$(grep -F "${orgname}" groups)
     if [ $? -eq 1 ]; then
 	echo "WARNING: Organism ${orgname} was in the organisms file but did not appear in any groups. Did you forget something?"

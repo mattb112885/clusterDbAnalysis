@@ -38,6 +38,18 @@ main2.sh
 
 MCL benchmark:
 
+Most of the time in running MCL is spent querying the database for
+all BLAST hits between a specific group of organisms and calculating the
+desired homology scores.
+
+It took me about 1 minute per million edges to perform this query
+(when there were 69 organisms in the database). Obviously this time will
+increase as the database gets bigger.
+
+There are about 20 million BLAST hits between 30 closely-related prokarytotes 
+(~3000 genes/organisms) with an E-value cutoff of 1E-5.
+
 Running MCL on all BLAST hits with 69 organisms took about
-[TODO: How long?]
+
+
 

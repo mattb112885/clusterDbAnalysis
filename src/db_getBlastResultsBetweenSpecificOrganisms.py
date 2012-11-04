@@ -57,7 +57,7 @@ cur.execute(query, tuple(teststr))
 
 # Generate a list of gene IDs to search for in the BLAST results
 cur.execute("""CREATE TEMPORARY TABLE desiredgenes AS 
-                 SELECT processed.* FROM processed 
+                 SELECT geneid FROM processed 
                  INNER JOIN desiredorgs ON desiredorgs.organism = processed.organism; """)
 
 # Generate a list of blast results with query matching one of the desiredgenes
@@ -67,8 +67,8 @@ else:
     tbl = "blastres_selfbit"
 
 cmd = """SELECT %s.* FROM %s
-         WHERE %s.targetgene IN (select geneid from desiredgenes)
-         AND   %s.querygene  IN (select geneid from desiredgenes);""" %(tbl, tbl, tbl, tbl)
+         WHERE %s.targetgene IN desiredgenes
+         AND   %s.querygene  IN desiredgenes;""" %(tbl, tbl, tbl, tbl)
 
 cur.execute(cmd)
 

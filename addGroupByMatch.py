@@ -28,9 +28,6 @@ if options.groupfile is None:
 if options.groupname is None:
     sys.stderr.write("ERROR: group name (-n) is a required argument\n")
     exit(2)
-if len(args) == 0:
-    sys.stderr.write("ERROR: At least one key to match must be provided\n")
-    exit(2)
 
 orglist = set()
 for line in open(options.orgfile, "r"):

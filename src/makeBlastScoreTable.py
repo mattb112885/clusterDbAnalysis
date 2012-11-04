@@ -46,7 +46,7 @@ parser.add_option("-n", "--noprint", help="Set this flag if you do not want to p
 (options, args) = parser.parse_args()
 
 if not options.method in validmethods:
-    sys.stderr.write("ERROR: Invalid method passed to db_makeBlastScoreTable\n")
+    sys.stderr.write("ERROR: Invalid method passed to makeBlastScoreTable.py\n")
     sys.stderr.write("Current valid methods are:\n%s\n" %("\t".join(validmethods)))
     exit(2)
 

@@ -64,7 +64,7 @@ for line in open(groupfile, "r"):
         # Generate and run an MCL command
         # FIXME - or orthoMCL!!!
         cmd = ("db_getBlastResultsBetweenSpecificOrganisms.py -s " + safewhole + 
-               " | db_makeBlastScoreTable.py -m " + str(method) + " -c " + str(cutoff) +
+               " | makeBlastScoreTable.py -m " + str(method) + " -c " + str(cutoff) +
                " | mcl - --abc -I " + str(inflation) + " -o " + foutname + ";")
         sys.stderr.write("%s\n" %(cmd) )
         os.system(cmd)

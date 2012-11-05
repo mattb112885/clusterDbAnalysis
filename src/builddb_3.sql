@@ -16,6 +16,11 @@ CREATE TABLE contigs(
        FOREIGN KEY(organismid) REFERENCES organisms(organismid)
 );
 
+.separator "\t"
+.import db/contigs contigs
+
+CREATE INDEX contigcontigs ON contigs(contig_mod);
+
 CREATE TABLE tblastn(
        "queryid" VARCHAR(256),
        "querylen" INT,
@@ -26,7 +31,7 @@ CREATE TABLE tblastn(
        "tblastlen" INT,
        "queryoverlappct" FLOAT,
        "evalue" FLOAT,
-       "bitscore FLOAT,
+       "bitscore" FLOAT,
        "hitframe" INT,
        "strandedstring" VARCHAR(16),
        "targetgeneid" VARCHAR(32),
@@ -38,7 +43,3 @@ CREATE TABLE tblastn(
        FOREIGN KEY(targetcontig) REFERENCES contigs(contig_mod)
 );
 
-.separator "\t"
-.import db/contigs contigs
-
-CREATE INDEX contigcontigs ON contigs(contig_mod);

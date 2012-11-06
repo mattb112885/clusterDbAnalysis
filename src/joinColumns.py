@@ -7,7 +7,13 @@ import optparse
 import sys
 
 usage="%prog -1 [col1] -2 [col2] (options) File1 File2"
-description = "To get around some of the obnoxiousness of the UNIX join command..."
+description = """To get around some of the obnoxiousness of the UNIX join command...
+This is a command to join on specific columns in two input files. It supports tabs as
+delimiters and does not require inputs to be sorted (so it is slower than the UNIX command
+but also easier to use). Does not munge columns - if --k2 is specified and there are keys in
+the second column not present in the first, it will put in the appropriate number of empty
+columns at the beginning of the line (if --k1 is specified the appropriate number of empty
+columns are placed at the end of the line) so that all columns have the same number of entries."""
 
 parser=optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-1", help="Column in first file starting from 1 (required)", action="store", type="int", dest="firstcol", default=None)
@@ -53,17 +59,17 @@ for key in firstKeyToRows:
     if key not in secondKeyToRows:
         if options.keep1:
             for spl in firstKeyToRows[key]:
-                st = "\t".join(spl) + "\t"*secondFileNumCols
+                st = options.delimiter.join(spl) + options.delimiter*secondFileNumCols
                 print st
     else:
         for spl in firstKeyToRows[key]:
             for spl2 in secondKeyToRows[key]:
-                st = "\t".join(spl) + "\t" + "\t".join(spl2)
+                st = options.delimiter.join(spl) + options.delimiter + options.delimiter.join(spl2)
                 print st
 
 for key in secondKeyToRows:
     if key not in firstKeyToRows:
         if options.keep2:
             for spl2 in secondKeyToRows[key]:
-                st = "\t"*firstFileNumCols + "\t".join(spl2)
+                st = options.delimiter*firstFileNumCols + options.delimiter.join(spl2)
                 print st

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -lt 3 ]; then
-    echo "USAGE: computeConservedDomains.sh [which_family_group] [query_file] [outfile]"
+if [ $# -lt 4 ]; then
+    echo "USAGE: computeConservedDomains.sh [which_family_group] [query_file] [outfile] [NUMCORES]"
     echo ""
     echo "DESCRIPTION: Automatically download, extract conserved domain profiles"
     echo "based on the NCBI data (ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/)"
@@ -24,6 +24,14 @@ if [ ! -f cdd.tar.gz ]; then
     tar xzf cdd.tar.gz
 else
     echo "Conserved-protein database already present in expected location."
+fi
+
+# Gunzip (unlike tar xzf) deletes the gz file so I check for the file inside that.
+if [ ! -f ../db/cddid.tbl ]; then
+    echo "DOWNLOADING conserved protein database info file..."
+    wget ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/cddid.tbl.gz
+    gunzip cddid.tbl.gz
+    mv cddid.tbl ../db/cddid.tbl
 fi
 
 WHICHDB=$(echo "$1" | tr [:lower:] [:upper:])
@@ -55,7 +63,8 @@ else
 fi
 
 cd ..;
+
 echo "Runing RPSBLAST..."
-rpsblast -i "$2" -d "cd_db/${MYPN}" -o "$3" -m 8;
+rpsblast -i "$2" -d "cd_db/${MYPN}" -o "$3" -m 8 -e 1E-5 -a "$4";
 
 echo "Done."

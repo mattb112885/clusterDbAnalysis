@@ -19,7 +19,7 @@ description = "Compute neighbors of each gene from their location (the neighbors
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.parse_args()
 
-MAXK = 5
+MAXK = 10
 
 geneTuples = []
 for line in fileinput.input("-"):

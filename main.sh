@@ -1,6 +1,15 @@
 #!/bin/bash
 
-NCORES=12;
+if [ $# -lt 1 ]; then
+    echo "usage: main.sh [NCORES]"
+    echo ""
+    echo "Description: runs BLAST, BLASTN all vs. all and RPSBLAST against all of the"
+    echo "maintained conserved domain databases in NCBI"
+    echo ""
+    exit 1
+fi
+
+NCORES=$1;
 
 # Note - for now the mcl parameters are located in the function
 # src/specificOrganismClusterDriver.py
@@ -82,8 +91,9 @@ for file in $(ls | grep -v "README"); do
 done
 cd ..;
 
-echo "Concatinating faa files..."
+echo "Concatinating faa and fna files..."
 cat faa/*.faa > db/allgenomes.faa;
+cat fna/*.fna > db/allgenomes.fna;
 
 # Haven't converted this one to a pipe yet...
 # Run blast all vs. all organisms (takes ~ 1 hour for 18 organisms and 8 cores)
@@ -99,10 +109,12 @@ Blast_all_v_all.py -n fna/ blastn_res/ ${NCORES};
 # and only to separate out organisms when needed.
 #
 # Also - add the gene aliases here (not above) because the annotations are ultimately built from the raw file.
+echo "Concatinating BLAST results..."
 cat blastres/* > db/blastres_cat;
 cat modtable/* > db/mod_cat;
 cat blastn_res/* > db/blastnres_cat;
 
+echo "Adding aliases from the alias file to the gene annotations..."
 if [ -f aliases/aliases ]; then
     ls raw/* | grep -v "README" | xargs cat | grep -v "feature_id" | addAliasesToGeneAnnotations.py aliases/aliases > db/raw_cat;
 else
@@ -110,7 +122,21 @@ else
     ls raw/* | grep -v "README" | xargs cat | grep -v "feature_id" > db/raw_cat;
 fi
 
+echo "Computing gene neighborhoods (up to a maximum of 10)..."
 cat db/raw_cat | getNeighbors_bothStrands_rast.py  > db/neighborhoods
+
+# Compute external cluster similarities (protein only for now)
+# Note - the CDD database contains all of the others so it is pointless
+# to compute them separately
+
+echo "Computing similarity to externally-defined conserved domains (from NCBI)..."
+
+if [ ! -f db/external_CDD ]; then
+    ./computeConservedDomains.sh "CDD" db/allgenomes.faa db/external_CDD "${NCORES}";
+    cat db/external_CDD | sed -r "s/^(.*?\s+.*?),/\1/g" > db/external_CDD_MOD
+    mv db/external_CDD_MOD db/external_CDD
+fi
+
 
 # Generate the first part of the SQL database
 # (for use with generating the clusters for a specific group of organisms)

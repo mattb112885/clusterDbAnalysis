@@ -9,8 +9,10 @@ if [ $# -lt 4 ]; then
     echo "Then compile an RPS-BLAST database with the specified group of protein families"
     echo "e.g. PFAM, COG, or CDD"
     echo ""
-    echo "This script won't do anything if the tar.gz file already exists."
-    echo "To update the data, just delete the cd_db directory and re-run this script."
+    echo "Finally, run RPS-BLAST on query_file and store the results in outfile"
+    echo "Because RPSBLAST (unlike BLASTP) gives a LOT of hits to some clusters, we restrict it to"
+    echo "only print out one of them."
+    echo ""
     exit 0
 fi
 
@@ -57,7 +59,11 @@ fi
 
 if [ ! -f "${MYPN}.phr" ]; then
     echo "Formatting the RPSBLAST database..."
-    formatrpsdb -i "${MYPN}" -t "${WHICHDB}";
+    # Note - NCBI recommends setting -S 1 although -S 100 is the default.
+    # See ftp://ftp.ncbi.nih.gov/blast/documents/rpsblast.html
+    # However that aws for the old version and the docs for the newer one don't say anything
+    # about it...
+    formatrpsdb -i "${MYPN}" -t "${WHICHDB}" -S 1;
 else
     echo "RPSBLAST database already formatted."
 fi
@@ -65,6 +71,6 @@ fi
 cd ..;
 
 echo "Runing RPSBLAST..."
-rpsblast -i "$2" -d "cd_db/${MYPN}" -o "$3" -m 8 -e 1E-5 -a "$4";
+rpsblast -i "$2" -d "cd_db/${MYPN}" -o "$3" -m 8 -e 1E-5 -a "$4" -P 1;
 
 echo "Done."

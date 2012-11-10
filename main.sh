@@ -125,19 +125,6 @@ fi
 echo "Computing gene neighborhoods (up to a maximum of 10)..."
 cat db/raw_cat | getNeighbors_bothStrands_rast.py  > db/neighborhoods
 
-# Compute external cluster similarities (protein only for now)
-# Note - the CDD database contains all of the others so it is pointless
-# to compute them separately
-
-echo "Computing similarity to externally-defined conserved domains (from NCBI)..."
-
-if [ ! -f db/external_CDD ]; then
-    ./computeConservedDomains.sh "CDD" db/allgenomes.faa db/external_CDD "${NCORES}";
-    cat db/external_CDD | sed -r "s/^(.*?\s+.*?),/\1/g" > db/external_CDD_MOD
-    mv db/external_CDD_MOD db/external_CDD
-fi
-
-
 # Generate the first part of the SQL database
 # (for use with generating the clusters for a specific group of organisms)
 echo "Rebuilding database...";

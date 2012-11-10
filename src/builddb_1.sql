@@ -52,33 +52,6 @@ CREATE TABLE blastn_results(
        FOREIGN KEY(targetgene) REFERENCES rawdata(geneid)
        );
 
-/* This table is cddid.tbl from NCBI */
-CREATE TABLE external_clusters(
-       "counter" INT,
-       "external_clusterid" VARCHAR(36),
-       "clustername" VARCHAR(36),
-       "description" VARCHAR(256),
-       "profilelength" INT
-);
-       
-
-CREATE TABLE rpsblast_results(
-       "querygene" VARCHAR(128),
-       "external_clusterid" VARCHAR(128),
-       "pctid" FLOAT,
-       "alnlen" INT,
-       "mismatches" INT,
-       "gapopens" INT,
-       "querystart" INT,
-       "queryend" INT,
-       "substart" INT,
-       "subend" INT,
-       "evalue" FLOAT,
-       "bitscore" FLOAT,
-       FOREIGN KEY(querygene) REFERENCES rawdata(geneid),
-       FOREIGN KEY(external_clusterid) REFERENCES external_clusters(external_clusterid)
-);
-
 /* abbreviation must be less than 6 characters for PHYLIP format to work correctly... */
 CREATE TABLE organisms(
        "organism" varchar(128) PRIMARY KEY,
@@ -124,12 +97,6 @@ CREATE TABLE neighborhoods(
 .import db/blastres_cat blastresults
 .import db/blastnres_cat blastn_results
 .import db/neighborhoods neighborhoods
-.import db/cddid.tbl external_clusters
-.import db/external_CDD rpsblast_results
-
-CREATE INDEX externalclusterididx ON external_clusters (external_clusterid);
-CREATE INDEX rpsblastquery ON rpsblast_results (querygene);
-CREATE INDEX rpsblastexternalclusterididx ON rpsblast_results (external_clusterid);
 
 CREATE INDEX blastqueryidx ON blastresults (querygene);
 CREATE INDEX blasttargetidx ON blastresults (targetgene);

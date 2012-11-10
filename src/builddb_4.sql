@@ -1,21 +1,36 @@
-CREATE TABLE IF NOT EXISTS clusterlists (
-        "alignmentid" INTEGER,
-	"runid" VARCHAR(256),
-	"clusterid" INTEGER,
-	FOREIGN KEY(runid,clusterid) REFERENCES clusters(runid,clusterid),
-	FOREIGN KEY(alignmentid) REFERENCES alignments(alignmentid)
-	);
-	
-CREATE TABLE IF NOT EXISTS alignments (
-	"alignmentid" INTEGER PRIMARY KEY,
-	"alnmethod" VARCHAR(36),
-	"trimmethod" VARCHAR(36)
-	);
+/* RPSBLAST-related db functions */
 
-CREATE TABLE IF NOT EXISTS alignedseqs (
-	"alignmentid" INTEGER,
-	"geneid" INTEGER,
-	"alignedaaseq" VARCHAR(60000),
-	FOREIGN KEY(alignmentid) REFERENCES alignments(alignmentid),
-	FOREIGN KEY(geneid) REFERENCES rawdata(geneid)
-	);
+/* This table is cddid.tbl from NCBI */
+CREATE TABLE external_clusters(
+       "counter" INT,
+       "external_clusterid" VARCHAR(36),
+       "clustername" VARCHAR(36),
+       "description" VARCHAR(256),
+       "profilelength" INT
+);
+
+CREATE TABLE rpsblast_results(
+       "querygene" VARCHAR(128),
+       "external_clusterid" VARCHAR(128),
+       "pctid" FLOAT,
+       "alnlen" INT,
+       "mismatches" INT,
+       "gapopens" INT,
+       "querystart" INT,
+       "queryend" INT,
+       "substart" INT,
+       "subend" INT,
+       "evalue" FLOAT,
+       "bitscore" FLOAT,
+       FOREIGN KEY(querygene) REFERENCES rawdata(geneid),
+       FOREIGN KEY(external_clusterid) REFERENCES external_clusters(external_clusterid)
+);
+
+.separator "\t"
+
+.import db/cddid.tbl external_clusters
+.import db/external_CDD rpsblast_results
+
+CREATE INDEX externalclusterididx ON external_clusters (external_clusterid);
+CREATE INDEX rpsblastquery ON rpsblast_results (querygene);
+CREATE INDEX rpsblastexternalclusterididx ON rpsblast_results (external_clusterid);

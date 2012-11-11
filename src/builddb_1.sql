@@ -105,46 +105,69 @@ CREATE INDEX blastnqueryidx ON blastn_results (querygene);
 CREATE INDEX blastntargetidx ON blastn_results (targetgene);
 
 /* Add self-bit score to blastp results table */
-CREATE TABLE blast_self AS
+/*CREATE TABLE blast_self AS
        SELECT * FROM blastresults 
-       WHERE blastresults.querygene = blastresults.targetgene;
+       WHERE blastresults.querygene = blastresults.targetgene; */
+
+CREATE TABLE blast_self AS 
+       SELECT * FROM blastresults 
+       INNER JOIN (
+       	     SELECT querygene, targetgene, max(bitscore) AS bitscore FROM blastresults
+	     WHERE querygene = targetgene
+	     GROUP BY querygene
+	     ) AS s
+	     ON s.querygene = blastresults.querygene AND s.bitscore = blastresults.bitscore
+	     WHERE blastresults.querygene = s.querygene
+	     AND blastresults.targetgene = s.targetgene
+	     AND blastresults.querygene = blastresults.targetgene;
+
+/*CREATE TABLE blastn_self AS
+       SELECT * FROM blastn_results 
+       WHERE blastn_results.querygene = blastn_results.targetgene; */
+
+CREATE TABLE blastn_self AS 
+       SELECT * FROM blastn_results 
+       INNER JOIN (
+       	     SELECT querygene, targetgene, max(bitscore) AS bitscore FROM blastn_results 
+	     WHERE querygene = targetgene
+	     GROUP BY querygene
+	     ) AS s
+	     ON s.querygene = blastn_results.querygene
+	     WHERE blastn_results.querygene = s.querygene
+	     AND blastn_results.targetgene = s.targetgene
+	     AND blastn_results.querygene = blastn_results.targetgene
+	     AND s.bitscore = blastn_results.bitscore;
 
 CREATE INDEX selfqueryidx ON blast_self(querygene);
+CREATE INDEX blastnselfqueryidx ON blastn_self(querygene);
 
 CREATE VIEW s AS
        SELECT blastresults.*, blast_self.bitscore AS queryselfbit
        FROM blastresults
        INNER JOIN blast_self ON blast_self.querygene = blastresults.querygene;
 
-CREATE TABLE blastres_selfbit AS
-       SELECT s.*, blast_self.bitscore AS targetselfbit FROM s
-       INNER JOIN blast_self ON blast_self.querygene = s.targetgene;
-
-CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);
-CREATE INDEX selfbittargetidx ON blastres_selfbit(targetgene);
-
-DROP VIEW s;
-
-/* Add self-bit score to blastn results table */
-CREATE TABLE blastn_self AS
-       SELECT * FROM blastn_results 
-       WHERE blastn_results.querygene = blastn_results.targetgene;
-
-CREATE INDEX blastnselfqueryidx ON blastn_self(querygene);
-
-CREATE VIEW s AS
+CREATE VIEW sn AS
        SELECT blastn_results.*, blastn_self.bitscore AS queryselfbit
        FROM blastn_results
        INNER JOIN blastn_self ON blastn_self.querygene = blastn_results.querygene;
 
+CREATE TABLE blastres_selfbit AS
+       SELECT s.*, blast_self.bitscore AS targetselfbit FROM s
+       INNER JOIN blast_self ON blast_self.querygene = s.targetgene;
+
+
 CREATE TABLE blastnres_selfbit AS
-       SELECT s.*, blastn_self.bitscore AS targetselfbit FROM s
-       INNER JOIN blastn_self ON blastn_self.querygene = s.targetgene;
+       SELECT sn.*, blastn_self.bitscore AS targetselfbit FROM sn
+       INNER JOIN blastn_self ON blastn_self.querygene = sn.targetgene;
+
+CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);
+CREATE INDEX selfbittargetidx ON blastres_selfbit(targetgene);
 
 CREATE INDEX blastn_selfbitqueryidx ON blastnres_selfbit(querygene);
 CREATE INDEX blastn_selfbittargetidx ON blastnres_selfbit(targetgene);
 
 DROP VIEW s;
+DROP VIEW sn;
 
 /* Processed table (this is the table you should generally query against - it results in the 'geneinfo' tables):
    Gene ID | organism | organismID | organism abbreviation | contig ID | gene start | gene end | strand | annotation | nucleotide sequence | amino acid sequence 
@@ -163,6 +186,6 @@ CREATE INDEX processedcontigs ON processed(contig_mod);
 CREATE INDEX processedorganismids ON processed(organismid);
 
 /* These tables are no longer needed. Drop them to reduce the memory footprint and reduce confusion. */
-DROP TABLE blastresults;
+/*DROP TABLE blastresults;
 DROP TABLE blastn_results;
-DROP TABLE geneinfo;
+DROP TABLE geneinfo; */

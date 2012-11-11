@@ -86,6 +86,8 @@ def singleBlast(query, target, BLASTDIR, FASTADIR, options):
     except IOError:
         if options.blastn:
             # I use a higher cutoff here since it doesn't take much to store \ query blastn results anyway.
+            # The window_size 0 is needed to prevent us from having multiple hits from teh same query to the same target,
+            # which confounds the computation of the normalized bit scores among other things...
             cline = "blastn -task blastn -outfmt 6 -query %s -db %s -evalue 1 -out %s" %( path.join(FASTADIR, query), path.join(FASTADIR, target), path.join(BLASTDIR, string) )
         else:
             cline = "blastp -outfmt 6 -query %s -db %s -evalue 1E-5 -out %s" %( path.join(FASTADIR, query), path.join(FASTADIR, target), path.join(BLASTDIR, string) )

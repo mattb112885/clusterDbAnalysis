@@ -30,7 +30,11 @@ if [ ! -f ../db/cddid.tbl ]; then
     echo "DOWNLOADING conserved protein database info file..."
     wget ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/cddid.tbl.gz
     gunzip cddid.tbl.gz
-    mv cddid.tbl ../db/cddid.tbl
+    # I finally pinned down the issue with sqlite loading the cddid table to
+    # the presence of quotation marks in the annotation.
+    # SQlite interprets them as enclosing a single item to read and therefore thinks
+    # that the number of columns is incorrect...
+    sed s/\"//g cddid.tbl > ../db/cddid.tbl
 fi
 
 cd ..

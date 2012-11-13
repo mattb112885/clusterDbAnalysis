@@ -46,7 +46,7 @@ for faa in faa_list:
 
 @parallel(arglist)
 def singleRpsBlast(faa, target_db, outputdir, evalue):
-    outfile = os.path.join(outputdir, "%s_rpsout" %(faa))
+    outfile = os.path.join(outputdir, "%s_rpsout" %(os.path.basename(faa)))
     if os.path.exists(outfile):
         return
     cmd = "rpsblast -i %s -d %s -o %s -m 8 -e %e -P 1;" %(faa, target_db, outfile, evalue)

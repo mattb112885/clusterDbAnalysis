@@ -35,14 +35,9 @@ fi
 
 cd ..
 
-if [ ! -f db/external_CDD ]; then
-#        ./computeConservedDomains.sh "CDD" db/allgenomes.faa db/external_CDD "${NCORES}";
-    Rpsblast_all_vs_one.py -n "${NCORES}" -c 1E-5 "cd_db/Cdd.pn" "faa/" "rpsblast_res/"
-    cat rpsblast_res/* > db/external_CDD
-    cat db/external_CDD | sed -r "s/^(.*?\s+.*?),/\1/g" > db/external_CDD_MOD
-    mv db/external_CDD_MOD db/external_CDD
-fi
-
-exit 0;
+Rpsblast_all_vs_one.py -n "${NCORES}" -c 1E-5 "cd_db/Cdd.pn" "faa/" "rpsblast_res/"
+cat rpsblast_res/* > db/external_CDD
+cat db/external_CDD | sed -r "s/^(.*?\s+.*?),/\1/g" > db/external_CDD_MOD
+mv db/external_CDD_MOD db/external_CDD
 
 sqlite3 db/DATABASE.sqlite < src/builddb_4.sql

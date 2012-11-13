@@ -1,11 +1,14 @@
 /* RPSBLAST-related db functions */
 
+DROP TABLE IF EXISTS external_clusters;
+DROP TABLE IF EXISTS rpsblast_results;
+
 /* This table is cddid.tbl from NCBI */
 CREATE TABLE external_clusters(
        "counter" INT,
        "external_clusterid" VARCHAR(36),
        "clustername" VARCHAR(36),
-       "description" VARCHAR(256),
+       "description" VARCHAR(1028),
        "profilelength" INT
 );
 

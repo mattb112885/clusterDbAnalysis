@@ -23,6 +23,8 @@ from Bio import AlignIO
 from Bio import SeqIO
 from optparse import OptionParser
 
+from sanitizeString import *
+
 description = "Wrapper for FASTTREE to allow for global bootstrapping in addition to normal functionality"
 usage="%prog [options] < FASTA_file > Newick_file"
 parser = OptionParser(description=description, usage=usage)
@@ -65,7 +67,7 @@ aln = list(AlignIO.read(sys.stdin, "fasta"))
 subToReal = {}
 for i in range(len(aln)):
     newid = "S%09d" %(i)
-    subToReal[newid] = aln[i].id
+    subToReal[newid] = sanitizeString(aln[i].id)
     aln[i].id = newid
 
 #############
@@ -131,9 +133,9 @@ if GLOBALBOOTS:
     FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s -n %d > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, NUMBOOTS, fname)
     sys.stderr.write(FastTreeCmd + "\n")
     os.system(FastTreeCmd)
-    # Run the CompareToBootstrap.pl program needed to do something with the global bootstrap values...
+    # Run the CompareToBootstrap.pl program needed to calculate global boostrap values
     os.system("CompareToBootstrap.pl -tree %s.nwk -boot %s_seqboot.nwk > %s_global.nwk" %(fname, fname, fname))
-#    os.system("mv %s_global.nwk %s.nwk" %(fname, fname) )
+    os.system("mv %s_global.nwk %s.nwk" %(fname, fname) )
 
 treestr = "".join([ line.strip('\r\n') for line in open("%s.nwk" %(fname)) ])
 # Substitute names back for the final tree output

@@ -32,7 +32,7 @@ parser.add_option("-n", "--nogamma", help="Do not apply gamma20 likelihood calcu
 parser.add_option("-m", "--model", help="Specify model to use with FASTTREE (D=WAG)", action="store", type="str", dest="MODEL", default="wag")
 parser.add_option("-p", "--program", help="Specify the name of the FASTTREE program to use - it must be in your PATH (D=FastTreeMP)", action="store", type="str", dest="PROGRAM", default="FastTreeMP")
 parser.add_option("-t", "--nucleotides", help="Set this flag if you are inputting a nucleotide alignment (D = Protein alignment)", action="store_true", dest="nt", default=False)
-
+parser.add_option("-k", "--keep", help="Keep temporary files (bootstrap files and phylip files) (D = Delete them)", action="store_true", dest="keep", default=False)
 (options, args) = parser.parse_args()
 
 ##
@@ -132,8 +132,8 @@ if GLOBALBOOTS:
     sys.stderr.write(FastTreeCmd + "\n")
     os.system(FastTreeCmd)
     # Run the CompareToBootstrap.pl program needed to do something with the global bootstrap values...
-    os.system("CompareToBootstrap.pl -tree %s -boot %s_seqboot.nwk > %s_global.nwk" %(fname, fname, fname))
-    os.system("mv %s_global.nwk %s.nwk" %(fname, fname) )
+    os.system("CompareToBootstrap.pl -tree %s.nwk -boot %s_seqboot.nwk > %s_global.nwk" %(fname, fname, fname))
+#    os.system("mv %s_global.nwk %s.nwk" %(fname, fname) )
 
 treestr = "".join([ line.strip('\r\n') for line in open("%s.nwk" %(fname)) ])
 # Substitute names back for the final tree output
@@ -144,4 +144,5 @@ for sub in subToReal:
 print treestr
 
 # Clean up temporary files
-#os.system("rm %s*" %(fname) )
+if not options.keep:
+    os.system("rm %s*" %(fname) )

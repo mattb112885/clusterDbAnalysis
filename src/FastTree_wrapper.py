@@ -120,7 +120,7 @@ if USEGAMMA:
 
 # Initial command to run FASTTREE
 FastTreeCmd = "cat %s | %s %s %s %s %s > %s.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, fname)
-
+sys.stderr.write(FastTreeCmd + "\n")
 os.system(FastTreeCmd)
 
 # Deal with global bootstrap if requested
@@ -128,10 +128,11 @@ if GLOBALBOOTS:
     # Generate the phylip bootstrap file
     os.system("phylipSeqbootScript.sh %s %s_seqboot %d" %(fname, fname, NUMBOOTS))
     # Run FastTree with the same parameters but on the bootstrap alignments
-    FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, fname)
+    FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s -n %d > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, NUMBOOTS, fname)
+    sys.stderr.write(FastTreeCmd + "\n")
     os.system(FastTreeCmd)
     # Run the CompareToBootstrap.pl program needed to do something with the global bootstrap values...
-    os.system("CompareToBootstrap.pl -tree %s -boot %s > %s_global.nwk" %(fname, fname))
+    os.system("CompareToBootstrap.pl -tree %s -boot %s_seqboot.nwk > %s_global.nwk" %(fname, fname, fname))
     os.system("mv %s_global.nwk %s.nwk" %(fname, fname) )
 
 treestr = "".join([ line.strip('\r\n') for line in open("%s.nwk" %(fname)) ])
@@ -143,4 +144,4 @@ for sub in subToReal:
 print treestr
 
 # Clean up temporary files
-os.system("rm %s*" %(INFILE) )
+#os.system("rm %s*" %(fname) )

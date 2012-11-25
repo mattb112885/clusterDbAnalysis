@@ -27,7 +27,8 @@ parser.add_option("-d", "--db", help="BLAST database to use for BLASTing (use th
 parser.add_option("-c", "--cutoff", help="E-value cutoff for TBLASTN (D=1E-5)", action="store", type="float", dest="cutoff", default=1E-5)
 parser.add_option("-t", "--translation", help="Translation table number for TBLASTN (D=11 - bacteria, archaea and plant plastids)", action="store", type="int", dest="translation", default=11)
 parser.add_option("-g", "--genecol", help="Column number for gene ID starting from 1 (D=1)", action="store", type="int", dest="gc", default=1)
-parser.add_option("-r", "--orgcol", help="Column number for organism ID starting from 1 (D=1, ignored unless -f is specified)", action="store", type="int", dest="oc", default=1)
+parser.add_option("-r", "--orgcol", help="Column number for organism ID starting from 1 (D=3, so that it matches the organisms file; ignored unless -f is specified)", 
+                  action="store", type="int", dest="oc", default=3)
 parser.add_option("-k", "--keep", help="Keep temporary files (D: Delete them)", action="store_true", dest="keep", default=False)
 (options, args) = parser.parse_args()
 

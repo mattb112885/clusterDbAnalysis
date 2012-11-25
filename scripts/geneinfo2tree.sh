@@ -19,5 +19,5 @@ INFILE="$1";
 ORGFILE="$2";
 TMPFILE="/tmp/2802989302832.tmp";
 cat "${INFILE}" | annoteSeq2Fasta.py -g 1 -a 10 -s 12 > "${TMPFILE}";
-mafft --auto "${TMPFILE}" | FastTreeMP -gamma -wag | replaceOrgWithAbbrev.py -k -f "${ORGFILE}" > "${INFILE}.nwk";
+mafft --auto "${TMPFILE}" | FastTreeMP -gamma -wag | db_replaceGeneNameWithAnnotation.py -a -o -k > "${INFILE}.nwk";
 rm "${TMPFILE}";

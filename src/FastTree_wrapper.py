@@ -23,6 +23,8 @@ from Bio import AlignIO
 from Bio import SeqIO
 from optparse import OptionParser
 
+from sanitizeString import *
+
 description = "Wrapper for FASTTREE to allow for global bootstrapping in addition to normal functionality"
 usage="%prog [options] < FASTA_file > Newick_file"
 parser = OptionParser(description=description, usage=usage)
@@ -32,7 +34,7 @@ parser.add_option("-n", "--nogamma", help="Do not apply gamma20 likelihood calcu
 parser.add_option("-m", "--model", help="Specify model to use with FASTTREE (D=WAG)", action="store", type="str", dest="MODEL", default="wag")
 parser.add_option("-p", "--program", help="Specify the name of the FASTTREE program to use - it must be in your PATH (D=FastTreeMP)", action="store", type="str", dest="PROGRAM", default="FastTreeMP")
 parser.add_option("-t", "--nucleotides", help="Set this flag if you are inputting a nucleotide alignment (D = Protein alignment)", action="store_true", dest="nt", default=False)
-
+parser.add_option("-k", "--keep", help="Keep temporary files (bootstrap files and phylip files) (D = Delete them)", action="store_true", dest="keep", default=False)
 (options, args) = parser.parse_args()
 
 ##
@@ -65,7 +67,7 @@ aln = list(AlignIO.read(sys.stdin, "fasta"))
 subToReal = {}
 for i in range(len(aln)):
     newid = "S%09d" %(i)
-    subToReal[newid] = aln[i].id
+    subToReal[newid] = sanitizeString(aln[i].id, False)
     aln[i].id = newid
 
 #############
@@ -120,7 +122,7 @@ if USEGAMMA:
 
 # Initial command to run FASTTREE
 FastTreeCmd = "cat %s | %s %s %s %s %s > %s.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, fname)
-
+sys.stderr.write(FastTreeCmd + "\n")
 os.system(FastTreeCmd)
 
 # Deal with global bootstrap if requested
@@ -128,10 +130,11 @@ if GLOBALBOOTS:
     # Generate the phylip bootstrap file
     os.system("phylipSeqbootScript.sh %s %s_seqboot %d" %(fname, fname, NUMBOOTS))
     # Run FastTree with the same parameters but on the bootstrap alignments
-    FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, fname)
+    FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s -n %d > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, NUMBOOTS, fname)
+    sys.stderr.write(FastTreeCmd + "\n")
     os.system(FastTreeCmd)
-    # Run the CompareToBootstrap.pl program needed to do something with the global bootstrap values...
-    os.system("CompareToBootstrap.pl -tree %s -boot %s > %s_global.nwk" %(fname, fname))
+    # Run the CompareToBootstrap.pl program needed to calculate global boostrap values
+    os.system("CompareToBootstrap.pl -tree %s.nwk -boot %s_seqboot.nwk > %s_global.nwk" %(fname, fname, fname))
     os.system("mv %s_global.nwk %s.nwk" %(fname, fname) )
 
 treestr = "".join([ line.strip('\r\n') for line in open("%s.nwk" %(fname)) ])
@@ -143,4 +146,5 @@ for sub in subToReal:
 print treestr
 
 # Clean up temporary files
-os.system("rm %s*" %(INFILE) )
+if not options.keep:
+    os.system("rm %s*" %(fname) )

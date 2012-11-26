@@ -121,6 +121,18 @@ if [ -d ./blastn_res/ ]; then
     cd ..
 fi
 
+if [ -d ./rpsblast_res ]; then
+    echo "rpsblast_res folder";
+    cd ./rpsblast_res;
+    if [ $DELETE -eq 0 ]; then
+	echo "Files that would be deleted from rpsblast_res folder";
+	ls | grep -P "^${ORGANISM}\.txt\.faa_rpsout";
+    else
+	ls | grep -P "^${ORGANISM}\.txt\.faa_rpsout" | xargs rm;
+    fi
+fi
+
+
 if [ -d ./clusters/ ]; then
     echo "Clusters folder";
     cd ./clusters/;

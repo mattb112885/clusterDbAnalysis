@@ -3,13 +3,19 @@
 # Script to completely do a core genome analysis based on a specific run id
 
 if [ $# -lt 2 ]; then
-    echo "USAGE: completeCoreAnalysis.sh [runid] [rootorg]";
+    echo "USAGE: completeCoreAnalysis.sh [runid] [rootorg] [NTHREADS (optional)]";
     echo "rootorg should have spaces replaced by underscores"
     exit 0;
 fi
 
 runid=$1;
 root=$2;
+
+if [ $# -gt 2 ]; then
+    NTHREADS="$3";
+else
+    NTHREADS="1";
+fi
 
 # Make directories if needed
 
@@ -31,7 +37,7 @@ cat "core_geneinfo_${runid}" | getClusterFastas.py "core_fasta_${runid}";
 cd "core_fasta_${runid}";
 for file in *; do
     if [ ! -f "../core_aln_${runid}/${file}.aln" ]; then
-	mafft --auto "${file}" > "../core_aln_${runid}/${file}.aln";
+	mafft --thread ${NTHREADS} --auto "${file}" > "../core_aln_${runid}/${file}.aln";
     fi
 done
 
@@ -39,14 +45,14 @@ done
 cd "../core_aln_${runid}/";
 for file in *; do
     if [ ! -f "../core_aln_trim_${runid}/${file}.trim" ]; then
-	cat "${file}" | svr_trim_ali -m > "../core_aln_trim_${runid}/${file}.trim";
+	cat "${file}" | Gblocks_wrapper.py -r > "../core_aln_trim_${runid}/${file}.trim"
     fi
 done
 cd ..;
 
 # Cat
 if [ ! -f "core_cat_aln_${runid}" ]; then
-    catAlignments -k "${runid}" "core_aln_trim_${runid}" > "core_cat_aln_${runid}";
+    catAlignments.py -k "${runid}" "core_aln_trim_${runid}" > "core_cat_aln_${runid}";
 fi
 
 # Tree
@@ -60,7 +66,7 @@ if [ ! -f "core_cat_fasttree_rerooted_${runid}" ]; then
 fi
 
 # Get subsets
-makeLeafListFromEachNode.py -f "core_subsets_${runid}" "core_cat_fasttree_rerooted_${runid}"
+#makeLeafListFromEachNode.py -f "core_subsets_${runid}" "core_cat_fasttree_rerooted_${runid}"
 
 # TODO:
 # Get core gene lists for each of the subsets

@@ -170,7 +170,7 @@ options.configfile = options.newconfigfile
 # We don't necessarily want to re-load all the BLAST info (takes a long time) if
 # it hasn't changed at all.
 sys.stderr.write("Installing OrthoMCL schema...\n")
-os.system("orthomclInstallSchema %s" %(options.configfile))
+#os.system("orthomclInstallSchema %s" %(options.configfile))
 
 ########################################
 # 5-7) - Make BLAST results files in   #

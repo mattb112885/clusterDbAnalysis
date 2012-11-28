@@ -20,7 +20,6 @@ fi
 # Make directories if needed
 
 mkdir "core_fasta_${runid}" 2> /dev/null
-mkdir "core_genelabels_${runid}" 2> /dev/null
 mkdir "core_aln_${runid}" 2> /dev/null
 mkdir "core_aln_trim_${runid}" 2> /dev/null
 mkdir "core_subsets_${runid}" 2> /dev/null

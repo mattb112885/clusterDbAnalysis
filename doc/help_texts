@@ -439,6 +439,43 @@ Options:
                         Column number for cluster ID starting from 1 (D=2)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_getExternalClusterGroups.py
+
+Usage: db_getExternalClusterGroups.py [options] < gene_id_list > External_cluster_ids
+
+Given a list of gene IDs, identifies the external cluster IDs that are
+homologous to those gene IDs as determined by RPSBLAST. By default returns all
+of the results - given a specific database to look at, will only return
+results from that database.
+
+Options:
+  -h, --help            show this help message and exit
+  -d DATABASE, --database=DATABASE
+                        Return only results from the specified database. (D:
+                        return all of them). The options are: all cd cog pfam
+                        tigr prk smart
+  -a, --adddescription  Add external cluster description to the table (D:
+                        dont)
+  -n, --addname         Add external cluster name to the table (D: dont)
+  -g GC, --genecol=GC   Column number for gene ID starting from 1 (D: 1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getExternalClustersByDescription.py
+
+Usage: db_getExternalClustersByDescription.py [Options] (Description 1) (Description 2) ...
+
+Identify external clusters (optionally in a specific database) that match a
+specified description. If more than one description is provided, return all
+clusters matching at least one description.
+
+Options:
+  -h, --help            show this help message and exit
+  -d DATABASE, --database=DATABASE
+                        External clustering database to search. Default: all
+                        those in NCBI CDD. Valid options are: all cd cog pfam
+                        tigr prk smart
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_getGeneInformation.py
 
 Usage: db_getGeneInformation.py [options] < gene_ids > gene_info
@@ -542,6 +579,10 @@ Options:
   -r RUNID, --runid=RUNID
                         Only print results for the specified run ID (D: Prints
                         the table for all of them)
+  -t TREEORDER, --treeorder=TREEORDER
+                        Given a newick file with the SAME organism names as
+                        the presencebsence table, orders the columns to
+                        conform with the tree (D: no ordering)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getSequencesFromBlastResults.py
@@ -772,8 +813,9 @@ Options:
                         Translation table number for TBLASTN (D=11 - bacteria,
                         archaea and plant plastids)
   -g GC, --genecol=GC   Column number for gene ID starting from 1 (D=1)
-  -r OC, --orgcol=OC    Column number for organism ID starting from 1 (D=1,
-                        ignored unless -f is specified)
+  -r OC, --orgcol=OC    Column number for organism ID starting from 1 (D=3, so
+                        that it matches the organisms file; ignored unless -f
+                        is specified)
   -k, --keep            Keep temporary files (D: Delete them)
 *--------------------------------------------------------------------------------------------------------------------------*
 
@@ -812,6 +854,8 @@ Options:
                         must be in your PATH (D=FastTreeMP)
   -t, --nucleotides     Set this flag if you are inputting a nucleotide
                         alignment (D = Protein alignment)
+  -k, --keep            Keep temporary files (bootstrap files and phylip
+                        files) (D = Delete them)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 flattenClusterFile.py
@@ -908,6 +952,30 @@ getSequenceRegion.py
 
 *--------------------------------------------------------------------------------------------------------------------------*
 
+joinColumns.py
+
+Usage: joinColumns.py -1 [col1] -2 [col2] (options) File1 File2
+
+To get around some of the obnoxiousness of the UNIX join command... This is a
+command to join on specific columns in two input files. It supports tabs as
+delimiters and does not require inputs to be sorted (so it is slower than the
+UNIX command but also easier to use). Does not munge columns - if --k2 is
+specified and there are keys in the second column not present in the first, it
+will put in the appropriate number of empty columns at the beginning of the
+line (if --k1 is specified the appropriate number of empty columns are placed
+at the end of the line) so that all columns have the same number of entries.
+
+Options:
+  -h, --help    show this help message and exit
+  -1 FIRSTCOL   Column in first file starting from 1 (required)
+  -2 SECONDCOL  Column in second file starting from 1 (required)
+  -d DELIMITER  Delimiter (default: Tab)
+  --k1          Keep non-matching rows in the first file (D: Only print
+                matching rows)
+  --k2          Keep non-matching rows in the second file (D: Only print
+                matching rows)
+*--------------------------------------------------------------------------------------------------------------------------*
+
 kbase2rast.py
 
 Usage: kbase2rast.py [ID] < [Infile] > Raw_file
@@ -939,14 +1007,15 @@ Usage: makeBlastScoreTable.py -m [method] -c [cutoff] [options] < blast_result_t
 
 Given a blast score table (augmented with self-bit scores for query and target
 genes), calculates a similarity value based on the desired scoring metric.
-Currently implemented metrics: minbit maxbit avgbit normhsp
+Returns a three column tab-delimited table: query, target, score
 
 Options:
   -h, --help            show this help message and exit
   -m METHOD, --method=METHOD
-                        Method name
+                        Homology metric to use for calculation (required).
+                        Valid metrics: minbit maxbit normhsp
   -c CUTOFF, --cutoff=CUTOFF
-                        Score cutoff to use
+                        Score cutoff to use (required)
   -n, --noprint         Set this flag if you do not want to print edges less
                         than the cutoff as zeros (default = False - print
                         those edges
@@ -1011,6 +1080,19 @@ Options:
   -i INFILE, --infile=INFILE
                         Combine all lines of the input file and separate them
                         by tabs. Use "-" for input from stdin
+*--------------------------------------------------------------------------------------------------------------------------*
+
+mergeAbbreviations.py
+
+Usage: mergeAbbreviations.py [organism_file_with_abbrevs] [organism_file_to_replace_abbrevs]
+
+This function is intended for internal use. Merge abbreviations from the old
+organism file into the new one in cases where they exist in the old one.
+Replaces the new organism file (without warning) with another one hat has
+those abbreviations in place.
+
+Options:
+  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 orthoMclWrapper.py
@@ -1261,6 +1343,23 @@ Options:
                         throws it away)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+Rpsblast_all_vs_one.py
+
+Usage: Rpsblast_all_vs_one.py [options] target_db inputdir outputdir
+
+Parallelize RPSBLAST by running each organism in the inputdir separately
+against the same target database.
+
+Options:
+  -h, --help            show this help message and exit
+  -n NUMCORES, --numcores=NUMCORES
+                        Number of cores to use (D: 1)
+  -e EXTENSION, --extension=EXTENSION
+                        Extension for input fasta files (D: faa)
+  -c CUTOFF, --cutoff=CUTOFF
+                        E-value cutoff (D: 1E-5)
+*--------------------------------------------------------------------------------------------------------------------------*
+
 sanitizeString.py
 
 Usage: sanitizeString.py [options]
@@ -1324,7 +1423,7 @@ and append .99999 .
 At the moment only SEED and MOL genomes are acceptable.
 *--------------------------------------------------------------------------------------------------------------------------*
 
-getInputFilesFromPubseed.sh
+convertPubseedToRast.sh
 
 Usage: convertPubseedToRast (PUBSEED genome ID)
 
@@ -1364,6 +1463,53 @@ SEE ALSO ./geneid2clustergeneinfo.sh
 
 DEPENDENCIES: The database must be loaded (with main.sh) and the specified run ID
 must be one of the possible run IDs (from db_getAllClusterRuns.py).
+
+*--------------------------------------------------------------------------------------------------------------------------*
+
+completeCoreAnalysis.sh
+
+
+USAGE: completeCoreAnalysis.sh [runid] [rootorg] [NTHREADS (optional)]
+rootorg should have spaces replaced by underscores
+
+DESCRIPTION: Performs common tasks needed to compute a core tree,
+saving all intermediate files.
+
+Completed tasks:
+1. Computation of core gene clusters. Core gene clusters for purposes of
+   this script are those with exactly one representative in each organism
+   in the cluster run.
+2. Generation of (protein) FASTA files for each of the core gene clusters.
+3. Alignment with MAFFT (--auto)
+4. Trimming with GBlocks (with the relaxed settings)
+5. Concatination of the alignments
+6. Treeing with FASTTREE (with local bootstraps as in the default)
+
+This script can be run from anywhere and will create a lot of files so I suggest
+running it from its own designated folder.
+
+*--------------------------------------------------------------------------------------------------------------------------*
+
+fasta2tree.sh
+
+
+USAGE: fasta2tree.sh [fasta-file] [outfile]
+
+DESCRIPTION: Given an un-aligned fasta file,
+Performs the following standard steps to make
+A newick file.
+
+First, transforms the fasta file so that the ID
+for the gene becomes the existing ID + all of the
+annotations, removing all special characters.
+
+Then runs MAFFT --auto and gblocks lenient.
+Finally the script runs the FastTree wrapper with
+100 global bootstraps.
+
+IF you need more flexibility with settings,
+use this script as a guide but replace it with the
+programs you want.
 
 *--------------------------------------------------------------------------------------------------------------------------*
 

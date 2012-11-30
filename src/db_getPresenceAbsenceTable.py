@@ -15,7 +15,20 @@ parser.add_option("-n", "--number", help="Rather than printing PEGs, print the n
 parser.add_option("-b", "--binary", help="Rather than printing PEGs, print 0 if there are no representatives and 1 if there are representatives (D: prints pegs)",
                   action = "store_true", dest="binary", default=False)
 parser.add_option("-r", "--runid", help="Only print results for the specified run ID (D: Prints the table for all of them)", action="store", type="str", dest="runid", default=None)
+parser.add_option("-t", "--treeorder", help="Given a newick file with the SAME organism names as the presence\absence table, orders the columns to conform with the tree (D: no ordering)",
+                  action = "store", type="str", dest="treeorder", default=None)
 (options,args) = parser.parse_args()
+
+def treeorder(treefile):
+    from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace
+    t = Tree(treefile)
+    rt = t.get_tree_root()
+    nameorder = []
+    for desc in rt.iter_descendants("preorder"):
+        if not desc.is_leaf():
+            continue
+        nameorder.append(desc.name)
+    return nameorder
 
 if options.number and options.binary:
     sys.stderr.write("ERROR: Cannot specify both -n and -b (can either print 0\1 or number of represenatitives, not both)\n")
@@ -29,8 +42,37 @@ if options.runid is None:
 else:
     cur.execute("SELECT * FROM presenceabsence WHERE runid = ?", (options.runid,))
 
+nameorder = []
+if options.treeorder is not None:
+    nameorder = treeorder(options.treeorder)
+
+# Get a list of organism names. If we want to sort them in tree-order,
+# We need to check that all of the names are consistent with what is in the
+# tree.
 collist = [tup[0] for tup in cur.description]
-print "\t".join(collist)
+newcol2dbcol = {}
+if options.treeorder is not None:
+    for ii in range(len(collist)):
+        # Mapping from the column order we want to the column order we have.
+        if collist[ii] not in nameorder:
+            # Don't bother giving me a warning if it's just a label for the run ID, cluster ID or annotation (first three columns)
+            if ii >= 3:
+                sys.stderr.write("WARNING: Organism name %s in the database was not found in the provided tree. It will be deleted!!\n" %(collist[ii]))
+        else:
+            idx = nameorder.index(collist[ii])
+            newcol2dbcol[idx] = ii
+
+if options.treeorder is None:
+    print "\t".join(collist)
+else:
+    newcollist = collist[0:3]
+    for ii in range(len(nameorder)):
+        if ii in newcol2dbcol:
+            newcollist.append(collist[newcol2dbcol[ii]])
+    print "\t".join(newcollist)
+
+istitle = True
+titles = []
 for rec in cur:
     lst = [ str(s) for s in rec ]
     for ii in range(len(lst)):
@@ -42,4 +84,12 @@ for rec in cur:
             lst[ii] = "1"
         elif options.number:
             lst[ii] = str(lst[ii].count(";") + 1)
+
+    # If we want to re-order, do it now.
+    if options.treeorder is not None:
+        newlst = lst[0:3]
+        for ii in range(len(nameorder)):
+            if ii in newcol2dbcol:
+                newlst.append(lst[newcol2dbcol[ii]])
+        lst = newlst
     print "\t".join(lst)

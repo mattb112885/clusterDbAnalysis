@@ -6,8 +6,13 @@
 # $ chmod u+x src/*.py
 # $ chmod u+x src/*.sh
 #
+# You may also want to do this with all the sh scritps in the "scripts/" directory
+# 
+#
 # - Add the src/ directory to your path by adding the following line to your .bashrc file:
-# PATH=$PATH:${ROOTDIR}/src
+#
+# export PATH=$PATH:${ROOTDIR}/src
+#
 # where ${ROOTDIR| is the directory containing this INSTALL file.
 #
 # The packages have a variety of dependencies depending on how you want to run them.
@@ -37,7 +42,7 @@
 #   including tools for analyzing trees and alignments, efficient calculation of representative genes, etc.
 #   A list of easy-to-use functions is available here: http://pubseed.theseed.org/sapling/server.cgi?pod=ServerScripts
 # MaFFT - Fast and accurate multiple-alignment software
-# RaxML - Highly accurate but slow treeing program.
+# RaxML - Accurate but slow treeing program.
 #
 # If you want to run OrthoMCL you need to install that and its dependencies, which include:
 #  - MySQL
@@ -58,17 +63,23 @@
 # To actually run the programs you need some data. I'll consider the directory created when
 # you check this out of git the "root" ${ROOTDIR} directory.
 #
+# If you run the provided input setup scripts or download the genbank and "spreadsheet (text)" files
+# from RAST, everything will automatically be returned to you with the required formatting conventions.
+# This is only here to document what the requirements are and in case you want to write scripts to generate
+# your own input files.
+#
 ### 1: Genbank files (required) ###
 # 
 # You need a genbank file for every organism. The following information is taken from the genbank files at a minimum:
 # - Organism (in the /organism="[organism name]" line )
 # - Tax ID (in a /db_xref="Taxon:[taxid]" line )
 #
-# These should be present in all the genbank files from Genbank (ftp.ncbi.nih.gov/genomes/Bacteria). 
+# These should be present in all the genbank files from Genbank (ftp.ncbi.nih.gov/genomes/Bacteria). It is assumed that
+# any duplicates of such lines are all identical.
 #
 # Additional requirements: 
 # 1: You need ONE genbank file per organism. Concatinate the genbank files for all the contigs (after generating a raw file, if you need one)
-# 2: 
+# 2: The contig ID must not have any spaces in it.
 #
 ### 2: raw files ###
 #
@@ -79,20 +90,23 @@
 #
 # contig_id       feature_id      type    location        start   stop    strand  function        aliases figfam  evidence_codes  nucleotide_sequence     aa_sequence
 #
-# The feature_id should have the format:
+# The feature_id for any protein-encoding gene must have the format:
 # fig|#.#.peg.# (e.g. fig|83333.1.peg.1)
 #
-# The first two numbers (83333.1) must match the organism ID for the organism containing that gene.
+# - The first two numbers (83333.1) must match the organism ID for the organism containing that gene.
+# - The overall feature ID must be unique for each gene.
 #
 # Type should be "peg" for all proteins. Anything that is not a protein is ignored.
 #
 # Start/stop is the start/stop of the actual gene on the specified contig (start > stop for - strand genes).
+# 
+# - The start\stop are 1-indexed from the beginning of the contig on which the feature is found.
 #
 # Strand is + or -
 #
 # Function is the functional annotation.
 #
-# nucleotide_sequence is the nucleotide sequence of the protein and aa_sequence is the amino acid sequence.
+# nucleotide_sequence is the nucleotide sequence encoding for the protein and aa_sequence is the translated amino acid sequence.
 #
 # All other fields (location, aliases, figfam, evidence_codes, ...) are ignored.
 #
@@ -113,7 +127,7 @@
 ### 3: organism file ###
 #
 # This is automatically generated from the genbank files, except for abbreviations which must be edited manually
-# if you need them (the default is to just use incremental numbers).
+# if you need them (the default is to just use DEFAULT_## where ## is an incremental number).
 #
 # The file is always in ${ROOTDIR} and has three columns: Organism name, abbreviation, and ID.
 #
@@ -123,7 +137,7 @@
 ### 4: groups file ###
 #
 # This file comes automatically-generated with a default group containing all the organisms. You should
-# add or remove groups according to the analyses you want to perform.
+# add or remove additional groups according to the analyses you want to perform.
 #
 # This file allows you to specify multiple groups of organisms that you want to cluster with the same set of
 # parameters. In it, the first column is a (unique but arbitrary) name of the organism group, and the second one

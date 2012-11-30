@@ -55,5 +55,6 @@ $ROOT/faa/: Protein FASTA files (generated from raw files for each organism) and
 $ROOT/flatclusters: "Flattened" cluster files - runID and clusterID assigned to each cluster and put into a database-friendly format.
 $ROOT/fna/: Nucleotide (gene) FASTA files (generated from raw files for each organism) and their compiled BLAST databases.
 $ROOT/modtable/: Raw tables reformatted for input into database. Obsolete?
+$ROOT/rpsblast_res/: RPS-BLAST results.
 
 See documentation in $ROOT/doc for more details.

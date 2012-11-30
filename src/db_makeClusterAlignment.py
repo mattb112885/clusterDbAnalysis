@@ -20,10 +20,8 @@ from locateDatabase import *
 valid_methods = ['mafft_linsi', 'mafft_einsi', 'mafft_ginsi', 'mafft_default', 
 	'clustalw_default']
 
-usage="%prog -m Method (-n|-t|-g|-p) [options] < Cluster_RunIDs > Final_alignment"
-description="""Generates a new alignment from the piped-in list of cluster/runID pairs.  
-All of the cluster/runID sets you pipe in are combined into a singla alignment
-(useful e.g. for combining paralogous clusters)."""
+usage="%prog -m Method (-n|-t|-g|-p) [options] < Cluster_RunID > Final_alignment"
+description="""Generates a new alignment from a piped-in pair of run\cluster ID """
 parser = optparse.OptionParser(usage=usage, description=description)
 ### Input options
 parser.add_option("-r", "--runcol", help="Column number for run ID starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)
@@ -63,12 +61,19 @@ if not sm == 1:
 rann = random.randint(0, 2**30)
 fname = "%d.tmp" %(rann)
 fid = open(fname, "w")
+n = 0
 for line in fileinput.input("-"):
+	n += 1
 	fid.write(line)
 fid.close()
 
+if n > 1:
+	sys.stderr.write("ERROR: Must provide EXACTLY ONE cluster\run id pair as input\n")
+	os.system("rm %s" %(fname))
+	exit(2)
+
 fasta = "%d.fasta" %(rann)
-cmd = "cat %s | db_getClusterGeneInformation.py -r %d -c %d | annoteSeq2Fasta.py -g 3 -a 5 -s 6 > %s" %(fname, rc+1, cc+1, fasta)
+cmd = "cat %s | db_getClusterGeneInformation.py -r %d -c %d | annoteSeq2Fasta.py > %s" %(fname, rc+1, cc+1, fasta)
 
 sys.stderr.write("%s\n" %(cmd) )
 os.system(cmd)

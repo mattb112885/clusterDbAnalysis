@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+import sys, os
+sys.path.append("/data/Cluster_Files/src") 
+
 import sqlite3
 import sys
 import optparse
@@ -15,6 +18,7 @@ parser.add_option("-n", "--number", help="Rather than printing PEGs, print the n
 parser.add_option("-b", "--binary", help="Rather than printing PEGs, print 0 if there are no representatives and 1 if there are representatives (D: prints pegs)",
                   action = "store_true", dest="binary", default=False)
 parser.add_option("-r", "--runid", help="Only print results for the specified run ID (D: Prints the table for all of them)", action="store", type="str", dest="runid", default=None)
+parser.add_option("-c", "--clusterid", help="Only print results for the specified cluster ID (D: Prints the table for all of them)", action="store", type="str", dest="clusterid", default=None)
 parser.add_option("-t", "--treeorder", help="Given a newick file with the SAME organism names as the presence\absence table, orders the columns to conform with the tree (D: no ordering)",
                   action = "store", type="str", dest="treeorder", default=None)
 (options,args) = parser.parse_args()
@@ -34,13 +38,21 @@ if options.number and options.binary:
     sys.stderr.write("ERROR: Cannot specify both -n and -b (can either print 0\1 or number of represenatitives, not both)\n")
     exit(2)
 
+if options.number and options.binary:
+    sys.stderr.write("ERROR: Cannot specify both -r and -c (supply rin and clusterid to -c )\n")
+    exit(2)
+
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-if options.runid is None:
+if options.runid is None and options.clusterid is None:
     cur.execute("SELECT * FROM presenceabsence;")
 else:
-    cur.execute("SELECT * FROM presenceabsence WHERE runid = ?", (options.runid,))
+    if options.clusterid is None:
+        cur.execute("SELECT * FROM presenceabsence WHERE runid = ?", (options.runid,))
+    else: 
+        runid, clustid = options.clusterid.split()
+        cur.execute("SELECT * FROM presenceabsence WHERE runid = ? AND clusterid = ?", (runid, clustid))
 
 nameorder = []
 if options.treeorder is not None:

@@ -120,8 +120,9 @@ elif options.db is not None:
     db = options.db
 
 # Run TBLASTN
+# Note - -soft_masking true is needed to help prevent two hits to a continuous protein due to filtering of low-complexity regions
 ofile = "%d.out" %(rn)
-cmd = "tblastn -db %s -evalue %1.1e -query %s -out %s -db_gencode %d -outfmt \"6 qseqid sseqid sstart send evalue bitscore sframe\" " %(db, options.cutoff, qfile, ofile, options.translation)
+cmd = "tblastn -db %s -soft_masking true -evalue %1.1e -query %s -out %s -db_gencode %d -outfmt \"6 qseqid sseqid sstart send evalue bitscore sframe\" " %(db, options.cutoff, qfile, ofile, options.translation)
 sys.stderr.write("Now executing TBLASTN with command: \n%s\n" %(cmd))
 os.system(cmd)
 

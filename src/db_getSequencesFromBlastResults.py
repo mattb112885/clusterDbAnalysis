@@ -31,9 +31,9 @@ parser.add_option("-n", "--nucleotide", help="Specify this flag if the piped-in 
 parser.add_option("-c", "--contig", help="Specify this flag if the piped-in locations are on a _contig_ (i.e. from BLASTN or TBLASTN vs the whole contig)", action="store_true", dest="contig", default=False)
 parser.add_option("-p", "--protein", help="Specify this flag is the piped-in locations are within a _protein_ sequence", action="store_true", dest="prot", default=False)
 
-parser.add_option("-i", "--idcol", help="Column number for ID to use starting from 1 (D: 2 - use the target ID)", action="store", type="int", dest="idcol", default=2)
-parser.add_option("-s", "--startcol", help="Column number for start location to use - NOTE this will be different from the default for TBLASTN results (D: 9 - target start location for BLASTP and BLASTN)", action="store", type="int", dest="startcol", default=9)
-parser.add_option("-e", "--endcol", help="Column number for end \ stop location to use - NOTE this will be different from the default for TBLASTN results (D: 10 - target stop location for BLASTP and BLASTN)", action="store", type="int", dest="endcol", default=10)
+parser.add_option("-i", "--idcol", help="Column number for ID to use starting from 1 (D: 2 as from BLASTP or BLASTN - use 3 for TBLASTN)", action="store", type="int", dest="idcol", default=2)
+parser.add_option("-s", "--startcol", help="Column number for start location to use - NOTE this will be different from the default for TBLASTN results (D: 9 - target start location for BLASTP and BLASTN. Use 5 for TBLASTN)", action="store", type="int", dest="startcol", default=9)
+parser.add_option("-e", "--endcol", help="Column number for end \ stop location to use - NOTE this will be different from the default for TBLASTN results (D: 10 - target stop location for BLASTP and BLASTN. Use 6 for TBLASTN)", action="store", type="int", dest="endcol", default=10)
 
 # Output options
 parser.add_option("-t", "--translate_dna", help="Given a set of options that would result in a DNA sequence, translate that sequence and return the translated sequence instead. (D: If relevant, just returns the DNA sequence) - WARNING: Do not use for BLASTN since it can cause issues with translation frame! Use for TBLASTN only", action="store_true", dest="translate", default=False)

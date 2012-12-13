@@ -22,13 +22,13 @@ import argparse, textwrap
 from collections import defaultdict
 
 def uniq(seq):
-   # order preserving
+   '''Order-preserving unique function'''
    noDupes = []
    [noDupes.append(i) for i in seq if not noDupes.count(i)]
    return noDupes
 
 def getGenbanks(idlist, outlocation='', overwrite=True):
-    '''download genbank files using a unique identifier (ID, GID, or nucleotide accession) '''
+    '''Download genbank files using a unique identifier (ID, GID, or nucleotide accession) '''
     gbfiles = []
     for gbid in idlist:
         filename = getGenbank(gbid, outlocation=outlocation, overwite=overwrite)
@@ -37,6 +37,7 @@ def getGenbanks(idlist, outlocation='', overwrite=True):
     return gbfiles
 
 def getGenbank(gbid, outlocation='', overwrite=True):
+    '''Download a single genbank file (auxiliary to getGenbanks)'''
     filename = os.path.join(outlocation, str(gbid) +".gbk")
     out_handle = open(filename, "w")
     fileexists = not os.path.isfile(filename)
@@ -51,7 +52,8 @@ def getGenbank(gbid, outlocation='', overwrite=True):
     return filename
 
 def strainID_to_genbankIDs(strainID, refseqonly = True):
-    '''get all nucliotide sequences with this taxonID (chromasomes, plasmids, ect.), note that the taxon must be the lowes designator to get only one organism's data'''
+    '''Get all nucliotide sequences with this taxonID (chromosomes, plasmids, etc.). 
+    Note that the taxon must be the lowest designator to get only one organism's data'''
     nucIDs=[]
     term = "txid%s[Organism:noexp] AND nuccore assembly[filter]" % strainID
     #we may only want refseqs - note that this is a different limit than other dbs (like genome = refseq[filter])
@@ -79,7 +81,7 @@ def accession_to_strainID(accession, return_nucID = True):
         return strainIDs[0]
 
 def accessionID_to_genbankIDs(accession):
-    '''search NCBI for the ID (the unique numerical key)'''
+    '''Search NCBI for the ID (the unique numerical key)'''
     genbank = Entrez.read(Entrez.esearch(db="nucleotide", term=accession))
     IDlist = genbank['IdList']
     #TODO: find the most recent version?
@@ -87,69 +89,15 @@ def accessionID_to_genbankIDs(accession):
     assert len(IDlist) == 1, "WARNING: more than one NCBI ID returned for an accesntion number"
     return IDlist
 
-#not used
-def taxonID_to_genomeIDs(taxonIDs, hasgenome=True, donotexpand=False, refseqonly = True):
-    '''searches by taxon in genbank.  Note that not filtering for genomes and refseq could cause non-complete genomes to be returned'''
-    genomeIDs = []
-    for taxonID in taxonIDs:
-        #see http://www.ncbi.nlm.nih.gov/books/NBK21100/#A286 for some details about the terms and limits
-        query = '(txid%s[organism])' % taxonID
-        if refseqonly:
-            query = query + ' AND (("refseq"[project type]) OR ("refseq assembly"[project type]))'
-        if hasgenome:
-            query = query + ' AND (("genome sequencing"[project type]) OR ("genome"[properties]))'
-        NCBIdata = Entrez.read(Entrez.esearch(db="genome", term=query))
-        #there can me multiple records returned
-        taxon_genomeIDs = NCBIdata['IdList']
-        if len(taxon_genomeIDs)<1 :
-            sys.stderr.write("WARNING: No genome information of the type you requested for %s\n" % taxonID)
-        if donotexpand:
-            assert len(taxon_genomeIDs)==1, "WARNING: more than one genome ID returned from query of NCBI %s" % taxonID
-        else:
-            if len(taxon_genomeIDs)>1:
-                #only need to let user know if there is more than one, otherwise the numbers are the same
-                sys.stderr.write("Note: multiple genomes associated with taxonID %s: %s\n" % (taxonID, taxon_genomeIDs))
-        genomeIDs = genomeIDs + taxon_genomeIDs
-
-#not used
-def taxonID_to_genbankIDs(taxonIDs, hasgenome=True, donotexpand=False, refseqonly = True):
-    '''searches by taxon in genbank assemblies.  Note that not filtering for genomes and refseq could cause non-complete genomes to be returned'''
-    assemblyID = []
-    for taxonID in taxonIDs:
-        #see http://www.ncbi.nlm.nih.gov/books/NBK21100/#A286 for some details about the terms and limits
-        query = '(txid%s[organism])' % taxonID
-        #if refseqonly:
-        #    query = query + ' AND (("refseq"[project type]) OR ("refseq assembly"[project type]))'
-        #if hasgenome:
-        #    query = query + ' AND (("genome sequencing"[project type]) OR ("genome"[properties]))'
-        NCBIdata = Entrez.read(Entrez.esearch(db="assembly", term=query))
-        #there can me multiple records returned
-        taxon_assemblyIDs = NCBIdata['IdList']
-        #if len(taxon_genomeIDs)<1 :
-        #    sys.stderr.write("WARNING: No genome information of the type you requested for %s\n" % taxonID)
-        #if donotexpand:
-        #    assert len(taxon_genomeIDs)==1, "WARNING: more than one genome ID returned from query of NCBI %s" % taxonID
-        #else:
-        #    if len(taxon_genomeIDs)>1:
-        #        #only need to let user know if there is more than one, otherwise the numbers are the same
-        #        sys.stderr.write("Note: multiple genomes associated with taxonID %s: %s\n" % (taxonID, taxon_genomeIDs))
-        assemblyIDs = assemblyIDs + taxon_assemblyIDs
-    #for assemblyID in assemblyIDs
-    #    record =  Entrez.read(Entrez.esummary(db="assembly", id=assemblyID))
-    #this only has the genome ID and other information, but I can't find any links to refseq or nuccore!
-    #print record
-    assemblyID
-
-
-def taxonIDs_to_strainIDs(taxonIDs, hasgenome=True, donotexpand=False, exscludewgs=False):
-    '''Find all indevidual strains in a taxonID'''
+def taxonIDs_to_strainIDs(taxonIDs, hasgenome=True, donotexpand=False, excludewgs=False):
+    '''Find all individual strains in a taxonID'''
     strainIDs = []
     for taxonID in taxonIDs:
         #see http://www.ncbi.nlm.nih.gov/books/NBK21100/#A286 for some details about the terms and limits
         query = 'txid%s[subtree] AND "taxonomy genome"[filter] AND terminal[prop]' % taxonID
         if hasgenome:
             query = query + ' AND (("taxonomy assembly"[Filter]) OR ("taxonomy genome"[Filter]) OR ("taxonomy genome2"[Filter]))'
-        if exscludewgs:
+        if excludewgs:
             query = query + ' AND NOT wgs[filter]'
         NCBIdata = Entrez.read(Entrez.esearch(db="taxonomy", term=query))
         #there can me multiple records returned
@@ -231,9 +179,19 @@ def NCBIdbinfo(db):
     for item in printinfo:
         print "%s: %s \n" % item
 
-def concatinate_files(dictionary, outlocation = '', exstension=".gbk"):
+def concatinate_files(dictionary, outlocation = '', extension="gbk"):
+    '''Given a dictionary from an output filename to a list of input filenames,
+    concatinates the input files into the output file.
+    The provided extension is added to the output file name.
+
+    file1 --> [infile1, infile2]
+    file2 --> [infile2, infile3]
+
+    would create two output files, file1.extension (concatinating infile1 and infile2)
+    and file2.extension (concatinating infile2 and infile3).
+    '''
     for filenamebase, files in dictionary.items():
-        outfilename = os.path.join(outlocation, str(filenamebase) + exstension)
+        outfilename = os.path.join(outlocation, str(filenamebase) + "." + extension)
         outfile = open(outfilename, 'w')
         for f in files:
             outfile.write(open(f).read())
@@ -259,7 +217,10 @@ if __name__=="__main__":
         Download_genbank.py -t taxonlist.txt
     '''
     description='''
-    Given a set of taxonids, nuc accessions, or gb files (from stdin) this script will download all genebank files into one file named with the taxonid. Note that for files and accentions, only one genbank file will be downloaded. For taxonids, all sub-taxon will be downloded.
+    Given a set of taxonids, NCBI nucleotide accessions, or genbank files (from stdin) this script will 
+download all genebank files into one file named with the taxonid. Note that for files and 
+accessions, only one genbank file will be downloaded. For taxonids, all sub-taxons will 
+be downloaded.
     '''
     #arguments and help
     __version__ = '0.0.2'
@@ -283,13 +244,10 @@ if __name__=="__main__":
                               help="override input, use this string",
                               action="store", metavar = "LIST_OF_IDS",
                               nargs='+', dest="stringinput")
-    #parser.add_argument("-e", "--donnot-expand-taxa",
-    #                          help="get all organisms associated with this taxa?",
-    #                          action="store_true", dest="donotexpand")
-    #parser.add_argument("-o", "--expand-organisms",
-    #                          help="get all sequences associated with this organism",
-    #                          action="store_true", dest="expandorgs")
-
+    parser.add_argument("-d", "--outdir",
+                        help = "Output directory for download (D: /tmp)",
+                        action = "store", dest="outputdir",
+                        default = "/tmp")
     parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
                         default=sys.stdin, help="without a file, uses stdin")
     inargs = parser.parse_args()
@@ -335,10 +293,14 @@ if __name__=="__main__":
     for strainID, genbankIDs in organismIDs.items():
         if len(genbankIDs ) > 0:
             sys.stderr.write("Data for strain %s\n" % strainID)
-            gbfiles = [getGenbank(genbankID, outlocation='/tmp', overwrite=True) for genbankID in genbankIDs]
+            gbfiles = [getGenbank(genbankID, outlocation=inargs.outputdir, overwrite=True) for genbankID in genbankIDs]
             organismIDs[strainID] = gbfiles
             #concatinate into a file, only getting one accession if that was the input.
             concatinate_files(organismIDs)
+            # Clean up.
+            for f in gbfiles:
+               sys.stderr.write("Removing intermediate file %s\n" %(f))
+               os.remove(f)
 
     #tests:
     '''
@@ -347,9 +309,9 @@ if __name__=="__main__":
     runfile(r'/home/jamesrh/Documents/code/Download_genbank.py', args=r'-a -s NC_007955 NC_017527', wdir=r'/home/jamesrh/Documents/code')
     #simple file case
     runfile(r'/home/jamesrh/Documents/code/Download_genbank.py', args=r'-g -s /tmp/91772082.gbk /tmp/386000717.gbk', wdir=r'/home/jamesrh/Documents/code')
-    #simple taxonID case (this should pick up cheromasome and plasmid)
+    #simple taxonID case (this should pick up a chromosome and a plasmid)
     runfile(r'/home/jamesrh/Documents/code/Download_genbank.py', args=r'-t -s 259564 1110509', wdir=r'/home/jamesrh/Documents/code')
-    #recursive taxonID case (this should pick up cheromasome and plasmid for at least one organism)
+    #recursive taxonID case (this should pick up chromosome and plasmid for at least one organism)
     runfile(r'/home/jamesrh/Documents/code/Download_genbank.py', args=r'-t -s -o 143067', wdir=r'/home/jamesrh/Documents/code')
     '''
 

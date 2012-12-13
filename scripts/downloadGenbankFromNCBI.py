@@ -288,13 +288,14 @@ be downloaded.
     #use a list defualt so we can append all the nucliotide IDs that have the same organism ID so they end up in the same file
     organismIDs = defaultdict(list)
     for st, gb in zip(strainIDlist, genbankIDs):
-        organismIDs[st] = organismIDs[st] + gb
+        organismIDs[st + ".88888"] = organismIDs[st + ".88888"] + gb
     #get one or more gb file for each entry (organism OR actual genbank ID)
     for strainID, genbankIDs in organismIDs.items():
         if len(genbankIDs ) > 0:
             sys.stderr.write("Data for strain %s\n" % strainID)
             gbfiles = [getGenbank(genbankID, outlocation=inargs.outputdir, overwrite=True) for genbankID in genbankIDs]
             organismIDs[strainID] = gbfiles
+            print organismIDs
             #concatinate into a file, only getting one accession if that was the input.
             concatinate_files(organismIDs)
             # Clean up.

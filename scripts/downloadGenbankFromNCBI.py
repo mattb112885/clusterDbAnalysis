@@ -166,13 +166,14 @@ def gb_accession(gbfile):
     return accession
 
 def NCBIversion(db):
-    record = Entrez.read(Entrez.einfo(db=db), validate=False)
+    # The validate keyword only exists in new versions of biopython
+    record = Entrez.read(Entrez.einfo(db=db))
     update = record["DbInfo"]["LastUpdate"]
     sys.stderr.write("This script is using the current NCBI %s database, version %s\n" % (db, update))
 
 def NCBIdbinfo(db):
     '''Helper function for developers to look up NCBI DB structure'''
-    record = Entrez.read(Entrez.einfo(db=db), validate=False)
+    record = Entrez.read(Entrez.einfo(db=db))
     record["DbInfo"]['Description']
     info = record["DbInfo"]
     printinfo = [(x['Name'], x['Description']) for x in info['FieldList']]

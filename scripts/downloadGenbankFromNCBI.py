@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-#This is a pipe command
-#
+#This is a pipe comman#
 #Given a set of taxonids (from stdin) it will download all genebank files for that taxonid into files named with the taxonid
 #
 #Includes various functions to get genbank files from NCBI and search between databases at NCBI
@@ -55,7 +54,7 @@ def strainID_to_genbankIDs(strainID, refseqonly = True):
     '''Get all nucliotide sequences with this taxonID (chromosomes, plasmids, etc.). 
     Note that the taxon must be the lowest designator to get only one organism's data'''
     nucIDs=[]
-    term = "txid%s[Organism:noexp] AND nuccore assembly[filter]" % strainID
+    term = "txid%s[Organism:noexp] AND nuccore assembly[Filter]" % strainID
     #we may only want refseqs - note that this is a different limit than other dbs (like genome = refseq[filter])
     if refseqonly == True:
         term = term + " AND srcdb_refseq[Properties]"
@@ -99,6 +98,7 @@ def taxonIDs_to_strainIDs(taxonIDs, hasgenome=True, donotexpand=False, excludewg
             query = query + ' AND (("taxonomy assembly"[Filter]) OR ("taxonomy genome"[Filter]) OR ("taxonomy genome2"[Filter]))'
         if excludewgs:
             query = query + ' AND NOT wgs[filter]'
+        sys.stderr.write("Querying NCBI with query: %s\n" %(query))
         NCBIdata = Entrez.read(Entrez.esearch(db="taxonomy", term=query))
         #there can me multiple records returned
         taxon_strainIDs = NCBIdata['IdList']
@@ -265,7 +265,7 @@ be downloaded.
     except TypeError:
       inputlist = inargs.infile
       #if it came from a file, will need to chomp the newlines
-      inputlist=[line.strip() for line in inputlist]
+      inputlist=[line.strip("\r\n") for line in inputlist]
     else:
       inputlist = inargs.stringinput
 
@@ -284,25 +284,28 @@ be downloaded.
         #these are not 1:1 with the input if we are recursing (or if there are multiple refseqs per organism
         strainIDlist = uniq(taxonIDs_to_strainIDs(inputlist, hasgenome = True))
         genbankIDs = [strainID_to_genbankIDs(strainID, refseqonly = True) for strainID in strainIDlist]
-
     #make a dict for each organism ID, it will hold lists of genbank ids to download, that will be replaced with filenames
     #use a list defualt so we can append all the nucliotide IDs that have the same organism ID so they end up in the same file
     organismIDs = defaultdict(list)
     for st, gb in zip(strainIDlist, genbankIDs):
         organismIDs[st + ".88888"] = organismIDs[st + ".88888"] + gb
+    print organismIDs
+    print organismIDs.items()
+    TEMPFILES = []
     #get one or more gb file for each entry (organism OR actual genbank ID)
     for strainID, genbankIDs in organismIDs.items():
+        print strainID
         if len(genbankIDs ) > 0:
+            print genbankIDs
             sys.stderr.write("Data for strain %s\n" % strainID)
             gbfiles = [getGenbank(genbankID, outlocation=inargs.outputdir, overwrite=True) for genbankID in genbankIDs]
             organismIDs[strainID] = gbfiles
-            print organismIDs
-            #concatinate into a file, only getting one accession if that was the input.
-            concatinate_files(organismIDs)
-            # Clean up.
-            for f in gbfiles:
-               sys.stderr.write("Removing intermediate file %s\n" %(f))
-               os.remove(f)
+            TEMPFILES += gbfiles
+    #concatinate into a file, only getting one accession if that was the input.
+    concatinate_files(organismIDs)
+    for f in TEMPFILES:
+       sys.stderr.write("Removing temporary file %s\n" %(f))
+       os.remove(f)
 
     #tests:
     '''

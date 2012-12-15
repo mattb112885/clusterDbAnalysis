@@ -58,7 +58,9 @@ def strainID_to_genbankIDs(strainID, refseqonly = True):
     #we may only want refseqs - note that this is a different limit than other dbs (like genome = refseq[filter])
     if refseqonly == True:
         term = term + " AND srcdb_refseq[Properties]"
-    genomeIDs = Entrez.read(Entrez.esearch(db="nucleotide", term = term))
+    # The default limit of 20 entries returned is not sufficient for incomplete genomes
+    # which can have > 100 contigs. I think 1000 is a reasonable limit...
+    genomeIDs = Entrez.read(Entrez.esearch(db="nucleotide", term = term, retmax=1000))
     nucIDs = nucIDs + genomeIDs['IdList']
     #make unique (should be already)
     nucIDs = list(set(nucIDs))
@@ -80,12 +82,12 @@ def accession_to_strainID(accession, return_nucID = True):
         return strainIDs[0]
 
 def accessionID_to_genbankIDs(accession):
-    '''Search NCBI for the ID (the unique numerical key)'''
+    '''Search NCBI for the ID (the unique numerical key) for a specific genbank file from an accession ID'''
     genbank = Entrez.read(Entrez.esearch(db="nucleotide", term=accession))
     IDlist = genbank['IdList']
     #TODO: find the most recent version?
     sys.stderr.write("Accession %s is nucleotide ID  %s\n" % (accession, IDlist))
-    assert len(IDlist) == 1, "WARNING: more than one NCBI ID returned for an accesntion number"
+    assert len(IDlist) == 1, "WARNING: more than one NCBI ID returned for an accession number"
     return IDlist
 
 def taxonIDs_to_strainIDs(taxonIDs, hasgenome=True, donotexpand=False, excludewgs=False):
@@ -99,7 +101,8 @@ def taxonIDs_to_strainIDs(taxonIDs, hasgenome=True, donotexpand=False, excludewg
         if excludewgs:
             query = query + ' AND NOT wgs[filter]'
         sys.stderr.write("Querying NCBI with query: %s\n" %(query))
-        NCBIdata = Entrez.read(Entrez.esearch(db="taxonomy", term=query))
+        # The default retmax is 20 which is way too few for some queries...
+        NCBIdata = Entrez.read(Entrez.esearch(db="taxonomy", term=query, retmax=10000))
         #there can me multiple records returned
         taxon_strainIDs = NCBIdata['IdList']
         if len(taxon_strainIDs)<1 :
@@ -166,19 +169,11 @@ def gb_accession(gbfile):
     return accession
 
 def NCBIversion(db):
+    '''Print the current version of NCBI used to download the genbank info'''
     # The validate keyword only exists in new versions of biopython
     record = Entrez.read(Entrez.einfo(db=db))
     update = record["DbInfo"]["LastUpdate"]
     sys.stderr.write("This script is using the current NCBI %s database, version %s\n" % (db, update))
-
-def NCBIdbinfo(db):
-    '''Helper function for developers to look up NCBI DB structure'''
-    record = Entrez.read(Entrez.einfo(db=db))
-    record["DbInfo"]['Description']
-    info = record["DbInfo"]
-    printinfo = [(x['Name'], x['Description']) for x in info['FieldList']]
-    for item in printinfo:
-        print "%s: %s \n" % item
 
 def concatinate_files(dictionary, outlocation = '', extension="gbk"):
     '''Given a dictionary from an output filename to a list of input filenames,

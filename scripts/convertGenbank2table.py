@@ -116,6 +116,9 @@ def genbank_extract(name, writefastas=True):
                 #check there is only one translation and get info
                 if 'translation' not in feature.qualifiers:
                     sys.stderr.write("WARNING: CDS found with no translation\n")
+                    sys.stderr.write("Qualifiers:\n")
+                    for key in feature.qualifiers:
+                        sys.stderr.write("%s\t%s\n" %(key, feature.qualifiers[key]))
                     continue
                 assert len(feature.qualifiers['translation'])==1
                 geneinfo = {}

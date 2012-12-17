@@ -76,7 +76,7 @@ def info_from_feature(feature):
         info["type"] = 'peg'
     #add this to preserve other types
     #info["type"] = feature.type
-    #Must add one to biopython's 0 indexed to get ohe original genbank one indexed counting
+    #Must add one to biopython's 0 indexed to get the original genbank one indexed counting
     info["start"] = int(feature.location.start) + 1
     info["stop"] = int(feature.location.end) + 1
     if feature.strand == +1:
@@ -114,6 +114,9 @@ def genbank_extract(name, writefastas=True):
         for feature in gb_seqrec.features:
             if feature.type =="CDS":
                 #check there is only one translation and get info
+                if 'translation' not in feature.qualifiers:
+                    sys.stderr.write("WARNING: CDS found with no translation\n")
+                    continue
                 assert len(feature.qualifiers['translation'])==1
                 geneinfo = {}
                 #get aa info

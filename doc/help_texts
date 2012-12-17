@@ -579,6 +579,9 @@ Options:
   -r RUNID, --runid=RUNID
                         Only print results for the specified run ID (D: Prints
                         the table for all of them)
+  -c CLUSTERID, --clusterid=CLUSTERID
+                        Only print results for the specified cluster ID (D:
+                        Prints the table for all of them)
   -t TREEORDER, --treeorder=TREEORDER
                         Given a newick file with the SAME organism names as
                         the presencebsence table, orders the columns to
@@ -611,17 +614,18 @@ Options:
   -p, --protein         Specify this flag is the piped-in locations are within
                         a _protein_ sequence
   -i IDCOL, --idcol=IDCOL
-                        Column number for ID to use starting from 1 (D: 2 -
-                        use the target ID)
+                        Column number for ID to use starting from 1 (D: 2 as
+                        from BLASTP or BLASTN - use 3 for TBLASTN)
   -s STARTCOL, --startcol=STARTCOL
                         Column number for start location to use - NOTE this
                         will be different from the default for TBLASTN results
-                        (D: 9 - target start location for BLASTP and BLASTN)
+                        (D: 9 - target start location for BLASTP and BLASTN.
+                        Use 5 for TBLASTN)
   -e ENDCOL, --endcol=ENDCOL
                         Column number for end \ stop location to use - NOTE
                         this will be different from the default for TBLASTN
                         results (D: 10 - target stop location for BLASTP and
-                        BLASTN)
+                        BLASTN. Use 6 for TBLASTN)
   -t, --translate_dna   Given a set of options that would result in a DNA
                         sequence, translate that sequence and return the
                         translated sequence instead. (D: If relevant, just
@@ -727,11 +731,9 @@ Options:
 
 db_makeClusterAlignment.py
 
-Usage: db_makeClusterAlignment.py -m Method (-n|-t|-g|-p) [options] < Cluster_RunIDs > Final_alignment
+Usage: db_makeClusterAlignment.py -m Method (-n|-t|-g|-p) [options] < Cluster_RunID > Final_alignment
 
-Generates a new alignment from the piped-in list of cluster/runID pairs.   All
-of the cluster/runID sets you pipe in are combined into a singla alignment
-(useful e.g. for combining paralogous clusters).
+Generates a new alignment from a piped-in pair of run\cluster ID
 
 Options:
   -h, --help            show this help message and exit
@@ -1007,15 +1009,14 @@ Usage: makeBlastScoreTable.py -m [method] -c [cutoff] [options] < blast_result_t
 
 Given a blast score table (augmented with self-bit scores for query and target
 genes), calculates a similarity value based on the desired scoring metric.
-Returns a three column tab-delimited table: query, target, score
+Currently implemented metrics: minbit maxbit maxselfbit avgbit normhsp
 
 Options:
   -h, --help            show this help message and exit
   -m METHOD, --method=METHOD
-                        Homology metric to use for calculation (required).
-                        Valid metrics: minbit maxbit normhsp
+                        Method name
   -c CUTOFF, --cutoff=CUTOFF
-                        Score cutoff to use (required)
+                        Score cutoff to use
   -n, --noprint         Set this flag if you do not want to print edges less
                         than the cutoff as zeros (default = False - print
                         those edges
@@ -1310,6 +1311,22 @@ Options:
                         to run results with CONSEL. Overrides -k because afaik
                         RAXML does not one to run multiple algorithms in a
                         row...
+*--------------------------------------------------------------------------------------------------------------------------*
+
+replaceAliasesWithGeneNames.py
+
+Usage: replaceAliasesWithGeneNames.py [aliases file] [file_to_replace]
+
+Given a file containing aliased gene names, replaces those aliases with the
+corresponding gene ID (e.g. fig|...). I used this to take GPRs from a model
+(with corresponding locus tags) and translate them into a form usable in the
+database. WARNING: This is a dumb script; anything that shouldnt be an alias
+but that matches an alias (like 'for') will be replaced. I highly suggest
+using this only for locus tags and making sure no other aliases match the
+locus tags...
+
+Options:
+  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 replaceGeneNamesWithAliases.py

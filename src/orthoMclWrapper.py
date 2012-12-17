@@ -240,6 +240,19 @@ sys.stderr.write("Reformatting BLAST output file to use orthoMCL-compliant IDs..
 blastresfile = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat")
 orthoblastres = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat_orthomcl")
 
+# Check that the two have the same number of lines and delete the orthoblastres
+# file if that is not the case.
+#
+# This can happen because:
+# 1: The orthoblastres file is out of date, or
+# 2: The process of modifying the file was interrupted and therefore the new file is incomplete
+n_blastres_lines = sum(1 for line in open(blastresfile, "r"))
+if os.path.exists(orthoblastres):
+    n_orthoblastres_lines = sum(1 for line in open(orthoblastres, "r") )
+    if n_blastres_lines != n_orthoblastres_lines:
+        sys.stderr.write("WARNING: The number of lines in the blast results and orthomcl-reformatted blast results files did not match. Removing the latter and trying again...\n")
+        os.remove(orthoblastres)
+
 try:
     outfile = open(orthoblastres, "r")
     outfile.close()
@@ -270,7 +283,12 @@ except IOError:
 ########################################
 
 sys.stderr.write("Running orthomcl Blast parser to put blast results in the correct format for output...\n")
-orthomclBlastParserFile = os.path.join(os.path.dirname(locateDatabase()), "blastres_orthomcl_modfiied")
+orthomclBlastParserFile = os.path.join(os.path.dirname(locateDatabase()), "blastres_orthomcl_modified")
+
+# Note - the orthomclBlastParser modifies the number of lines in the file...
+# Therefore we cannot just check the number of lines and make sure they are
+# equal.
+
 try:
     fid = open(orthomclBlastParserFile, "r")
     fid.close()

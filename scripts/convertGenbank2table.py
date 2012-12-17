@@ -76,7 +76,7 @@ def info_from_feature(feature):
         info["type"] = 'peg'
     #add this to preserve other types
     #info["type"] = feature.type
-    #Must add one to biopython's 0 indexed to get ohe original genbank one indexed counting
+    #Must add one to biopython's 0 indexed to get the original genbank one indexed counting
     info["start"] = int(feature.location.start) + 1
     info["stop"] = int(feature.location.end) + 1
     if feature.strand == +1:
@@ -96,7 +96,7 @@ def info_from_record(record):
     #    info["Database cross-references"] = ";".join(record.dbxrefs)
     return info
 
-def genbank_exstract(name, writefastas=True):
+def genbank_extract(name, writefastas=True):
     #set up filenames
     gbin_filename = name + '.gbk'
     nfasta_filename = name + '_genes.fna'
@@ -114,6 +114,12 @@ def genbank_exstract(name, writefastas=True):
         for feature in gb_seqrec.features:
             if feature.type =="CDS":
                 #check there is only one translation and get info
+                if 'translation' not in feature.qualifiers:
+                    sys.stderr.write("WARNING: CDS found with no translation\n")
+                    sys.stderr.write("Qualifiers:\n")
+                    for key in feature.qualifiers:
+                        sys.stderr.write("%s\t%s\n" %(key, feature.qualifiers[key]))
+                    continue
                 assert len(feature.qualifiers['translation'])==1
                 geneinfo = {}
                 #get aa info
@@ -241,7 +247,8 @@ if __name__ == '__main__':
     #main script function
     usage="%prog < taxonid_list 1> organism_information 2> messages_&_errors"
     description='''
-    Given a set of taxonids (from stdin) it will make a table for all genebank files for that taxonid, as well as output a table of all the organism information'''
+    Given a set of taxonids (from stdin) it will make a table for all genebank
+    files for that taxonid, as well as output a table containing all the organism information'''
     parser = optparse.OptionParser(usage=usage, description=description)
     (options, args) = parser.parse_args()
 
@@ -253,7 +260,7 @@ if __name__ == '__main__':
     for i, name in enumerate(inputlist):
         sys.stderr.write("Processing %s" % name)
         geneinfos = []
-        orginfo, genes = genbank_exstract(str(name), writefastas=False)
+        orginfo, genes = genbank_extract(str(name) + ".88888", writefastas=False)
         orginfo.update(info)
         orginfos.append(orginfo)
         geneinfos.append(genes)
@@ -271,7 +278,7 @@ if __name__ == '__main__':
                  "evidence_codes",     #ignored by iTEP, empty for all
                  "nucleotide_sequence",#as recorded in feature
                  "aa_sequence"]        #as recorded in feature, not translated manually
-        geneout_filename = str(name)+".1.txt"
+        geneout_filename = str(name)+".88888.txt"
         geneout_file = open(geneout_filename, 'w')
         sys.stderr.write(",saved as %s\n" % geneout_filename)
         geneout = csv.DictWriter(geneout_file, fieldnames = names, delimiter="\t")
@@ -281,7 +288,7 @@ if __name__ == '__main__':
                 geneout.writerow(dict([(n, gene[n]) for n in names]))
         geneout_file.close()
 
-    #write out all organism, with the original data collumns followed by collumns in alphabetical order
+    #write out all organism, with the original data columns followed by columns in alphabetical order
     orgout_file = sys.stdout
     names = orginfos[0].keys()
     names.sort()

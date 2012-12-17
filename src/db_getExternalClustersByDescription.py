@@ -35,7 +35,7 @@ if db != "all":
 
 toAddToQuery = []
 for ii in range(len(teststr)):
-    toAddToQuery.append(" clustername LIKE ? OR description LIKE ? ")
+    toAddToQuery.append(" clustername LIKE ? OR description LIKE ? OR external_clusterid LIKE ? ")
 toAddToQuery = "(" + "OR".join(toAddToQuery) + ")"
 query += toAddToQuery
 
@@ -43,7 +43,8 @@ toSubstitute = []
 if db != "all":
     toSubstitute.append('%' + db + '%')
 for st in teststr:
-    # This isn't a typo - we need to add the same one twice in a row
+    # This isn't a typo - we need to add the same one thrice in a row
+    toSubstitute.append(st)
     toSubstitute.append(st)
     toSubstitute.append(st)
 

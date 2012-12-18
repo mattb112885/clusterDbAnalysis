@@ -66,7 +66,9 @@ def info_from_genbank(gb_seqrec):
 
 def info_from_feature(feature):
     info = {}
-    info["aa_sequence"] = feature.qualifiers['translation'][0]
+    # An extra space in the amino acid sequences exists which 
+    # throws off the validator and may cause downstream problems.
+    info["aa_sequence"] = feature.qualifiers['translation'][0].strip()
     info["aliases"] = feature.qualifiers['protein_id'][0]
     info["function"] = feature.qualifiers['product'][0]
     #need to change strand encoding so that
@@ -104,8 +106,8 @@ def genbank_extract(name, writefastas=True):
     seqfasta_filename = name + '.faa'
     #get data
     gb_seqrec_multi = SeqIO.parse(open(gbin_filename,"r"), "genbank")
-    #loop, as there may be multple genbanks together (although this is non-conical)
-    #lists to store exstracted seqs
+    #loop, as there may be multple genbanks together (although this is non-canonical)
+    #lists to store extracted seqs
     nfastas = []
     pfastas = []
     genes = []

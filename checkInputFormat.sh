@@ -142,7 +142,9 @@ for file in $(ls | grep -v "README"); do
 	STATUS=1;
     fi
     # Note this wont match the header because of the "_" in aa_sequences but its a bit fragile.
-    fmatch=$(cat "${file}" | cut -f 13 | grep -o -i -P "^[A-Z]+$")
+    # The \s is there because the AA sequences can have spaces in them (I will remove this
+    # possibility if I see that it causes problems)
+    fmatch=$(cat "${file}" | cut -f 13 | grep -o -i -P "^[A-Z\s]+$")
     if [ $? -eq 1 ]; then
 	echo "ERROR: Amino acid sequence expected in 13th column in file ${file}";
 	STATUS=1;

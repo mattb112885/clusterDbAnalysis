@@ -24,7 +24,7 @@ gc = options.gc - 1
 
 nsize = options.nsize
 if nsize > 10:
-    sys.stderr.write("ERROR: Maximum neighborhood size is 5 (this is the size used when pre-calculating for input into the database\n")
+    sys.stderr.write("ERROR: Maximum neighborhood size is 10 (this is the size used when pre-calculating for input into the database\n")
     exit(2)
 
 con = sqlite3.connect(locateDatabase())

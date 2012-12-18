@@ -25,6 +25,7 @@ cd genbank;
 
 ABBREV=0
 for file in $(ls | grep -v "README"); do
+    echo "${file}";
     # Our genbank files will be concatinated across all the contigs, so we don't want to get the
     # same string every time for each contig. Just grab the first one.
     # I have to do some hacky things here because organism fields can be spread across multiple lines. 

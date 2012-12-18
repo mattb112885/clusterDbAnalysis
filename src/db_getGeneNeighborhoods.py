@@ -23,7 +23,7 @@ parser.add_option("-g", "--genecol", help="Column number starting from 1 for gen
 gc = options.gc - 1
 
 nsize = options.nsize
-if nsize > 5:
+if nsize > 10:
     sys.stderr.write("ERROR: Maximum neighborhood size is 5 (this is the size used when pre-calculating for input into the database\n")
     exit(2)
 

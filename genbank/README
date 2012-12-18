@@ -6,7 +6,7 @@
   <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# githubog: http://ogp.me/ns/fb/githubog#">
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>clusterDbAnalysis/raw/README at master · mattb112885/clusterDbAnalysis · GitHub</title>
+        <title>clusterDbAnalysis/genbank/README at master · mattb112885/clusterDbAnalysis · GitHub</title>
     <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub" />
     <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="apple-touch-icon-114.png" />
@@ -21,7 +21,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
     <meta content="authenticity_token" name="csrf-param" />
-<meta content="kciaaH02l2tbNpXjQ0McdRWpT5sytvJ1ndCvyXcemkI=" name="csrf-token" />
+<meta content="ALEfMT0HVYyJTmULfdyrdeebgcYfMEDH1Xb38pk9XLM=" name="csrf-token" />
 
     <link href="https://a248.e.akamai.net/assets.github.com/assets/github-27292274b2b87ffe79d2e380418f608e3bf89253.css" media="screen" rel="stylesheet" type="text/css" />
     <link href="https://a248.e.akamai.net/assets.github.com/assets/github2-4591451faf42b997173d752065f048736e6f9872.css" media="screen" rel="stylesheet" type="text/css" />
@@ -32,7 +32,7 @@
     <script src="https://a248.e.akamai.net/assets.github.com/assets/github-1bba5a5e98213164a06b7a54bec8a300b2883987.js" type="text/javascript"></script>
     
 
-        <link rel='permalink' href='/mattb112885/clusterDbAnalysis/blob/80b9c2255739fc509cb1f90aaf72719d7d15c1c2/raw/README'>
+        <link rel='permalink' href='/mattb112885/clusterDbAnalysis/blob/80b9c2255739fc509cb1f90aaf72719d7d15c1c2/genbank/README'>
     <meta property="og:title" content="clusterDbAnalysis"/>
     <meta property="og:type" content="githubog:gitrepository"/>
     <meta property="og:url" content="https://github.com/mattb112885/clusterDbAnalysis"/>
@@ -61,8 +61,8 @@
           <div class="container clearfix">
 
             <a class="header-logo-wordmark" href="https://github.com/">
-              <img alt="GitHub" class="github-logo-4x" height="30" src="https://a248.e.akamai.net/assets.github.com/images/modules/header/logov7@4x.png?1340659511" />
-              <img alt="GitHub" class="github-logo-4x-hover" height="30" src="https://a248.e.akamai.net/assets.github.com/images/modules/header/logov7@4x-hover.png?1340659511" />
+              <img alt="GitHub" class="github-logo-4x" height="30" src="https://a248.e.akamai.net/assets.github.com/images/modules/header/logov7@4x.png?1337118065" />
+              <img alt="GitHub" class="github-logo-4x-hover" height="30" src="https://a248.e.akamai.net/assets.github.com/images/modules/header/logov7@4x-hover.png?1337118065" />
             </a>
 
               
@@ -76,7 +76,7 @@
 
             <div class="header-actions">
                 <a class="button primary classy" href="https://github.com/signup">Sign up for free</a>
-              <a class="button classy" href="https://github.com/login?return_to=%2Fmattb112885%2FclusterDbAnalysis%2Fblob%2Fmaster%2Fraw%2FREADME">Sign in</a>
+              <a class="button classy" href="https://github.com/login?return_to=%2Fmattb112885%2FclusterDbAnalysis%2Fblob%2Fmaster%2Fgenbank%2FREADME">Sign in</a>
             </div>
 
           </div>
@@ -172,19 +172,19 @@
                 <div class="commitish-item branch-commitish selector-item js-navigation-item js-navigation-target ">
                   <span class="mini-icon mini-icon-confirm"></span>
                   <h4>
-                      <a href="/mattb112885/clusterDbAnalysis/blob/JamesRHCommits/raw/README" class="js-navigation-open" data-name="JamesRHCommits" rel="nofollow">JamesRHCommits</a>
+                      <a href="/mattb112885/clusterDbAnalysis/blob/JamesRHCommits/genbank/README" class="js-navigation-open" data-name="JamesRHCommits" rel="nofollow">JamesRHCommits</a>
                   </h4>
                 </div>
                 <div class="commitish-item branch-commitish selector-item js-navigation-item js-navigation-target selected">
                   <span class="mini-icon mini-icon-confirm"></span>
                   <h4>
-                      <a href="/mattb112885/clusterDbAnalysis/blob/master/raw/README" class="js-navigation-open" data-name="master" rel="nofollow">master</a>
+                      <a href="/mattb112885/clusterDbAnalysis/blob/master/genbank/README" class="js-navigation-open" data-name="master" rel="nofollow">master</a>
                   </h4>
                 </div>
                 <div class="commitish-item branch-commitish selector-item js-navigation-item js-navigation-target ">
                   <span class="mini-icon mini-icon-confirm"></span>
                   <h4>
-                      <a href="/mattb112885/clusterDbAnalysis/blob/transition/raw/README" class="js-navigation-open" data-name="transition" rel="nofollow">transition</a>
+                      <a href="/mattb112885/clusterDbAnalysis/blob/transition/genbank/README" class="js-navigation-open" data-name="transition" rel="nofollow">transition</a>
                   </h4>
                 </div>
             </div>
@@ -222,8 +222,8 @@
           
 
 
-<!-- blob contrib key: blob_contributors:v21:1ab2e7ec0cf664fcbd374854d9d549ba -->
-<!-- blob contrib frag key: views10/v8/blob_contributors:v21:1ab2e7ec0cf664fcbd374854d9d549ba -->
+<!-- blob contrib key: blob_contributors:v21:67687fbd766885fb016fcc6cb53d68ef -->
+<!-- blob contrib frag key: views10/v8/blob_contributors:v21:67687fbd766885fb016fcc6cb53d68ef -->
 
 <div id="slider">
 
@@ -232,7 +232,7 @@
 
       <p title="This is a placeholder element" class="js-history-link-replace hidden"></p>
       <div class="breadcrumb">
-        <span class='bold'><span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/mattb112885/clusterDbAnalysis" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">clusterDbAnalysis</span></a></span></span> / <span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/mattb112885/clusterDbAnalysis/tree/master/raw" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">raw</span></a></span> / <strong class="final-path">README</strong> <span class="js-clippy mini-icon mini-icon-clippy " data-clipboard-text="raw/README" data-copied-hint="copied!" data-copy-hint="copy to clipboard"></span>
+        <span class='bold'><span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/mattb112885/clusterDbAnalysis" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">clusterDbAnalysis</span></a></span></span> / <span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/mattb112885/clusterDbAnalysis/tree/master/genbank" class="js-slide-to" data-direction="back" itemscope="url"><span itemprop="title">genbank</span></a></span> / <strong class="final-path">README</strong> <span class="js-clippy mini-icon mini-icon-clippy " data-clipboard-text="genbank/README" data-copied-hint="copied!" data-copy-hint="copy to clipboard"></span>
       </div>
 
       <a href="/mattb112885/clusterDbAnalysis/find/master" class="js-slide-to" data-hotkey="t" style="display:none">Show File Finder</a>
@@ -241,9 +241,9 @@
   <div class="commit file-history-tease">
     <img class="main-avatar" height="24" src="https://secure.gravatar.com/avatar/3508cccaf9faaf9fda8afa58c9e8b110?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="24" />
     <span class="author"><span rel="author">Matthew Benedict</span></span>
-    <time class="js-relative-date" datetime="2012-11-30T08:13:12-08:00" title="2012-11-30 08:13:12">November 30, 2012</time>
+    <time class="js-relative-date" datetime="2012-11-02T15:31:17-07:00" title="2012-11-02 15:31:17">November 02, 2012</time>
     <div class="commit-title">
-        <a href="/mattb112885/clusterDbAnalysis/commit/f005740b21d86afd385b9096ddcd3b670b589c15" class="message">Clarify</a>
+        <a href="/mattb112885/clusterDbAnalysis/commit/e068d3156340a6ac72e1a349332163ab6b84a4d0" class="message">More improvements and updates to README files.</a>
     </div>
 
     <div class="participation">
@@ -261,7 +261,7 @@
     </div><!-- ./.frame-meta -->
 
     <div class="frames">
-      <div class="frame" data-permalink-url="/mattb112885/clusterDbAnalysis/blob/80b9c2255739fc509cb1f90aaf72719d7d15c1c2/raw/README" data-title="clusterDbAnalysis/raw/README at master · mattb112885/clusterDbAnalysis · GitHub" data-type="blob">
+      <div class="frame" data-permalink-url="/mattb112885/clusterDbAnalysis/blob/80b9c2255739fc509cb1f90aaf72719d7d15c1c2/genbank/README" data-title="clusterDbAnalysis/genbank/README at master · mattb112885/clusterDbAnalysis · GitHub" data-type="blob">
 
         <div id="files" class="bubble">
           <div class="file">
@@ -269,17 +269,17 @@
               <div class="info">
                 <span class="icon"><b class="mini-icon mini-icon-text-file"></b></span>
                 <span class="mode" title="File Mode">file</span>
-                  <span>2 lines (2 sloc)</span>
-                <span>0.08 kb</span>
+                  <span>50 lines (36 sloc)</span>
+                <span>1.875 kb</span>
               </div>
               <ul class="button-group actions">
                   <li>
                       <a class="grouped-button minibutton bigger lighter js-entice" href=""
                          data-entice="You must be signed in and on a branch to make or propose changes">Edit</a>
                   </li>
-                <li><a href="/mattb112885/clusterDbAnalysis/raw/master/raw/README" class="minibutton grouped-button bigger lighter" id="raw-url">Raw</a></li>
-                  <li><a href="/mattb112885/clusterDbAnalysis/blame/master/raw/README" class="minibutton grouped-button bigger lighter">Blame</a></li>
-                <li><a href="/mattb112885/clusterDbAnalysis/commits/master/raw/README" class="minibutton grouped-button bigger lighter" rel="nofollow">History</a></li>
+                <li><a href="/mattb112885/clusterDbAnalysis/raw/master/genbank/README" class="minibutton grouped-button bigger lighter" id="raw-url">Raw</a></li>
+                  <li><a href="/mattb112885/clusterDbAnalysis/blame/master/genbank/README" class="minibutton grouped-button bigger lighter">Blame</a></li>
+                <li><a href="/mattb112885/clusterDbAnalysis/commits/master/genbank/README" class="minibutton grouped-button bigger lighter" rel="nofollow">History</a></li>
               </ul>
             </div>
                 <div class="data type-text">
@@ -288,10 +288,58 @@
           <td>
             <pre class="line_numbers"><span id="L1" rel="#L1">1</span>
 <span id="L2" rel="#L2">2</span>
+<span id="L3" rel="#L3">3</span>
+<span id="L4" rel="#L4">4</span>
+<span id="L5" rel="#L5">5</span>
+<span id="L6" rel="#L6">6</span>
+<span id="L7" rel="#L7">7</span>
+<span id="L8" rel="#L8">8</span>
+<span id="L9" rel="#L9">9</span>
+<span id="L10" rel="#L10">10</span>
+<span id="L11" rel="#L11">11</span>
+<span id="L12" rel="#L12">12</span>
+<span id="L13" rel="#L13">13</span>
+<span id="L14" rel="#L14">14</span>
+<span id="L15" rel="#L15">15</span>
+<span id="L16" rel="#L16">16</span>
+<span id="L17" rel="#L17">17</span>
+<span id="L18" rel="#L18">18</span>
+<span id="L19" rel="#L19">19</span>
+<span id="L20" rel="#L20">20</span>
+<span id="L21" rel="#L21">21</span>
+<span id="L22" rel="#L22">22</span>
+<span id="L23" rel="#L23">23</span>
+<span id="L24" rel="#L24">24</span>
+<span id="L25" rel="#L25">25</span>
+<span id="L26" rel="#L26">26</span>
+<span id="L27" rel="#L27">27</span>
+<span id="L28" rel="#L28">28</span>
+<span id="L29" rel="#L29">29</span>
+<span id="L30" rel="#L30">30</span>
+<span id="L31" rel="#L31">31</span>
+<span id="L32" rel="#L32">32</span>
+<span id="L33" rel="#L33">33</span>
+<span id="L34" rel="#L34">34</span>
+<span id="L35" rel="#L35">35</span>
+<span id="L36" rel="#L36">36</span>
+<span id="L37" rel="#L37">37</span>
+<span id="L38" rel="#L38">38</span>
+<span id="L39" rel="#L39">39</span>
+<span id="L40" rel="#L40">40</span>
+<span id="L41" rel="#L41">41</span>
+<span id="L42" rel="#L42">42</span>
+<span id="L43" rel="#L43">43</span>
+<span id="L44" rel="#L44">44</span>
+<span id="L45" rel="#L45">45</span>
+<span id="L46" rel="#L46">46</span>
+<span id="L47" rel="#L47">47</span>
+<span id="L48" rel="#L48">48</span>
+<span id="L49" rel="#L49">49</span>
+<span id="L50" rel="#L50">50</span>
 </pre>
           </td>
           <td width="100%">
-                <div class="highlight"><pre><div class='line' id='LC1'>See ../docs/INSTALL for a detailed description of the files</div><div class='line' id='LC2'>that should go here.</div></pre></div>
+                <div class="highlight"><pre><div class='line' id='LC1'>### GENBANK Readme file</div><div class='line' id='LC2'>#</div><div class='line' id='LC3'><br/></div><div class='line' id='LC4'>This folder is intended to contain Genbank files. We now require genbank</div><div class='line' id='LC5'>files for every organism because they are needed to automatically generate</div><div class='line' id='LC6'>intermediates and also for TBLASTN and other whole-genome analyses.</div><div class='line' id='LC7'><br/></div><div class='line' id='LC8'>To put the whole-genome info into the database, first</div><div class='line' id='LC9'>put genbank files in this folder and then run ./main3.sh from the root folder</div><div class='line' id='LC10'>of this distribution. This function parses out the necessary info and puts</div><div class='line' id='LC11'>the genome nucleotide sequences into the database.</div><div class='line' id='LC12'><br/></div><div class='line' id='LC13'>#############################</div><div class='line' id='LC14'>#  FILE NAMING REQUIREMENTS #</div><div class='line' id='LC15'>#############################</div><div class='line' id='LC16'><br/></div><div class='line' id='LC17'>File names must have the format</div><div class='line' id='LC18'><br/></div><div class='line' id='LC19'>[organismid].gbk </div><div class='line' id='LC20'><br/></div><div class='line' id='LC21'>The organism ID must match the regex &quot;\d+\.\d+&quot; (or [0-9]+\.[0-9]+).</div><div class='line' id='LC22'>The first number must be the tax ID specified in the genbank file. </div><div class='line' id='LC23'>The second number is arbitrary.</div><div class='line' id='LC24'><br/></div><div class='line' id='LC25'>For example:</div><div class='line' id='LC26'><br/></div><div class='line' id='LC27'>83333.1.gbk</div><div class='line' id='LC28'><br/></div><div class='line' id='LC29'>would be the filename for E. coli.</div><div class='line' id='LC30'><br/></div><div class='line' id='LC31'>The organism ID must match an organism ID in at least one raw file.</div><div class='line' id='LC32'><br/></div><div class='line' id='LC33'>#############################</div><div class='line' id='LC34'># WHAT MUST BE IN THE FILES #</div><div class='line' id='LC35'>#############################</div><div class='line' id='LC36'><br/></div><div class='line' id='LC37'>Fundamentally, the program requires the following fields from the genbank files. </div><div class='line' id='LC38'>Everything else is ignored (including any gene IDs, sequences, etc. - they are</div><div class='line' id='LC39'>imported to the database from the raw file instead).</div><div class='line' id='LC40'><br/></div><div class='line' id='LC41'>- /organism=&quot;[organism name]&quot; : Used to generate the organisms file</div><div class='line' id='LC42'>- /dbxref=&quot;taxid:[taxid]&quot; : Used to check consistency with the organism ID. The first number in the</div><div class='line' id='LC43'>&nbsp;&nbsp;organism ID should be the taxID.</div><div class='line' id='LC44'>- A LOCUS field containing a contig name (without spaces but length does not matter). The contig </div><div class='line' id='LC45'>&nbsp;&nbsp;name must be consistent with the contig name in the raw file.</div><div class='line' id='LC46'>- The contig&#39;s sequence.</div><div class='line' id='LC47'><br/></div><div class='line' id='LC48'>If you have multiple contigs (or multiple chromosomes, or a chromosome and a plasmid, etc.), </div><div class='line' id='LC49'>you should concatinate the genbank files for each one into a single file with a name consistent</div><div class='line' id='LC50'>with the file naming requirements above.</div></pre></div>
           </td>
         </tr>
       </table>
@@ -318,7 +366,7 @@
 </div>
 
 <div id="js-frame-loading-template" class="frame frame-loading large-loading-area" style="display:none;">
-  <img class="js-frame-loading-spinner" src="https://a248.e.akamai.net/assets.github.com/images/spinners/octocat-spinner-128.gif?1347543527" height="64" width="64">
+  <img class="js-frame-loading-spinner" src="https://a248.e.akamai.net/assets.github.com/images/spinners/octocat-spinner-128.gif?1347543532" height="64" width="64">
 </div>
 
 
@@ -379,7 +427,7 @@
       <hr class="footer-divider">
 
 
-    <p class="right">&copy; 2012 <span title="0.03857s from fe16.rs.github.com">GitHub</span> Inc. All rights reserved.</p>
+    <p class="right">&copy; 2012 <span title="0.64345s from fe15.rs.github.com">GitHub</span> Inc. All rights reserved.</p>
     <a class="left" href="https://github.com/">
       <span class="mega-icon mega-icon-invertocat"></span>
     </a>
@@ -774,7 +822,7 @@ I think you should use an
 
     
     
-    <span id='server_response_time' data-time='0.03970' data-host='fe16'></span>
+    <span id='server_response_time' data-time='0.71196' data-host='fe15'></span>
     
   </body>
 </html>

@@ -67,7 +67,6 @@ aln = list(AlignIO.read(sys.stdin, "fasta"))
 subToReal = {}
 for i in range(len(aln)):
     newid = "S%09d" %(i)
-    print aln[i]
     subToReal[newid] = sanitizeString(aln[i].id, False)
     aln[i].id = newid
 

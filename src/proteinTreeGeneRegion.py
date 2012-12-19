@@ -9,12 +9,13 @@ Created on Wed Oct 17 12:40:42 2012
 """
 
 import sys, os
+import re
 #TODO: remove this when put in /src
 sys.path.append("/data/Cluster_Files/src") 
 from locateDatabase import *
 
 #only non-standard library dependences are ETE and BioPython (which includes reportlab with latest fonts if installed with easyinstall)
-import os, sys, math, itertools, colorsys
+import  math, itertools, colorsys
 #from tempfile import NamedTemporaryFile
 import numpy as np
 from reportlab.lib import colors as rcolors
@@ -26,10 +27,15 @@ from ete2 import Phyloxml, phyloxml
 import sqlite3
 
 
+def unsanitizeGeneId(sanitized_geneid):
+    '''Turns fig_\d+_\d+_peg_\d+ into fig|\d+.\d+.peg.\d+ for db recognition purposes'''
+    return re.sub(r"fig_(\d+)_(\d+)_peg_(\d+)", r"fig|\1.\2.peg.\3", sanitized_geneid)
+
 #first some convienence functions
 def splitrast(geneid, removefigpeg = False):
-    '''takes a geneid and splits off the organiosm and gene, optionally removing the "fig" and "peg" parts'''
-    fig, peg = geneid.split('.peg.')
+    '''Takes a geneid and splits off the organiosm and gene, optionally removing the "fig" and "peg" parts'''
+    unsanitized = geneid
+    fig, peg = unsanitized.split('.peg.')
     if removefigpeg:
         fig=fig.lstrip('fig|')
     else:
@@ -70,8 +76,10 @@ def get_region_info(genename, clusterrunid):
     for neargene in outdata: 
         neargeneid = neargene[1]
         strandsign = neargene[5]
-        if strandsign =='-': strand = -1
-        if strandsign =='+': strand = +1
+        if strandsign =='-': 
+            strand = -1
+        if strandsign =='+': 
+            strand = +1
         start = neargene[7]
         stop  = neargene[8]
         feature = SeqFeature(FeatureLocation(start, stop), strand=strand, id = neargeneid)
@@ -112,7 +120,11 @@ def OrgnameToOrgID(orgid):
 def GetGeneToAlias():
     geneToAlias ={}
     rootpath = os.path.split(os.path.split(locateDatabase())[0])[0]
-    for line in open(os.path.join(rootpath,'aliases','aliases'), "r"):
+    alias_file = os.path.join(rootpath, 'aliases', 'aliases')
+    if not os.path.exists(alias_file):
+        sys.stderr.write("WARNING: No aliases file found in expected location:%s\n" %(alias_file))
+        return geneToAlias
+    for line in open(alias_file, "r"):
         spl = line.strip('\r\n').split("\t")
         geneToAlias[spl[0]] = spl[1]
     return geneToAlias
@@ -123,6 +135,7 @@ def removeleadingdashes(t):
     for genename in t.get_leaf_names():
         #if it is from tblastn, we want to change it in the tree and have a record to indecate this in the plot
         if genename.startswith('-'): 
+            genename = unsanitizeGeneId(genename)
             tblastn_leaf = t&genename
             genename = genename.lstrip('-')
             tblastnadded.append(genename)
@@ -134,15 +147,16 @@ def getGeneNeighborhoods(geneid, clusterrunid):
     """from Matt's file of the same name"""
     con = sqlite3.connect(locateDatabase())
     cur = con.cursor()
+    newgeneid = geneid
     cur.execute("""SELECT neighborhoods.*, processed.annotation, processed.genestart, processed.geneend FROM neighborhoods
                    INNER JOIN processed ON processed.geneid = neighborhoods.neighborgene
-                   WHERE neighborhoods.centergene=?;""", (geneid,))
+                   WHERE neighborhoods.centergene=?;""", (newgeneid,))
     results = cur.fetchall()
     geneids = [l[1] for l in results]
     #want to do an IN query, but need to format w. correct number of ?s, so generate this string
     sql = "SELECT geneid, clusterid FROM clusters WHERE geneid IN ({seq}) AND runid = ?;".format(seq=','.join(['?']*len(geneids)))
     geneids.append(clusterrunid)
-    cur.execute(sql, geneids)    
+    cur.execute(sql, geneids)
     lookupcluster = dict(cur.fetchall())
     con.close()
     outdata = [l + (lookupcluster[l[1]],) for l in results]
@@ -209,12 +223,16 @@ def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
     #flip for reversed genes
     if centerdstrand == -1:
         os.system("convert -rotate 180 %s %s" % (imgfileloc, imgfileloc))
+    return imgfileloc
 
 def draw_tree_regions(clusterrunid, t, ts):
     # first, get all genes around these genes (id is gene name, cluster number is type
     regionindex={}
     t, tblastnadded = removeleadingdashes(t)
+    unsanitized = []
     for genename in t.get_leaf_names():
+        unsanitized.append(unsanitizeGeneId(genename))
+    for genename in unsanitized:
         #this does a nested SQL lookup, so is slow
         regionindex[genename]= get_region_info(genename, clusterrunid)
     # set up the colormap from all of the unique clusters found in all genes in the tree
@@ -236,13 +254,15 @@ def draw_tree_regions(clusterrunid, t, ts):
         widths.append(abs(end - start))
     maxwidth = max(widths)
     for leaf in t.iter_leaves():
-        try: genelocs = regionindex[leaf.name]
+        newname = unsanitizeGeneId(leaf.name)
+        try: genelocs = regionindex[newname]
         except KeyError: continue #this is needed for when we want to put this on a gene tree
-        make_region_drawing(genelocs, getcolor, leaf.name, maxwidth)
-        org, peg = splitrast(leaf.name, removefigpeg = True)
-        imageFace = faces.ImgFace(str(org) + str(peg) + imgfilename)
+        # Fixme - this function contains a bad implicit global variable usage (imgloc)
+        imgfileloc = make_region_drawing(genelocs, getcolor, newname, maxwidth)
+        org, peg = splitrast(newname, removefigpeg = True)
+        imageFace = faces.ImgFace(imgfileloc)
         leaf.add_face(imageFace, column=2, position = 'aligned')
-        if leaf.name in tblastnadded:
+        if newname in tblastnadded:
             leaf.add_face(TextFace("TBlastN added", fsize=30), column=3, position = 'aligned')
     #add legend for clusters
     ts = treelegend(ts, getcolor, greyout)
@@ -341,32 +361,37 @@ def prettytree(t, ts, title=None):
 
 # parsing function to extract species names for all nodes in a given tree.
 def parse_sp_name(node_name):
+    node_name = str(node_name)
     if node_name=='NoName':
         pass
     if node_name.count("peg") == 0:# then it is an organism tree?
         orgname = node_name
     else: 
-        orgname = splitrast(node_name, removefigpeg=False)[0]
+        orgname = splitrast(unsanitizeGeneId(node_name), removefigpeg=False)[0]
     return orgname
 
 if __name__=="__main__":
     usage="%prog -p protein_tree [options]"
     description="""Generates a tree with gene regions"""
     parser = optparse.OptionParser(usage=usage, description=description)
-    parser.add_option("-r", "--runid", help="Only print results for the specified run ID (D: Prints the table for all of them)", action="store", type="str", dest="clusterrunid", default=None)
-    parser.add_option("-p", "--prottree", help="Protein tree", action="store", type="str", dest="treeinfile", default=None)
-    parser.add_option("-o", "--orgtree", help="Organism tree", action="store", type="str", dest="cattreeinfile", default=None)
-    parser.add_option("-t", "--treetitle", help="Tree title", action="store", type="str", dest="gene", default=None)
+    parser.add_option("-r", "--runid", help="Run ID (required)", action="store", type="str", dest="clusterrunid", default=None)
+    parser.add_option("-p", "--prottree", help="Protein tree (required)", action="store", type="str", dest="treeinfile", default=None)
+    parser.add_option("-t", "--treetitle", help="Tree title", action="store", type="str", dest="gene", default="")
     (options,args) = parser.parse_args()
 
     if options.treeinfile is None:
         sys.stderr.write("ERROR: -p (protein input tree) is required\n")
         exit(2)
 
+    # James - how did you plan on using muliple clusters? Doesnt make a lot of sense to me.
+    if options.clusterrunid is None:
+        sys.stderr.write("ERROR - -r (runid) is a required argument\n")
+        exit(2)
+
     #global variables
     clusterrunid = options.clusterrunid
     treeinfile = options.treeinfile 
-    cattreeinfile = options.cattreeinfile 
+
     #cat VhtA_genes_3.fasta.tblastn.fas.aln|sed "s/\(>-*[^ ]*\).*/\1/g">VhtA_genes_3.fasta.tblastn.fas.fig.aln
     #cat VhtA_genes_3.fasta.tblastn.fas.aln|sed "s/>-*\([^ ]*\).*/>\1/g">VhtA_genes_3.fasta.tblastn.fas.fig.aln 
     gene = options.gene 

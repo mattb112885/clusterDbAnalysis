@@ -34,6 +34,10 @@ for file in $(ls | grep -v "README"); do
     # only separates by line number...
     ORGLINE=$(cat "${file}"| tr '\n' ' ' | sed -r "s/[ ]{2,}/\ /g" | grep -o -P "/organism\=\".*?\"" | head -1)
     ORGANISM=$(echo "${ORGLINE}" | sed -r "s/.*?\"(.*?)\"/\1/g")
+    # Throw away evil characters in organism names.
+    # The only one of these I'm sure is evil is the single quote (')
+    # which completely borks the call to the clustering routine.
+    ORGANISM=$(echo "${ORGANISM}" | sed -r "s/[-'\"\(\)]/_/g")
     # Do a sanity check on the genbank file name vs. its TaxID
     # The "extension" is rather arbitrary so I don't worry about that.
     # The file name must be [organismid].gbk which is [taxid].[extension].gbk

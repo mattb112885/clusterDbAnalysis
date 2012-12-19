@@ -130,6 +130,7 @@ if [ -d ./rpsblast_res ]; then
     else
 	ls | grep -P "^${ORGANISM}\.txt\.faa_rpsout" | xargs rm;
     fi
+    cd ..
 fi
 
 

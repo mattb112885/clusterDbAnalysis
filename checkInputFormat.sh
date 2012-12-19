@@ -39,6 +39,14 @@ if [ "${nl}" != "${numid}" ]; then
     echo 'ERROR: Organism IDs must be unique (third column of organisms file)';
     STATUS=1;
 fi
+# Check for bad characters in organism names
+# Quotes are particularly evil...
+badchars=$(cat organisms | grep -P "[\'\|]")
+if [ $? -eq 0 ]; then
+    echo 'ERROR: Bad characters (quotes) found in organism names in the organism file.'
+    STATUS=1;
+fi
+
 
 # Check existence of groups file (for clustering)
 echo "Checking existence of groups file..."

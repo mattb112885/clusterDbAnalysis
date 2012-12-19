@@ -74,7 +74,7 @@ fi
 
 # Tree
 if [ ! -f "core_cat_aln_fasttree_${runid}" ]; then
-    cat "core_cat_aln_${runid}" | FastTreeMP -gamma -wag > "core_cat_aln_fasttree_${runid}";
+    cat "core_cat_aln_${runid}" | FastTree_wrapper.py -g -b 100 > "core_cat_aln_fasttree_${runid}";
 fi
 
 # Reroot tree

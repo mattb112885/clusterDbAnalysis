@@ -25,7 +25,7 @@ On the same machine (using 12 cores of processing) it took about
 
 1.5 s/org * 24^2 org * 1 min/60s = 15 minutes
 
-Loading up the SQLite database took about 15 minutes for the set of 24
+Loading up the SQLite database took about 30 minutes for the set of 24
 Enterobacteria we have analyzed. This will roughly increase as O(N^2) as well
 (depending on the number of BLAST hits between each pair of organisms, which 
 could vary wildly). Unlike BLAST, this step is not parallelized.
@@ -49,4 +49,8 @@ Obviously this time will increase as the database gets bigger.
 There are about 20 million BLAST hits between 30 closely-related prokarytotes 
 (~3000 genes/organisms) with an E-value cutoff of 1E-5.
 
+Running main2.sh on the 24 Enteric set took about 5 minutes but it goes as
+about N^2.
+
+--------
 

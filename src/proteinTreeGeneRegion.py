@@ -222,9 +222,9 @@ def draw_tree_regions(clusterrunid, t, ts):
     #only have color for those that appere more than one time (to do all, rever to previous line)
     allclusters = info_from_regions(regionindex, 'type')
     uniqueclusters = list(set(allclusters))
-    greyout = 7 #will be grey if they appere less than this many times
-    mutipleclusters = [c for c in uniqueclusters if allclusters.count(c) > greyout]
-    getcolor = colormap(mutipleclusters)
+    greyout = 3 #will be grey if they appere less than this many times
+    multipleclusters = [c for c in uniqueclusters if allclusters.count(c) > greyout]
+    getcolor = colormap(multipleclusters)
     #also add in grey for all others
     singleclusters = [c for c in uniqueclusters if allclusters.count(c) <= greyout]
     getcolor.update([(sc, (0.5,0.5,0.5)) for sc in singleclusters])

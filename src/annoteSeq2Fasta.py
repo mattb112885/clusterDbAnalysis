@@ -33,4 +33,4 @@ for line in fileinput.input("-"):
         annote = ""
     else:
         annote = " %s" %(spl[annotecol])
-    print ">%s%s\n%s" %(geneid, annote, seq)
+    print ">%s %s\n%s" %(geneid, annote, seq)

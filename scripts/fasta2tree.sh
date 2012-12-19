@@ -25,14 +25,9 @@ fi
 
 INFILE="$1"
 OUTFILE="$2"
-# Remove special characters from header lines
-# (not from non-header lines because we dont want
-# to accidentally add underscores to gene sequences -
-# some programs output spaces as part of the sequence
-# for some reason...)
-cat "${INFILE}" | sed -r '/^>/s/[^>A-Za-z0-9]/_/g' > "TEMP1"
+
 # Run MAFFT on the INFILE
-mafft --auto "TEMP1" > "TEMP2"
+mafft --auto "${INFILE}" > "TEMP2"
 # Use GBlocks (lenient) to trim poor-quality parts
 # of the alignment
 cat "TEMP2" | Gblocks_wrapper.py -r > "TEMP3"
@@ -42,4 +37,4 @@ cat "TEMP2" | Gblocks_wrapper.py -r > "TEMP3"
 # website)
 cat "TEMP3" | FastTree_wrapper.py -g -b 100 > "${OUTFILE}"
 
-rm "TEMP1" "TEMP2" "TEMP3"
+rm "TEMP2" "TEMP3"

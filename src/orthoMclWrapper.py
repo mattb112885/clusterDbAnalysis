@@ -250,7 +250,8 @@ n_blastres_lines = sum(1 for line in open(blastresfile, "r"))
 if os.path.exists(orthoblastres):
     n_orthoblastres_lines = sum(1 for line in open(orthoblastres, "r") )
     if n_blastres_lines != n_orthoblastres_lines:
-        sys.stderr.write("WARNING: The number of lines in the blast results and orthomcl-reformatted blast results files did not match. Removing the latter and trying again...\n")
+        sys.stderr.write("""WARNING: The number of lines in the blast results and orthomcl-reformatted
+blast results files did not match. Removing the latter and trying again...\n""")
         os.remove(orthoblastres)
 
 try:
@@ -352,10 +353,30 @@ cmd3 = "mcl mclInput --abc -I %1.4f -o %s" %(options.inflation, tmp_mcl_output)
 sys.stderr.write("Running MCL on the orthoMCL outputs... (this could take some time)\n")
 os.system(cmd3)
 
+# Singleton extraction.
+# To get the singletons out using orthoMCL we have to create a 'groups' file
+orthomcl_groups_file = "orthomcl_groups_file"
+cmd4 = "orthomclMclToGroups group 1 < %s > %s" %(tmp_mcl_output, orthomcl_groups_file)
+sys.stderr.write("Writing the orthoMCL groups file (needed for computation of singletons)\n")
+os.system(cmd4)
+
+# Then we need to run this script with the orthoMCL singleton finder.
+tmp_singleton_file = "orthomcl_singletons_BADIDS"
+cmd5 = "orthomclSingletons %s %s > %s" %(orthofastadir, orthomcl_groups_file, tmp_singleton_file)
+sys.stderr.write("Obtaining a list of singletons...")
+os.system(cmd5)
+
+# And finally combine the two files together to get a file that should contain all the genes
+# (including singletons on their own line)
+tmp_mcl_output_with_singletons = "mclout_BADIDS_withsingletons"
+cmd6 = "cat %s %s > %s" %(tmp_mcl_output, tmp_singleton_file, tmp_mcl_output_with_singletons)
+sys.stderr.write("Combining singletons and non-singleton file...\n")
+os.system(cmd6)
+
 # Now I make the output file in the expected format.
 # This regex MUST be lazy because there are multiple genes on a line
 orgReplacer = re.compile("\S+?\|")
-if os.path.exists(tmp_mcl_output):
+if os.path.exists(tmp_mcl_output_with_singletons):
     fout = open(expectedoutput, "w")
     for line in open(tmp_mcl_output, "r"):
         line = orgReplacer.sub("fig|", line)
@@ -367,6 +388,9 @@ if os.path.exists(tmp_mcl_output):
 if not options.keeptemp:
     os.remove(options.logfile)
     os.remove(tmp_mcl_output)
+    os.remove(tmp_singleton_file)
+    os.remove(tmp_mcl_output_with_singletons)
+    os.remove(orthomcl_groups_file)
     os.remove("mclInput")
     # rmdir only works on empty directories.
     os.system("rm -r pairs")

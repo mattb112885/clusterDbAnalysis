@@ -234,6 +234,10 @@ for f in os.listdir(origfastadir):
             outfile.write(">%s\n%s\n" %(myid, ids2seqs[myid]))
         outfile.close()
 
+# We need a concatinated good protein fasta file
+orthofasta_cat = os.path.join(os.path.dirname(locateDatabase()), "orthofasta_cat.faa")
+os.system("cat %s > %s" %(os.path.join(orthofastadir, "*"), orthofasta_cat))
+
 # ... and we need to ensure that the genes in the BLAST results have the same format.
 # This will take some time but WAY less than re-running BLAST.
 sys.stderr.write("Reformatting BLAST output file to use orthoMCL-compliant IDs...\n")
@@ -362,7 +366,7 @@ os.system(cmd4)
 
 # Then we need to run this script with the orthoMCL singleton finder.
 tmp_singleton_file = "orthomcl_singletons_BADIDS"
-cmd5 = "orthomclSingletons %s %s > %s" %(orthofastadir, orthomcl_groups_file, tmp_singleton_file)
+cmd5 = "orthomclSingletons %s %s > %s" %(orthofasta_cat, orthomcl_groups_file, tmp_singleton_file)
 sys.stderr.write("Obtaining a list of singletons...")
 os.system(cmd5)
 
@@ -378,7 +382,7 @@ os.system(cmd6)
 orgReplacer = re.compile("\S+?\|")
 if os.path.exists(tmp_mcl_output_with_singletons):
     fout = open(expectedoutput, "w")
-    for line in open(tmp_mcl_output, "r"):
+    for line in open(tmp_mcl_output_with_singletons, "r"):
         line = orgReplacer.sub("fig|", line)
         fout.write(line)
     fout.close()

@@ -351,7 +351,7 @@ os.system(cmd2)
 # ... and then run MCL on the resulting "MclInput" file
 # I make a temporary output file because I will need to re-make the gene IDs
 # in the format expected by our database.
-tmp_mcl_output = "mclOut_BADIDS"
+tmp_mcl_output = "mclout_BADIDS"
 
 cmd3 = "mcl mclInput --abc -I %1.4f -o %s" %(options.inflation, tmp_mcl_output)
 sys.stderr.write("Running MCL on the orthoMCL outputs... (this could take some time)\n")

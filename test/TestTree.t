@@ -28,5 +28,16 @@ class RerootTreeTester(unittest.TestCase):
         # But should be different from the input tree
         self.assertNotEqual(self.initial_nwk, first_nwk)
 
+class PretifyTreeTester(unittest.TestCase):
+    def setUp(self):
+        self.test_tree = Tree("test_tree.nwk")
+        self.initial_nwk = self.test_tree.write(format=0)
+        self.good_gene = "fig|2210.3.peg.1758"
+        self.good_org = "2210.3"
+    def test_prettify_tree(self):
+        new_tree, new_ts = prettifyTree(self.test_tree)
+    def test_standardize_tree(self):
+        new_tree = standardizeTreeOrdering(self.test_tree)
+
 if __name__ == "__main__":
     unittest.main()

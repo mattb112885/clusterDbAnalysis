@@ -95,74 +95,18 @@ for l in cur:
 for node in t.traverse():
     if node.is_leaf():
         # Dont' crash because of e.g. outgroups put in. We already warned about this so don't need to do it again.
-        if not (  node.name in geneToOrganism and node.name in geneToAnnote ):
-            # We still want to make the text face though so that it is visible!
-            F = faces.TextFace(node.name, ftype="Times", fsize=32)
-            node.add_face(F, 0, position="aligned")
-            continue
+        if node.name in geneToOrganism and node.name in geneToAnnote:
+            newname = "_".join( [ node.name, geneToOrganism[node.name], geneToAnnote[node.name] ] )
+            node.name = newname
 
-        # Add an annotation text with larger font to replace the crappy size-10 ish font that comes by default...
-        newname = "_".join( [ node.name, geneToOrganism[node.name], geneToAnnote[node.name] ] )
-        F = faces.TextFace(newname, ftype="Times", fsize=32)
-        node.add_face(F, 0, position="aligned")
-    else:
-        # Make the branch support bigger
-        F = faces.TextFace(node._support, ftype="Times", fsize=20)
-        node.add_face(F, 0, position="branch-top")
-
-# Note - PDF and PNG export are both horrid-quality - I will try to fix this but for now I'll just export to SVG...
-# My suggestion is to find something that doesn't crash and that isn't horrible quality to convert this to another format.
-# Is there such a thing though??? Sigh...
-ts = TreeStyle()
-# I already made bigger numbers so no sense in keeping the tiny ones too.
-ts.show_branch_support = False
-# We'll be putting these in separately
-ts.show_leaf_name = False
+# Standardize font sizes and tree width
+t, ts = prettifyTree(t)
+# Standardize leaf order in equivalent trees (with same root)
+t = standardizeTreeOrdering(t)
 
 # Label face columns [This will be useful for labeling tables next to the tree!]
 F = faces.TextFace("Annotation", ftype="Times", fsize=20)
 ts.aligned_header.add_face(F, 0)
-
-# The default width of the tree is too squished.
-# Lets determine a width based on the maximum distance to the root.
-maxdist = 0
-root = t.get_tree_root()
-for node in t.traverse():
-    if node.is_leaf():
-        dist = t.get_distance(node, root)
-        if dist > maxdist:
-            maxdist = dist
-
-# Heuristically determine tree width to prevent the tree from getting too squished ...
-# I haven't figured out why but this doesn't work on some servers.
-# For now I just catch the error and move on...
-try:
-    ts.tree_width = maxdist * 20
-except ValueError:
-    sys.stderr.write("WARNING: Your ETE setup does not appear to support tree_width - the resulting tree might look strange!\n")
-
-# Make ordering the closer for identical trees.
-# Direction = 0 - make the outgroup on top.
-t.ladderize(direction=0)
-
-# Ladderize doesn't always break ties the same way. Lets fix that, shall we?
-# I break ties according to the names of leaves descended from a given node.
-# Essentially this amounts to sorting first by number of branches and then by alphabetical order
-for node in t.traverse(strategy="levelorder"):
-    if not node.is_leaf():
-        children = node.get_children()
-        print children
-        if not len(children) == 2:
-            sys.stderr.write("WARNING: Node found with more than two children... Should always have 2 children per node?\n")
-            continue
-#            exit(2)
-        nl0 = len(children[0].get_leaves())
-        nl1 = len(children[1].get_leaves())
-        if nl0 == nl1:
-            names0 = "".join(sorted(children[0].get_leaf_names()))
-            names1 = "".join(sorted(children[1].get_leaf_names()))
-            if names0 > names1:
-                node.swap_children()
 
 if options.savenewick:
     t.write(outfile="%s.nwk" %(options.basename), format=0)
@@ -177,8 +121,7 @@ if options.savesvg:
 # Convert the svg file into a high-quality (300 dpi) PNG file...
 # The PNG converter in ETE gives a terrible quality image 
 # 
-# Use convert to make something better and then trim the edges off. 
-
+# Use convert to make something better and then trim the edges off.
 if options.savepng:
     os.system("convert -trim -depth 16 -background transparent %s.svg %s.png" %(options.basename, options.basename))
 

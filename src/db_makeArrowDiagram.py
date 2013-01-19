@@ -397,6 +397,9 @@ ts = TreeStyle()
 #####################
 currentcol = 0
 for cluster in clusterToAnnote:
+    # Don't bother showing legends for annotations that aren't colored...
+    if clusterToColor[cluster] == "#FFFFFF":
+        continue
     # Limit the number of annotations in a row but let it be more than 1 since otherwise it's a huge waste of space.
     if currentcol > 7:
         currentcol = 0
@@ -435,27 +438,8 @@ try:
 except ValueError:
     sys.stderr.write("WARNING: Your version of ETE does not support the tree_width specification - consider upgrading to get nicer looking trees!\n")
 
-# If the trees are identical and identically rooted, we want them to always appear the same.
-# Start by sorting by number of branches (ladderize)
-#
-# I then break ties according to the names of leaves descended from a given node.
-# Essentially this amounts to sorting first by number of branches and then by alphabetical order
-# This SHOULD always give a consistent result for identical trees (regardless of how they appear in the file).
-t.ladderize(direction=0)
-
-for node in t.traverse(strategy="levelorder"):
-    if not node.is_leaf():
-        children = node.get_children()
-        if not len(children) == 2:
-            sys.stderr.write("INTERNAL ERROR: Should always have 2 children per node?\n")
-            continue;
-        nl0 = len(children[0].get_leaves())
-        nl1 = len(children[1].get_leaves())
-        if nl0 == nl1:
-            names0 = "".join(sorted(children[0].get_leaf_names()))
-            names1 = "".join(sorted(children[1].get_leaf_names()))
-            if names0 > names1:
-                node.swap_children()
+# Standardize order of leaves for equivalent trees (with the same root)
+t = standardizeTreeOrdering(t)
 
 ################
 # Outputs

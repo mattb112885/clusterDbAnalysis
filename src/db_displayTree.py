@@ -58,6 +58,7 @@ if options.savepng:
 from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace
 import fileinput
 import sqlite3
+from TreeFuncs import *
 
 # Read Newick file
 sys.stderr.write("Reading tree file...\n")
@@ -65,30 +66,7 @@ t = Tree(args[0])
 
 # If outgroup is specified, re-root now before doing anything else.
 # This will just fail if the specified protein isn't present in the tree.
-if not options.rootgene == None:
-    done = False
-    for node in t.traverse():
-        if node.name == options.rootgene:
-            t.set_outgroup(node)
-            done = True
-            break
-    if not done:
-        sys.stderr.write("ERROR: Specified outgroup %s not found in tree\n" %(options.rootgene))
-        exit(2)
-
-# Look for the rootorg in the gene names.
-if not options.rootorg == None:
-    done = False
-    for node in t.traverse():
-        if options.rootorg in node.name and done:
-            sys.stderr.write("WARNING: More than one node present in cluster that matches specified organism %s. Will just use the first one...\n" %(options.rootorg) )
-            continue
-        if options.rootorg in node.name:
-            t.set_outgroup(node)
-            done = True
-    if not done:
-        sys.stderr.write("WARNING No representatives of specified organism %s found - are you using the organism name instead of the ID?\n" %(options.rootorg) )
-#        exit(2)
+rerootEteTree(t, root_leaf = options.rootgene, root_leaf_part = options.rootorg)
 
 ##############################################
 # Get various gene / organism / annotation / neighborhood / cluster info out of the database

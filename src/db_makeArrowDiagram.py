@@ -22,6 +22,7 @@ parser.add_option("-s", "--savesvg", help="Convert the file to svg (requires -b)
 parser.add_option("-p", "--savepng", help="Convert the file to png (requires -b, implies -s)", action="store_true", dest="savepng", default=False)
 parser.add_option("-b", "--basename", help="Base name for file outputs (ignored without -s or -p)", action="store", type="str", dest="basename", default=None)
 parser.add_option("-r", "--rootgene", help="Root on this gene (default = keep same root as nwk file).", action="store", type="str", dest="rootgene", default=None)
+parser.add_option("-o", "--rootorg", help="Root on this organism [part of the leaf name] (default = keep same root as nwk file).", action="store", type="str", dest="rootorg", default=None)
 (options, args) = parser.parse_args()
 
 # Must specify a newick file
@@ -61,6 +62,7 @@ from PyQt4.QtCore import QPointF
 from PyQt4.QtGui import QGraphicsRectItem, QGraphicsSimpleTextItem, \
     QGraphicsPolygonItem, QColor, QPen, QBrush, QPolygonF
 from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace
+from TreeFuncs import *
 # And other stuff we need...
 from operator import itemgetter
 import fileinput
@@ -199,18 +201,8 @@ colorTable = [
 sys.stderr.write("Reading tree file...\n")
 t = Tree(args[0])
 
-# If outgroup is specified, re-root now before doing anything else.
-# This will just fail if the specified protein isn't present in the tree.
-if not options.rootgene == None:
-    done = False
-    for node in t.traverse():
-        if node.name == options.rootgene:
-            t.set_outgroup(node)
-            done = True
-            break
-    if not done:
-        sys.stderr.write("ERROR: Specified outgroup %s not found in tree\n" %(options.rootgene))
-        exit(2)
+# Reroot tree if required
+rerootEteTree(t, root_leaf = options.rootgene, root_leaf_part = options.rootorg)
 
 ##############################################
 # Get various gene / organism / annotation / neighborhood / cluster info out of the database

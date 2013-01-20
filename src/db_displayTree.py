@@ -5,9 +5,11 @@
 #
 # Comes with a decent set of options.
 
-import sys
+import numpy
 import optparse
 import os
+import sys
+
 from FileLocator import *
 from sanitizeString import *
 
@@ -25,6 +27,9 @@ parser.add_option("-n", "--savenewick", help="Save re-rooted tree as a newick fi
 parser.add_option("-b", "--basename", help="Base name for file outputs (ignored without -s or -p)", action="store", type="str", dest="basename", default=None)
 parser.add_option("-r", "--rootgene", help="Root on this gene (default = keep same root as nwk file).", action="store", type="str", dest="rootgene", default=None)
 parser.add_option("-o", "--rootorg", help="Root on this organism ID (e.g. 83333.1) (default = keep same root as nwk file)", action="store", type="str", dest="rootorg", default=None)
+parser.add_option("-f", "--data_file", help = "Table of data with gene ID (must match that in the tree exactly) on the first column and data to attach to the leaves on the rest",
+                  action = "store", type="str", dest="datafile", default=None)
+
 (options, args) = parser.parse_args()
 
 # Must specify a newick file
@@ -55,18 +60,22 @@ if options.savepng:
 # Import lots of stuff for drawing...
 ####################################
 
-from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace
+from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace, ClusterTree, ProfileFace
 import fileinput
 import sqlite3
 from TreeFuncs import *
 
 # Read Newick file
 sys.stderr.write("Reading tree file...\n")
-t = Tree(args[0])
 
+if options.datafile is None:
+    t = Tree(args[0])
+else:
+    t = ClusterTree(args[0], options.datafile)
+    
 # If outgroup is specified, re-root now before doing anything else.
 # This will just fail if the specified protein isn't present in the tree.
-rerootEteTree(t, root_leaf = options.rootgene, root_leaf_part = options.rootorg)
+t = rerootEteTree(t, root_leaf = options.rootgene, root_leaf_part = options.rootorg)
 
 ##############################################
 # Get various gene / organism / annotation / neighborhood / cluster info out of the database
@@ -103,6 +112,23 @@ for node in t.traverse():
 t, ts = prettifyTree(t)
 # Standardize leaf order in equivalent trees (with same root)
 t = standardizeTreeOrdering(t)
+
+# Now we try and add the heatmap
+# if the user requests it
+#
+# I borrowed some of this code from the ETE tutorial.
+if options.datafile is not None:
+    array = t.arraytable
+    matrix_dist = [i for r in xrange(len(array.matrix))\
+                       for i in array.matrix[r] if numpy.isfinite(i)]
+    matrix_max = numpy.max(matrix_dist)
+    matrix_min = numpy.min(matrix_dist)
+    matrix_avg = matrix_min+((matrix_max-matrix_min)/2)
+    # Max, Min, Center, Width, Height, Type)
+    profileFace  = ProfileFace(matrix_max, matrix_min, matrix_avg, 200, 14, "heatmap")
+    for node in t.traverse():
+        if node.is_leaf():
+            node.add_face(profileFace, 1, position = "aligned")
 
 # Label face columns [This will be useful for labeling tables next to the tree!]
 F = faces.TextFace("Annotation", ftype="Times", fsize=20)

@@ -5,7 +5,7 @@
 # within the specified list of organisms
 
 import fileinput, optparse, sqlite3, sys, os
-from locateDatabase import *
+from FileLocator import *
 from sanitizeString import *
 
 usage="%prog [options] run_id < organism_list > cluster_run_id_list"

@@ -9,7 +9,7 @@
 #
 
 import sqlite3, fileinput, optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog [options] < gene_ids > clusters_containing_genes"
 description = "Given a list of gene IDs, gets a list of clusters containing those genes (in all run IDs)"

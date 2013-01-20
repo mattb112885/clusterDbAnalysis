@@ -10,9 +10,7 @@ Created on Wed Oct 17 12:40:42 2012
 
 import sys, os
 import re
-#TODO: remove this when put in /src
-sys.path.append("/data/Cluster_Files/src") 
-from locateDatabase import *
+from FileLocator import *
 
 #only non-standard library dependences are ETE and BioPython (which includes reportlab with latest fonts if installed with easyinstall)
 import  math, itertools, colorsys

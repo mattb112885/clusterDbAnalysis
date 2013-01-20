@@ -9,7 +9,7 @@
 # Results are printed to stdout.
 
 import fileinput, sqlite3, optparse, os
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog [options] < run_ids > cluster_runs"
 description="Given a set of run IDs (from stdin), returns all cluster IDs associated with that run ID"

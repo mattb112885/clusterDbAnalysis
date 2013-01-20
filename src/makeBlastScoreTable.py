@@ -34,7 +34,7 @@ def normhsp(bitscore, hsplen):
     return float(bitscore)/float(hsplen)
 
 import optparse, fileinput
-from locateDatabase import *
+from FileLocator import *
 
 validmethods = ['minbit', 'maxbit', 'maxselfbit', 'avgbit', 'normhsp']
 

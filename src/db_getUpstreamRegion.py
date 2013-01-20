@@ -4,7 +4,7 @@
 # an off-by-one is lurking somewhere...
 
 import fileinput, optparse, sqlite3, sys
-from locateDatabase import *
+from FileLocator import *
 # For sequence transposing
 from Bio import Seq
 

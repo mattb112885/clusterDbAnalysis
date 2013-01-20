@@ -6,7 +6,7 @@
 # The fasta file will contain all of the genes in the database...
 
 import optparse, sqlite3, sys
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog > Fasta_file"
 description="Generates a fasta file with all the annotations in the database including aliases added to the raw annotations..."

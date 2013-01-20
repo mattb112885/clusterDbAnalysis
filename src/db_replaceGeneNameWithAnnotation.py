@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import fileinput, optparse, sqlite3, sys, re
-from sanitizeString import *
+from FileLocator import *
 from locateDatabase import *
 
 usage="%prog [options] < infile > outfile"

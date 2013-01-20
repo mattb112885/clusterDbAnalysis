@@ -9,7 +9,7 @@
 # genes are added to the TBLASTN hits
 
 import sqlite3, optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog > [genes_with_internal_stops]"
 description="Find genes with internal stops that are present in the database. Internal stops are defined as internal TAG, TGA, or TAA codons"

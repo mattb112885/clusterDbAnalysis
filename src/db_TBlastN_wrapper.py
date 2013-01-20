@@ -4,7 +4,7 @@
 # across different genomes
 
 import fileinput, os, optparse, random, sqlite3, sys
-from locateDatabase import *
+from FileLocator import *
 
 TABLEDESCRIPTION = """queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, hitframe, 
                       strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct"""

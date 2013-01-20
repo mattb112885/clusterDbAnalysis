@@ -7,7 +7,7 @@ import fileinput
 import sqlite3
 import optparse
 import sys
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog [options] < gene_id_list > gene_neighborhoods"
 description="""Given a list of gene IDs, get the neighborhoods within the specified 

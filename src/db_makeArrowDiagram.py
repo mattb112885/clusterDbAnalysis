@@ -3,7 +3,7 @@
 
 import sys
 import optparse
-from locateDatabase import *
+from FileLocator import *
 from sanitizeString import *
 
 ####################################

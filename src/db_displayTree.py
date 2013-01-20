@@ -8,7 +8,7 @@
 import sys
 import optparse
 import os
-from locateDatabase import *
+from FileLocator import *
 from sanitizeString import *
 
 ####################################

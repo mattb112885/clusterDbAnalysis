@@ -11,7 +11,7 @@ import sqlite3
 import optparse
 import sys
 import math
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog [options] > BBH_table"
 description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"

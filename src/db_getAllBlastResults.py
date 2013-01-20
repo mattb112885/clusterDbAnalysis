@@ -6,7 +6,7 @@
 
 import sqlite3
 import optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog > all_blast_results"
 description="Print all blast results available in the database (without further filtering)"

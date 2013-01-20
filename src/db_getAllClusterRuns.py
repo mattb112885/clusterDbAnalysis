@@ -9,7 +9,7 @@
 # Must be run from the root directory
 
 import sqlite3, optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog > run_id_list"
 description = "Return list of all run IDs from the database"

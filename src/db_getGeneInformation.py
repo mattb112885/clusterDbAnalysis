@@ -17,7 +17,7 @@
 #
 
 import fileinput, sqlite3, optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog [options] < gene_ids > gene_info"
 description="""Given a list of gene IDs, get their gene info, 

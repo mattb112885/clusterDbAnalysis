@@ -3,7 +3,7 @@
 # Use MAFFT to make a quick and dirty alignment between a (small) set of genes of interest.
 
 import fileinput, optparse, os, random, sqlite3, sys
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog [options] < gene_list > alignment"
 description="""Get a quick and dirty (whole-gene) alignment between 

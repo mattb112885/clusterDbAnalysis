@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import fileinput, optparse, sqlite3, sys
-from locateDatabase import *
+from FileLocator import *
 from getSequenceRegion import *
 
 usage = "%prog [options] < table > table_with_sequences"

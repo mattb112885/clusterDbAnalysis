@@ -8,7 +8,7 @@
 
 import fileinput, optparse, os, random, sqlite3, sys
 from Bio import AlignIO
-from locateDatabase import *
+from FileLocator import *
 
 #### MAFFT methods
 # Linsi: Highest accuracy and slowest (recommended for most clusters since they're small)

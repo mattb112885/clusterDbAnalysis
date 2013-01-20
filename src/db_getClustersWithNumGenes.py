@@ -9,7 +9,7 @@
 # second column.
 
 import fileinput, sqlite3, optparse, sys
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog -n numgenes [options] < run_ids > clusters_with_specified_num_genes"
 description = "Get all of the clusters with the specified number of genes in the specified cluster runs"

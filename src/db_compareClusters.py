@@ -13,7 +13,7 @@
 import optparse
 import sqlite3
 import sys
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog RUNID1 RUNID2 > comparison_file"
 description="Generates a file comparing each overlapping pair of clusters between the two specified run IDs. The tab-delimited file has one row for each overlapping pair of clusters and has one column with the overlapping genes and one column with the non-overlapping genes from each cluster"

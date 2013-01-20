@@ -2,7 +2,7 @@
 
 import optparse, os, re, sys
 from Bio import SeqIO
-from locateDatabase import *
+from FileLocator import *
 
 usage = """%prog -l mysql_loginname -p mysql_password -d mysql_database_string [options]
 %prog -f orthomcl_config_file [options] """

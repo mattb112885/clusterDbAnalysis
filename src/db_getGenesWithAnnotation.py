@@ -6,7 +6,7 @@
 # returns all genes in the database matching that annotation.
 
 import optparse, sqlite3, sys
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog \"Annotation 1\" \"Annotation 2\" ... > [Gene_id_list]"
 description = """Get a list of genes in the database matching at least

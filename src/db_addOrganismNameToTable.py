@@ -6,7 +6,7 @@
 # extra column on the output.
 
 import fileinput, optparse, sqlite3
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog [options] < gene_ids > gene_ids_with_organism"
 description = """Add the organism name to a tab-delimited file containing gene IDs. 

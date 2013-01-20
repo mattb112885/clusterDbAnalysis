@@ -18,7 +18,7 @@
 # Multiple different annotations are combined with OR statements.
 
 import sqlite3, fileinput, optparse, sys
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog [options] \"Annotation 1\" \"Annotation 2\" ... < run_ids > clusters_with_genes_containing_annotation_words"
 description = "Given list of run IDs, returns a list of genes and clusters containing given word(s) in the annotation - separate inputs are combined with OR statements"

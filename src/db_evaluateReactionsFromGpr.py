@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import fileinput, optparse, sqlite3, sys, re
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog -g [GPR_file] -i [RunID] > Rxn_presence_absence"
 description = """This function takes a two-column table containing

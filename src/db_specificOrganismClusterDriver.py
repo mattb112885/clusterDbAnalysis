@@ -17,7 +17,7 @@
 
 import os, sys
 import optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog [groupfile] [Inflation] [cutoff] [scoremethod]"
 description = """This file is intended to be run as part of Main1.sh. 

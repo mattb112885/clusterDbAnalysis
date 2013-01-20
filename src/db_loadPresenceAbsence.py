@@ -10,7 +10,7 @@
 
 import sqlite3
 import optparse
-from locateDatabase import *
+from FileLocator import *
 from sanitizeString import *
 
 # This is only for self-documenting purposes - this function takes no arguments.                                                                                                                              

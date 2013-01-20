@@ -1,12 +1,10 @@
 #!/usr/bin/python
 
-import sys, os
-sys.path.append("/data/Cluster_Files/src") 
-
-import sqlite3
+import os
 import sys
+import sqlite3
 import optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog [options] > presence_absence_table"
 description="""Generates a presence\absence table (or slices thereof) based on

@@ -5,7 +5,7 @@ import optparse
 import sqlite3
 import sys
 
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog < external_clusterids > similarities"
 description = """Given a list of external clusterIDs (from cog, pfam, tigrfam...), attempts to identify proteins

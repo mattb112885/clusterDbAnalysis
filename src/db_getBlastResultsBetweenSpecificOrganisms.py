@@ -13,7 +13,7 @@
 # 
 
 import sqlite3, optparse
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog \"Organism 1\" \"Organism 2\" ... > blast_results"
 description = """Given list of organism names to match, returns a list

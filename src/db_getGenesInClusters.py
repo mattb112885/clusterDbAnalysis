@@ -13,7 +13,7 @@
 # Note - this is quite slow so I don't suggest using it.
 
 import fileinput, sqlite3, optparse
-from locateDatabase import *
+from FileLocator import *
 
 # Get input arguments
 usage = "%prog [options] < runid_clusterid_table > gene_id_list"

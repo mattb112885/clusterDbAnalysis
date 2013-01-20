@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import fileinput, optparse, sqlite3, sys
-from locateDatabase import *
+from FileLocator import *
 
 ok_databases = ["all", "cd", "cog", "pfam", "tigr", "prk", "smart"]
 

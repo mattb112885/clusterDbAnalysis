@@ -10,7 +10,7 @@
 # The code is identical except the sql command has an OR instead of an AND...
 
 import fileinput, optparse, sqlite3
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog [options] < gene_ids > blast_results"
 description = "Given list of genes to match, returns a list of BLAST results containing any gene ID in your list as either a query or a target (for blast results only BETWEEN the query genes, see db_getBlastResultsBetweenSpecificGenes.py)"

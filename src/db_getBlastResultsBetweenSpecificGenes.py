@@ -8,7 +8,7 @@
 # 
 
 import sqlite3, optparse, fileinput
-from locateDatabase import *
+from FileLocator import *
 
 usage = "%prog [options] < gene_ids > blast_results"
 description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"

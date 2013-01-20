@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import fileinput, optparse, sys, sqlite3
-from locateDatabase import *
+from FileLocator import *
 
 usage="%prog [options] < runid > organism_list"
 description="""Get a list of organisms included in each piped-in cluster run 

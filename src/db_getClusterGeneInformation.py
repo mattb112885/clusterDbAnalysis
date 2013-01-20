@@ -24,7 +24,7 @@
 # -c or --ccolumn: Column number for cluster id (count from 1)
 
 import sqlite3, fileinput, optparse
-from locateDatabase import *
+from FileLocator import *
 
 # Get input arguments                                                                         
 usage = "%prog [options] < [ runid_clusterid_table] > cluster_gene_info"

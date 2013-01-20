@@ -3,7 +3,7 @@
 '''Convenient functions for tree-drawing and manipulation with ETE
 (common operations used by our scripts)'''
 
-from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace
+from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace, TextFace
 import re
 import sys
 
@@ -47,13 +47,13 @@ def rerootEteTree(ete_tree, root_leaf = None, root_leaf_part = None):
 
     return ete_tree
 
-
-def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20):
+def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, title=None, ts = None):
     ''' Perform standardized functions to make the ETE trees easier to read:
     - Make the branch support bigger
     - Make the leaf fonts bigger
     - Change both to standard font (Times)
     - Standardize the tree's width (calculate based on the maximum length from the root to a tip)
+    - (optional) add title to tree
     '''
 
     for node in ete_tree.traverse():
@@ -66,27 +66,23 @@ def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20):
             # Make branch support bigger
             F = faces.TextFace(node._support, ftype="Times", fsize=branch_support_size)
             node.add_face(F, 0, position="branch-top")
-    
-    ts = TreeStyle()
+
+    #correct the long root node bug (fixed in next release)
+    ete_tree.dist=0
+
+    # Optionally create a new TreeStyle if we are passing in an old one.
+    if ts is None:
+        ts = TreeStyle()
+
     ts.show_branch_support = False
     ts.show_leaf_name = False
 
-    # The default width of the tree is too squished.
-    # Lets determine a width based on the maximum distance to the root.
-    maxdist = 0
-    root = ete_tree.get_tree_root()
-    for node in ete_tree.traverse():
-        if node.is_leaf():
-            dist = ete_tree.get_distance(node, root)
-            if dist > maxdist:
-                maxdist = dist
-
-    # I haven't figured out why but this doesn't work on some servers.
-    # For now I just catch the error and move on... 
-    try:
-        ts.tree_width = maxdist * 20
-    except ValueError:
-        sys.stderr.write("WARNING: Your ETE setup does not appear to support tree_width - the resulting tree might look strange!\n")
+    if title is not None:
+        ts.title.clear()
+        title = TextFace(title)
+        title.hz_align = True
+        title.fsize = 52
+        ts.title.add_face(title, 0)
 
     return ete_tree, ts
 
@@ -114,3 +110,82 @@ def standardizeTreeOrdering(ete_tree):
                     node.swap_children()
     
     return ete_tree
+
+# These functions are PhyloTree-specific - PhyloTrees have species attached
+# to them while normal ETE trees don't.
+def rerootPhyloTree(phylo_tree, reroot_species = None):
+    '''Unlike a normal ETE tree object a phyloTree object has a specific "species"
+    attached to it. This function identifies the node required by a specific species
+    and then calls the more generic reroot command with that node name.
+
+    Note - getting an AttributeError here means you probably passed in the wrong type
+    of tree.'''
+
+    if reroot_species is None:
+        sys.stderr.write("ERROR: must specify a species on which to root\n")
+        raise ValueError
+
+    done = False
+    for node in phylo_tree.traverse():
+        if node.is_leaf():
+            if node.species == reroot_species:
+                if done:
+                    sys.stderr.write("WARNING: Multiple leaves found matching species %s so just rerooted on the first one we found\n" %(reroot_species) )
+                    continue
+                phylo_tree = rerootEteTree(phylo_tree, root_leaf = node.name)
+                done = True
+
+    if not done:
+        sys.stderr.write("ERROR: Specified species %s not found in tree\n" %(reroot_species) )
+        raise ValueError
+
+    return phylo_tree
+
+def unsanitizeGeneId(sanitized_geneid):
+    '''Turns fig_\d+_\d+_peg_\d+ into fig|\d+.\d+.peg.\d+ for db recognition purposes'''
+    return re.sub(r"fig_(\d+)_(\d+)_peg_(\d+)", r"fig|\1.\2.peg.\3", sanitized_geneid)
+
+# TODO - this should probably go into a different library. I put it here for now since James's
+# tree function is the only one using it at the moment.
+def splitrast(geneid, removefigpeg = False):
+    '''Takes an UN-SANITIZED geneid and splits off the organiosm and gene, optionally removing 
+    the "fig" and "peg" parts'''
+
+    if ".peg." not in geneid:
+        sys.stderr.write("ERROR: The expected string .peg. not found in gene ID - did you pass in a sanitized ID instead of an unsanitized one?\n")
+        raise ValueError
+
+    unsanitized = geneid
+    fig, peg = unsanitized.split('.peg.')
+    if removefigpeg:
+        fig=fig.lstrip('fig|')
+    else:
+        peg = 'peg.'+peg
+
+    return fig, peg
+
+
+def parse_sp_name(node_name):
+    '''Parse a node name into an organism ID.
+    It is assumed that the node name is in the format "fig|\d+\.\d+\.peg\.\d+".
+
+    We intend for PhyloTrees based on the gene IDs in our database to be constructed using
+
+    pt = phyloTree(sp_naming_function = parse_sp_name)
+
+    The ETE package will then automatically apply this to get species names and add the species name
+    to the ".species" field of every node.
+    '''
+    node_name = str(node_name)
+    if node_name=='NoName':
+        pass
+
+    unsanitized = unsanitizeGeneId(node_name)
+    try:
+        orgname, peg = splitrast(unsanitized, removefigpeg = False)
+    except ValueError:
+        orgname = node_name
+
+    return orgname
+
+    

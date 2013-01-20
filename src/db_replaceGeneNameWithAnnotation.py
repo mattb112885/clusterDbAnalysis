@@ -2,7 +2,7 @@
 
 import fileinput, optparse, sqlite3, sys, re
 from FileLocator import *
-from locateDatabase import *
+from sanitizeString import *
 
 usage="%prog [options] < infile > outfile"
 description="""Look for things that look like gene IDs (fig|#.#.peg.#) in the input file

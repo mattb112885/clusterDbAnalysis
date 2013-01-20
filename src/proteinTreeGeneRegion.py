@@ -6,39 +6,53 @@ This script plots regions around proteins using a newick tree of the proteins an
 Created on Wed Oct 17 12:40:42 2012
 
 @author: jamesrh
+
+NOTE: If you get an error complaining about missing fonts:
+
+reportlab.graphics.renderPM.RenderPMError: Can't setFont(Times-Roman) missing the T1 files?
+
+it means your installation of reportlab is missing the font files for Times New Roman
+and you should install them. How to install them:
+
+1: Download the .pfb files from the reportlab website. The current location is:
+http://www.reportlab.com/ftp/fonts/pfbfer.zip
+
+2: Extract them to one of the places reportlab looks for the files.
+One of those locations is ${HOME}/fonts so follow these directions:
+
+$ cd ~
+$ mkdir fonts
+$ cd fonts
+$ wget http://www.reportlab.com/ftp/fonts/pfbfer.zip
+$ unzip pfbfer.zip
+
+When you run this again, it should work.
+
+See the following for more details.
+
+http://blog.gmane.org/gmane.comp.python.reportlab.user/month=20060701/page=5
 """
 
-import sys, os
-import re
-from FileLocator import *
+import colorsys
+import math
+import itertools
+import optparse
+import os
+import sqlite3
+import sys
 
-#only non-standard library dependences are ETE and BioPython (which includes reportlab with latest fonts if installed with easyinstall)
-import  math, itertools, colorsys
-#from tempfile import NamedTemporaryFile
-import numpy as np
+from FileLocator import *
+from TreeFuncs import *
+
+import numpy
 from reportlab.lib import colors as rcolors
 from Bio.Graphics import GenomeDiagram
-#from Bio import SeqIO
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 from ete2 import Tree, faces, TreeStyle, TextFace, PhyloTree
 from ete2 import Phyloxml, phyloxml
-import sqlite3
 
-
-def unsanitizeGeneId(sanitized_geneid):
-    '''Turns fig_\d+_\d+_peg_\d+ into fig|\d+.\d+.peg.\d+ for db recognition purposes'''
-    return re.sub(r"fig_(\d+)_(\d+)_peg_(\d+)", r"fig|\1.\2.peg.\3", sanitized_geneid)
-
-#first some convienence functions
-def splitrast(geneid, removefigpeg = False):
-    '''Takes a geneid and splits off the organiosm and gene, optionally removing the "fig" and "peg" parts'''
-    unsanitized = geneid
-    fig, peg = unsanitized.split('.peg.')
-    if removefigpeg:
-        fig=fig.lstrip('fig|')
-    else:
-        peg = 'peg.'+peg  
-    return fig, peg
+#from tempfile import NamedTemporaryFile
+#from Bio import SeqIO
 
 def RGB_to_hex(RGBlist):
     n = lambda x: int(x*255)
@@ -48,7 +62,7 @@ def RGB_to_hex(RGBlist):
 
 def colormap(valuelist):
     #generate list of divergent colors
-    clusters = np.unique(valuelist)
+    clusters = numpy.unique(valuelist)
     N = len(clusters)
     #we will vary in 2 dimensions, so this is how many steps in each
     perm = int(math.ceil(math.sqrt(N)))
@@ -304,7 +318,7 @@ def treelegend(ts, getcolor, greyout):
     return ts
 
 def prettytree(t, ts, title=None):
-    #from Matt's iTol db_displayTree.py
+    #from Matt's iTEP db_displayTree.py
     for node in t.traverse():
         if node.is_leaf():
             if node.species == 'fig|190192.1':
@@ -357,17 +371,6 @@ def prettytree(t, ts, title=None):
     ts.title.add_face(title, 0)
     return t, ts
 
-# parsing function to extract species names for all nodes in a given tree.
-def parse_sp_name(node_name):
-    node_name = str(node_name)
-    if node_name=='NoName':
-        pass
-    if node_name.count("peg") == 0:# then it is an organism tree?
-        orgname = node_name
-    else: 
-        orgname = splitrast(unsanitizeGeneId(node_name), removefigpeg=False)[0]
-    return orgname
-
 if __name__=="__main__":
     usage="%prog -p protein_tree [options]"
     description="""Generates a tree with gene regions"""
@@ -399,7 +402,8 @@ if __name__=="__main__":
     ts = TreeStyle()
     ts.show_leaf_name = False
     t, ts = draw_tree_regions(clusterrunid, t, ts)
-    t, ts = prettytree(t, ts, title = gene + " cluster regions")
+#    t,ts = prettytree(t, ts, title = gene + " cluster regions")
+    t, ts = prettifyTree(t, title = gene + " cluster regions", ts = ts)
     #t.show(tree_style=ts)
     os.system("rm test.svg 2> /dev/null")
     t.render("%s_region_tree.svg" % gene, tree_style=ts)

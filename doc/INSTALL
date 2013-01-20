@@ -1,19 +1,26 @@
 # INSTALLATION INSTRUCTIONS
 #
-# First off, system stuff. The package is only available for linux\unix (it might work for mac too).
-# - make sure all the .py and .sh files in the src/ directory are executable:
+# This package is only available for linux\unix (it might work for mac too but I haven't tested it).
+# 
+# Make sure all the .py and .sh files in the src/ directory are executable:
 #
 # $ chmod u+x src/*.py
 # $ chmod u+x src/*.sh
 #
 # You may also want to do this with all the sh scritps in the "scripts/" directory
-# 
+# $ chmod u+x scripts/*.py
+# $ chmod u+x scripts/*.sh
 #
-# - Add the src/ directory to your path by adding the following line to your .bashrc file:
+# Add the src/ directory to your path by adding the following two lines to your .bashrc file (~/.bashrc):
 #
 # export PATH=$PATH:${ROOTDIR}/src
+# export PYTHONPATH=$PYTHONPATH:${ROOTDIR}/lib
 #
-# where ${ROOTDIR| is the directory containing this INSTALL file.
+# where ${ROOTDIR| is the location of the folder into which you cloned the git repository. You will then need to
+# save the file and source it (only need to source it once - if you log out and back in the .bashrc file is run
+# automatically):
+#
+# $ source ~/.bashrc
 #
 # The packages have a variety of dependencies depending on how you want to run them.
 #
@@ -33,15 +40,16 @@
 #
 # BioPython: Used for reading and writing various alignment formats
 # ETE and PyQT4 - Used for tree visualization.
+# Numpy: Used for assorted calcualtions and organization
 #
 # ANALYSIS PACKAGES
 #
-# FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program
+# FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program, at the expense of some accuracy
 # MyRAST (http://blog.theseed.org/downloads/sas.tgz) - has a lot of 
 #   scripts for analyzing genomes present in the PubSEED / SEED viewer, 
 #   including tools for analyzing trees and alignments, efficient calculation of representative genes, etc.
 #   A list of easy-to-use functions is available here: http://pubseed.theseed.org/sapling/server.cgi?pod=ServerScripts
-# MaFFT - Fast and accurate multiple-alignment software
+# MaFFT - Fast and (fairly) accurate multiple-alignment software
 # RaxML - Accurate but slow treeing program.
 #
 # If you want to run OrthoMCL you need to install that and its dependencies, which include:

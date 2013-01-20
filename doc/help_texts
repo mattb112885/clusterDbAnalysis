@@ -536,6 +536,22 @@ Options:
   -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_getHitsToExternalClusters.py
+
+Usage: db_getHitsToExternalClusters.py < external_clusterids > similarities
+
+Given a list of external clusterIDs (from cog, pfam, tigrfam...), attempts to
+identify proteins in the database that are homologous (by RPSBLAST) to the
+profile implied by those clusters, and returns them and their E-values.
+
+Options:
+  -h, --help            show this help message and exit
+  -c ECC, --column=ECC  Column number for external cluster ID (D=1)
+  -e EVALUE, --evalue=EVALUE
+                        Evalue cutoff (D: 1E-5, the cutoff used to originally
+                        generate the data)
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_getOrganismsInCluster.py
 
 Usage: db_getOrganismsInCluster.py < runid_clusterid_pair > organism_list
@@ -727,6 +743,9 @@ Options:
   -r ROOTGENE, --rootgene=ROOTGENE
                         Root on this gene (default = keep same root as nwk
                         file).
+  -o ROOTORG, --rootorg=ROOTORG
+                        Root on this organism [part of the leaf name] (default
+                        = keep same root as nwk file).
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_makeClusterAlignment.py
@@ -950,10 +969,6 @@ Options:
   -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
-getSequenceRegion.py
-
-*--------------------------------------------------------------------------------------------------------------------------*
-
 joinColumns.py
 
 Usage: joinColumns.py -1 [col1] -2 [col2] (options) File1 File2
@@ -986,18 +1001,6 @@ This is a function for internal use. Call convertKbaseToRast.sh instead. This
 function takes an intermediate file created by convertKbaseToRast.sh and an
 assigned genome ID, and converts all of the IDs to the approrpiate format for
 use with the database.
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-locateDatabase.py
-
-Usage: locateDatabase.py [options]
-
-This file contains a function for internal use - locating the sqlite database
-to allow the scripts to be run from anywhere without explicitly specifying the
-location in a config script
 
 Options:
   -h, --help  show this help message and exit
@@ -1240,6 +1243,22 @@ Options:
   --color=COLOR        Set color of dots (default: as chosen by matplotlib)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+proteinTreeGeneRegion.py
+
+Usage: proteinTreeGeneRegion.py -p protein_tree [options]
+
+Generates a tree with gene regions
+
+Options:
+  -h, --help            show this help message and exit
+  -r CLUSTERRUNID, --runid=CLUSTERRUNID
+                        Run ID (required)
+  -p TREEINFILE, --prottree=TREEINFILE
+                        Protein tree (required)
+  -t GENE, --treetitle=GENE
+                        Tree title
+*--------------------------------------------------------------------------------------------------------------------------*
+
 pubseed2rast.py
 
 Usage: pubseed2rast.py < [Pubseed file with sequences attached] > RAST-formatted file
@@ -1375,18 +1394,6 @@ Options:
                         Extension for input fasta files (D: faa)
   -c CUTOFF, --cutoff=CUTOFF
                         E-value cutoff (D: 1E-5)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-sanitizeString.py
-
-Usage: sanitizeString.py [options]
-
-This is an internal function to standardize sanitation of strings for unput
-into various formats. Any character that is not a letter or number is replaced
-with an underscore.
-
-Options:
-  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 startDifference.py

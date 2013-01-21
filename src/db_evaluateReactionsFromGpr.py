@@ -36,27 +36,41 @@ if options.runid is None:
 geneFinder = re.compile("fig\|\d+\.\d+\.peg\.\d+")
 
 # Lets get a dictionary from reactions to GPRs first
+# This will be a dictionary from reaction to a LIST of GPRs
+# because it is quite possible that we are using more than one
+# reference organism with some overlapping reacitons.
 rxn2gpr = {}
 for line in open(options.gprfile, "r"):
     spl = line.strip("\r\n").split("\t")
-    gpr = spl[1]
+    if len(spl) < 2:
+        gpr = ""
+    else:
+        gpr = spl[1]
     if options.repor:
         gpr = gpr.replace("and", "or")
-    rxn2gpr[spl[0]] = gpr
+    if spl[0] in rxn2gpr:
+        rxn2gpr[spl[0]].append(gpr)
+    else:
+        rxn2gpr[spl[0]] = [ gpr ]
 
 # Now lets get a list of genes
 genelist = []
 for rxn in rxn2gpr:
-    genes = geneFinder.findall(rxn2gpr[rxn])
-    if genes is None:
-        sys.stderr.write("WARNING: No genes with expected format found in GPR %s" %(rxn2gpr[rxn]))
-        continue
-    for gene in genes:
-        genelist.append(gene)
+    for gpr in rxn2gpr[rxn]:
+        genes = geneFinder.findall(gpr)
+        if genes is None:
+            sys.stderr.write("WARNING: No genes with expected format found in GPR %s\n" %(gpr) )
+            continue
+        for gene in genes:
+            genelist.append(gene)
 
 if len(genelist) == 0:
     sys.stderr.write("ERROR: No genes were found with expected formatting - dont forget to replace your IDs with those present in the database...\n")
     exit(2)
+
+# One gene can catalize multiple reactions. For the purposes of finding clusters, we don't care.
+# We'll go back and sort that out with the GPRs later.
+genelist = list(set(genelist))
 
 # Use the database to get lists of organisms in each cluster that contains a gene in the query GPR...
 con = sqlite3.connect(locateDatabase())
@@ -122,23 +136,25 @@ for org in orglist:
     # Now we SHOULD be able to do eval.
     # If we have issues it means there's a formatting error in the GPR - we should print the offending ones and continue on.
     for rxn in rxn2gpr:
-        gpr = rxn2gpr[rxn]
-        # Replace in the gpr as well.
-        badgpr = False
-        try:
-            rxnPresent = eval(gpr.replace("|", "_").replace(".", "_"), {"__builtins__":None}, gene2presenceabsence)
-        except SyntaxError:
-            syntaxerrors.add("WARNING: There was a syntax error (probably a missing parenthesis) in the following GPR: \n%s\t%s \n" %(rxn, gpr))
-            badrxns.append(rxn)
-            break
-        except NameError:
-            nameerrors.add("WARNING: The following GPR had a NameError (likely caused by a bad gene name in the GPR): \n%s\t%s \n " %(rxn,gpr))
-            badrxns.append(rxn)
-            break
+        gprlist = rxn2gpr[rxn]
+        overallPresence = False
+        for gpr in gprlist:
+            try:
+                rxnPresent = eval(gpr.replace("|", "_").replace(".", "_"), {"__builtins__":None}, gene2presenceabsence)
+            except SyntaxError:
+                syntaxerrors.add("WARNING: There was a syntax error (probably a missing parenthesis) in the following GPR: \n%s\t%s \n" %(rxn, gpr))
+                badrxns.append(rxn)
+                break
+            except NameError:
+                nameerrors.add("WARNING: The following GPR had a NameError (likely caused by a bad gene name in the GPR): \n%s\t%s \n " %(rxn,gpr))
+                badrxns.append(rxn)
+                break
+            # If it matches ANY of the query organisms that's good enough for me.
+            overallPresence = overallPresence or rxnPresent
         if rxn in rxn2presence:
-            rxn2presence[rxn].append(rxnPresent)
+            rxn2presence[rxn].append(overallPresence)
         else:
-            rxn2presence[rxn] = [rxnPresent]
+            rxn2presence[rxn] = [ overallPresence ]
 
 for s in syntaxerrors:
     sys.stderr.write(s)

@@ -88,7 +88,7 @@ cluster2genes = {}
 orglist = set()
 cur.execute(query3, (options.runid, ))
 for res in cur:
-    orglist.add(res[0])
+    orglist.add(sanitizeString(res[0], False))
 
 for gene in genelist:
     cur.execute(query1, (options.runid, gene))

@@ -27,7 +27,16 @@ parser.add_option("-n", "--savenewick", help="Save re-rooted tree as a newick fi
 parser.add_option("-b", "--basename", help="Base name for file outputs (ignored without -s or -p)", action="store", type="str", dest="basename", default=None)
 parser.add_option("-r", "--rootgene", help="Root on this gene (default = keep same root as nwk file).", action="store", type="str", dest="rootgene", default=None)
 parser.add_option("-o", "--rootorg", help="Root on this organism ID (e.g. 83333.1) (default = keep same root as nwk file)", action="store", type="str", dest="rootorg", default=None)
-parser.add_option("-f", "--data_file", help = "Table of data with gene ID (must match that in the tree exactly) on the first column and data to attach to the leaves on the rest",
+parser.add_option("-f", "--data_file", help = """Table of data with gene ID (leaf name, which must match the leaf names in the newick file exactly)
+on the first column and data to attach to the leaves on the rest.
+
+Note that the first row must look like this:
+#names [column_label1] [column_label2] ...
+
+Do not make a column label for the leaf name column. The #names is just a place holder - 
+not sure if it can be replaced but just put it in to make sure it works. 
+The ETE parser will fail without a label row with the right number of entries!
+""",
                   action = "store", type="str", dest="datafile", default=None)
 
 (options, args) = parser.parse_args()
@@ -113,10 +122,15 @@ t, ts = prettifyTree(t)
 # Standardize leaf order in equivalent trees (with same root)
 t = standardizeTreeOrdering(t)
 
+# Label face columns [This will be useful for labeling tables next to the tree!]
+F = faces.TextFace("Annotation", ftype="Times", fsize=20)
+ts.aligned_header.add_face(F, 0)
+
 # Now we try and add the heatmap
 # if the user requests it
 #
 # I borrowed some of this code from the ETE tutorial.
+
 if options.datafile is not None:
     array = t.arraytable
     matrix_dist = [i for r in xrange(len(array.matrix))\
@@ -129,10 +143,18 @@ if options.datafile is not None:
     for node in t.traverse():
         if node.is_leaf():
             node.add_face(profileFace, 1, position = "aligned")
-
-# Label face columns [This will be useful for labeling tables next to the tree!]
-F = faces.TextFace("Annotation", ftype="Times", fsize=20)
-ts.aligned_header.add_face(F, 0)
+    # Add the color bar (kind of hacked in from matplotlib)
+    # I could generate this in situ... for now I just have a file I like and run with it.
+    from ete2 import ImgFace
+    imgloc = os.path.join(locateRootDirectory(), "src", "Colormap.png")
+    F1 = faces.TextFace("Minimum: %1.1f" %(matrix_min), ftype="Times", fsize=20 )
+    F2 = faces.ImgFace(imgloc)
+    F3 = faces.TextFace("%1.1f : Maximum" %(matrix_max), ftype="Times", fsize=20 )
+    ts.legend.add_face(F1, 0)
+    ts.legend.add_face(F2, 1)
+    ts.legend.add_face(F3, 2)
+    # Bottom-left
+    ts.legend_position = 3
 
 if options.savenewick:
     t.write(outfile="%s.nwk" %(options.basename), format=0)

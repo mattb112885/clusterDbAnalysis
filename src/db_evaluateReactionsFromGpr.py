@@ -2,6 +2,7 @@
 
 import fileinput, optparse, sqlite3, sys, re
 from FileLocator import *
+from sanitizeString import *
 
 usage = "%prog -g [GPR_file] -i [RunID] > Rxn_presence_absence"
 description = """This function takes a two-column table containing
@@ -104,7 +105,7 @@ for gene in genelist:
     # Now lets get what organisms are in that cluster.
     cur.execute(query2, (options.runid, clusterid))
     for res in cur:
-        org = res[0]
+        org = sanitizeString(res[0], False)
         orglist.add(org)
         if clusterid in cluster2orgs:
             cluster2orgs[clusterid].add(org)

@@ -122,38 +122,39 @@ t, ts = prettifyTree(t)
 # Standardize leaf order in equivalent trees (with same root)
 t = standardizeTreeOrdering(t)
 
-# Label face columns [This will be useful for labeling tables next to the tree!]
-F = faces.TextFace("Annotation", ftype="Times", fsize=20)
-ts.aligned_header.add_face(F, 0)
-
 # Now we try and add the heatmap
 # if the user requests it
 #
 # I borrowed some of this code from the ETE tutorial.
-
 if options.datafile is not None:
     array = t.arraytable
+    numcols = len(array.colNames)
     matrix_dist = [i for r in xrange(len(array.matrix))\
                        for i in array.matrix[r] if numpy.isfinite(i)]
     matrix_max = numpy.max(matrix_dist)
     matrix_min = numpy.min(matrix_dist)
     matrix_avg = matrix_min+((matrix_max-matrix_min)/2)
+
     # Max, Min, Center, Width, Height, Type)
-    profileFace  = ProfileFace(matrix_max, matrix_min, matrix_avg, 200, 14, "heatmap")
+    # I give it 30 pixels per column (so that the width doesn't shrink down too much when we have more than a few columns)
+    profileFace  = ProfileFace(matrix_max, matrix_min, matrix_avg, numcols*60, 14, "heatmap")
     for node in t.traverse():
         if node.is_leaf():
             node.add_face(profileFace, 1, position = "aligned")
-    # Add the color bar (kind of hacked in from matplotlib)
+    
+    # Add the color bar (kind of hacked in from matplotlib since there is no convenient way to get it from ETE)
     # I could generate this in situ... for now I just have a file I like and run with it.
+    # This doesn't match exactlty becuase I don't have the time or motivation now to mess with QT to do it.
+    # It should be pretty close though...
     from ete2 import ImgFace
     imgloc = os.path.join(locateRootDirectory(), "src", "Colormap.png")
-    F1 = faces.TextFace("Minimum: %1.1f" %(matrix_min), ftype="Times", fsize=20 )
+    F1 = faces.TextFace("Minimum: %1.1f" %(matrix_min), ftype="Times", fsize=32 )
     F2 = faces.ImgFace(imgloc)
-    F3 = faces.TextFace("%1.1f : Maximum" %(matrix_max), ftype="Times", fsize=20 )
+    F3 = faces.TextFace("%1.1f : Maximum" %(matrix_max), ftype="Times", fsize=32 )
     ts.legend.add_face(F1, 0)
     ts.legend.add_face(F2, 1)
     ts.legend.add_face(F3, 2)
-    # Bottom-left
+    # Put it on the Bottom-left
     ts.legend_position = 3
 
 if options.savenewick:

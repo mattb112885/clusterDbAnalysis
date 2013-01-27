@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from ete2 import Tree, TextFace, CircleFace
-import optparse, sys
+import optparse, os, sys
 from CoreGeneFunctions import *
 from TreeFuncs import *
 
@@ -11,6 +11,10 @@ clusters conserved in the nodes beneath it (conservation being defined by a vari
 below). The input MUST be a Newick file with organism names replaced."""
 
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-d", "--display", help="Display tree", action="store_true", dest="display", default=False)
+parser.add_option("-v", "--savesvg", help="Save tree as SVG (requires -b)", action="store_true", dest="savesvg", default=False)
+parser.add_option("-p", "--savepng", help="save tree as PNG (implies -v, requires -b)", action="store_true", dest="savepng", default=False)
+parser.add_option("-b", "--basename", help="Base name for file to save (required with -v or -p)", action="store", type="str", dest="basename", default=None)
 parser.add_option("-r", "--reroot", help="Reroot tree to specified leaf before doing calculation (D: Use tree as is)",
                   action="store", type="str", dest="reroot_org", default=None)
 parser.add_option("-a", "--all", 
@@ -38,6 +42,18 @@ if len(args) < 2:
     sys.stderr.write("ERROR: Newick file and runID are required\n")
     exit(2)
 
+if not (options.display or options.savesvg or options.savepng):
+    sys.stderr.write("ERROR: At least One of -v, -p, or -d is required\n")
+    exit(2)
+
+if (options.savesvg or options.savepng) and options.basename is None:
+    sys.stderr.write("ERROR: -b is required if -p or -v is specified\n")
+    exit(2)
+
+if options.savepng:
+    options.savesvg = True
+
+
 t = Tree(args[0])
 runid = args[1]
 
@@ -61,4 +77,19 @@ for node in t.traverse("postorder"):
     node.add_face(cFace, 0, position="float")  
     node.add_face(numFace, 2, position="branch-bottom")
 
-t.show(tree_style = ts)
+if options.savesvg:
+    # Some versions of ETE create a "test.svg" and others do not.
+    # To avoid confusion (and in case TreeStyle isn't enforced)
+    # I just create a new one.
+    os.system("rm test.svg 2> /dev/null")
+    t.render("%s.svg" %(options.basename), tree_style=ts)
+
+# Convert the svg file into a high-quality (300 dpi) PNG file...
+# The PNG converter in ETE gives a terrible quality image 
+# 
+# Use convert to make something better and then trim the edges off.
+if options.savepng:
+    os.system("convert -trim -depth 16 -background transparent %s.svg %s.png" %(options.basename, options.basename))
+
+if options.display:
+    t.show(tree_style=ts)

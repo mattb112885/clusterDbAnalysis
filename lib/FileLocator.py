@@ -22,23 +22,20 @@ def locateDatabase():
     rootdir = locateRootDirectory()
     dbpath = os.path.join(rootdir, "db", "DATABASE.sqlite")
     if not os.path.exists(dbpath):
-        sys.stderr.write("ERROR: Database file not found in expected location %s" %(dbpath) )
-        raise ValueError
+        raise ValueError("ERROR: Database file not found in expected location %s\n" %(dbpath) )
     return dbpath
 
 def locateOrganismFile():
     rootdir = locateRootDirectory()
     orgpath = os.path.join(rootdir, "organisms")
     if not os.path.exists(orgpath):
-        sys.stderr.write("ERROR: organisms file not found in expected location %s" %(orgpath) )
-        raise ValueError
+        raise ValueError("ERROR: organisms file not found in expected location %s\n" %(orgpath) )
     return orgpath
 
 def locateGroupsFile():
     rootdir = locateRootDirectory()
     groupspath = os.path.join(rootdir, "groups")
     if not os.path.exists(groupspath):
-        sys.stderr.write("ERROR: groups file not found in expected location %s" %(groupsspath) )
-        raise ValueError
+        raise ValueError("ERROR: groups file not found in expected location %s" %(groupsspath) )
     return groupspath
 

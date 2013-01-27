@@ -6,6 +6,7 @@
 from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace, TextFace
 import re
 import sys
+import warnings
 
 def rerootEteTree(ete_tree, root_leaf = None, root_leaf_part = None):
     '''Given an ETE tree, re-root by either the whole name of a leaf (i.e. a gene ID) or a
@@ -19,7 +20,7 @@ def rerootEteTree(ete_tree, root_leaf = None, root_leaf_part = None):
         return ete_tree
 
     if root_leaf is not None and root_leaf_part is not None:
-        sys.stderr.write("ERROR: Only one of rootgene and rootorg can be specified\n")
+        raise ValueError("ERROR: Only one of rootgene and rootorg can be specified\n")
     
     if root_leaf is not None:
         done = False
@@ -29,21 +30,19 @@ def rerootEteTree(ete_tree, root_leaf = None, root_leaf_part = None):
                 done = True
                 break
         if not done:
-            sys.stderr.write("ERROR: Specified outgroup %s not found in tree\n" %(root_leaf))
-            raise ValueError
+            raise ValueError("ERROR: Specified outgroup %s not found in tree\n" %(root_leaf))
 
     if root_leaf_part is not None:
         done = False
         for node in ete_tree.traverse():
             if root_leaf_part in node.name and done:
-                sys.stderr.write("WARNING: More than one node present in cluster that matches query string %s. Will just use the first one...\n" %(root_leaf_part) )
+                warnings.warn("WARNING: More than one node present in cluster that matches query string %s. Will just use the first one...\n" %(root_leaf_part) )
                 continue
             if root_leaf_part in node.name:
                 ete_tree.set_outgroup(node)
                 done = True
         if not done:
-            sys.stderr.write("ERROR: No leaves found that match specified query string %s found in your tree\n" %(root_leaf_part) )
-            raise ValueError
+            raise ValueError("ERROR: No leaves found that match specified query string %s found in your tree\n" %(root_leaf_part) )
 
     return ete_tree
 
@@ -99,7 +98,7 @@ def standardizeTreeOrdering(ete_tree):
         if not node.is_leaf():
             children = node.get_children()
             if not len(children) == 2:
-                sys.stderr.write("WARNING: Node found with more than two children... Should always have 2 children per node?\n")
+                warnings.warn("WARNING: Node found with more than two children... Should always have 2 children per node?\n")
                 continue
             nl0 = len(children[0].get_leaves())
             nl1 = len(children[1].get_leaves())
@@ -122,15 +121,14 @@ def rerootPhyloTree(phylo_tree, reroot_species = None):
     of tree.'''
 
     if reroot_species is None:
-        sys.stderr.write("ERROR: must specify a species on which to root\n")
-        raise ValueError
+        raise ValueError("ERROR: must specify a species on which to root\n")
 
     done = False
     for node in phylo_tree.traverse():
         if node.is_leaf():
             if node.species == reroot_species:
                 if done:
-                    sys.stderr.write("WARNING: Multiple leaves found matching species %s so just rerooted on the first one we found\n" %(reroot_species) )
+                    warnings.warn("WARNING: Multiple leaves found matching species %s so just rerooted on the first one we found\n" %(reroot_species) )
                     continue
                 phylo_tree = rerootEteTree(phylo_tree, root_leaf = node.name)
                 done = True
@@ -152,8 +150,7 @@ def splitrast(geneid, removefigpeg = False):
     the "fig" and "peg" parts'''
 
     if ".peg." not in geneid:
-        sys.stderr.write("ERROR: The expected string .peg. not found in gene ID - did you pass in a sanitized ID instead of an unsanitized one?\n")
-        raise ValueError
+        raise ValueError("ERROR: The expected string .peg. not found in gene ID - did you pass in a sanitized ID instead of an unsanitized one?\n")
 
     unsanitized = geneid
     fig, peg = unsanitized.split('.peg.')

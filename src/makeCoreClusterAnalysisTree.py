@@ -54,15 +54,11 @@ for node in t.traverse("postorder"):
     clusters = findGenesByOrganismList(leafnames, runid, sanitized=True, all_org = options.all, any_org = options.any,
                                        only_org = options.only, none_org = options.none, uniq_org = options.uniq)
     numclusters = len(clusters)
-    print "%d clusters for organisms:" %(numclusters)
-    print leafnames
-    print ""
-    numFace = TextFace(str(numclusters), ftype="Times", fsize=24)
+    numFace = TextFace("\n%d" %(numclusters), ftype="Times", fsize=24)
     # Numclusters will be as high as a few thousand for the bacteria (with -all) - with -any it can be way more than this so
     # use with caution...
     cFace = CircleFace(radius=int(numclusters/100)+10, color="Green", style="sphere")
-    node.add_face(cFace, 0, position="float")
-    node.add_face(numFace, 0, position="branch-right")
-    
+    node.add_face(cFace, 0, position="float")  
+    node.add_face(numFace, 2, position="branch-bottom")
 
 t.show(tree_style = ts)

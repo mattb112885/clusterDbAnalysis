@@ -74,9 +74,10 @@ def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, title=
     if ts is None:
         ts = TreeStyle()
 
-    # Do not allow arteficial branch lengthening for labeling purposes.
-    # We need to test this to make sure it doesn't make the trees un-readable.
-    ts.optimal_scale_level = "full"
+    # This "fixes" the dashed line issue but makes the tree look terrible.
+    # There may be no way around this (and it's likely other tree viewers do the same thing
+    # but just don't tell you).
+    #ts.optimal_scale_level = "full"
 
     # We made these bigger so lets turn off the default ones too.
     ts.show_branch_support = False

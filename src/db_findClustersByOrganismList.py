@@ -4,9 +4,9 @@
 # identify clusters within that run that only have representatives
 # within the specified list of organisms
 
-import fileinput, optparse, sqlite3, sys, os
-from FileLocator import *
-from sanitizeString import *
+import optparse
+import sys
+from CoreGeneFunctions import *
 
 usage="%prog [options] run_id < organism_list > cluster_run_id_list"
 description="""Find clusters with a paritcular quality relative to the list of organisms you specified.
@@ -54,61 +54,13 @@ for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")
     orglist.append(spl[oc])
 
-if options.sanitized:
-    allOrgsDict = {}
-    p = os.path.join(os.path.dirname(locateDatabase()), "..", "organisms")
-    orgfile = open(p, "r")
-    for line in orgfile:
-        spl = line.strip("\r\n").split("\t")
-        allOrgsDict[sanitizeString(spl[0], False)] = spl[0]
+clusterrun_list = findGenesByOrganismList(orglist, args[0], 
+                                          sanitized = options.sanitized, 
+                                          any_org = options.any,
+                                          all_org = options.all,
+                                          only_org = options.only,
+                                          none_org = options.none,
+                                          uniq_org = options.uniq)
 
-    for ii in range(len(orglist)):
-        orglist[ii] = allOrgsDict[orglist[ii]]
-
-con = sqlite3.connect(locateDatabase())
-cur = con.cursor()
-
-# From the sqlite database, download the list of clusterorgs
-cl = []
-cur.execute("SELECT runid, clusterid, organism FROM clusterorgs WHERE clusterorgs.runid=? ORDER BY runid,clusterid", (args[0], ) )
-for res in cur:
-    ls = [ str(s) for s in res ]
-    cl.append(ls)
-
-previd = -1
-orgset = set(orglist)
-currentorgs = set()
-for l in cl:
-    if l[1] != previd:
-        if previd != -1:
-            (anyok, allok, noneok, onlyok) = False,False,False,False
-            # Check ANY
-            intersection = orgset & currentorgs
-            if len(intersection) > 0:
-                anyok = True
-            else:
-                noneok = True
-            # Check ALL
-            if len(intersection) == len(orgset):
-                allok = True
-            # Check ONLY
-            diff = currentorgs - orgset
-            if len(diff) == 0:
-                onlyok = True
-
-            # Our criteria: we can't have any of the options be TRUE and not have the corresponding condition also be true
-            if not ( ( options.any and not anyok) or (options.all and not allok) or (options.none and not noneok) or (options.only and not onlyok) or (options.uniq and not uniqok) ):       
-                print "%s\t%s" %(prevrun, previd)
-
-        # Reset
-        uniqok = True
-        currentorgs.clear()
-        previd = l[1]
-        prevrun = l[0]
-
-    if l[2] in currentorgs:
-        uniqok = False
-    currentorgs.add(l[2])
-
-
-con.close()
+for cr in clusterrun_list:
+    print "%s\t%s" %(cr[0], cr[1])

@@ -61,7 +61,7 @@ if [ -f "groups" ]; then
     mv "groupmod" "groups"
 fi
 
-./addGroupByMatch.py -o organisms -g groups -n all
+./addGroupByMatch.py -n all
 
 ./checkInputFormat.sh
 if [ $? -ne 0 ]; then

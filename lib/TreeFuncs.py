@@ -50,6 +50,7 @@ def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, title=
     ''' Perform standardized functions to make the ETE trees easier to read:
     - Make the branch support bigger
     - Make the leaf fonts bigger
+    - Turn off elongating branches for visualization purposes (i.e. make sure the real branch lengths are represented)
     - Change both to standard font (Times)
     - Standardize the tree's width (calculate based on the maximum length from the root to a tip)
     - (optional) add title to tree
@@ -73,6 +74,11 @@ def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, title=
     if ts is None:
         ts = TreeStyle()
 
+    # Do not allow arteficial branch lengthening for labeling purposes.
+    # We need to test this to make sure it doesn't make the trees un-readable.
+    ts.optimal_scale_level = "full"
+
+    # We made these bigger so lets turn off the default ones too.
     ts.show_branch_support = False
     ts.show_leaf_name = False
 

@@ -4,7 +4,7 @@
 # identify clusters within that run that only have representatives
 # within the specified list of organisms
 
-import fileinput, optparse, sqlite3, sys, os
+import fileinput, operator, optparse, sqlite3, sys, os
 from FileLocator import *
 from sanitizeString import *
 
@@ -35,10 +35,14 @@ def findGenesByOrganismList(orglist, runid, sanitized = False, any_org = False, 
 
     # From the sqlite database, download the list of clusterorgs
     cl = []
-    cur.execute("SELECT runid, clusterid, organism FROM clusterorgs WHERE clusterorgs.runid=? ORDER BY runid,clusterid", (runid, ) )
+    #cur.execute("SELECT runid, clusterid, organism FROM clusterorgs WHERE clusterorgs.runid=? ORDER BY runid,clusterid", (runid, ) )
+    cur.execute("SELECT runid, clusterid, organism FROM clusterorgs WHERE clusterorgs.runid=?", (runid, ) )
     for res in cur:
         ls = [ str(s) for s in res ]
         cl.append(ls)
+
+    # Lets see if this is faster than using ORDER BY in the SQL statement...
+    cl = sorted(cl, key=operator.itemgetter(1,2) )
 
     previd = -1
     orgset = set(orglist)

@@ -14,7 +14,6 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-d", "--display", help="Display tree", action="store_true", dest="display", default=False)
 parser.add_option("-v", "--savesvg", help="Save tree as SVG (requires -b)", action="store_true", dest="savesvg", default=False)
 parser.add_option("-p", "--savepng", help="save tree as PNG (implies -v, requires -b)", action="store_true", dest="savepng", default=False)
-parser.add_option("-b", "--basename", help="Base name for file to save (required with -v or -p)", action="store", type="str", dest="basename", default=None)
 parser.add_option("-r", "--reroot", help="Reroot tree to specified leaf before doing calculation (D: Use tree as is)",
                   action="store", type="str", dest="reroot_org", default=None)
 parser.add_option("-a", "--all", 
@@ -35,6 +34,7 @@ are represented in the cluster)""",
 parser.add_option("-y", "--any",
                   help = "Count clusters if they have representatives in ANY descendent node from each internal node.""",
                   action = "store_true", dest="any", default = False)
+parser.add_option("-b", "--basename", help="Output file base name (D: automatically generated)", action="store", dest="basename", default=None)
 
 (options, args) = parser.parse_args()
 
@@ -46,12 +46,22 @@ if not (options.display or options.savesvg or options.savepng):
     sys.stderr.write("ERROR: At least One of -v, -p, or -d is required\n")
     exit(2)
 
-if (options.savesvg or options.savepng) and options.basename is None:
-    sys.stderr.write("ERROR: -b is required if -p or -v is specified\n")
-    exit(2)
-
 if options.savepng:
     options.savesvg = True
+
+if options.basename is None:
+    truthvalue_str = []
+    if options.all:
+        truthvalue_str.append("all")
+    if options.any:
+        truthvalue_str.append("any")
+    if options.only:
+        truthvalue_str.append("only")
+    if options.none:
+        truthvalue_str.append("none")
+    if options.uniq:
+        truthvalue_str.append("uniq")
+    options.basename = "%s_%s" %(args[1], "_".join(truthvalue_str))
 
 
 t = Tree(args[0])
@@ -61,21 +71,32 @@ if options.reroot_org is not None:
     t = rerootEteTree(t, root_leaf = options.reroot_org)
 
 # Make something pretty out of it.
-t, ts = prettifyTree(t)
+# We don't want bootstraps here since they just make the tree more cluttered.
+t, ts = prettifyTree(t, show_bootstraps = False)
 
 # The strategy really doesn't matter, it's just for aesthetics...
+nodenum = 0
+fid = open(options.basename, "w")
 for node in t.traverse("postorder"):
+    nodenum += 1
     # This function from ETE gives you all of the descendent leaf names in an array.
     leafnames = node.get_leaf_names()
     clusters = findGenesByOrganismList(leafnames, runid, sanitized=True, all_org = options.all, any_org = options.any,
                                        only_org = options.only, none_org = options.none, uniq_org = options.uniq)
     numclusters = len(clusters)
-    numFace = TextFace("\n%d" %(numclusters), ftype="Times", fsize=24)
+    # This is mostly so that I can keep track of progress.
+    sys.stderr.write("%d (%d)\n" %(numclusters, nodenum))
+#    numFace = TextFace("\n%d" %(numclusters), ftype="Times", fsize=24)
+    numFace = TextFace("\%d (%d)" %(numclusters, nodenum), ftype="Times", fsize=24)
     # Numclusters will be as high as a few thousand for the bacteria (with -all) - with -any it can be way more than this so
     # use with caution...
-    cFace = CircleFace(radius=int(numclusters/100)+10, color="Green", style="sphere")
-    node.add_face(cFace, 0, position="float")  
+#    cFace = CircleFace(radius=int(numclusters/50), color="Green", style="sphere")
+#    node.add_face(cFace, 0, position="float")  
     node.add_face(numFace, 2, position="branch-bottom")
+    for c in clusters:
+        fid.write("%s\t%s\t%d\n" %(c[0], c[1], nodenum))
+
+fid.close()
 
 if options.savesvg:
     # Some versions of ETE create a "test.svg" and others do not.

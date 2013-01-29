@@ -46,7 +46,7 @@ def rerootEteTree(ete_tree, root_leaf = None, root_leaf_part = None):
 
     return ete_tree
 
-def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, title=None, ts = None):
+def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, show_bootstraps = True, title=None, ts = None):
     ''' Perform standardized functions to make the ETE trees easier to read:
     - Make the branch support bigger
     - Make the leaf fonts bigger
@@ -63,9 +63,10 @@ def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, title=
             F = faces.TextFace(node.name, ftype="Times", fsize=leaf_font_size)
             node.add_face(F, 0, position="aligned")
         else:
-            # Make branch support bigger
-            F = faces.TextFace(node._support, ftype="Times", fsize=branch_support_size)
-            node.add_face(F, 0, position="branch-top")
+            if show_bootstraps:
+                # Make branch support bigger
+                F = faces.TextFace(node._support, ftype="Times", fsize=branch_support_size)
+                node.add_face(F, 0, position="branch-top")
 
     #correct the long root node bug (fixed in next release)
     ete_tree.dist=0

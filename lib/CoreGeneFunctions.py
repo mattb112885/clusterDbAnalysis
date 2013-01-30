@@ -7,13 +7,65 @@
 import fileinput, operator, optparse, sqlite3, sys, os
 from FileLocator import *
 from sanitizeString import *
+from ete2 import TextFace
 
-def addCoreGataToTree(ete_tree, ts, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
-    pass
+def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
+    '''A function to add data related to gene and organism distribution across clusters
+    to a core gene tree'''
 
-def findGenesByOrganismList(orglist, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
+    cl = getClusterOrgsByRun(runid)
+
+    nodenum = 0
+    clusterrunlist = []
+    # The strategy really doesn't matter, it's just for aesthetics... and to make sure its always the same.
+    for node in ete_tree.traverse("postorder"):
+        nodenum += 1
+        leafnames = node.get_leaf_names()
+        clusters = findGenesByOrganismList(leafnames, runid, cl = cl, sanitized=True, 
+                                           all_org = all_org, any_org = any_org, only_org = only_org, none_org = none_org, uniq_org = uniq_org)
+        numclusters = len(clusters)
+        # This is mostly so that I can keep track of progress.
+        sys.stderr.write("%d (N%d)\n" %(numclusters, nodenum))
+        numFace = TextFace("%d (N%d)" %(numclusters, nodenum), ftype="Times", fsize=24)
+        node.add_face(numFace, 0, position="branch-bottom")
+        for c in clusters:
+            clusterrunlist.append( ( c[0], c[1], nodenum ) )
+
+    return ete_tree, clusterrunlist
+
+def getClusterOrgsByRun(runid):
+    '''I separated this call from the findGenesByOrganismList below because we often need to call the latter
+    many times and this one is the same for all of them (if the run ID is the same).
+
+    The return object is a list of (runid, clusterid, organism) tuples sorted by run ID then by cluster ID.'''
+    # From the sqlite database, download the list of clusterorgs
+
+    con = sqlite3.connect(locateDatabase())
+    cur = con.cursor()
+
+    cl = []
+    cur.execute("SELECT runid, clusterid, organism FROM clusterorgs WHERE clusterorgs.runid=?", (runid, ) )
+    for res in cur:
+        ls = [ str(s) for s in res ]
+        cl.append(ls)
+
+    # This is far faster than using ORDER BY in sqlite (at least unless I try to hack the SQL command to make it
+    # get the order of operations right...)
+    cl = sorted(cl, key=operator.itemgetter(1,2) )
+
+    con.close()
+
+    return cl
+
+def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
     '''Identify clusters that have a specific set of properties with respect to a given set of
     organisms. The valid properties are ANY, ALL, ONLY, and NONE.
+
+    Specifiy sanitized=TRUE if the organism names passed here are sanitized (spaces, periods, etc. replaced by
+    underscores - see sanitizeString.py for the standard way to sanitize names).
+
+    If the list of runid, clusterid, organismid tuples has already been computed, pass it in via the "cl"
+    argument to avoid computing it again. Otherwise, it will be (re)computed within this function.
 
     The organisms in "orglist" are considered the "ingroup" and any organisms in the given cluster run but
     NOT in the orglist are considered the "outgroup". Clusters are pulled out according to the following table
@@ -73,19 +125,8 @@ def findGenesByOrganismList(orglist, runid, sanitized = False, any_org = False, 
         for ii in range(len(orglist)):
             orglist[ii] = allOrgsDict[orglist[ii]]
 
-    con = sqlite3.connect(locateDatabase())
-    cur = con.cursor()
-
-    # From the sqlite database, download the list of clusterorgs
-    cl = []
-    #cur.execute("SELECT runid, clusterid, organism FROM clusterorgs WHERE clusterorgs.runid=? ORDER BY runid,clusterid", (runid, ) )
-    cur.execute("SELECT runid, clusterid, organism FROM clusterorgs WHERE clusterorgs.runid=?", (runid, ) )
-    for res in cur:
-        ls = [ str(s) for s in res ]
-        cl.append(ls)
-
-    # Lets see if this is faster than using ORDER BY in the SQL statement...
-    cl = sorted(cl, key=operator.itemgetter(1,2) )
+    if cl is None:
+        cl = getClusterOrgsByRun(runid)
 
     previd = -1
     orgset = set(orglist)
@@ -126,5 +167,4 @@ def findGenesByOrganismList(orglist, runid, sanitized = False, any_org = False, 
             uniqok = False
         currentorgs.add(l[2])
 
-    con.close()
     return goodClusters

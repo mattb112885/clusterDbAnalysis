@@ -74,29 +74,9 @@ if options.reroot_org is not None:
 # We don't want bootstraps here since they just make the tree more cluttered.
 t, ts = prettifyTree(t, show_bootstraps = False)
 
-# The strategy really doesn't matter, it's just for aesthetics...
-nodenum = 0
-fid = open(options.basename, "w")
-for node in t.traverse("postorder"):
-    nodenum += 1
-    # This function from ETE gives you all of the descendent leaf names in an array.
-    leafnames = node.get_leaf_names()
-    clusters = findGenesByOrganismList(leafnames, runid, sanitized=True, all_org = options.all, any_org = options.any,
-                                       only_org = options.only, none_org = options.none, uniq_org = options.uniq)
-    numclusters = len(clusters)
-    # This is mostly so that I can keep track of progress.
-    sys.stderr.write("%d (%d)\n" %(numclusters, nodenum))
-#    numFace = TextFace("\n%d" %(numclusters), ftype="Times", fsize=24)
-    numFace = TextFace("\%d (%d)" %(numclusters, nodenum), ftype="Times", fsize=24)
-    # Numclusters will be as high as a few thousand for the bacteria (with -all) - with -any it can be way more than this so
-    # use with caution...
-#    cFace = CircleFace(radius=int(numclusters/50), color="Green", style="sphere")
-#    node.add_face(cFace, 0, position="float")  
-    node.add_face(numFace, 2, position="branch-bottom")
-    for c in clusters:
-        fid.write("%s\t%s\t%d\n" %(c[0], c[1], nodenum))
-
-fid.close()
+t, data = addCoreDataToTree(t, runid, 
+                            all_org = options.all, any_org = options.any, only_org = options.only, 
+                            none_org = options.none, uniq_org = options.uniq)
 
 if options.savesvg:
     # Some versions of ETE create a "test.svg" and others do not.

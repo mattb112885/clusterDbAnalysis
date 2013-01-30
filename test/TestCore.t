@@ -4,6 +4,8 @@
 '''Test suite for core cluster identification functions'''
 import unittest
 from CoreGeneFunctions import *
+from TreeFuncs import *
+from ete2 import Tree
 
 class CoreTester(unittest.TestCase):
     def setUp(self):
@@ -22,6 +24,19 @@ class CoreTester(unittest.TestCase):
         clusterlist = findGenesByOrganismList(self.orglist, self.runid, all_org = True, uniq_org = True, only_org = True)
         for c in clusterlist:
             print "%s\t%s" %(c[0], c[1])
+
+class AddCoreTester(unittest.TestCase):
+    def setUp(self):
+        self.runid = "methanosarcinales_Methanocella_I_1.7_c_0.3_m_maxbit"
+        self.ete_tree = Tree("test_org_tree.nwk")
+        self.ete_tree = rerootEteTree(self.ete_tree, root_leaf = "Methanocella_paludicola_SANAE")
+        self.ete_tree, self.ts = prettifyTree(self.ete_tree, show_bootstraps = False)
+    def testCore(self):
+        (newtree, clusterdata) = addCoreDataToTree(self.ete_tree, self.runid, all_org = True)
+        # Add second one (that was the whole point of having it be a function)
+        (newtree, clusterdata) = addCoreDataToTree(newtree, self.runid, all_org = True, only_org = True)
+        # Make sure both of them show up.
+        newtree.show(tree_style = self.ts)
 
 if __name__ == "__main__":
     unittest.main()

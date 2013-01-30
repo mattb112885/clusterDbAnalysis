@@ -9,9 +9,12 @@ from FileLocator import *
 from sanitizeString import *
 from ete2 import TextFace
 
-def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
+def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False, color = "Black"):
     '''A function to add data related to gene and organism distribution across clusters
-    to a core gene tree'''
+    to a core gene tree.
+
+    See http://packages.python.org/ete2/reference/reference_treeview.html#color-names for a list
+    of valid color names.'''
 
     cl = getClusterOrgsByRun(runid)
 
@@ -26,7 +29,7 @@ def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_o
         numclusters = len(clusters)
         # This is mostly so that I can keep track of progress.
         sys.stderr.write("%d (N%d)\n" %(numclusters, nodenum))
-        numFace = TextFace("%d (N%d)" %(numclusters, nodenum), ftype="Times", fsize=24)
+        numFace = TextFace("%d (N%d)" %(numclusters, nodenum), ftype="Times", fsize=24, fgcolor=color)
         node.add_face(numFace, 0, position="branch-bottom")
         for c in clusters:
             clusterrunlist.append( ( c[0], c[1], nodenum ) )

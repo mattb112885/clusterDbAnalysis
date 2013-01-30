@@ -32,9 +32,9 @@ class AddCoreTester(unittest.TestCase):
         self.ete_tree = rerootEteTree(self.ete_tree, root_leaf = "Methanocella_paludicola_SANAE")
         self.ete_tree, self.ts = prettifyTree(self.ete_tree, show_bootstraps = False)
     def testCore(self):
-        (newtree, clusterdata) = addCoreDataToTree(self.ete_tree, self.runid, all_org = True)
+        (newtree, clusterdata) = addCoreDataToTree(self.ete_tree, self.runid, all_org = True, color="Black")
         # Add second one (that was the whole point of having it be a function)
-        (newtree, clusterdata) = addCoreDataToTree(newtree, self.runid, all_org = True, only_org = True)
+        (newtree, clusterdata) = addCoreDataToTree(newtree, self.runid, all_org = True, only_org = True, color="Red")
         # Make sure both of them show up.
         newtree.show(tree_style = self.ts)
 

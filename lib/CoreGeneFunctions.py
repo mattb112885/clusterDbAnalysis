@@ -8,7 +8,50 @@ import fileinput, operator, optparse, sqlite3, sys, os
 from FileLocator import *
 from sanitizeString import *
 
+def addCoreGataToTree(ete_tree, ts, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
+    pass
+
 def findGenesByOrganismList(orglist, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
+    '''Identify clusters that have a specific set of properties with respect to a given set of
+    organisms. The valid properties are ANY, ALL, ONLY, and NONE.
+
+    The organisms in "orglist" are considered the "ingroup" and any organisms in the given cluster run but
+    NOT in the orglist are considered the "outgroup". Clusters are pulled out according to the following table
+    where the number in the entry corresponds to the number of represented ORGANISMS (NOT GENES) IN THE INGROUP
+    (other combinations are possible - this is just a representative set of examples):
+
+      Property  | Ingroup |  Outgroup
+    +-----------+---------+-----------
+      ALL       |  == N   |    >= 0
+    +-----------+---------+-----------
+      ANY       |  >= 1   |    >= 0
+    +-----------+---------+-----------
+      ONLY      |  >= 1   |    == 0
+    +-----------+---------+-----------
+      NONE      |  == 0   |    >= 1*
+    +-----------+---------+-----------
+     ALL + ONLY |  == N   |    == 0    - Genes that are only found in the ingroup and that are found in all members of the ingroup
+    +-----------+---------+-----------
+     ANY + ONLY |  >= 1   |    == 0    - Genes that are found only in the ingroup (but not necessarily in all of its members)
+    +-----------+---------+-----------
+     ALL + NONE |
+     ANY + NONE | Contradictions (raise errors).
+     ONLY + NONE|     
+    +-----------+---------+-----------    
+
+    *: No clusters have 0 representatives
+
+    N is the number of organisms in the ingroup and O is the number in the outgroup.
+
+    UNIQ specifies that in addition to any other flags, genes in every organism in the ingroup
+    must be uniquely represented in the cluster. Some groups definitions of "core genes" are
+    satisfied by using AND and UNIQ as constraints.
+
+    (TODO - I need to check if it enforces it for
+    only the ingroup or for both the ingroup AND the outgroup. We probably want it to only care
+    about the ingroup I think).'''
+
+
     if all_org and none_org:
         raise ValueError("ERROR: all_org and none_org options are contradictory\n")
     if any_org and none_org:

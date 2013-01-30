@@ -70,6 +70,10 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
     If the list of runid, clusterid, organismid tuples has already been computed, pass it in via the "cl"
     argument to avoid computing it again. Otherwise, it will be (re)computed within this function.
 
+    You can also use the "cl" argument to restrict analysis to a specific set of (run ID, cluster ID) pairs
+    by just passing that subset to the function. If no "cl" is passed then it is assumed you want to compare against
+    ALL clusters in a run.
+
     The organisms in "orglist" are considered the "ingroup" and any organisms in the given cluster run but
     NOT in the orglist are considered the "outgroup". Clusters are pulled out according to the following table
     where the number in the entry corresponds to the number of represented ORGANISMS (NOT GENES) IN THE INGROUP
@@ -101,6 +105,8 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
     UNIQ specifies that in addition to any other flags, genes in every organism in the ingroup
     must be uniquely represented in the cluster. Some groups definitions of "core genes" are
     satisfied by using AND and UNIQ as constraints.
+
+    The function returns a list of (runid, clusterid) pairs that adhere to the user-specified criteria.
 
     (TODO - I need to check if it enforces it for
     only the ingroup or for both the ingroup AND the outgroup. We probably want it to only care

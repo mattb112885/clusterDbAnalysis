@@ -32,7 +32,7 @@ def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_o
         numFace = TextFace("%d (N%d)" %(numclusters, nodenum), ftype="Times", fsize=24, fgcolor=color)
         node.add_face(numFace, 0, position="branch-bottom")
         for c in clusters:
-            clusterrunlist.append( ( c[0], c[1], nodenum ) )
+            clusterrunlist.append( ( c[0], c[1], "N%d" %(nodenum) ) )
 
     return ete_tree, clusterrunlist
 

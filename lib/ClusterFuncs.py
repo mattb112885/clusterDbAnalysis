@@ -23,3 +23,24 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
             bestannote = annote
     return bestannote
     
+def getGeneInfo(genelist, cur):
+    '''Given a list of gene IDs, returns the "geneinfo" as a list of tuples
+    in the same format as expected from output of db_getGeneInformation.py and
+    db_getClusterGeneInformation.py...'''
+
+    q = "SELECT processed.* from processed WHERE processed.geneid = ?;"
+    res = []
+    for gene in genelist:
+        cur.execute(q, (gene,))
+        for k in cur:
+            res.append( [ str(s) for s in k ] )
+    return res
+
+'''
+# Test
+from FileLocator import *
+import sqlite3
+con = sqlite3.connect(locateDatabase())
+cur = con.cursor()
+print getGeneInfo(["fig|339860.1.peg.123", "fig|339860.1.peg.124"], cur)
+'''

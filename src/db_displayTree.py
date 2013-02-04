@@ -38,6 +38,7 @@ not sure if it can be replaced but just put it in to make sure it works.
 The ETE parser will fail without a label row with the right number of entries!
 """,
                   action = "store", type="str", dest="datafile", default=None)
+parser.add_option("-w", "--data_width", help="Desired width of each data point on a heatmap (only valid with -f, default = 60)", action="store", type="int", dest="data_width", default=60)
 
 (options, args) = parser.parse_args()
 
@@ -136,8 +137,10 @@ if options.datafile is not None:
     matrix_avg = matrix_min+((matrix_max-matrix_min)/2)
 
     # Max, Min, Center, Width, Height, Type)
-    # I give it 30 pixels per column (so that the width doesn't shrink down too much when we have more than a few columns)
-    profileFace  = ProfileFace(matrix_max, matrix_min, matrix_avg, numcols*60, 14, "heatmap")
+    # I give it 60 pixels per column by default
+    # (so that the width doesn't shrink down too much when we have more than a few columns)
+    # However, the user has the ability to change thsi if they need to / want to for larger data sets
+    profileFace  = ProfileFace(matrix_max, matrix_min, matrix_avg, numcols*options.data_width, 14, "heatmap")
     for node in t.traverse():
         if node.is_leaf():
             node.add_face(profileFace, 1, position = "aligned")

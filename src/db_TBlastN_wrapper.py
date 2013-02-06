@@ -78,6 +78,7 @@ fid.close()
 # The way we do this depends a bit on how the function was called.
 # If an organism ID is passed... just find all the contigs from the database
 # and compile them.
+organism = None
 if options.org is not None:
     db = "%d.fna" %(rn)
     fid = open(db, "w")
@@ -118,6 +119,8 @@ elif options.orgfile is not None:
     os.system("makeblastdb -dbtype nucl -in %s > /dev/null" %(db))
 elif options.db is not None:
     db = options.db
+    # This is to prevent it from dieing because if we pre-define a database, there won't BE an organism to compare against.
+    organism = options.db
 
 # Run TBLASTN
 # Note - -soft_masking true is needed to help prevent two hits to a continuous protein due to filtering of low-complexity regions

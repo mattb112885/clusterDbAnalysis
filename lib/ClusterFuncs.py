@@ -5,6 +5,7 @@ such as cross-referencing with annotations, organisms, etc...'''
 
 import sys
 from FileLocator import *
+from sanitizeString import *
 
 def findRepresentativeAnnotation(runid, clusterid, cur):
     '''Identifies the most common annotation in a cluster/runID pair.
@@ -35,6 +36,33 @@ def getGeneInfo(genelist, cur):
         for k in cur:
             res.append( [ str(s) for s in k ] )
     return res
+
+def organismNameToId(orgname, cur, issanitized = False):
+    '''Given an organism name, return the ID for that organism name.
+    Use issanitized = True if the provided organism name has been sanitized
+    with the sanitizeString() function'''
+    q = "SELECT organism, organismid FROM organisms;"
+    cur.execute(q)
+    orgToId = {}
+    for res in cur:
+        if issanitized:
+            orgToId[sanitizeString(res[0], False)] = res[1]
+        else:
+            orgToId[res[0]] = res[1]
+    if orgname in orgToId:
+        return orgToId[orgname]
+    else:
+        raise ValueError("ERROR: Organism name %s not found in database")
+
+'''
+# Test the organism ID finder
+from FileLocator import *
+import sqlite3
+con = sqlite3.connect(locateDatabase())
+cur = con.cursor()
+print organismNameToId("Methanosarcina acetivorans C2A", cur)
+print organismNameToId("Methanosarcina_acetivorans_C2A", cur, issanitized = True)
+'''
 
 '''
 # Test

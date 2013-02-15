@@ -15,8 +15,8 @@ parser.add_option("-n", "--number", help="Rather than printing PEGs, print the n
                   action="store_true", dest="number", default=False)
 parser.add_option("-b", "--binary", help="Rather than printing PEGs, print 0 if there are no representatives and 1 if there are representatives (D: prints pegs)",
                   action = "store_true", dest="binary", default=False)
-parser.add_option("-r", "--runid", help="Only print results for the specified run ID (D: Prints the table for all of them)", action="store", type="str", dest="runid", default=None)
-parser.add_option("-c", "--clusterid", help="Only print results for the specified cluster ID (D: Prints the table for all of them)", action="store", type="str", dest="clusterid", default=None)
+parser.add_option("-r", "--runid", help="Only print results for the specified run ID (D: Print the results for all of them)", action="store", type="str", dest="runid", default=None)
+parser.add_option("-c", "--clusterid", help="Only print results for the specified cluster ID (D: Prints the table for all of them)", action="store", type="int", dest="clusterid", default=None)
 parser.add_option("-t", "--treeorder", help="Given a newick file with the SAME organism names as the presence\absence table, orders the columns to conform with the tree (D: no ordering)",
                   action = "store", type="str", dest="treeorder", default=None)
 (options,args) = parser.parse_args()
@@ -49,7 +49,8 @@ else:
     if options.clusterid is None:
         cur.execute("SELECT * FROM presenceabsence WHERE runid = ?", (options.runid,))
     else: 
-        runid, clustid = options.clusterid.split()
+        runid = options.runid
+        clustid = options.clusterid
         cur.execute("SELECT * FROM presenceabsence WHERE runid = ? AND clusterid = ?", (runid, clustid))
 
 nameorder = []

@@ -39,6 +39,7 @@ The ETE parser will fail without a label row with the right number of entries!
 """,
                   action = "store", type="str", dest="datafile", default=None)
 parser.add_option("-w", "--data_width", help="Desired width of each data point on a heatmap (only valid with -f, default = 60)", action="store", type="int", dest="data_width", default=60)
+parser.add_option("-t", "--no_bootstraps", help="Omit bootstrap values when drawing tree.", action="store_true", dest="no_bootstraps", default=False)
 
 (options, args) = parser.parse_args()
 
@@ -119,7 +120,7 @@ for node in t.traverse():
             node.name = newname
 
 # Standardize font sizes and tree width
-t, ts = prettifyTree(t)
+t, ts = prettifyTree(t, show_bootstraps = not options.no_bootstraps)
 # Standardize leaf order in equivalent trees (with same root)
 t = standardizeTreeOrdering(t)
 

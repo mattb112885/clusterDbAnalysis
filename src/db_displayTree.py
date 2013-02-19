@@ -141,7 +141,7 @@ if options.datafile is not None:
     # I give it 60 pixels per column by default
     # (so that the width doesn't shrink down too much when we have more than a few columns)
     # However, the user has the ability to change thsi if they need to / want to for larger data sets
-    profileFace  = ProfileFace(matrix_max, matrix_min, matrix_avg, numcols*options.data_width, 14, "heatmap")
+    profileFace  = ProfileFace(matrix_max, matrix_min, matrix_avg, width=numcols*options.data_width, height=35, style="heatmap")
     for node in t.traverse():
         if node.is_leaf():
             node.add_face(profileFace, 1, position = "aligned")

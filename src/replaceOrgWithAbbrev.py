@@ -43,7 +43,7 @@ fid = open(options.orgfile, "r")
 for line in fid:
     spl = line.strip('\r\n').split("\t")
     if options.sanitized:
-        orgid = sanitizeString(spl[2])
+        orgid = sanitizeString(spl[2], False)
     else:
         orgid = spl[2]
 

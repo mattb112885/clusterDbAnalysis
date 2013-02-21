@@ -27,6 +27,8 @@ parser.add_option("-f", "--orgfile", help="Organism file (optional, default = or
 parser.add_option("-a", "--useabbrev", help="Use abbreviation? (If specified, use the abbreviated form of the organism name. If not specified, use the entire organism name)", 
                   action="store_true", dest="useabbrev", default=False)
 parser.add_option("-k", "--keeppeg", help="Keep PEG ID? (if specified, keeps peg id. If not, throws it away)", action="store_true", dest="keeppeg", default=False)
+parser.add_option("-s", "--sanitized", help="Specify this if the organism IDs are sanitized in the file (fig_xx_yy instead of fig|xx.yy)", 
+                  action="store_true", dest="sanitized", default=False)
 (options, args) = parser.parse_args()
 
 if options.orgfile == None:
@@ -40,10 +42,15 @@ orgAbbrev = {}
 fid = open(options.orgfile, "r")
 for line in fid:
     spl = line.strip('\r\n').split("\t")
-    if useabbrev:
-        orgAbbrev[spl[2]] = sanitizeString(spl[1], False)
+    if options.sanitized:
+        orgid = sanitizeString(spl[2])
     else:
-        orgAbbrev[spl[2]] = sanitizeString(spl[0], False)
+        orgid = spl[2]
+
+    if useabbrev:
+        orgAbbrev[orgid] = sanitizeString(spl[1], False)
+    else:
+        orgAbbrev[orgid] = sanitizeString(spl[0], False)
 
 for line in fileinput.input("-"):
     myline = line.strip('\r\n')

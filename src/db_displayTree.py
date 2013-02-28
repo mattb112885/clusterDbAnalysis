@@ -104,8 +104,10 @@ cur.execute("SELECT * FROM processed;")
 for l in cur:
     spl = [ str(s) for s in list(l) ]
     # The SVG parser whines with some special characters (i.e. ' )
-    geneToAnnote[spl[0]] = sanitizeString(spl[9], False)
-    geneToOrganism[spl[0]] = sanitizeString(spl[1], False)
+    # I use the sanitized version as a key here so that the code will work whether or not the leaf names
+    # have been sanitized in the input tree.
+    geneToAnnote[sanitizeString(spl[0], False)] = sanitizeString(spl[9], False)
+    geneToOrganism[sanitizeString(spl[0], False)] = sanitizeString(spl[1], False)
 
 ######################
 # Add annotations and
@@ -114,9 +116,10 @@ for l in cur:
 
 for node in t.traverse():
     if node.is_leaf():
+        sanitizedName = sanitizeString(node.name, False)
         # Dont' crash because of e.g. outgroups put in. We already warned about this so don't need to do it again.
-        if node.name in geneToOrganism and node.name in geneToAnnote:
-            newname = "_".join( [ node.name, geneToOrganism[node.name], geneToAnnote[node.name] ] )
+        if sanitizedName in geneToOrganism and sanitizedName in geneToAnnote:
+            newname = "_".join( [ node.name, geneToOrganism[sanitizedName], geneToAnnote[sanitizedName] ] )
             node.name = newname
 
 # Standardize font sizes and tree width

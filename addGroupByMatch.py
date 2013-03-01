@@ -15,8 +15,6 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--groupname", help="Group name (required)", action="store", type="str", dest="groupname", default=None)
 (options, args) = parser.parse_args()
 
-if not os.path.exists(options.orgfile):
-    sys.stderr.write("ERROR: Specified organisms file %s does not exist\n" %(options.orgfile))
 if options.groupname is None:
     sys.stderr.write("ERROR: group name (-n) is a required argument\n")
     exit(2)

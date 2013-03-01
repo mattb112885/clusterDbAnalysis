@@ -3,7 +3,7 @@
 
 # Libraries needed
 import fileinput, optparse
-import sys, csv, getpass, socket
+import os, sys, csv, getpass, socket
 
 from Bio import Entrez, SeqIO
 from Bio.Seq import Seq
@@ -98,19 +98,16 @@ def info_from_record(record):
     #    info["Database cross-references"] = ";".join(record.dbxrefs)
     return info
 
-def genbank_extract(name, writefastas=True):
-    #set up filenames
-    gbin_filename = name + '.gbk'
-    nfasta_filename = name + '_genes.fna'
-    pfasta_filename = name + '_genes.faa'
-    seqfasta_filename = name + '.faa'
+def genbank_extract(ptr):
+
     #get data
-    gb_seqrec_multi = SeqIO.parse(open(gbin_filename,"r"), "genbank")
+    gb_seqrec_multi = SeqIO.parse(ptr, "genbank")
     #loop, as there may be multple genbanks together (although this is non-canonical)
     #lists to store extracted seqs
     nfastas = []
     pfastas = []
     genes = []
+    geneidToAlias = {}
     for gb_seqrec in gb_seqrec_multi:
         orginfo = info_from_genbank(gb_seqrec)
         for feature in gb_seqrec.features:
@@ -139,6 +136,15 @@ def genbank_extract(name, writefastas=True):
                 genename = geneinfo["aliases"]
                 genedesc = geneinfo["function"] + " " + orginfo["gb_description"]
                 geneinfo["gene_description"] = genedesc
+                
+                # Add locus tag and existing feature_id to list of aliases
+                aliases = []
+                if "protein_id" in feature.qualifiers:
+                    aliases.append(feature.qualifiers["protein_id"][0])
+                if "locus_tag" in feature.qualifiers:
+                    aliases.append(feature.qualifiers["locus_tag"][0])
+                geneidToAlias[geneid] = aliases
+
                 #Save in list to writeout
                 precord = SeqRecord(Seq(geneinfo["aa_sequence"], generic_protein),
                                     name=genename,
@@ -153,12 +159,8 @@ def genbank_extract(name, writefastas=True):
                                     )
                 nfastas.append(nrecord)
                 genes.append(geneinfo)
-    if writefastas:
-        #writeout  full sequence, and lists
-        SeqIO.write(gb_seqrec, open(seqfasta_filename,"w"), "fasta")
-        SeqIO.write(nfastas, open(nfasta_filename,"w"), "fasta")
-        SeqIO.write(pfastas, open(pfasta_filename,"w"), "fasta")
-    return orginfo, genes
+
+    return orginfo, genes, geneidToAlias
 
 def fasta_to_fastas(name, table, i):
     #TODO: This function is for inputing organisms that have ONLY FASTA FILES
@@ -244,57 +246,70 @@ if email == None:
     email = guessemail
 Entrez.email = email
 
-#if run from command line
 if __name__ == '__main__':
-    #main script function
-    usage="%prog < taxonid_list 1> organism_information 2> messages_&_errors"
-    description='''
-    Given a set of taxonids (from stdin) it will make a table for all genebank
-    files for that taxonid, as well as output a table containing all the organism information'''
+    usage="%prog [options] < genbank_file > tab_delimited_file"
+    description='''    The purpose of this script is to take in a standard Genbank file (.gbk) and output
+    the taboluar files that are required for input into ITEP and make sure all the gene IDs
+    and everything else is formatted correctly.
+
+    The script will create at least two files with names dependent on the taxID within the genbank file.
+    The .gbk file is just a copy of the existing genbank (for now) and should be placed in the genbank/ directory
+    with the provided new name.. The .txt file should be placed in the raw/ directory.
+   '''
     parser = optparse.OptionParser(usage=usage, description=description)
+    parser.add_option("-a", "--alias_file", help="A file to which to write aliases (D: Not written). WARNING: This could create duplicate entries in your ALIASES file!",
+                      action="store", type="str", dest="alias_file", default=None)
+    parser.add_option("-o", "--org_file", help="(OPTIONAL) a file to which to dump organism data.", action="store", type="str", dest="org_file", default=None)
+
     (options, args) = parser.parse_args()
 
-    inputlist = [taxonID.strip() for taxonID in list(fileinput.input("-"))]
-    #set up objects to hold information
-    orginfos=[]
-    info = {}.fromkeys(inputlist)
-    #collect information for files
-    for i, name in enumerate(inputlist):
-        sys.stderr.write("Processing %s" % name)
-        geneinfos = []
-        orginfo, genes = genbank_extract(str(name) + ".88888", writefastas=False)
-        orginfo.update(info)
-        orginfos.append(orginfo)
-        geneinfos.append(genes)
-        #write out all genes, with collumns in correct order.  the comments are where they originate from
-        names = ["contig_id",          #from gi of gb file
-                 "feature_id",         #taxonID from NCBI lookup of acention, geneID from the db_xref GI in feature
-                 "type",               #CDS = peg
-                 "location",           #ignored by iTEP, source assention here
-                 "start",              #+1 index and rev if on neg strand
-                 "stop",               #+1 index and rev if on neg strand
-                 "strand",             #converted to + or -
-                 "function",           #from feature product
-                 "aliases",            #ignored by iTEP, from gene asention
-                 "figfam",             #ignored by iTEP, empty for all
-                 "evidence_codes",     #ignored by iTEP, empty for all
-                 "nucleotide_sequence",#as recorded in feature
-                 "aa_sequence"]        #as recorded in feature, not translated manually
-        geneout_filename = str(name)+".88888.txt"
-        geneout_file = open(geneout_filename, 'w')
-        sys.stderr.write(",saved as %s\n" % geneout_filename)
-        geneout = csv.DictWriter(geneout_file, fieldnames = names, delimiter="\t")
-        #geneout.writeheader()
-        for orggenes in geneinfos:
-            for gene in orggenes:
-                geneout.writerow(dict([(n, gene[n]) for n in names]))
-        geneout_file.close()
+    geneinfos = []
+    orginfos = []
+    orginfo, genes, aliases = genbank_extract(sys.stdin)
+    orginfos.append(orginfo)
+    geneinfos.append(genes)
+    #write out all genes, with columns in correct order. The comments are where they originate from
+    names = ["contig_id",          #from gi of gb file
+    "feature_id",         #taxonID from NCBI lookup of acention, geneID from the db_xref GI in feature
+    "type",               #CDS = peg
+    "location",           #ignored by iTEP, source assention here
+    "start",              #+1 index and rev if on neg strand
+    "stop",               #+1 index and rev if on neg strand
+    "strand",             #converted to + or -
+    "function",           #from feature product
+    "aliases",            #ignored by iTEP, from gene asention
+    "figfam",             #ignored by iTEP, empty for all
+    "evidence_codes",     #ignored by iTEP, empty for all
+    "nucleotide_sequence",#as recorded in feature
+    "aa_sequence"]        #as recorded in feature, not translated manually
+
+    geneout_filename = str(orginfo["taxon"]) + ".88888.txt"
+
+    geneout_file = open(geneout_filename, 'w')
+    geneout = csv.DictWriter(geneout_file, fieldnames = names, delimiter="\t")
+    #geneout.writeheader()
+    for orggenes in geneinfos:
+        for gene in orggenes:
+            geneout.writerow(dict([(n, gene[n]) for n in names]))
+    geneout_file.close()
+    sys.stderr.write("Text file saved as %s\n" % geneout_filename)
+
+    if options.alias_file is not None:
+        if os.path.exists(options.alias_file):
+            raise IOError("ERROR: Specified alias file already exists. Specify a new file so that your data doesn't get overwritten")
+        alias_file = open(options.alias_file, "w")
+        for geneid in aliases:
+            for alias in aliases[geneid]:
+                alias_file.write("%s\t%s\n" %(geneid, alias))
+        alias_file.close()
 
     #write out all organism, with the original data columns followed by columns in alphabetical order
-    orgout_file = sys.stdout
-    names = orginfos[0].keys()
-    names.sort()
-    orgout = csv.DictWriter(orgout_file, fieldnames = names)
-    orgout.writeheader()
-    for org in orginfos:
-        orgout.writerow(org)
+    if options.org_file is not None:
+        names = orginfos[0].keys()
+        names.sort()
+        orgout_file = open(options.orgout_file, "w")
+        orgout = csv.DictWriter(orgout_file, fieldnames = names)
+        orgout.writeheader()
+        for org in orginfos:
+            orgout.writerow(org)
+        orgout_file.close()

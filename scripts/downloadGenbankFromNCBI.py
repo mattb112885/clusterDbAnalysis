@@ -250,8 +250,8 @@ be downloaded.
 
     outlocation = ''
     #report where we are getting data
-    NCBIversion('nucleotide')
-    NCBIversion('taxonomy')
+#    NCBIversion('nucleotide')
+#    NCBIversion('taxonomy')
     sys.stderr.write("\n")
 
     #first, where is the input coming from?

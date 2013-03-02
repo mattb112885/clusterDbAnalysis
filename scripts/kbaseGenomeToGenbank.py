@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import json
+import re
 import sys
 
 # CDMI.py is from the KBase - we need it to get the Taxon ID
@@ -17,6 +18,16 @@ from Bio.Alphabet import IUPAC
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
+
+def strip_control_characters(input):  
+    '''Taken from http://chase-seibert.github.com/blog/2011/05/20/stripping-control-characters-in-python.html'''
+    if input:  
+        # unicode invalid characters  
+        RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + u'|' + u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % (unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff), unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff), unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff) )
+        input = re.sub(RE_XML_ILLEGAL, "", input)  
+        # ascii control characters  
+        input = re.sub(r"[\x01-\x1F\x7F]", "", input)              
+    return input
 
 def getFieldFromRelationship(seedRelationship, fieldName, objtype):
     '''
@@ -140,7 +151,7 @@ def kbaseGenomeToGenbank(genome_object):
         # Unfortunately there are features including proteins in the genome objects that have no function (not even "hypothetical protein")
         # Thankfully this isn't a required field in the Genbank file
         if "function" in feature:
-            qualifiers["product"] = feature["function"]
+            qualifiers["product"] = strip_control_characters(feature["function"])
         if feature_type == "CDS" or feature_type == "peg":
             qualifiers["translation"] = feature["protein_translation"]
             qualifiers["protein_id"] = feature_id
@@ -192,5 +203,7 @@ if __name__ == '__main__':
         sys.stderr.write("ERROR: The JSON genome object is a required argument...\n")
         exit(2)
 
-    genome_object = json.load(open(args[0], "r"))
+    # The strict=FALSE is necessary because I had issues saving the JSON files from IRIS
+    # without invalid control characters being put in by firefox(??)
+    genome_object = json.load(open(args[0], "r"), strict=False)
     kbaseGenomeToGenbank(genome_object)

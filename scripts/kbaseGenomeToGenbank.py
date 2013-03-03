@@ -4,11 +4,6 @@ import json
 import re
 import sys
 
-# CDMI.py is from the KBase - we need it to get the Taxon ID
-# Download it at http://kbase.science.energy.gov/developer-zone/downloads/
-from CDMI import CDMI_EntityAPI
-URL="https://www.kbase.us/services/cdmi_api/"
-
 # This is from the lib/ directory of this repo
 from sanitizeString import *
 
@@ -93,10 +88,18 @@ def kbaseGenomeToGenbank(genome_object, taxid=None):
     # Get the TaxID
     # If none is specified the user has to provide one (or at least some unique integer, not necessarily a tax ID) for this system to work right.
     if taxid is None:
+        # CDMI.py is from the KBase - we need it to get the Taxon ID
+        # Download it at http://kbase.science.energy.gov/developer-zone/downloads/
+        try:
+            from CDMI import CDMI_EntityAPI
+        except ImportError:
+            sys.stderr.write("ERROR: If no TaxID is provided, the CDMI.py file is necessary (http://kbase.science.energy.gov/developer-zone/downloads/) to attempt to guess it.\n")
+            exit(2)
+        URL="https://www.kbase.us/services/cdmi_api/"
         cdmi_entity = CDMI_EntityAPI(URL)
         reldict = cdmi_entity.get_relationship_IsInTaxa(organism_id, [], [], ["id"])
         if reldict is None:
-            sys.stderr.write("ERROR: TaxID for Organism ID %s not found - you will need to specify it manually if you want it\n" %(organism_id))
+            sys.stderr.write("ERROR: TaxID for Organism ID %s not found in the KBase CDMI. You will need to specify it manually if you want it\n" %(organism_id))
             exit(2)
         else:
             taxidlist = getFieldFromRelationship(reldict, "id", "to")

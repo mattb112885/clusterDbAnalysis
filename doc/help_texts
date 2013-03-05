@@ -183,6 +183,21 @@ Options:
   -o ROOTORG, --rootorg=ROOTORG
                         Root on this organism ID (e.g. 83333.1) (default =
                         keep same root as nwk file)
+  -f DATAFILE, --data_file=DATAFILE
+                        Table of data with gene ID (leaf name, which must
+                        match the leaf names in the newick file exactly) on
+                        the first column and data to attach to the leaves on
+                        the rest.  Note that the first row must look like
+                        this: #names [column_label1] [column_label2] ...  Do
+                        not make a column label for the leaf name column. The
+                        #names is just a place holder -  not sure if it can be
+                        replaced but just put it in to make sure it works.
+                        The ETE parser will fail without a label row with the
+                        right number of entries!
+  -w DATA_WIDTH, --data_width=DATA_WIDTH
+                        Desired width of each data point on a heatmap (only
+                        valid with -f, default = 60)
+  -t, --no_bootstraps   Omit bootstrap values when drawing tree.
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_dumpAllFasta.py
@@ -593,8 +608,8 @@ Options:
                         representatives and 1 if there are representatives (D:
                         prints pegs)
   -r RUNID, --runid=RUNID
-                        Only print results for the specified run ID (D: Prints
-                        the table for all of them)
+                        Only print results for the specified run ID (D: Print
+                        the results for all of them)
   -c CLUSTERID, --clusterid=CLUSTERID
                         Only print results for the specified cluster ID (D:
                         Prints the table for all of them)
@@ -993,19 +1008,6 @@ Options:
                 matching rows)
 *--------------------------------------------------------------------------------------------------------------------------*
 
-kbase2rast.py
-
-Usage: kbase2rast.py [ID] < [Infile] > Raw_file
-
-This is a function for internal use. Call convertKbaseToRast.sh instead. This
-function takes an intermediate file created by convertKbaseToRast.sh and an
-assigned genome ID, and converts all of the IDs to the approrpiate format for
-use with the database.
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
 makeBlastScoreTable.py
 
 Usage: makeBlastScoreTable.py -m [method] -c [cutoff] [options] < blast_result_table
@@ -1023,6 +1025,43 @@ Options:
   -n, --noprint         Set this flag if you do not want to print edges less
                         than the cutoff as zeros (default = False - print
                         those edges
+*--------------------------------------------------------------------------------------------------------------------------*
+
+makeCoreClusterAnalysisTree.py
+
+Usage: makeCoreClusterAnalysisTree.py [options] newick_file runid
+
+Generate an ETE tree with internal node labels corresponding to the number of
+clusters conserved in the nodes beneath it (conservation being defined by a
+variery of options below). The input MUST be a Newick file with organism names
+replaced.
+
+Options:
+  -h, --help            show this help message and exit
+  -d, --display         Display tree
+  -v, --savesvg         Save tree as SVG (requires -b)
+  -p, --savepng         save tree as PNG (implies -v, requires -b)
+  -r REROOT_ORG, --reroot=REROOT_ORG
+                        Reroot tree to specified leaf before doing calculation
+                        (D: Use tree as is)
+  -a, --all             Count the clusters containing all of the descendent
+                        leaves of each internal node. Only specifying this
+                        option, the program ignores every leaf that is not a
+                        descendent of the internal node.
+  -u, --uniq            Count only those clusters with EXACTLY ONE member
+                        ofrom each descendent leaf (non-descendant leaves are
+                        ignoerd).
+  -s, --only            Count clusters only if every gene is a member of an
+                        organism in a descendant node of the tree. (can be
+                        combined with -a or -u)
+  -n, --none            Count clusters only if there are NO representatives in
+                        any descendent nodes from a given internal node (it
+                        doesn't matter which other organisms are represented
+                        in the cluster)
+  -y, --any             Count clusters if they have representatives in ANY
+                        descendent node from each internal node.
+  -b BASENAME, --basename=BASENAME
+                        Output file base name (D: automatically generated)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 makeHistorgram.py
@@ -1044,22 +1083,6 @@ Options:
                         max[numbers]
   -n NUMBER, --number=NUMBER
                         Number of bins (default = 10)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-makeLeafListFromEachNode.py
-
-Usage: makeLeafListFromEachNode.py [options] newick_file > leaflist
-
-Given a newick file as input, generate a list of all bunches of leaves in
-specified format. Default format is tab-delimited - each bunch gets its own
-row, and each leaf has a column. Can also specify to make a separate file for
-each bunch with one row for each leaf.
-
-Options:
-  -h, --help            show this help message and exit
-  -f FILEDIR, --files=FILEDIR
-                        Create a separate file for each group in the specified
-                        folder (D: False)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 makePresenceAbsenceFasta.py
@@ -1259,17 +1282,6 @@ Options:
                         Tree title
 *--------------------------------------------------------------------------------------------------------------------------*
 
-pubseed2rast.py
-
-Usage: pubseed2rast.py < [Pubseed file with sequences attached] > RAST-formatted file
-
-This is a function intended for internal use. Call convertPubseedToRast.sh to
-get a RAST-formatted file from a pubSEED ID.
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
 raw2faa.py
 
 Usage: raw2faa.py < RAW_file > faa_file
@@ -1356,14 +1368,19 @@ Replace one name of a gene with another name as given in a specified
 replacement table
 
 Options:
-  -h, --help        show this help message and exit
-  -n, --nooriginal  Set this flag to NOT keep the original name. To use this
-                    the new aliases must be unique (D=False)
+  -h, --help            show this help message and exit
+  -n, --nooriginal      Set this flag to NOT keep the original name. To use
+                        this the new aliases must be unique (D=False)
+  -s NOSANITIZE, --nosanitize=NOSANITIZE
+                        Set this flag to NOT sanitize the replacement names.
+                        Sanitized characters do not include pipes or periods
+                        so that this function can be used to put gene IDs in
+                        without this function
 *--------------------------------------------------------------------------------------------------------------------------*
 
 replaceOrgWithAbbrev.py
 
-Usage: replaceOrgWithAbbrev.py -f orgfile [options] < text_file > text_file_with_orgname
+Usage: replaceOrgWithAbbrev.py [options] < text_file > text_file_with_orgname
 
 Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file
 (e.g. a newick file)
@@ -1371,12 +1388,15 @@ Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file
 Options:
   -h, --help            show this help message and exit
   -f ORGFILE, --orgfile=ORGFILE
-                        Organism file (required)
+                        Organism file (optional, default = organisms file in
+                        root directory of current install)
   -a, --useabbrev       Use abbreviation? (If specified, use the abbreviated
                         form of the organism name. If not specified, use the
                         entire organism name)
   -k, --keeppeg         Keep PEG ID? (if specified, keeps peg id. If not,
                         throws it away)
+  -s, --sanitized       Specify this if the organism IDs are sanitized in the
+                        file (fig_xx_yy instead of fig|xx.yy)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 Rpsblast_all_vs_one.py
@@ -1424,6 +1444,17 @@ Options:
                         Number of cores (D=1)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+transposeFile.py
+
+Usage: transposeFile.py < delimited_file > transposed_delimited_file
+
+Transpose all the stuff in a file (I wrote this to get around Excel's
+shockingly small column limit)
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
 unsanitizeGeneIds.py
 
 Usage: unsanitizeGeneIds.py < infile > outfile
@@ -1433,28 +1464,6 @@ Replace the gene IDs in infile from fig_\d+_\d+_peg_\d+ to fig|\d+.\d+.peg.\d+
 
 Options:
   -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-convertKbaseToRast.sh
-
-Usage: convertKbaseToRast.py (KBase genome ID)
-
-Description: Given a KBase genome ID, converts it into
-the RAW format needed for input into the database.
-It will attempt to find a SEED ID for the genome if one
-exists, and otherwise take the taxID (which must be available)
-and append .99999 .
-At the moment only SEED and MOL genomes are acceptable.
-*--------------------------------------------------------------------------------------------------------------------------*
-
-convertPubseedToRast.sh
-
-Usage: convertPubseedToRast (PUBSEED genome ID)
-
-Description: Requires MYRast (svr_fasta) function
-Creates a RAW file (genomeid).rast_txt that can be used
-as input into the database.
-See pubseed.theseed.org .
 *--------------------------------------------------------------------------------------------------------------------------*
 
 getRepresentativesOfCluster.sh
@@ -1568,3 +1577,12 @@ while FastTree is used with -gamma and -wag
 
 DEPENDENCIES: MAFFT, FastTreeMP
 
+*--------------------------------------------------------------------------------------------------------------------------*
+
+setUpCytoscapeTable.sh
+
+
+USAGE: setUpCytoscapeTable.sh [runid] [clusterid] [score_metric] [cutoff] > table
+
+DESCRIPTION: Create a BLAST score table for import into Cytoscape
+from a specified cluster run using a specified scoring metric

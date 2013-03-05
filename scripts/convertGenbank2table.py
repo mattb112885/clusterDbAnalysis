@@ -3,7 +3,7 @@
 
 # Libraries needed
 import fileinput, optparse
-import os, sys, csv, getpass, socket, shutil
+import os, sys, csv, getpass, socket, shutil, re
 
 from Bio import Entrez, SeqIO
 from Bio.Seq import Seq
@@ -48,22 +48,41 @@ def lookupStrainID(accession):
 def info_from_genbank(gb_seqrec):
     info = {}
     info["id"]= gb_seqrec.id
-    info["gi"]= gb_seqrec.annotations['gi']
-    if gb_seqrec.name:
-        info["gb_name"] = gb_seqrec.name
-    if gb_seqrec.description:
-        info["gb_description"] = gb_seqrec.description
-    info["taxon"] = lookupStrainID(gb_seqrec.id)
-    ##this is another way to get the taxon information, but not as reliable
-    #for dbref in gb_seqrec.dbxrefs:
-    #    field, value = dbref.split(' ')
-    #    if field =="taxon":
-    #        info["taxon2"] = value
     info["number_of_features"] = len(gb_seqrec.features)
     numcds = len([f for f in gb_seqrec.features if (f.type =='CDS')])
     info["number_of_cds"] = numcds
+
+    if gb_seqrec.description:
+        info["gb_description"] = gb_seqrec.description
+    else:
+        info["gb_description"] = "unknown"
+
+    # The "try" part will only work for Entrez-derived GBK files but we want to be more
+    # generic. If we can't find it from tehre we try to get it from the dbxref and if it fails there too
+    # there's nothing we can do.
+    try:
+        info["gi"]= gb_seqrec.annotations['gi']
+        if gb_seqrec.name:
+            info["gb_name"] = gb_seqrec.name
+        info["taxon"] = lookupStrainID(gb_seqrec.id)
+    except:
+        for record in gb_seqrec.features:
+            if record.type == "source":
+                for xref in record.qualifiers["db_xref"]:
+                    if "taxon" in xref:
+                        taxid = re.search("(\d+)", xref).group(1)
+                        info["taxon"] = taxid
+                        break
+            if "taxon" in info:
+                break
+
+    if "taxon" not in info:
+        sys.stderr.write("ERROR: Could not identify taxonID from querying Entrez or from the Genbank file itself...\n")
+        exit(2)
+
     if gb_seqrec.annotations:
         info.update([("gb_annotation: "+k,v) for k, v in gb_seqrec.annotations.items()])
+
     return info
 
 def info_from_feature(feature):
@@ -72,8 +91,10 @@ def info_from_feature(feature):
     # throws off the validator and may cause downstream problems.
     info["aa_sequence"] = feature.qualifiers['translation'][0].strip()
     info["aliases"] = feature.qualifiers['protein_id'][0]
-    info["function"] = feature.qualifiers['product'][0]
-    #need to change strand encoding so that
+    if "product" in feature.qualifiers:
+        info["function"] = feature.qualifiers['product'][0]
+    else:
+        info["function"] = "NO_FUNCTION_ASSIGNED"
     info["figfam"] = ""
     info["evidence_codes"] = ""
     if feature.type =='CDS':
@@ -81,13 +102,17 @@ def info_from_feature(feature):
     #add this to preserve other types
     #info["type"] = feature.type
     #Must add one to biopython's 0 indexed to get the original genbank one indexed counting
+    #However the stop is slice notation so it is already 1 higher than it "should" be.
+    # Thus we only add 1 to the start.
+    # I verified that this gives the correct answer relative to what is in the PubSEED
+    # for some + and - strand genes in E. coli.
     info["start"] = int(feature.location.start) + 1
-    info["stop"] = int(feature.location.end) + 1
+    info["stop"] = int(feature.location.end)
     if feature.strand == +1:
         info["strand"] = str("+")
     if feature.strand == -1:
         info["strand"] = str("-")
-        #invert the numbers
+        # invert the start and stop locations...
         info["start"], info["stop"] = info["stop"], info["start"]
     return info
 
@@ -111,6 +136,7 @@ def genbank_extract(ptr, version_number):
     #lists to store extracted seqs
     genes = []
     geneidToAlias = {}
+    counter = 0
     for gb_seqrec in gb_seqrec_multi:
         orginfo = info_from_genbank(gb_seqrec)
         for feature in gb_seqrec.features:
@@ -124,6 +150,8 @@ def genbank_extract(ptr, version_number):
                         sys.stderr.write("%s\t%s\n" %(key, feature.qualifiers[key]))
                     continue
                 assert len(feature.qualifiers['translation'])==1
+                counter += 1
+
                 geneinfo = {}
                 #get aa info
                 geneinfo.update(info_from_feature(feature))
@@ -131,24 +159,24 @@ def genbank_extract(ptr, version_number):
                 record = feature.extract(gb_seqrec)
                 geneinfo.update(info_from_record(record))
                 #build output with custom fields (and add them to info list)
-                xrefdict = dict([xref.split(':') for xref in feature.qualifiers['db_xref']])
-                geneid = "fig|" + str(orginfo["taxon"]) + "." + str(version_number) + ".peg." + xrefdict['GI'] #the 1 is arbitrary
+                geneid = "fig|" + str(orginfo["taxon"]) + "." + str(version_number) + ".peg." + str(counter)
                 geneinfo["feature_id"] = geneid
-                geneinfo["location"] = orginfo["gi"]
                 geneinfo["contig_id"] = orginfo["id"]
                 geneinfo["source_description"] = orginfo["gb_description"]
+                geneinfo["location"] = feature.qualifiers["protein_id"][0]
                 genename = geneinfo["aliases"]
                 genedesc = geneinfo["function"] + " " + orginfo["gb_description"]
-                geneinfo["gene_description"] = genedesc
-                
+                geneinfo["gene_description"] = genedesc               
+
                 # Add locus tag and existing feature_id to list of aliases
                 aliases = []
                 if "protein_id" in feature.qualifiers:
                     aliases.append(feature.qualifiers["protein_id"][0])
                 if "locus_tag" in feature.qualifiers:
                     aliases.append(feature.qualifiers["locus_tag"][0])
+                if "gene" in feature.qualifiers:
+                    aliases.append(feature.qualifiers["gene"][0])
                 geneidToAlias[geneid] = aliases
-
                 genes.append(geneinfo)
 
     return orginfo, genes, geneidToAlias

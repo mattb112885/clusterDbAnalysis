@@ -1,81 +1,148 @@
-# INSTALLATION INSTRUCTIONS
-#
-# This package is only available for linux\unix (it might work for mac too but I haven't tested it).
-# 
-# Make sure all the .py and .sh files in the src/ directory are executable:
-#
-# $ chmod u+x src/*.py
-# $ chmod u+x src/*.sh
-#
-# You may also want to do this with all the sh scritps in the "scripts/" directory
-# $ chmod u+x scripts/*.py
-# $ chmod u+x scripts/*.sh
-#
-# Add the src/ directory to your path by adding the following two lines to your .bashrc file (~/.bashrc):
-#
-# export PATH=$PATH:${ROOTDIR}/src
-# export PYTHONPATH=$PYTHONPATH:${ROOTDIR}/lib
-#
-# where ${ROOTDIR| is the location of the folder into which you cloned the git repository. You will then need to
-# save the file and source it (only need to source it once - if you log out and back in the .bashrc file is run
-# automatically):
-#
-# $ source ~/.bashrc
-#
-# The packages have a variety of dependencies depending on how you want to run them.
-#
-# The most essential ones are:
-#
-# NCBI BLAST: BlastP is used as a basis for generating gene clusters. BLASTN and TBLASTN are also used in various scripts.
-# Ruffus: Python parallelization package. Used to parallelize BLAST and TBLASTN functions (the
-#         parallelization option in NCBI BLast doesn't work on all machines).
-# MCL: Clustering tool used to generate gene clusters.
-# Sqlite3: Used to store and query blast, cluster and alignment\tree data.
-# Python (I used 2.6): Most of the code is written for python. The rest is written for BASH 
-#    but most of it will hopefully work with other shells.
-#
-# Other tools needed \ supported for certain functions:
-#
-# PYTHON PACKAGES
-#
-# BioPython: Used for reading and writing various alignment formats
-# ETE and PyQT4 - Used for tree visualization.
-# Numpy: Used for assorted calcualtions and organization
-#
-# ANALYSIS PACKAGES
-#
-# FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program, at the expense of some accuracy
-# MyRAST (http://blog.theseed.org/downloads/sas.tgz) - has a lot of 
-#   scripts for analyzing genomes present in the PubSEED / SEED viewer, 
-#   including tools for analyzing trees and alignments, efficient calculation of representative genes, etc.
-#   A list of easy-to-use functions is available here: http://pubseed.theseed.org/sapling/server.cgi?pod=ServerScripts
-# MaFFT - Fast and (fairly) accurate multiple-alignment software
-# RaxML - Accurate but slow treeing program.
-#
-# If you want to run OrthoMCL you need to install that and its dependencies, which include:
-#  - MySQL
-#  - Perl 5
-#  - DBI and DBD::mysql , both of which can be installed (as root) by using CPAN if you don't have them
-#  $ sudo cpan DBI
-#  $ sudo cpan DBD::mysql
-# See the orthoMCL help for more details.
-# WARNING: the orthoMCL requires you to set the global variable local_infile to TRUE
-#   or else mysql will refuse to load your BLAST file
-#   (it will tell you "the used command is not allowed").
-# You can set that by executing the command (as the mySQL root)
-# SET GLOBAL local_infile=TRUE;
-# or include it in the DBI string like in the sample.
+### INSTALLATION INSTRUCTIONS ###
+
+This package is only available for linux\unix (it might work for mac too but I haven't tested it).
+
+Make sure all the .py and .sh files in the src/ directory are executable:
+$ chmod u+x src/*.py
+$ chmod u+x src/*.sh
+
+You may also want to do this with all the scritps in the "scripts/" directory
+$ chmod u+x scripts/*.py
+$ chmod u+x scripts/*.sh
+
+Add the following line to your .bashrc file (emacs -nw ~/.bashrc):
+$ source ${ROOTDIR}/SourceMe.sh
+
+where ${ROOTDIR| is the location of the folder into which you cloned the git repository. 
+You will then need to save the file and source it (only need to source it once - if you 
+log out and back in the .bashrc file is run automatically):
+
+$ source ~/.bashrc
+
+The SourceMe.sh file adds executable scripts do the system PATH and Python libraries
+to the PYTHONPATH.
+
+-----------------------------------
+-----------------------------------
+
+### DEPENDENCIES ###
+
+The packages have a variety of dependencies depending on how you want to run them.
+
+MOST IMPORTANT:
+
+NCBI BLAST: BlastP is used as a basis for generating gene clusters. BLASTN and TBLASTN are also 
+        used in various scripts. RPSBLAST is included with the package and is used for comparison to the
+	CDD database.
+
+Ruffus: Python parallelization package. Used to parallelize BLAST and TBLASTN functions (the
+        parallelization option in NCBI BLast doesn't work on all machines).
+
+BioPython: Used for reading and writing various alignment formats and some visualization.
+
+MCL: Clustering tool used to generate gene clusters.
+
+Sqlite3: Used to store and query blast, cluster and alignment\tree data.
+
+Python (I used 2.6): Most of the code is written for python. The rest is written for BASH 
+                     but most of it will hopefully work with other shells.
+
+ETE- Used for tree visualization and manipulation.
+
+
+ALSO USEFUL:
+
+PYQT4 - Used for certain tree visualization scripts
+
+Numpy: Used for assorted calcualtions and organization
+
+FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program, at the expense of some accuracy
+
+MaFFT - Fast and (fairly) accurate multiple-alignment software
+
+RaxML - Accurate but slow treeing program.
+
+ORTHOMCL-SPECIFIC REQUIREMENTS:
+
+If you want to run OrthoMCL you need to install it and its dependencies, which include:
+    - MySQL
+    - Perl 5
+    - DBI and DBD::mysql , both of which can be installed (as root) by using CPAN if you don't have them
+
+$ sudo cpan DBI
+$ sudo cpan DBD::mysql
+
+See the orthoMCL help for more details.
+
+WARNING: the orthoMCL requires you to set the global variable local_infile to TRUE
+	 or else mysql will refuse to load your BLAST file
+	 (it will tell you "the used command is not allowed").
+
+You can set that by executing the command (as the mySQL root)
+SET GLOBAL local_infile=TRUE;
+or else include a command to set that variable in the DBI string like in example orthoMCL config file.
+
+-----------------------------------
+-----------------------------------
 
 ### DATA SETUP ###
-#
-# To actually run the programs you need some data. I'll consider the directory created when
-# you check this out of git the "root" ${ROOTDIR} directory.
-#
-# If you run the provided input setup scripts or download the genbank and "spreadsheet (text)" files
-# from RAST, everything will automatically be returned to you with the required formatting conventions.
-# This is only here to document what the requirements are and in case you want to write scripts to generate
-# your own input files.
-#
+
+To actually run the programs you need some data. I'll consider the directory created when
+you check this out of git the "root" ${ROOTDIR} directory.
+
+There are several convenient ways to import data into ITEP.
+
+METHOD 1: RAST
+
+If you upload your newly-sequenced genome to RAST (rast.nmpdr.org) you can download the
+two required input files directly from there. The two files you need are:
+
+Spreadsheet (tab-delimited) : Place this file in the ${ROOTDIR}/raw/ directory with the
+same name as given to it by default by RAST.
+Genbank : Place this file in the ${ROOTDIR}/genbank/ directory with the same name
+as given to it by default by RAST.
+
+METHOD 2: USER-SUPPLIED GENBANK FILE
+
+If the user has a genbank file from any source including METHOD 3 or METHOD 4 below, here is how to 
+import it into ITEP:
+
+a) Put the genbank file in the root directory (or some placeholder directory, but NOT genbank/ or
+raw/)
+
+b) Call convertGenbank2table.py
+
+The script automatically generates a raw file for you and places it in the right place, giving it
+gene IDs in the format expected by ITEP. It also copies the genbank file into the location expected
+by ITEP, and adds any locus tags, gene names, or protein IDs to the aliases table so that they become
+searchable in the database.
+
+This script might not work depending on what data is in your genbank file. Please email me or file
+bug reports if you have issues with yours. It has been tested on Genbank files from the RefSeq
+database and those generated from the KBase genome objects (see methods 3 and 4 below).
+
+METHOD 3: NCBI GENBANK FILES
+
+(beta) We have a sometimes-problematic script to download genbank files from NCBI based on
+taxIDs or accession numbers. Watch the output carefully, but if it works you'll have genbank files
+in the right format to import into ITEP using the scripts from METHOD 2 above.
+
+METHOD 4: DOE KBASE
+
+The kbaseGenomeToGenbank.py function (located in scripts/) will take a DOE KBase genome object
+(the output of annotate_genome) and output a genbank file with appropriate format for input to ITEP.
+
+Once you have the genbank file, follow the procedure in METHOD 2 to set up the Genbank file for 
+import into ITEP.
+
+
+-----------------------------------
+-----------------------------------
+
+FILE FORMAT STANDARDS
+
+The following files are generated by the interface scripts. This documention is intended for developers.
+
 ### 1: Genbank files (required) ###
 # 
 # You need a genbank file for every organism. The following information is taken from the genbank files at a minimum:
@@ -118,19 +185,6 @@
 #
 # All other fields (location, aliases, figfam, evidence_codes, ...) are ignored.
 #
-# There are a number of ways to make a raw file.
-# Tested interfaces are available for hooking into:
-#   - Genbank (method #2)
-#   - The SEED (method #3)
-#   - Microbes Online (method #3)
-#
-# Method #1: Upload your genomes to RAST (rast.nmpdr.org) for annotation and then download the tab-delimited file, which is in this format.
-# Method #2: Given a set of genbank files (one per contig) with enough info to infer all the above information,
-#   run [TODO: JAMES'S SCRIPT] to get it.
-# Method #3: Run the convertKbaseToRast.sh script with a KBase ID as input.
-#   For now The KBase ID must correspond to either a SEED genome
-#   or a microbes online genome. Running this doesn't require MyRAST but does require access to a local install of the DOE KBase software
-#   available at http://kbase.science.energy.gov/developer-zone/downloads/
 #
 ### 3: organism file ###
 #
@@ -157,4 +211,3 @@
 # Use the addGroupByMatch.sh function to add groups to the groups file based on searches through the organism file,
 # or make the lists manually. The run IDs will use the group names as their base (along with user-defined clustering parameters).
 #
-# FIXME: Need function to remove a group and all clustering results belonging to that group.

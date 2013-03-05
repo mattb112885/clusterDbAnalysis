@@ -177,8 +177,6 @@ def kbaseGenomeToGenbank(genome_object, taxid=None):
                 feature_type = "misc_RNA"
 
         # I checked that the above formulas give the correct positions in the genbank file (or at least, the same as the PubSEED genabnk files).
-        # FIXME: We still need to check that the program that loads it in and turns them back into start and stop in the
-        # raw files gets it right.
         feature = SeqFeature(FeatureLocation(seqstart, seqstop), strand=strand, type=feature_type, id=feature_id, qualifiers=qualifiers)
 
         # Attach the new features to the appropriate contig...

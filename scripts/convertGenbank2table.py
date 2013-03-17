@@ -27,9 +27,6 @@ Standards set by Matt, 10/30/2012
     - "Start" is the nucleotide position of the first transcribed base (i.e. for - strand genes, the start position will be bigger than the stop).
 '''
 
-
-
-#functions
 def lookupStrainID(accession):
     #search NCBI for all IDs (the unique numerical key, not just accession)
     genbank = Entrez.read(Entrez.esearch(db="nucleotide", term=accession))
@@ -44,10 +41,18 @@ def lookupStrainID(accession):
     assert len(strainIDs)==1, "Note: more than one ID returned from query of NCBI % s" % accession
     return strainIDs[0]
 
-
 def info_from_genbank(gb_seqrec):
     info = {}
-    info["id"]= gb_seqrec.id
+    # Not all Genbank files (i.e. those from RAST fall into this category) actually
+    # assign the contig ID in the ID field but they call it a "name" instead...
+    #
+    # I can tell the difference only because Biopython fills in "unknown" automatically
+    # if it doesn't find an ID.
+    if gb_seqrec.id == "unknown":
+        info["id"] = gb_seqrec.name
+    else:
+        info["id"]= gb_seqrec.id
+
     info["number_of_features"] = len(gb_seqrec.features)
     numcds = len([f for f in gb_seqrec.features if (f.type =='CDS')])
     info["number_of_cds"] = numcds
@@ -90,7 +95,10 @@ def info_from_feature(feature):
     # An extra space in the amino acid sequences exists which 
     # throws off the validator and may cause downstream problems.
     info["aa_sequence"] = feature.qualifiers['translation'][0].strip()
-    info["aliases"] = feature.qualifiers['protein_id'][0]
+    if "protein_id" in info:
+        info["aliases"] = feature.qualifiers['protein_id'][0]
+    else:
+        info["aliases"] = ""
     if "product" in feature.qualifiers:
         info["function"] = feature.qualifiers['product'][0]
     else:
@@ -163,7 +171,10 @@ def genbank_extract(ptr, version_number):
                 geneinfo["feature_id"] = geneid
                 geneinfo["contig_id"] = orginfo["id"]
                 geneinfo["source_description"] = orginfo["gb_description"]
-                geneinfo["location"] = feature.qualifiers["protein_id"][0]
+                if "protein_id" in feature.qualifiers:
+                    geneinfo["location"] = feature.qualifiers["protein_id"][0]
+                else:
+                    geneinfo["location"] = ""
                 genename = geneinfo["aliases"]
                 genedesc = geneinfo["function"] + " " + orginfo["gb_description"]
                 geneinfo["gene_description"] = genedesc               
@@ -181,83 +192,8 @@ def genbank_extract(ptr, version_number):
 
     return orginfo, genes, geneidToAlias
 
-def fasta_to_fastas(name, table, i):
-    #TODO: This function is for inputing organisms that have ONLY FASTA FILES
-    #it is based on an earlier version of the code for Virus files
-    #IT NEEDS SERIOUS WORK
-
-    #set up filenames
-    seqfastain_filename = name + '_orig.faa'
-    seqfasta_filename = name + '.faa'
-    nfastain_filename = name + '_genes_orig.fna'
-    nfasta_filename = name + '_genes.fna'
-    pfasta_filename = name + '_genes.faa'
-
-    #get data and writeout with standard headers
-    seq = SeqIO.read(open(seqfastain_filename,"r"), "fasta")
-    orginfo = {}
-    orginfo["gb_description"] = seq.id
-    orginfo["id"] = table['accession'][i]
-    seq.id = orginfo["id"]
-    seq.name = name
-    SeqIO.write(seq, open(seqfasta_filename,"w"), "fasta")
-    #lists to store exstracted seqs
-    nfastas = []
-    pfastas = []
-    genes = []
-    seqrec = SeqIO.parse(open(nfastain_filename,"r"), "fasta")
-    for j, feature in enumerate(seqrec.features):
-        geneinfo = {}
-        #get aa info
-        geneinfo["aa_sequence"] = feature.seq.translate(11).tostring()
-        geneinfo["aliases"] = "XX%06i" % j
-        geneinfo["function"] = feature.id
-        #other ways to do it
-        #geneinfo["start"] = int(feature.location.start)
-        #geneinfo["stop"] = int(feature.location.end)
-        #geneinfo["strand"] = feature.strand
-        #get na info
-        geneinfo["nucleotide_sequence"] = feature.seq.tostring()
-        #build output with custom fields (and add them to info list)
-        geneinfo["location"] = orginfo["id"]
-        geneinfo["source_description"] = orginfo["gb_description"]
-        geneid = "fig|" + orginfo["id"] + ".peg." + geneinfo["aliases"]
-        geneinfo["id"] = geneid
-        genename = geneinfo["aliases"]
-        genedesc = geneinfo["function"] + " from " + orginfo["gb_description"]
-        geneinfo["gene_description"] = genedesc
-        #Save in list to writeout
-        precord = SeqRecord(Seq(geneinfo["aa_sequence"], generic_protein),
-                            name=genename,
-                            id = geneid,
-                            description = genedesc
-                            )
-        pfastas.append(precord)
-        nrecord = SeqRecord(feature.seq,
-                            name=genename,
-                            id = geneid,
-                            description = genedesc
-                            )
-        nfastas.append(nrecord)
-        genes.append(geneinfo)
-    #writeout sequences and lists
-    SeqIO.write(nfastas, open(nfasta_filename,"w"), "fasta")
-    SeqIO.write(pfastas, open(pfasta_filename,"w"), "fasta")
-
-    return orginfo, genes
-
 def findtypes(info):
     return dict([(k, type(v)) for k, v in info.items()])
-
-def fasta2Table(name, table, i):
-    #TODO: This function is for inputing organisms that have ONLY FASTA FILES
-    #it is based on an earlier version of the code for Virus files
-    #IT NEEDS SERIOUS WORK
-    orginfo, genes = fasta_to_fastas(name, table, i)
-    info = dict(zip(table.dtype.names, table[i]))
-    orginfo.update(info)
-    orginfos.append(orginfo)
-    geneinfos.append(genes)
 
 #Entrez requires an email, if not set namually, this guesses one
 email = None

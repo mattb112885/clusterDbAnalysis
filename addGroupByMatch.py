@@ -19,8 +19,11 @@ if options.groupname is None:
     sys.stderr.write("ERROR: group name (-n) is a required argument\n")
     exit(2)
 
-orgfile = locateOrganismFile()
-groupfile = locateGroupsFile()
+orgfile = locateOrganismFile(raiseError=True)
+# VERY IMPORTANT - set raiseError to false here
+# (and probably only here) because this is the function
+# meant to create a group file if it doesn't already exist!
+groupfile = locateGroupsFile(raiseError=False)
 
 orglist = set()
 for line in open(orgfile, "r"):

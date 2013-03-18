@@ -9,6 +9,7 @@
 
 import sqlite3, optparse, fileinput
 from FileLocator import *
+from ClusterFuncs import *
 
 usage = "%prog [options] < gene_ids > blast_results"
 description = "Given list of genes to match, returns a list of BLAST results between genes in the list only"
@@ -21,28 +22,13 @@ gc = options.genecolumn - 1
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-# Generate a table of BLAST results
-cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
+geneids = []
 for line in fileinput.input("-"):
-    spl = line.strip('\r\n').split("\t")
-    cur.execute("INSERT INTO desiredgenes VALUES (?);", (spl[gc], ) )
+    spl = line.strip("\r\n").split("\t")
+    geneids.append(spl[gc])
 
-
-# Generate a list of blast results with query matching one of the desiredgenes
-if options.blastn:
-    tbl = "blastnres_selfbit"
-else:
-    tbl = "blastres_selfbit"
-
-cmd = """SELECT %s.* FROM %s
-         WHERE %s.targetgene IN (select geneid from desiredgenes)
-         AND %s.querygene IN (select geneid from desiredgenes);""" %(tbl, tbl, tbl, tbl)
-
-cur.execute(cmd)
-
-for l in cur:
-    s = list(l)
-    stri = "\t".join(str(t) for t in s)
-    print stri
+blastres = getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=options.blastn)
+for res in blastres:
+    print "\t".join(res)
 
 con.close()

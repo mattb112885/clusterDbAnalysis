@@ -35,8 +35,7 @@ cat "TEMP2" | Gblocks_wrapper.py -r > "TEMP3"
 # phyml's seqboot program and the conversion
 # script CompareToBootstrap.pl from the FastTree
 # website)
-#cat "TEMP3" | FastTree_wrapper.py -g -b 100 > "${OUTFILE}"
-cat "TEMP3" | FastTreeMP -wag -gamma > "${OUTFILE}"
-
+cat "TEMP3" | FastTree_wrapper.py -g -b 100 > "${OUTFILE}"
+#cat "TEMP3" | FastTreeMP -wag -gamma > "${OUTFILE}"
 
 rm "TEMP2" "TEMP3"

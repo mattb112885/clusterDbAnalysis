@@ -99,6 +99,8 @@ def exportGraphToGML(G, filename):
     Note - I use GML mostly because GraphML doesn't work with the graphics attribute.'''    
     networkx.write_gml(G, filename)
 
+# Example usage
+'''
 from FileLocator import *
 import sqlite3
 con = sqlite3.connect(locateDatabase())
@@ -107,3 +109,4 @@ G = getGraphForCluster("all_I_1.7_c_0.4_m_maxbit", 1524, "maxbit", 0.4, cur)
 exportGraphToGML(G, "all_1524_maxbit_0.4_gml.gml")
 
 con.close()
+'''

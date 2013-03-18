@@ -75,33 +75,42 @@ def geneListToSeqFeatureList(geneid_list, cur):
 
     return seqFeatureList
 
-
+# Example usage
+'''
 import sqlite3
 from FileLocator import *
 
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-all_geneids = []
-for line in open("acetivorans_all_genes", "r"):
-    all_geneids.append(line.strip("\r\n"))
+mazei_geneids = [ line.strip("\r\n") for line in open("mazei_core_genes") ]
+methanosarcina_geneids = [ line.strip("\r\n") for line in open("methanosarcina_core_genes") ]
+methanosarcinales_geneids = [ line.strip("\r\n") for line in open("methanosarcinales_core_genes") ]
+methanosarcinales_methanocella_geneids = [ line.strip("\r\n") for line in open("methanosarcinales_methanocella_genelist") ]
 
-core_geneids = []
-for line in open("acetivorans_core_genes", "r"):
-    core_geneids.append(line.strip("\r\n"))
-
-all_seqFeatures = geneListToSeqFeatureList(all_geneids, cur)
-core_seqFeatures = geneListToSeqFeatureList(core_geneids, cur)
+mazei_seqFeatures = geneListToSeqFeatureList(mazei_geneids, cur)
+methanosarcina_seqFeatures = geneListToSeqFeatureList(methanosarcina_geneids, cur)
+methanosarcinales_seqFeatures = geneListToSeqFeatureList(methanosarcinales_geneids, cur)
+methanosarcinales_methanocella_seqFeatures = geneListToSeqFeatureList(methanosarcinales_methanocella_geneids, cur)
 
 nameToFeatureList = {}
 nameToColor = {}
-nameToFeatureList["all"] = all_seqFeatures
-nameToColor["all"] = colors.blue
-nameToFeatureList["core"] = core_seqFeatures
-nameToColor["core"] = colors.red
+#nameToFeatureList["mazei"] = mazei_seqFeatures
+#nameToColor["mazei"] = colors.blue
+#nameToFeatureList["methanosarcina"] = methanosarcina_seqFeatures
+#nameToColor["methanosarcina"] = colors.red
+#nameToFeatureList["methanosarcinales"] = methanosarcinales_seqFeatures
+#nameToColor["methanosarcinales"] = colors.green
+nameToFeatureList["methanosarcinales_methanocella"] = methanosarcinales_methanocella_seqFeatures
+nameToColor["methanosarcinales_methanocella"] = colors.blue
 
-myDiagram = makeGenomeDiagram(nameToFeatureList, "core_vs_all", nameToColor)
-myDiagram.draw(format="circular", circular=True, orientation="landscape", pagesize='A4', start=0, end=5751491)
-myDiagram.write("example.svg", "SVG")
+myDiagram = makeGenomeDiagram(nameToFeatureList, "mazei_conservation", nameToColor)
+#myDiagram.move_track(3,0)
+#myDiagram.move_track(1,3)
+#myDiagram.move_track(0,1)
+myDiagram.move_track(1, 2)
+myDiagram.draw(format="circular", circular=True, orientation="landscape", pagesize='A4', start=0, end=4096345)
+myDiagram.write("methanosarcinales_methanocella.svg", "SVG")
 
 con.close()
+'''

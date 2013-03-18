@@ -127,6 +127,9 @@ cat db/raw_cat | getNeighbors_bothStrands_rast.py  > db/neighborhoods
 
 # Generate the first part of the SQL database
 # (for use with generating the clusters for a specific group of organisms)
+# Note this does NOT use the FileLocator.py - which is GOOD becuase
+# that means we can rebuild while keeping FileLocator.py pointing at a
+# temporary copy so that people can still query it until the new copy is built.
 echo "Rebuilding database...";
 rm db/DATABASE.sqlite 2> /dev/null;
 sqlite3 db/DATABASE.sqlite < src/builddb_1.sql;

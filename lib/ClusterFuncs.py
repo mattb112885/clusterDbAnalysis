@@ -25,10 +25,12 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
     return bestannote
 
 # UNTESTED
-def getBlastResultsBetweenSpecificGenes(geneids, cur):
+def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     '''Given a list of gene IDs, query the BLAST table to get a list of BLAST results
     containing the genes. The table is in -m9 format but with query and target self-bit scores
-    added as the last two columns.'''
+    added as the last two columns.
+
+    blastn: TRUE if you want BLASTN results and FALSE if you want blastp results'''
 
     # FIXME - Can I get equivalent performance by passing in lots of queries at once instead of making a temporary table?
     # Expunging the temporary tables would allow us not to have to give "w" to anyone that wants to use the database.
@@ -37,7 +39,7 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur):
         cur.execute("INSERT INTO desiredgenes VALUES (?);", (geneid, ) )
 
     # Generate a list of blast results with query matching one of the desiredgenes
-    if options.blastn:
+    if blastn:
         tbl = "blastnres_selfbit"
     else:
         tbl = "blastres_selfbit"   
@@ -49,7 +51,8 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur):
 
     resultTable = []
     for k in cur:
-        resultTable.append( [ str[s] for s in k ] )
+        resultTable.append( [ str(s) for s in k ] )
+
     # Since we're preserving cur we should clean up here.
     cur.execute("DROP TABLE desiredgenes;")
     return resultTable
@@ -112,4 +115,16 @@ import sqlite3
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 print getGeneInfo(["fig|339860.1.peg.123", "fig|339860.1.peg.124"], cur)
+'''
+
+'''
+# Test the cluster to BLAST results function
+from FileLocator import *
+import sqlite3
+con = sqlite3.connect(locateDatabase())
+cur = con.cursor()
+genelist =  getGenesInCluster("all_I_1.7_c_0.4_m_maxbit", 1524, cur)
+blastres = getBlastResultsBetweenSpecificGenes(genelist, cur, False)
+for res in blastres:
+    print "\t".join(res)
 '''

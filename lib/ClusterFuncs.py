@@ -24,7 +24,6 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
             bestannote = annote
     return bestannote
 
-# UNTESTED
 def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     '''Given a list of gene IDs, query the BLAST table to get a list of BLAST results
     containing the genes. The table is in -m9 format but with query and target self-bit scores
@@ -57,7 +56,6 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     cur.execute("DROP TABLE desiredgenes;")
     return resultTable
 
-# UNTESTED
 def getGenesInCluster(runid, clusterid, cur):
     '''Get the genes in a cluster with ID clusterid from run with ID runid.
     cur is a SQLite cursor.  Returns a list of gene IDs'''

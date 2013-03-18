@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 '''This module contains functions for more general cluster data manipulation
-such as cross-referencing with annotations, organisms, etc...'''
+such as cross-referencing with annotations, organisms, BLAST results, etc...'''
 
 import sys
 from FileLocator import *
@@ -23,6 +23,47 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
             maxcount = annotes.count(annote)
             bestannote = annote
     return bestannote
+
+# UNTESTED
+def getBlastResultsBetweenSpecificGenes(geneids, cur):
+    '''Given a list of gene IDs, query the BLAST table to get a list of BLAST results
+    containing the genes. The table is in -m9 format but with query and target self-bit scores
+    added as the last two columns.'''
+
+    # FIXME - Can I get equivalent performance by passing in lots of queries at once instead of making a temporary table?
+    # Expunging the temporary tables would allow us not to have to give "w" to anyone that wants to use the database.
+    cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
+    for geneid in geneids:
+        cur.execute("INSERT INTO desiredgenes VALUES (?);", (geneid, ) )
+
+    # Generate a list of blast results with query matching one of the desiredgenes
+    if options.blastn:
+        tbl = "blastnres_selfbit"
+    else:
+        tbl = "blastres_selfbit"   
+
+    cmd = """SELECT %s.* FROM %s
+         WHERE %s.targetgene IN (select geneid from desiredgenes)
+         AND %s.querygene IN (select geneid from desiredgenes);""" %(tbl, tbl, tbl, tbl)
+    cur.execute(cmd)
+
+    resultTable = []
+    for k in cur:
+        resultTable.append( [ str[s] for s in k ] )
+    # Since we're preserving cur we should clean up here.
+    cur.execute("DROP TABLE desiredgenes;")
+    return resultTable
+
+# UNTESTED
+def getGenesInCluster(runid, clusterid, cur):
+    '''Get the genes in a cluster with ID clusterid from run with ID runid.
+    cur is a SQLite cursor.  Returns a list of gene IDs'''
+
+    q = """SELECT geneid FROM clusters
+          WHERE runid = ? AND clusterid = ?"""
+    cur.execute(q, ( runid, clusterid) )
+    geneids = [ str(s[0]) for s in cur ]
+    return geneids    
     
 def getGeneInfo(genelist, cur):
     '''Given a list of gene IDs, returns the "geneinfo" as a list of tuples

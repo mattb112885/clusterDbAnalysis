@@ -14,6 +14,7 @@
 
 import fileinput, sqlite3, optparse
 from FileLocator import *
+from ClusterFuncs import *
 
 # Get input arguments
 usage = "%prog [options] < runid_clusterid_table > gene_id_list"
@@ -30,26 +31,16 @@ cc = options.clustercolumn - 1
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-# Make a temporary table with all of the clusters that we want to actually extract
-
-query = "CREATE TEMPORARY TABLE allclusters( runid VARCHAR(256), clusterid INT );"
-cur.execute(query);
+run_cluster_ids = set()
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
-    query = "INSERT INTO allclusters VALUES (?, ?);"
-    con.execute(query, (spl[rc], spl[cc]))
-    
-# Remove duplication... especially important since we split this thing up into multiple queries now.
-cur.execute("CREATE TEMPORARY TABLE desiredclusters AS SELECT DISTINCT * FROM allclusters;")
+    runid = spl[rc]
+    clusterid = spl[cc]
+    run_cluster_ids.add( (runid, clusterid) )
 
-# Get table of gene IDs
-cur.execute("""SELECT clusters.* FROM clusters
-               INNER JOIN desiredclusters ON desiredclusters.runid = clusters.runid
-                      AND desiredclusters.clusterid = clusters.clusterid;""")
-
-for l in cur:
-    s = list(l)
-    stri = "\t".join(str(t) for t in s)
-    print stri
+for run_cluster_id in run_cluster_ids:
+    geneids = getGenesInCluster(run_cluster_id[0], run_cluster_id[1], cur)
+    for gene in geneids:
+        print "%s\t%s\t%s" %(run_cluster_id[0], run_cluster_id[1], gene)
 
 con.close()

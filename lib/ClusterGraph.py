@@ -7,11 +7,18 @@ It includes helper files for making pretty colors. The intention is for you tu i
 the resulting GraphML file into Cytoscape or similar and use their rendering capabilities
 to view it.
 
+Note - Cytoscape 3's GML reader is broken; it does not read attributes correctly (this has
+been fixed and targeted for 3.0.1). If you want to read the attributes in go back to cytoscape
+2.8.3
+
 '''
 
 import matplotlib
 import networkx
+import operator
 import sys
+
+from sanitizeString import *
 from ClusterFuncs import *
 
 def getHexFromScore( value, minvalue, maxvalue ):
@@ -45,19 +52,32 @@ def getHexFromScore( value, minvalue, maxvalue ):
     hex_value = matplotlib.colors.rgb2hex(rgb)
     return hex_value
 
-def makeNetworkObjectFromBlastResults( blastres, score_method, cutoff ):
+def makeNetworkObjectFromBlastResults( blastres, score_method, cutoff, cur ):
     '''blastres is a list of lists of BLAST results in the same
-    order as in the blastres_selfbit table from the database'''
+    order as in the blastres_selfbit table from the database.
+
+    cur is the sqlite object for the database (needed to get metadata)
+    '''
+
     G = networkx.Graph(layoutAlgorithm="Prefuse Force Directed Layout", )
+
+    getqueries = operator.itemgetter(0)
+    gettargets = operator.itemgetter(1)
+
+    querygenes = map(getqueries, blastres)
+    targetgenes = map(gettargets, blastres)
+    
+    genelist = list(set(querygenes + targetgenes))
+    for gene in genelist:
+        geneinfo = getGeneInfo( [ gene ], cur )
+        # Not sure if the string sanitizing will be necessary.
+        G.add_node(gene, organism=sanitizeString(geneinfo[0][1],False), annotation=sanitizeString(geneinfo[0][9],False))
+
     for res in blastres:
         # We don't want self-hits.
         if res[0] == res[1]:
             continue
 
-        # Query gene (FIXME - should add some metadata in here - organism, location, annotation, etc...)
-        G.add_node(res[0])
-        # Target gene
-        G.add_node(res[1])
         # Scoring method for now is implemented as maxbit. FIXME: Need to make this more generic and add
         # a function for it so I don't just keep re-implementing it differently in different functions
         # Also - note that I want the minscore to be the cutoff - anything below that gets white...
@@ -90,7 +110,7 @@ def getGraphForCluster( runid, clusterid, score_method, cutoff, cur, blastn=Fals
 
     geneid_list = getGenesInCluster(runid, clusterid, cur)
     blastres = getBlastResultsBetweenSpecificGenes(geneid_list, cur, blastn=blastn)
-    G = makeNetworkObjectFromBlastResults(blastres, score_method, cutoff)
+    G = makeNetworkObjectFromBlastResults(blastres, score_method, cutoff, cur)
 
     return G
 
@@ -99,8 +119,8 @@ def exportGraphToGML(G, filename):
     Note - I use GML mostly because GraphML doesn't work with the graphics attribute.'''    
     networkx.write_gml(G, filename)
 
-# Example usage
 '''
+# Example usage
 from FileLocator import *
 import sqlite3
 con = sqlite3.connect(locateDatabase())

@@ -46,13 +46,11 @@ def info_from_genbank(gb_seqrec):
     # Not all Genbank files (i.e. those from RAST fall into this category) actually
     # assign the contig ID in the ID field but they call it a "name" instead...
     #
-    # I can tell the difference only because Biopython fills in "unknown" automatically
-    # if it doesn't find an ID.
-    if gb_seqrec.id == "unknown":
-        info["id"] = gb_seqrec.name
-    else:
-        info["id"]= gb_seqrec.id
-
+    # To keep consistent with what I'm calling the contig ID from main3.sh I need
+    # to keep it consistent here too and always call it by "name" - the "name" is what
+    # appears in the LOCUS field (without the version number)
+    info["id"] = gb_seqrec.name
+    
     info["number_of_features"] = len(gb_seqrec.features)
     numcds = len([f for f in gb_seqrec.features if (f.type =='CDS')])
     info["number_of_cds"] = numcds

@@ -19,7 +19,7 @@ def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_o
     cl = getClusterOrgsByRun(runid)
 
     nodenum = 0
-    clusterrunlist = []
+    nodeNumToClusterList = {}
     # The strategy really doesn't matter, it's just for aesthetics... and to make sure its always the same.
     for node in ete_tree.traverse("postorder"):
         nodenum += 1
@@ -31,10 +31,9 @@ def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_o
         sys.stderr.write("%d (N%d)\n" %(numclusters, nodenum))
         numFace = TextFace("%d (N%d)" %(numclusters, nodenum), ftype="Times", fsize=24, fgcolor=color)
         node.add_face(numFace, 0, position="branch-bottom")
-        for c in clusters:
-            clusterrunlist.append( ( c[0], c[1], "N%d" %(nodenum) ) )
+        nodeNumToClusterList[nodenum] = clusters
 
-    return ete_tree, clusterrunlist
+    return ete_tree, nodeNumToClusterList
 
 def getClusterOrgsByRun(runid):
     '''I separated this call from the findGenesByOrganismList below because we often need to call the latter

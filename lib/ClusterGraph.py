@@ -71,30 +71,18 @@ def makeNetworkObjectFromBlastResults( blastres, score_method, cutoff, cur ):
     for gene in genelist:
         geneinfo = getGeneInfo( [ gene ], cur )
         # Not sure if the string sanitizing will be necessary.
-        G.add_node(gene, organism=sanitizeString(geneinfo[0][1],False), annotation=sanitizeString(geneinfo[0][9],False))
+        G.add_node(gene, organism=geneinfo[0][1], annotation=geneinfo[0][9])
 
-    for res in blastres:
-        # We don't want self-hits.
-        if res[0] == res[1]:
+    # Note - we don't care here if the score is symmetric or not, we just want to visualize it.
+    scores = calculateScoreFromBlastres( blastres, score_method, cutoff, include_zeros = False, needsymmetric = False )
+    minscore = 0
+    maxscore = max( map(operator.itemgetter(2), scores ) )
+    for score in scores:
+        # Omit self-hits
+        if score[0] == score[1]:
             continue
-
-        # Scoring method for now is implemented as maxbit. FIXME: Need to make this more generic and add
-        # a function for it so I don't just keep re-implementing it differently in different functions
-        # Also - note that I want the minscore to be the cutoff - anything below that gets white...
-        minscore = cutoff
-        maxscore = 1
-
-        bitscore = float(res[11])
-        query_selfbit = float(res[12])
-        target_selfbit = float(res[13])
-        score = bitscore/max(query_selfbit, target_selfbit)
-
-        if score < cutoff:
-            continue
-
-        hex_color = getHexFromScore(score, minscore, maxscore)
-
-        G.add_edge(res[0], res[1], weight=score, metric=score_method, graphics = { "fill" : hex_color })
+        hex_color = getHexFromScore(score[2], minscore, maxscore)
+        G.add_edge(score[0], score[1], weight=score[2], metric=score_method, cutoff = cutoff, graphics = { "fill" : hex_color })
         
     return G
 

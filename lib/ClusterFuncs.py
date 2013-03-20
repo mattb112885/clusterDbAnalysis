@@ -56,6 +56,66 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     cur.execute("DROP TABLE desiredgenes;")
     return resultTable
 
+def getValidBlastScoreMethods():
+    '''List currently-supported BLAST score methods'''
+    symmetric_scores = ['maxbit', 'minbit', 'avgbit', 'normhsp']
+    not_symmetric_scores = [ 'loge' ]
+
+    return symmetric_scores, not_symmetric_scores
+
+def calculateScoreFromBlastres(blastres, method, cutoff, include_zeros=False, needsymmetric = False):
+    '''
+    Standard function for computing BLAST scores from a list of BLAST results
+    (from a library function or from parsing a BLAST results table from stdin).
+
+    blastres is a list of lists where each internal list is the split representation
+    of a BLAST resutls table (query, target, %ID, etc...)
+
+    method must be symmetric if needsymmetric = True.
+
+    cutoff is a floating point value. The score is treated as 0 if it is less than the cutoff.
+
+    If include_zeros is FALSE then (query,target) pairs with a score of 0 (after applying the cutoff) are skipped. 
+    Otherwise they are included with a score of 0
+
+    Returns a list of tuples (query gene, target gene, score).
+    '''
+
+    symmetric, non_symmetric = getValidBlastScoreMethods()
+    okMethods = symmetric + non_symmetric
+    if method not in okMethods:
+        raise ValueError("BLAST scoring method %s is not supported (valid methods: %s)" %(method, " ".join(okMethods)))
+    if needsymmetric and method not in symmetric:
+        raise ValueError("Calling function required a symmetric scoring method (query->target is the same as target->query) but method %s is not symmetric" %(method) )
+
+    score_list = []
+    for res in blastres:
+        qgene = res[0]
+        tgene = res[1]
+        evalue = float(res[10])
+        bitscore = float(res[11])
+        qselfbit = float(res[12])
+        tselfbit = float(res[13])
+        hsplen = float(res[3])
+        if method == "minbit":
+            score = bitscore/min(qselfbit, tselfbit)
+        elif method == "maxbit":
+            score = float(bitscore)/max(qselfbit,tselfbit)
+        elif method == "avgbit":
+            score =  bitscore* 2 / (qselfbit+tselfbit)
+        elif method == "normhsp":
+            score = bitscore/hsplen
+        elif method == "loge":
+            score = -math.log10(evalue + 1E-200)
+        if score < cutoff:
+            score = 0
+        if score == 0 and not include_zeros:
+            continue
+        score_list.append( ( qgene, tgene, score ) )
+
+    return score_list
+
+
 def getGenesInCluster(runid, clusterid, cur):
     '''Get the genes in a cluster with ID clusterid from run with ID runid.
     cur is a SQLite cursor.  Returns a list of gene IDs'''

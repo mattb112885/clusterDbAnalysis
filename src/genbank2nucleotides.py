@@ -10,6 +10,7 @@
 # Contig IDs cannot have spaces.
 
 import fileinput, optparse, re, sys
+from Bio import SeqIO
 
 usage="%prog -f [genbank_file] > fna file"
 description="""Make a contig nucleic acid FASTA file out of a genbank file. Contig names MUST have no spaces.
@@ -41,30 +42,18 @@ if opts.orgid is None:
 else:
     orgname = opts.orgid
 
-spaceRemover = re.compile("\s\s+")
-sequenceCleaner = re.compile("[\s\d]*")
+# Note - biopython can handle multi-genbanks...
+multi_records = SeqIO.parse(opts.genbank, "genbank")
 
-contig = ""
-seq = ""
-issequence = False
-for line in open(opts.genbank, "r"):
-    if line.startswith("LOCUS"):
-        sub = spaceRemover.sub(" ", line)
-        spl = sub.split(" ")
-        contig = "%s.%s" %(orgname, spl[1])
-    # a line ORIGIN designates the beginning of the DNA sequence
-    if line.startswith("ORIGIN"):
-        issequence = True
-        seq = ""
-        continue
-    # A line "//" designates the end of the DNA sequence...
-    if line.startswith("//"):
-        if opts.tab:
-            print "%s\t%s\t%s" %(contig, seq, orgname)
-        else:
-            print ">%s\n%s" %(contig, seq)
-        issequence = False
-        continue
-    if issequence:
-        # We need to remove spaces and numbers (location tags)
-        seq = seq + sequenceCleaner.sub("", line)
+for gb_seqrec in multi_records:
+    # Note - this MUST be consistent with convertGenbankToTable.py or else the contig names won't match the ones from the raw files and you won't be able to do anything with the loaded sequences.
+    if gb_seqrec.id == "unknown":
+        contig_name = gb_seqrec.name
+    else:
+        contig_name = gb_seqrec.id
+    contig_name = "%s.%s" %(orgname, contig_name)
+    seq = str(gb_seqrec.seq)
+    if opts.tab:
+        print "%s\t%s\t%s" %(contig_name, seq, orgname)
+    else:
+        print ">%s\n%s" %(contig_name, gb_seqrec.seq)

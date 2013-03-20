@@ -3,6 +3,7 @@
 '''This module contains functions for more general cluster data manipulation
 such as cross-referencing with annotations, organisms, BLAST results, etc...'''
 
+import math
 import sys
 from FileLocator import *
 from sanitizeString import *

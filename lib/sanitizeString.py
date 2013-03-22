@@ -16,3 +16,4 @@ def sanitizeString(string, warnOfReplacement):
     if warnOfReplacement and not string == s:
         warnings.warn("WARNING: String %s replaced with sanitized version  %s\n" %(string, s) )
     return s
+

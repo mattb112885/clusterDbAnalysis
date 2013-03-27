@@ -37,10 +37,10 @@ for line in fileinput.input("-"):
     else:
         orgid = orgid.group(1)
 
-    # Gene ID, Organism+Contig, Start, Stop, Strand
+    # Gene ID, Organism+Contig, Start, Stop, Strand, Annotation
     # Add organism to contig name to avoid non-unique contig names like "contig00001" conflicting when
     # we concatinate all of them.
-    geneTuples.append( (spl[1], orgid + "." + spl[0], int(spl[4]), int(spl[5]), spl[6]) )
+    geneTuples.append( (spl[1], orgid + "." + spl[0], int(spl[4]), int(spl[5]), spl[6], spl[7]) )
 
 # Sort by contig first, then by start
 sortGeneTuples = sorted(geneTuples, key=itemgetter(1,3))
@@ -65,4 +65,6 @@ for contig in contigToTuple:
             if ii+jj > len(currentTuples) - 1:
                 continue
             # Print the gene as a neighbor - also print location and contig as a sanity check
-            print "%s\t%s\t%d\t%s\t%d\t%s" %(currentTuples[ii][0], currentTuples[ii+jj][0], jj, currentTuples[ii+jj][1], currentTuples[ii+jj][2], currentTuples[ii+jj][4])
+            print "%s\t%s\t%d\t%s\t%d\t%d\t%s\t%s" %(currentTuples[ii][0], currentTuples[ii+jj][0], 
+                                              jj, 
+                                              currentTuples[ii+jj][1], currentTuples[ii+jj][2], currentTuples[ii+jj][3], currentTuples[ii+jj][4], currentTuples[ii+jj][5])

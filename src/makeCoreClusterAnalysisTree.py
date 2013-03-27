@@ -13,13 +13,15 @@ from FileLocator import *
 from TreeFuncs import *
 
 usage="%prog [options] newick_file runid"
-description="""Generate an ETE tree with internal node labels corresponding to the number of
+description="""
+Generate an ETE tree with internal node labels corresponding to the number of
 clusters conserved in the nodes beneath it (conservation being defined by a variery of options
-below). The input MUST be a Newick file with organism names replaced.
+below). The input MUST be a Newick file with organism IDs REPLACED with their names.
 
-Alternatively (or in addition) export a XLS file with sheet names equal to the node number printed
+The function alternatively (or in addition) exports a XLS file with sheet names equal to the node number printed
 on the tree containing the cluster, runid pair and a representative annotation from each cluster
-identified with these properties..."""
+identified with these properties...
+"""
 
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-d", "--display", help="Display tree", action="store_true", dest="display", default=False)
@@ -84,7 +86,7 @@ t = Tree(args[0])
 runid = args[1]
 
 if options.reroot_org is not None:
-    t = rerootEteTree(t, root_leaf = options.reroot_org)
+    t = rerootEteTree(t, root_leaf_part = options.reroot_org)
 
 # Make something pretty out of it.
 # We don't want bootstraps here since they just make the tree more cluttered.

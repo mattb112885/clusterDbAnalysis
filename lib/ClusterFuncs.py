@@ -9,8 +9,12 @@ from FileLocator import *
 from sanitizeString import *
 
 def findRepresentativeAnnotation(runid, clusterid, cur):
-    '''Identifies the most common annotation in a cluster/runID pair.
-    cur a SQLite cursor'''
+    '''
+    Identifies the most common annotation in a cluster/runID pair and returns a string
+    containing that annotation.
+
+    cur is a SQLite cursor
+    '''
 
     q = """SELECT annotation FROM clusters
            INNER JOIN processed ON processed.geneid = clusters.geneid
@@ -26,11 +30,13 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
     return bestannote
 
 def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
-    '''Given a list of gene IDs, query the BLAST table to get a list of BLAST results
+    '''
+    Given a list of gene IDs, query the BLAST table to get a list of BLAST results
     containing the genes. The table is in -m9 format but with query and target self-bit scores
     added as the last two columns.
 
-    blastn: TRUE if you want BLASTN results and FALSE if you want blastp results'''
+    blastn: TRUE if you want BLASTN results and FALSE if you want blastp results
+    '''
 
     # FIXME - Can I get equivalent performance by passing in lots of queries at once instead of making a temporary table?
     # Expunging the temporary tables would allow us not to have to give "w" to anyone that wants to use the database.
@@ -58,7 +64,9 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     return resultTable
 
 def getValidBlastScoreMethods():
-    '''List currently-supported BLAST score methods'''
+    '''
+    List currently-supported BLAST scoring metrics
+    '''
     symmetric_scores = ['maxbit', 'minbit', 'avgbit', 'normhsp']
     not_symmetric_scores = [ 'loge' ]
 
@@ -116,10 +124,32 @@ def calculateScoreFromBlastres(blastres, method, cutoff, include_zeros=False, ne
 
     return score_list
 
+def getGeneNeighborhoods(geneid, clusterrunid, cur):
+    '''
+    Call the SQLITE database with cursor "cur" to obtain gene neighborhoods
+
+    Returns a list of gene neighbors for gene ID "geneid" (as many as there are cached in
+    the database - no cutoff for number of neighbors is applied)
+    '''
+    newgeneid = geneid
+    cur.execute("""SELECT * from neighborhoods
+                   WHERE neighborhoods.centergene=?;""", (newgeneid,))
+    results = cur.fetchall()
+    geneids = [l[1] for l in results]
+    # Append the cluster ID to the table (needed for visualization purposes) - this will depend on the run ID used.
+    # We want to do an IN query, but need to format w. correct number of ?s, so generate this string
+    sql = "SELECT geneid, clusterid FROM clusters WHERE geneid IN ({seq}) AND runid = ?;".format(seq=','.join(['?']*len(geneids)))
+    geneids.append(clusterrunid)
+    cur.execute(sql, geneids)
+    lookupcluster = dict(cur.fetchall())
+    outdata = [l + (lookupcluster[l[1]],) for l in results]
+    return outdata
 
 def getGenesInCluster(runid, clusterid, cur):
-    '''Get the genes in a cluster with ID clusterid from run with ID runid.
-    cur is a SQLite cursor.  Returns a list of gene IDs'''
+    '''
+    Get the genes in a cluster with ID clusterid from run with ID runid.
+    cur is a SQLite cursor.  Returns a list of gene IDs
+    '''
 
     q = """SELECT geneid FROM clusters
           WHERE runid = ? AND clusterid = ?"""
@@ -128,9 +158,11 @@ def getGenesInCluster(runid, clusterid, cur):
     return geneids    
     
 def getGeneInfo(genelist, cur):
-    '''Given a list of gene IDs, returns the "geneinfo" as a list of tuples
+    '''
+    Given a list of gene IDs, returns the "geneinfo" as a list of tuples
     in the same format as expected from output of db_getGeneInformation.py and
-    db_getClusterGeneInformation.py...'''
+    db_getClusterGeneInformation.py...
+    '''
 
     q = "SELECT processed.* from processed WHERE processed.geneid = ?;"
     res = []
@@ -141,9 +173,11 @@ def getGeneInfo(genelist, cur):
     return res
 
 def organismNameToId(orgname, cur, issanitized = False):
-    '''Given an organism name, return the ID for that organism name.
+    '''
+    Given an organism name, return the ID for that organism name.
     Use issanitized = True if the provided organism name has been sanitized
-    with the sanitizeString() function'''
+    with the sanitizeString() function
+    '''
     q = "SELECT organism, organismid FROM organisms;"
     cur.execute(q)
     orgToId = {}

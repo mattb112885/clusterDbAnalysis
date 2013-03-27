@@ -4,9 +4,10 @@
 #
 
 import fileinput
-import sqlite3
 import optparse
+import sqlite3
 import sys
+
 from FileLocator import *
 
 usage = "%prog [options] < gene_id_list > gene_neighborhoods"
@@ -35,8 +36,7 @@ for gene in fileinput.input("-"):
     geneid = spl[gc]
     if not geneid.startswith("fig|"):
         geneid = "fig|%s" %(geneid)
-    cur.execute("""SELECT neighborhoods.*, processed.annotation FROM neighborhoods
-                   INNER JOIN processed ON processed.geneid = neighborhoods.neighborgene
+    cur.execute("""SELECT * from neighborhoods
                    WHERE neighborhoods.centergene=? AND ABS(neighborhoods.distance) <= ?;""", (geneid,nsize))
     for l in cur:
         print "\t".join([ str(s) for s in list(l) ])

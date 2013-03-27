@@ -9,7 +9,7 @@ CREATE TABLE rawdata(
        "genestart" INT,
        "geneend" INT,
        "strand" VARCHAR(4),
-       "annotation" VARCHAR(2048),
+       "annotation" VARCHAR(1028),
        "aliases" VARCHAR(2048),
        "figfam" VARCHAR(128),
        "evidence" VARCHAR(128),
@@ -84,12 +84,13 @@ CREATE TABLE neighborhoods(
        "distance" VARCHAR(32),
        "contig_mod" VARCHAR(256),
        "startloc" INT,
+       "stoploc" INT,
        "strand" VARCHAR(4),
+       "annotation" VARCHAR(1028),
        FOREIGN KEY(centergene) REFERENCES rawdata(geneid),
        FOREIGN KEY(neighborgene) REFERENCES rawdata(geneid)
        );
        
-
 .separator "\t"
 .import organisms organisms
 .import db/raw_cat rawdata
@@ -103,6 +104,8 @@ CREATE INDEX blasttargetidx ON blastresults (targetgene);
 
 CREATE INDEX blastnqueryidx ON blastn_results (querygene);
 CREATE INDEX blastntargetidx ON blastn_results (targetgene);
+
+CREATE INDEX neighborhoodcenteridx ON neighborhoods (centergene);
 
 /* Add self-bit score to blastp results table */
 /*CREATE TABLE blast_self AS

@@ -9,11 +9,11 @@ import sys
 import warnings
 
 def rerootEteTree(ete_tree, root_leaf = None, root_leaf_part = None):
-    '''Given an ETE tree, re-root by either the whole name of a leaf (i.e. a gene ID) or a
+    '''
+    Given an ETE tree, re-root by either the whole name of a leaf (i.e. a gene ID) or a
     part of that name (i.e. an organism ID).
 
     You are not allowed to re-root by both.
-    
     '''
 
     if root_leaf is None and root_leaf_part is None:
@@ -71,7 +71,7 @@ def prettifyTree(ete_tree, leaf_font_size = 32, branch_support_size = 20, show_b
     #correct the long root node bug (fixed in next release)
     ete_tree.dist=0
 
-    # Optionally create a new TreeStyle if we are passing in an old one.
+    # Optionally create a new TreeStyle if we are not passing in an old one.
     if ts is None:
         ts = TreeStyle()
 
@@ -121,12 +121,14 @@ def standardizeTreeOrdering(ete_tree):
 # These functions are PhyloTree-specific - PhyloTrees have species attached
 # to them while normal ETE trees don't.
 def rerootPhyloTree(phylo_tree, reroot_species = None):
-    '''Unlike a normal ETE tree object a phyloTree object has a specific "species"
+    '''
+    Unlike a normal ETE tree object a phyloTree object has a specific "species"
     attached to it. This function identifies the node required by a specific species
     and then calls the more generic reroot command with that node name.
 
     Note - getting an AttributeError here means you probably passed in the wrong type
-    of tree.'''
+    of tree.
+    '''
 
     if reroot_species is None:
         raise ValueError("ERROR: must specify a species on which to root\n")

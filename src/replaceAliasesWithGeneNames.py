@@ -22,11 +22,12 @@ if len(args) < 2:
 alias2gene = {}
 for line in open(args[0]):
     spl = line.strip("\r\n").split("\t")
-    alias2gene[spl[0]] = spl[1]
+    alias2gene[spl[1]] = spl[0]
 
 for line in open(args[1]):
     spl = line.strip("\r\n").split("\t")
     repl = spl[1]
     for alias in alias2gene:
-        repl = repl.replace(alias, alias2gene[alias])
+        if alias in repl:
+            repl = repl.replace(alias, alias2gene[alias])
     print "%s\t%s" %(spl[0], repl)

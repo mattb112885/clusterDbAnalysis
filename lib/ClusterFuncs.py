@@ -152,11 +152,14 @@ def getGenesInRegion(contig_id, start, stop, cur):
     Returns a list of gene IDs for all genes between start and stop on the specified contig.
     The gene must lie entirely within the region from start to stop to qualify for the list.
 
-    Start must be less than stop - we throw an error if this is not the case.
+    If start is less than stop we just reverse them (this is useful so that we can directly
+    pass the numbers from TBLASTn results into this function...).
     '''
 
     if start > stop:
-        raise ValueError("Start must be less than stop")
+        tmp = start
+        start = stop
+        stop = tmp
 
     sql = """SELECT geneid FROM processed 
              WHERE processed.contig_mod = ?

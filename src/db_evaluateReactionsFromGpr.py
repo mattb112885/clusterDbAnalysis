@@ -152,10 +152,11 @@ for org in orglist:
                 break
             # If it matches ANY of the query organisms that's good enough for me.
             overallPresence = overallPresence or rxnPresent
+        # I turn it into ints so that I can append the results directly to a tree as a heatmap (0 and 1 can be mapped to colors but True and False cannot)
         if rxn in rxn2presence:
-            rxn2presence[rxn].append(overallPresence)
+            rxn2presence[rxn].append(int(overallPresence))
         else:
-            rxn2presence[rxn] = [ overallPresence ]
+            rxn2presence[rxn] = [ int(overallPresence) ]
 
 for s in syntaxerrors:
     sys.stderr.write(s)

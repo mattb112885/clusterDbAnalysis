@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
-'''This library contains functions for generating a GraphML file for a particular
+'''This library contains functions for generating a GML file for a particular
 cluster of interest.
 
-It includes helper files for making pretty colors. The intention is for you tu import
-the resulting GraphML file into Cytoscape or similar and use their rendering capabilities
+It includes helper files for making pretty colors. The intention is for you to import
+the resulting GML file into Cytoscape or similar and use their rendering capabilities
 to view it.
 
-Note - Cytoscape 3's GML reader is broken; it does not read attributes correctly (this has
+WARNING - Cytoscape 3 beta's GML reader is broken; it does not read attributes correctly (this has
 been fixed and targeted for 3.0.1). If you want to read the attributes in go back to cytoscape
 2.8.3
 

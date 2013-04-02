@@ -67,11 +67,13 @@ FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program, at th
 
 MaFFT - Fast and (fairly) accurate multiple-alignment software used in alignment wrappers in this toolkit.
 
-Matplotlib: Used for assorted calculations (sparsely used)
+Matplotlib: Used for assorted calculations and some basic plotting functions (sparsely used)
 
 MyRast: Contains some useful scripts for alignment and tree manipulation (In ITEP, we only require it if you want to download RAST data from the command line - you can also
 	download the files from the RAST website and not install MyRast).
-	Requires Perl 5 and various perl packages (install with aptitude or CPAN if it complains).
+	Requires Perl 5 and various perl packages (install those with aptitude or CPAN if MyRAST complains that they are missing).
+
+networkx: Python library used to make GML files for import into Cytoscape or other network / graph viewers.
 
 PyQt4 - Used for certain tree visualization scripts, required to interactively display trees with ETE
 

@@ -29,38 +29,57 @@ to the PYTHONPATH.
 
 The packages have a variety of dependencies depending on how you want to run them.
 
-MOST IMPORTANT:
+~~~~
+MOST IMPORTANT \ required for large parts of the package
+~~~~
 
 NCBI BLAST: BlastP is used as a basis for generating gene clusters. BLASTN and TBLASTN are also 
         used in various scripts. RPSBLAST is included with the package and is used for comparison to the
-	CDD database.
+	CDD database. This toolkit uses the newer version of BLAST (BLAST+), not Blastall
 
-Ruffus: Python parallelization package. Used to parallelize BLAST and TBLASTN functions (the
-        parallelization option in NCBI BLast doesn't work on all machines).
+MCL: Default clustering tool used to generate gene clusters.
 
-BioPython: Used for reading and writing various alignment formats and some visualization.
+Sqlite3: Used to store and query blast, cluster and alignment\tree data. IMPORTANT: Make sure you have the latest version!
+         Older versions of SQLite suffer bugs when making indexes that are too large in older versions and index creation will fail as a result
+	 (making lookups very slow)
 
-MCL: Clustering tool used to generate gene clusters.
+Python (I used 2.6, should also work for 2.7): Most of the code is written for python. The rest is written for BASH 
+       	       	           	       	     which is included in most Linux distributions.
 
-Sqlite3: Used to store and query blast, cluster and alignment\tree data.
+~Required Python packages~
 
-Python (I used 2.6): Most of the code is written for python. The rest is written for BASH 
-                     but most of it will hopefully work with other shells.
+BioPython: Used for reading and writing various alignment formats and genome visualization.
 
 ETE- Used for tree visualization and manipulation.
 
+Numpy: Used for assorted calcualtions and data organization. Also makes biopython run much more smoothly and you probably should have it anyway since
+       tons of stuff depends on it.
 
-ALSO USEFUL:
+Ruffus: Python parallelization package. Used to parallelize BLAST and BLASTN functions (the
+        parallelization option built into NCBI BLAST doesn't work on all machines and isn't as
+	easy to split into pairwise organism comparisons).
 
-PYQT4 - Used for certain tree visualization scripts
+~~~~
+ALSO USEFUL \ required for small parts of the package
+~~~~
 
-Numpy: Used for assorted calcualtions and organization
+FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program, at the expense of some accuracy. Required to make trees with FastTree
 
-FastTree (http://www.microbesonline.org/fasttree/) - Fast treeing program, at the expense of some accuracy
+MaFFT - Fast and (fairly) accurate multiple-alignment software used in alignment wrappers in this toolkit.
 
-MaFFT - Fast and (fairly) accurate multiple-alignment software
+Matplotlib: Used for assorted calculations (sparsely used)
+
+MyRast: Contains some useful scripts for alignment and tree manipulation (In ITEP, we only require it if you want to download RAST data from the command line - you can also
+	download the files from the RAST website and not install MyRast).
+	Requires Perl 5 and various perl packages (install with aptitude or CPAN if it complains).
+
+PyQt4 - Used for certain tree visualization scripts, required to interactively display trees with ETE
 
 RaxML - Accurate but slow treeing program.
+
+ReportLab - Needed for Biopython graphics (e.g. neighborhood trees).
+
+Scipy - Currently only used for hierarchical clustering while drawing heatmaps. If you don't want to use PlotHeatmaps.py you don't need this.
 
 ORTHOMCL-SPECIFIC REQUIREMENTS:
 
@@ -104,8 +123,8 @@ as given to it by default by RAST.
 
 METHOD 2: USER-SUPPLIED GENBANK FILE
 
-If the user has a genbank file from any source including METHOD 3 or METHOD 4 below, here is how to 
-import it into ITEP:
+If the user has a genbank file from any source including METHOD 3 or METHOD 4 below (or from RAST), 
+here is how to import it into ITEP:
 
 a) Put the genbank file in the root directory (or some placeholder directory, but NOT genbank/ or
 raw/)
@@ -119,13 +138,15 @@ searchable in the database.
 
 This script might not work depending on what data is in your genbank file. Please email me or file
 bug reports if you have issues with yours. It has been tested on Genbank files from the RefSeq
-database and those generated from the KBase genome objects (see methods 3 and 4 below).
+database, RAST, and those generated from the KBase genome objects (see methods 3 and 4 below).
 
 METHOD 3: NCBI GENBANK FILES
 
 (beta) We have a sometimes-problematic script to download genbank files from NCBI based on
 taxIDs or accession numbers. Watch the output carefully, but if it works you'll have genbank files
-in the right format to import into ITEP using the scripts from METHOD 2 above.
+in the right format to import into ITEP using the scripts from METHOD 2 above. Otherwise, go to the
+FTP site and download all the genbank files for your organism of interest, concatinate them (with the
+cat command) and then follow the directions in METHOD 2.
 
 METHOD 4: DOE KBASE
 

@@ -128,7 +128,7 @@ def getGeneNeighborhoods(geneid, clusterrunid, cur):
     '''
     Call the SQLITE database with cursor "cur" to obtain gene neighborhoods
 
-    Returns a list of gene neighbors for gene ID "geneid" (as many as there are cached in
+    Returns a list of gene neighborhood arrays for gene ID "geneid" (as many as there are cached in
     the database - no cutoff for number of neighbors is applied)
     '''
     newgeneid = geneid
@@ -144,6 +144,31 @@ def getGeneNeighborhoods(geneid, clusterrunid, cur):
     lookupcluster = dict(cur.fetchall())
     outdata = [l + (lookupcluster[l[1]],) for l in results]
     return outdata
+
+def getGenesInRegion(contig_id, start, stop, cur):
+    '''
+    Call the SQLITE database with cursor "cur" to obtain genes in a particular region of DNA
+
+    Returns a list of gene IDs for all genes between start and stop on the specified contig.
+    The gene must lie entirely within the region from start to stop to qualify for the list.
+
+    Start must be less than stop - we throw an error if this is not the case.
+    '''
+
+    if start > stop:
+        raise ValueError("Start must be less than stop")
+
+    sql = """SELECT geneid FROM processed 
+             WHERE processed.contig_mod = ?
+             AND MIN(processed.genestart, processed.geneend) >= ?
+             AND MAX(processed.genestart, processed.geneend) <= ?; """
+    cur.execute(sql, (contig_id, start, stop) )
+
+    geneinfo = []
+    for res in cur:
+        geneinfo.append( res[0] )
+
+    return geneinfo
 
 def getGenesInCluster(runid, clusterid, cur):
     '''
@@ -220,4 +245,13 @@ genelist =  getGenesInCluster("all_I_1.7_c_0.4_m_maxbit", 1524, cur)
 blastres = getBlastResultsBetweenSpecificGenes(genelist, cur, False)
 for res in blastres:
     print "\t".join(res)
+'''
+
+'''
+from FileLocator import *
+import sqlite3
+con = sqlite3.connect(locateDatabase())
+cur = con.cursor()
+genes = getGenesInRegion("451756.88888.NZ_ABDX01000032.1", 30000, 40000, cur)
+print genes
 '''

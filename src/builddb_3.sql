@@ -9,6 +9,7 @@
 DROP TABLE IF EXISTS contigs;
 DROP TABLE IF EXISTS tblastn;
 
+/* You will need to make the seq bigger if you have very large genomes */
 CREATE TABLE contigs(
        "contig_mod" VARCHAR(256),
        "seq" VARCHAR(8000000),
@@ -38,6 +39,7 @@ CREATE TABLE tblastn(
        "targetannotation" VARCHAR(2048),
        "targetgenelen" INT,
        "targetoverlappct" FLOAT,
+       "tblastn_id" VARCHAR(256),
        FOREIGN KEY(targetorganism) REFERENCES organisms(organism),
        FOREIGN KEY(queryid) REFERENCES processed(geneid),
        FOREIGN KEY(targetcontig) REFERENCES contigs(contig_mod)

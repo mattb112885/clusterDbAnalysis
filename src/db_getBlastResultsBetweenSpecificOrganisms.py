@@ -60,6 +60,9 @@ cur.execute("""CREATE TEMPORARY TABLE desiredgenes AS
                  SELECT geneid FROM processed 
                  INNER JOIN desiredorgs ON desiredorgs.organism = processed.organism; """)
 
+# Hopefully speed up the IN commands
+cur.execute("""CREATE INDEX temp_desiredgenes ON desiredgenes(geneid);""")
+
 # Generate a list of blast results with query matching one of the desiredgenes
 if options.blastn:
     tbl = "blastnres_selfbit"

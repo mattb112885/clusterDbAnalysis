@@ -135,6 +135,19 @@ for file in $(ls | grep -v "README"); do
 	echo "ERROR: Stop location (sixth column) expected to be a number in file ${file}";
 	STATUS=1;
     fi
+    # Check if the contigs are too big to fit into the database as we have defined it.
+    # For now we have that defined as 10,000,000.
+    # This is fine for doing anything that doesn't required people to load in their contigs.
+    max_contig_length=10000000
+    maxstart=$(cat "${file}" | cut -f 5 | sort -n | tail -1)
+    maxstop=$(cat "${file}" | cut -f 6 | sort -n | tail -1)
+    if [ $maxstart -gt $max_contig_length ]; then
+	echo "WARNING: At least one contig in file ${file} is too long for the default implementation of the contig table (max length = ${max_contig_length}). See builddb_3.sql to change the setting";
+    fi
+    if [ $maxstop -gt $max_contig_length ]; then
+	echo "WARNING: At least one contig in file ${file} is too long for the default implementation of the contig table (max length = ${max_contig_length}). See builddb_3.sql to change the setting";
+    fi
+
     fmatch=$(cat "${file}" | cut -f 7 | grep -o -P "^[+-]$");
     if [ $? -eq 1 ]; then
 	echo "ERROR: Strand (seventh column) must be + or - in file ${file}";

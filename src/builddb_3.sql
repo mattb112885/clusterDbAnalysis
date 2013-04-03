@@ -9,10 +9,14 @@
 DROP TABLE IF EXISTS contigs;
 DROP TABLE IF EXISTS tblastn;
 
-/* You will need to make the seq bigger if you have very large genomes */
+/* You will need to make the seq bigger if you have very large genomes.
+I chose 10,000,000 because this is the size of the largetst Bacterial genome
+in the CBS Genome Atlas except for 5. I will throw an error if your contigs are
+larger than this. If they are much smaller you can save space by reducing 
+this number. */
 CREATE TABLE contigs(
        "contig_mod" VARCHAR(256),
-       "seq" VARCHAR(8000000),
+       "seq" VARCHAR(10000000),
        "organismid" VARCHAR(256),
        FOREIGN KEY(organismid) REFERENCES organisms(organismid)
 );

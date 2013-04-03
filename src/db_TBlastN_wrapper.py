@@ -7,7 +7,7 @@ import fileinput, os, optparse, random, sqlite3, sys
 from FileLocator import *
 
 TABLEDESCRIPTION = """queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, hitframe, 
-                      strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct"""
+                      strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID"""
 
 usage = "%prog (-d|-f|-o) contig_inputs [options] < Protein_ids > Tblastn_table"
 description = """Attempts to run TBLASTN and identify
@@ -163,7 +163,9 @@ for line in open(ofile, "r"):
     atleastone = False
     # This part is always in common even if there are no overlaps
     firstLine = "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%1.2f\t%s\t%s\t%s" %(queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, sframe)
-        
+
+    tblastn_hitID = "TBLASTN_CONTIG_%s_START_%d_STOP_%d" %(subcontig, tblaststart, tblastend)
+    
     for rec in cur:
         atleastone = True
         # Gene info for TARGET gene
@@ -180,11 +182,11 @@ for line in open(ofile, "r"):
         else:
             strandedString = "OTHERSTRAND"
 
-        print "%s\t%s\t%s\t%s\t%d\t%1.2f" %(firstLine, strandedString, targetgeneid, targetannotation, abs(targetgenestart-targetgeneend), targetoverlappct)
+        print "%s\t%s\t%s\t%s\t%d\t%1.2f\t%s" %(firstLine, strandedString, targetgeneid, targetannotation, abs(targetgenestart-targetgeneend), targetoverlappct, tblastn_hitID)
 
     # No gene matches the loation
     if not atleastone:
-        print "%s\tNOGENE\t\t\t\t" %(firstLine)
+        print "%s\tNOGENE\t\t\t\t\t%s" %(firstLine, tblastn_hitID)
 
 # Clean up
 if not options.keep:

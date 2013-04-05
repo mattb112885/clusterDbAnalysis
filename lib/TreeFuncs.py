@@ -156,8 +156,10 @@ def unsanitizeGeneId(sanitized_geneid):
 # TODO - this should probably go into a different library. I put it here for now since James's
 # tree function is the only one using it at the moment.
 def splitrast(geneid, removefigpeg = False):
-    '''Takes an UN-SANITIZED geneid and splits off the organiosm and gene, optionally removing 
-    the "fig" and "peg" parts'''
+    '''
+    Takes an UN-SANITIZED geneid and splits off the organiosm and gene, optionally removing 
+    the "fig" and "peg" parts
+    '''
 
     if ".peg." not in geneid:
         raise ValueError("ERROR: The expected string .peg. not found in gene ID - did you pass in a sanitized ID instead of an unsanitized one?\n")
@@ -168,9 +170,25 @@ def splitrast(geneid, removefigpeg = False):
         fig=fig.lstrip('fig|')
     else:
         peg = 'peg.'+peg
-
     return fig, peg
 
+def splitTblastn(geneid):
+    '''
+    TBLASTN entities get their own unique IDs because they aren't really genes.
+    This parses them into a contig ID and a start and stop location.
+
+    Returns a tuple (contig, start, stop)
+    '''
+    regex = r"TBLASTN_CONTIG_(.*?)_START_(\d+)_STOP_(\d+)"
+    match = re.match(regex, geneid)
+    if match is None:
+        raise ValueError("ERROR: The geneID %s is not in the expected TBLASTN format (regex %s)" %(geneid, regex))
+    else:
+        contig_id = match.group(1)
+        start = match.group(2)
+        stop = match.group(3)
+
+    return (contig_id, start, stop)
 
 def parse_sp_name(node_name):
     '''Parse a node name into an organism ID.
@@ -194,5 +212,3 @@ def parse_sp_name(node_name):
         orgname = node_name
 
     return orgname
-
-    

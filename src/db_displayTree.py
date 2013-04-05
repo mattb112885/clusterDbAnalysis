@@ -97,6 +97,8 @@ geneToAnnote = {}
 geneToOrganism = {}
 sys.stderr.write("Reading gene annotations and organisms from database...\n")
 
+# FIXME - This should call the library functions to get geneinfo for specific sets of genes
+# instead of doing this.
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 cur.execute("SELECT * FROM processed;")

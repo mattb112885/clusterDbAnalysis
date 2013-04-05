@@ -130,6 +130,8 @@ def getGeneNeighborhoods(geneid, clusterrunid, cur):
 
     Returns a list of gene neighborhood arrays for gene ID "geneid" (as many as there are cached in
     the database - no cutoff for number of neighbors is applied)
+
+    If no match is identified then we return an empty list.
     '''
     newgeneid = geneid
     cur.execute("""SELECT * from neighborhoods
@@ -167,11 +169,11 @@ def getGenesInRegion(contig_id, start, stop, cur):
              AND MAX(processed.genestart, processed.geneend) <= ?; """
     cur.execute(sql, (contig_id, start, stop) )
 
-    geneinfo = []
+    genelist = []
     for res in cur:
-        geneinfo.append( res[0] )
+        genelist.append( res[0] )
 
-    return geneinfo
+    return genelist
 
 def getGenesInCluster(runid, clusterid, cur):
     '''

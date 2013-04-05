@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
+'''
 This script plots regions around proteins using a newick tree of the proteins and the results of iTEP's db_getGeneNeighborhoods.py
 
 Created on Wed Oct 17 12:40:42 2012
@@ -31,7 +31,7 @@ When you run this again, it should work.
 See the following for more details.
 
 http://blog.gmane.org/gmane.comp.python.reportlab.user/month=20060701/page=5
-"""
+'''
 
 import colorsys
 import math
@@ -53,8 +53,25 @@ from Bio.SeqFeature import SeqFeature, FeatureLocation
 from ete2 import Tree, faces, TreeStyle, TextFace, PhyloTree
 from ete2 import Phyloxml, phyloxml
 
-#from tempfile import NamedTemporaryFile
-#from Bio import SeqIO
+#######################################
+## DEPRECIATED ########################
+#######################################
+def removeLeadingDashes(t):
+    '''James could you explain this convention to me?'''
+    tblastnadded = []
+    for genename in t.get_leaf_names():
+        #if it is from tblastn, we want to change it in the tree and have a record to indecate this in the plot
+        if genename.startswith('-'): 
+            genename = unsanitizeGeneId(genename)
+            tblastn_leaf = t&genename
+            genename = genename.lstrip('-')
+            tblastnadded.append(genename)
+            tblastn_leaf.name = genename
+    return t, tblastnadded
+
+#######################
+### COLOR HANDLING ####
+#######################
 
 def RGB_to_hex(RGBlist):
     n = lambda x: int(x*255)
@@ -63,7 +80,9 @@ def RGB_to_hex(RGBlist):
     return colors
 
 def colormap(valuelist):
-    #generate list of divergent colors
+    '''
+    Generate a list of divergent colors for use with labeling clusters.
+    '''
     clusters = numpy.unique(valuelist)
     N = len(clusters)
     #we will vary in 2 dimensions, so this is how many steps in each
@@ -81,7 +100,18 @@ def colormap(valuelist):
     colorlookup = dict(zip(clusters, RGB[:N]))
     return colorlookup
 
+###################################################
+### NEIGHBORHOOD HANDLING for genes in database ###
+###################################################
+
 def makeSeqFeaturesForGeneNeighbors(genename, clusterrunid, cur):
+    '''
+    Given a gene ID, compute the neighbors of that gene and create a SeqFeature
+    object for each.
+
+    Returns a list of neigboring genes or an empty array [] if we couldn't do anything
+    with the gene Id given (not found in database or similar issue)
+    '''
     outdata = getGeneNeighborhoods(genename, clusterrunid, cur)    
     genelocs = []
     for neargene in outdata: 
@@ -98,33 +128,74 @@ def makeSeqFeaturesForGeneNeighbors(genename, clusterrunid, cur):
         genelocs.append(feature)
     return genelocs
 
-def GetGeneToAlias():
+####################################################
+#### Functions for TBLASTN neighborhood support ####
+####################################################
+def getSanitizedContigList(cur):
     '''
-    Get a dictionary from gene IDs to aliases (Note though that each gene can have more than one alias)
+    Get a list of sanitized Contig IDs. Returns a dictionary from sanitized to unsanitized contig IDs
+    present in the database.
     '''
-    geneToAlias ={}
-    rootpath = os.path.split(os.path.split(locateDatabase())[0])[0]
-    alias_file = os.path.join(rootpath, 'aliases', 'aliases')
-    if not os.path.exists(alias_file):
-        sys.stderr.write("WARNING: No aliases file found in expected location:%s\n" %(alias_file))
-        return geneToAlias
-    for line in open(alias_file, "r"):
-        spl = line.strip('\r\n').split("\t")
-        geneToAlias[spl[0]] = spl[1]
-    return geneToAlias
+    q = "SELECT DISTINCT contig_mod FROM contigs;"
+    cur.execute(q)
+    sanitizedToNot = {}
+    for res in cur:
+        sanitizedToNot[sanitizeString(res[0], False)] = res[0]
+    return sanitizedToNot
 
-def removeLeadingDashes(t):
-    '''James could you explain this convention to me?'''
-    tblastnadded = []
-    for genename in t.get_leaf_names():
-        #if it is from tblastn, we want to change it in the tree and have a record to indecate this in the plot
-        if genename.startswith('-'): 
-            genename = unsanitizeGeneId(genename)
-            tblastn_leaf = t&genename
-            genename = genename.lstrip('-')
-            tblastnadded.append(genename)
-            tblastn_leaf.name = genename
-    return t, tblastnadded
+def makeSeqObjectsForTblastnNeighbors(tblastn_id, clusterrunid, cur, N=200000):
+    '''
+    Given a tBBLSATn ID and a dictionary from sanitized contig IDs (which is what will be
+    present in the TBLASTN id) to non-sanitized IDs (which are what is in the database),
+    returns a list of seq objects INCLUDING the TBLASTN hit itself (so that we can show that
+    on the region drawing).
+
+    We pick an N large enough to get at least one gene and then pick the closest one and get
+    all of its neighbors with a call to makeSeqFeaturesForGeneNeighbors() and just tack the TBLASTN
+    onto it.
+    '''
+    # Lets first get the contig and start/stop locations (which tell us teh strand) out of
+    # the TBLASTN id. This returns a ValueError if it fails which the calling function can catch if needed.
+    contig,start,stop = splitTblastn(tblastn_id)
+    start = int(start)
+    stop = int(stop)
+
+    # Create a seq object for the TBLASTN hit itself
+    if start < stop:
+        strand = +1
+    else:
+        strand = -1
+    tblastn_feature = SeqFeature(FeatureLocation(start, stop), strand=strand, id=tblastn_id)
+    tblastn_feature.qualifiers["cluster_id"] = -1
+    
+    # Find the neighboring genes.
+    neighboring_genes = getGenesInRegion(contig, start-N, stop+N, cur)
+    if len(neighboring_genes) == 0:
+        sys.stderr.write("WARNING: No neighboring genes found for TBLASTN hit %s within %d nucleotides" %(tblastn_id, N))
+        return feature
+    else:
+        neighboring_geneinfo = getGeneInfo(neighboring_genes, cur)
+
+    # Find the closest gene to ours and get the clusters for those neighbors based on the specific clusterrunid
+    minlen = N
+    mingene = None
+    minstrand = None
+    for geneinfo in neighboring_geneinfo:
+        genestart = int(geneinfo[5])
+        geneend = int(geneinfo[6])
+        distance = min( abs(genestart - start), abs(geneend - start), abs(genestart - stop), abs(geneend - stop))
+        if distance < minlen:
+            mingene = geneinfo[0]
+            minlen = distance
+
+    neighboring_features = makeSeqFeaturesForGeneNeighbors(mingene, clusterrunid, cur)
+    # Add the TBLASTN itself and return it.
+    neighboring_features.append(tblastn_feature)
+    return neighboring_features   
+
+###########################
+#### Drawing functions ####
+###########################
 
 def regionlength(genelocs):
     location = [(int(loc.location.start), int(loc.location.end)) for loc in genelocs]
@@ -137,14 +208,13 @@ def regionlength(genelocs):
 def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
     '''
     Makes a PNG figure for regions with a given color mapping, set of gene locations...
-    
+
     TODO - Needs better documentation
     TODO make auto-del tempfiles, or pass svg as string
     '''
 
-    geneToAlias = GetGeneToAlias()
-    org, peg = splitrast(centergenename, removefigpeg = True)
-
+    imgfileloc = "/tmp/%s.png" %(sanitizeString(centergenename, False))
+    
     # Set up an entry genome diagram object
     gd_diagram = GenomeDiagram.Diagram("Genome Region")
     gd_track_for_features = gd_diagram.new_track(1, name="Annotated Features")
@@ -156,6 +226,7 @@ def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
     default_fontsize = 30 # Font size for genome diagram labels
     scale = 20     #AA per px for the diagram
 
+    # Build arrow objects for all of our features.
     for feature in genelocs:
         bordercol=rcolors.white
         if feature.id == centergenename:
@@ -164,8 +235,8 @@ def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
             centerdstrand = feature.strand
         color = getcolor[feature.qualifiers["cluster_id"]]
 
-        thisorg, thispeg = splitrast(feature.id, removefigpeg = True)
-        gd_feature_set.add_feature(feature, name = thispeg,
+        
+        gd_feature_set.add_feature(feature, name = feature.id,
                                    color=color, border = bordercol, 
                                    sigil="ARROW", arrowshaft_height=arrowshaft_height, arrowhead_length = arrowhead_length,
                                    label=False,  label_angle=20, label_size = default_fontsize
@@ -181,7 +252,6 @@ def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
 
     gd_diagram.draw(format="linear", start=start, end=end, fragments=1, pagesize=(225, pagew_px), xl=(loffset/pagew_px), xr=(roffset/pagew_px) )
 
-    imgfileloc = "/tmp/%s%s_temp.png" %(org, peg)
     gd_diagram.write(imgfileloc, "PNG")
     #flip for reversed genes
     if centerdstrand == -1:
@@ -199,21 +269,38 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
 
     The arrows are grayed out if less than "greyout" genes appear in a given cluster.
     '''
+
+    # DEPRECIATED
     t, tblastnadded = removeLeadingDashes(t)
+
     unsanitized = []
     for genename in t.get_leaf_names():
         unsanitized.append(unsanitizeGeneId(genename))
 
-    # Create a list of SeqFeature objects for each gene in the tree
-    regionindex={}
+
+    # Create a list of SeqFeature objects for the neighbors of each gene in the tree
+    # If passed a TBLASTN hit it will create seq objects for every gene surrounding the TBLASTN hit and
+    # for the TBLASTN hit itself.
+    #
+    # Nothing is added if we can't find that ID in the database or the ID is badly formatted.
+    seqfeatures={}
     for genename in unsanitized:
         sys.stderr.write("Getting gene neighborhoods for gene %s...\n" %(genename) )
-        regionindex[genename]= makeSeqFeaturesForGeneNeighbors(genename, clusterrunid, cur)
+        features_for_genename = makeSeqFeaturesForGeneNeighbors(genename, clusterrunid, cur)
+        if len(features_for_genename) > 0:
+            seqfeatures[genename] = features_for_genename
+        else:
+            # Try TBLASTN and if that doesn't work, just give up.
+            try:
+                features_for_tblastn = makeSeqObjectsForTblastnNeighbors(genename, clusterrunid, cur)
+                seqfeatures[genename] = features_for_tblastn
+            except ValueError:
+                pass
 
     # Get a list of clusters containing these genes
     allclusters = []
-    for gene in regionindex:
-        for feature in regionindex[gene]:
+    for gene in seqfeatures:
+        for feature in seqfeatures[gene]:
             allclusters.append(feature.qualifiers["cluster_id"])
 
     uniqueclusters = set(allclusters)
@@ -230,27 +317,29 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
     #generate the region images for any leaf that has them, and map onto the tree
     #we will want to know the max width to make the figures
     widths = []
-    for genelocs in regionindex.values():
+    for genelocs in seqfeatures.values():
         start, end = regionlength(genelocs)
         widths.append(abs(end - start))
     maxwidth = max(widths)
+
     for leaf in t.iter_leaves():
         newname = unsanitizeGeneId(leaf.name)
         # Not all genes necessarily are in the database and we don't want to crash if that happens.
         # Instead, Just don't print a neighborhood for them.
         try: 
-            genelocs = regionindex[newname]
+            genelocs = seqfeatures[newname]
         except KeyError: 
             continue 
         sys.stderr.write("Making region drawing for gene ID %s...\n" %(newname))
         imgfileloc = make_region_drawing(genelocs, getcolor, newname, maxwidth)
-        org, peg = splitrast(newname, removefigpeg = True)
         imageFace = faces.ImgFace(imgfileloc)
         leaf.add_face(imageFace, column=2, position = 'aligned')
         if newname in tblastnadded:
             leaf.add_face(TextFace("TBlastN added", fsize=30), column=3, position = 'aligned')
+
     #add legend for clusters
     ts = treelegend(ts, getcolor, greyout)
+
     return t, ts
 
 def treelegendtext(cluster, color):
@@ -340,7 +429,7 @@ if __name__ == "__main__":
 #    t = PhyloTree(treeinfile, sp_naming_function=parse_sp_name)
     t = Tree(treeinfile)
     ts= TreeStyle()
-    
+
     con = sqlite3.connect(locateDatabase())
     cur = con.cursor()
 
@@ -355,8 +444,19 @@ if __name__ == "__main__":
             if len(geneinfo) > 0:
                 organism = geneinfo[0][1]
                 annotation = geneinfo[0][9]
+            else:
+                # FIxME - Attempt to get the organism name from the contig for TBLASTN IDs. If that fails we just give up.
+                annotation = ""
+                try:
+                    contig,start,stop = splitTblastn(unsanitized)
+                    q = "SELECT organism FROM organisms INNER JOIN contigs ON contigs.organismid = organisms.organismid WHERE contigs.contig_mod=?;"
+                    cur.execute(q, (contig,) )
+                    for res in cur:
+                        organism = res[0]
+                except ValueError:
+                    organism = ""
             node.name = sanitizeString("%s_%s_%s" %(organism, annotation[0:63], unsanitized), False)
-
+    
     t, ts = prettifyTree(t, title = gene + " cluster regions", show_bootstraps = False, ts=ts)
 
     os.system("rm test.svg 2> /dev/null")

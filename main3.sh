@@ -24,4 +24,4 @@ for file in *; do
 done
 cd ..;
 
-sqlite3 db/DATABASE.sqlite < src/builddb_3.sql;
+sqlite3 db/DATABASE.sqlite < src/internal/builddb_3.sql;

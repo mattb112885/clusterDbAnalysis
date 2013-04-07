@@ -1,0 +1,3 @@
+This folder contains scripts that are helpful for text manipulation (e.g. joining on tab-delimited files)
+that are a pain or impossible to do with just the BASH shell.
+

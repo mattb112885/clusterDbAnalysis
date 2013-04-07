@@ -5,6 +5,10 @@
 # src/specificOrganismClusterDriver.py
 if [ $# -lt 3 ]; then
     echo "Usage: ./main2.sh [inflation] [scoremethod] [cutoff]";
+    echo ""
+    echo "Description: This script runs MCL with the specified parameters"
+    echo "This script must be run from the directory where it is located"
+    echo " (e.g. as ./main2.sh )"
     exit 0;
 fi
 
@@ -64,7 +68,7 @@ cat flatclusters/* > db/flat_clusters;
 
 # Import clusters into the db
 echo "Importing cluster information into database...";
-sqlite3 db/DATABASE.sqlite < src/builddb_2.sql;
+sqlite3 db/DATABASE.sqlite < src/internal/builddb_2.sql;
 
 # Once clusters are loaded, make a pre-built presence\absence table.
 # This is a python script because it involves some operations that would be impossible or hard in pure SQL.

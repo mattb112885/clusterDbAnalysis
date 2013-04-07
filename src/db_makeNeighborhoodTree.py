@@ -33,7 +33,6 @@ See the following for more details.
 http://blog.gmane.org/gmane.comp.python.reportlab.user/month=20060701/page=5
 '''
 
-import colorsys
 import math
 import itertools
 import optparse
@@ -41,6 +40,7 @@ import os
 import sqlite3
 import sys
 
+from BioPythonGraphics import *
 from FileLocator import *
 from TreeFuncs import *
 from ClusterFuncs import *
@@ -68,37 +68,6 @@ def removeLeadingDashes(t):
             tblastnadded.append(genename)
             tblastn_leaf.name = genename
     return t, tblastnadded
-
-#######################
-### COLOR HANDLING ####
-#######################
-
-def RGB_to_hex(RGBlist):
-    n = lambda x: int(x*255)
-    RGB256 = [(n(r),n(g),n(b)) for r,g,b in RGBlist]
-    colors = ['#%02x%02x%02x' % (r, g, b) for r, g, b in RGB256]
-    return colors
-
-def colormap(valuelist):
-    '''
-    Generate a list of divergent colors for use with labeling clusters.
-    '''
-    clusters = numpy.unique(valuelist)
-    N = len(clusters)
-    #we will vary in 2 dimensions, so this is how many steps in each
-    perm = int(math.ceil(math.sqrt(N)))
-    #need offset, as human's can't tell colors that are unsaturated apart
-    H = [(x*1.0/perm) for x in range(perm)]
-    S = [(x*1.0/perm)+0.2 for x in range(perm)]
-    #we will use this to truncate at correct length
-    V = [0.7]*N
-    #all combanations
-    HS = itertools.product(H, S)
-    H, S = zip(*HS)
-    HSV = zip(H,S,V)
-    RGB = [colorsys.hsv_to_rgb(h,s,v) for h, s, v in HSV]
-    colorlookup = dict(zip(clusters, RGB[:N]))
-    return colorlookup
 
 ###################################################
 ### NEIGHBORHOOD HANDLING for genes in database ###
@@ -295,7 +264,13 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
                 features_for_tblastn = makeSeqObjectsForTblastnNeighbors(genename, clusterrunid, cur)
                 seqfeatures[genename] = features_for_tblastn
             except ValueError:
+                sys.stderr.write("WARNING: Unable to find entries for gene or TBLASTN hit %s in database\n" %(genename) )
                 pass
+
+    # Don't bother trying the rest if nothing matches at all.
+    if len(seqfeatures.keys()) == 0:
+        sys.stderr.write("WARNING: No genes in input tree had entries in the database so no neighborhoods will be drawn\n")
+        return t, ts
 
     # Get a list of clusters containing these genes
     allclusters = []
@@ -308,7 +283,12 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
     # Get clusters that have enough members to bother trying to color them (as determined by
     # the greyout keyword)
     multipleclusters = [c for c in uniqueclusters if allclusters.count(c) > greyout]
-    getcolor = colormap(multipleclusters)
+
+    # Don't die if nothing has enough clusters...
+    if len(multipleclusters) > 0:
+        getcolor = colormap(multipleclusters)
+    else:
+        getcolor = {}
 
     #also add in grey (0.5,0.5,0.5 in RGB) for all others
     singleclusters = [c for c in uniqueclusters if allclusters.count(c) <= greyout]

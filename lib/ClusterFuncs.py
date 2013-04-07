@@ -136,6 +136,7 @@ def getGeneNeighborhoods(geneid, clusterrunid, cur):
     newgeneid = geneid
     cur.execute("""SELECT * from neighborhoods
                    WHERE neighborhoods.centergene=?;""", (newgeneid,))
+
     results = cur.fetchall()
     geneids = [l[1] for l in results]
     # Append the cluster ID to the table (needed for visualization purposes) - this will depend on the run ID used.

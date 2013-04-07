@@ -1,11 +1,13 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-    echo " USAGE: main4.sh [NCORES]"
+    echo " USAGE: ./main4.sh [NCORES]"
     echo ""
     echo " This script downloads the NCBI CDD database (if it isn't already"
     echo " on your machine) and runs RPS-BLAST to identify similarity of all of your"
     echo " proteins to existing conserved domains from CD, COG, TIGR, ..."
+    echo ""
+    echo "This script must be run from the directory in which it is located"
     echo ""
     exit 1
 fi
@@ -44,4 +46,4 @@ cat rpsblast_res/* > db/external_CDD
 cat db/external_CDD | sed -r "s/^(.*?\s+.*?),/\1/g" > db/external_CDD_MOD
 mv db/external_CDD_MOD db/external_CDD
 
-sqlite3 db/DATABASE.sqlite < src/builddb_4.sql
+sqlite3 db/DATABASE.sqlite < src/internal/builddb_4.sql

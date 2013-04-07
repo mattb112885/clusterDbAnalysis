@@ -1,11 +1,14 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "usage: main.sh [NCORES]"
+    echo "usage: ./main.sh [NCORES]"
     echo ""
-    echo "Description: runs BLAST, BLASTN all vs. all and RPSBLAST against all of the"
+    echo "Description: runs BLAST, BLASTN all vs. all against all of the"
     echo "maintained conserved domain databases in NCBI"
     echo ""
+    echo "This script MUST be run from the directory that contains it (i.e. you must call it like "
+    echo "./main.sh [NCORES]"
+    echo " or else it will not work."
     exit 1
 fi
 
@@ -132,4 +135,4 @@ cat db/raw_cat | getNeighbors_bothStrands_rast.py  > db/neighborhoods
 # temporary copy so that people can still query it until the new copy is built.
 echo "Rebuilding database...";
 rm db/DATABASE.sqlite 2> /dev/null;
-sqlite3 db/DATABASE.sqlite < src/builddb_1.sql;
+sqlite3 db/DATABASE.sqlite < src/internal/builddb_1.sql;

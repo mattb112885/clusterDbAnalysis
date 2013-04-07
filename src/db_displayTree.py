@@ -156,7 +156,7 @@ if options.datafile is not None:
     # This doesn't match exactlty becuase I don't have the time or motivation now to mess with QT to do it.
     # It should be pretty close though...
     from ete2 import ImgFace
-    imgloc = os.path.join(locateRootDirectory(), "src", "Colormap.png")
+    imgloc = os.path.join(locateRootDirectory(), "src", "internal", "Colormap.png")
     F1 = faces.TextFace("Minimum: %1.1f" %(matrix_min), ftype="Times", fsize=32 )
     F2 = faces.ImgFace(imgloc)
     F3 = faces.TextFace("%1.1f : Maximum" %(matrix_max), ftype="Times", fsize=32 )

@@ -1,21 +1,14 @@
 #!/usr/bin/python
 
-# THIS is a dumb genbank parser
-# Biopython is too smart and doesn't let me make a fna file with multiple contigs
-# if the contig name is longer than 10 characters.
-#
-# It is mostly intended to be used on the genbank files from RAST - it might not work
-# with genbank files from other websites...
-#
-# Contig IDs cannot have spaces.
-
 import fileinput, optparse, re, sys
 from Bio import SeqIO
 
 usage="%prog -f [genbank_file] > fna file"
-description="""Make a contig nucleic acid FASTA file out of a genbank file. Contig names MUST have no spaces.
+description="""
+Make a contig nucleic acid FASTA file out of a genbank file. Contig names MUST have no spaces.
 You should pass to this an organism ID so that the contig names are unique for particular organisms (and so that they match what is in the database)
-If no organism ID is passed and it cannot be inferred from the file name we throw an error."""
+If no organism ID is passed and it cannot be inferred from the file name we throw an error.
+"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-t", "--tab", help="Instead of a FASTA file, print a tab-delimited file with contig in column 1 and sequence in column 2", action="store_true", dest="tab", default=False)
 parser.add_option("-o", "--org", help="Organism ID (e.g. 83333.1) (D=Try to read from filename)", action="store", type="str", dest="orgid", default=None)

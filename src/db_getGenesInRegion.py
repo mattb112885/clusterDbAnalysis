@@ -22,12 +22,13 @@ parser.add_option("-s", "--startcol", help="Column number for the start of the r
                   action="store", type="int", dest="startcol", default=5)
 parser.add_option("-e", "--endcol", help="Column number for the end of the region to search, starting from 1 (D=6)",
                   action="store", type="int", dest="endcol", default=6)
-parser.add_option("-x", "--expand", 
-                  help="Expand the gene regions by this many nucleotides before searching (D: 0 - use regions as provided)",
-                  action="store", type="int", dest="expand", default=0)
 parser.add_option("-v", "--overhang",
                   help = "Allow this number of amino acids to hang over the edge of the expanded region by this many nucleotides (D: 0 - the entire gene must lay in the region)",
                   action = "store", type="int", dest="overhang", default=0)
+parser.add_option("-x", "--expand", 
+                  help="""Expand the gene regions by this many nucleotides before searching (D: 0 - use regions as provided).
+Note that the genes returned can then fall entirely outside the originally-provided region.""",
+                  action="store", type="int", dest="expand", default=0)
 
 (options, args) = parser.parse_args()
 

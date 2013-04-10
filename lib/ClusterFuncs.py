@@ -148,27 +148,30 @@ def getGeneNeighborhoods(geneid, clusterrunid, cur):
     outdata = [l + (lookupcluster[l[1]],) for l in results]
     return outdata
 
-def getGenesInRegion(contig_id, start, stop, cur):
+def getGenesInRegion(contig_id, start, stop, cur, overhang=0):
     '''
     Call the SQLITE database with cursor "cur" to obtain genes in a particular region of DNA
 
     Returns a list of gene IDs for all genes between start and stop on the specified contig.
-    The gene must lie entirely within the region from start to stop to qualify for the list.
+    The gene is allowed to "overhang" by at most "overhang" nucleotides (default = 0 , which means the
+    entire gene must be present in the region)
 
     If start is less than stop we just reverse them (this is useful so that we can directly
     pass the numbers from TBLASTn results into this function...).
     '''
 
-    if start > stop:
-        tmp = start
-        start = stop
-        stop = tmp
+    interval_start = min(start, stop)
+    interval_end = max(start, stop)
 
+    # The MAX(processed.genestart, processed.geneend) >= start and MIN(processed.genestart, processed.geneend) <= stop
+    # are needed to prevent us from getting genes that lie entirely outside the interval if the overhang is too large
     sql = """SELECT geneid FROM processed 
              WHERE processed.contig_mod = ?
              AND MIN(processed.genestart, processed.geneend) >= ?
+             AND MAX(processed.genestart, processed.geneend) >= ?
+             AND MIN(processed.genestart, processed.geneend) <= ?
              AND MAX(processed.genestart, processed.geneend) <= ?; """
-    cur.execute(sql, (contig_id, start, stop) )
+    cur.execute(sql, (contig_id, interval_start - overhang, interval_start, interval_end, interval_end + overhang) )
 
     genelist = []
     for res in cur:

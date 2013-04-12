@@ -10,6 +10,8 @@
 #
 # source [results_from_pwd]/SourceMe.sh
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 echo ""
 echo "***********************************"
 echo "SourceMe.sh notes from ITEP:"
@@ -21,6 +23,8 @@ echo "the source command to your .bashrc file)"
 echo ""
 echo "If you have sourced SourceMe.sh, you can safely ignore"
 echo "this message."
+echo ""
+echo "The current ITEP database is located at: ${DIR}"
 echo "***********************************"
 echo ""
 

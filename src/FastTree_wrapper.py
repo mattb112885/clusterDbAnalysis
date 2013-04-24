@@ -130,7 +130,11 @@ if GLOBALBOOTS:
     # Generate the phylip bootstrap file
     os.system("phylipSeqbootScript.sh %s %s_seqboot %d" %(fname, fname, NUMBOOTS))
     # Run FastTree with the same parameters but on the bootstrap alignments
-    FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s -n %d > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, modelflag, bootflag, gammaflag, NUMBOOTS, fname)
+    # The -intree1 flag is used to drastically speed up global bootstraps by using the tree computed
+    # previously as a basis for computing the bootstrap trees.
+    intreeflag = "-intree1 %s.nwk" %(fname)
+#    intreeflag = ""
+    FastTreeCmd = "cat %s_seqboot | %s %s %s %s %s %s -n %d -nosupport > %s_seqboot.nwk" %(fname, PROGRAM, ntflag, intreeflag, modelflag, bootflag, gammaflag, NUMBOOTS, fname)
     sys.stderr.write(FastTreeCmd + "\n")
     os.system(FastTreeCmd)
     # Run the CompareToBootstrap.pl program needed to calculate global boostrap values

@@ -12,7 +12,8 @@ usage = """ %prog -l root_leaf_name < Newick_tree > Newick_tree_rerooted
 %prog -p root_leaf_part < Newick_tree > Newick_tree_reroorted """
 description = """ Given a Newick file and either the name or part of the
 name of a leaf on which to reroot the tree, reroots the tree and returns a
-rerooted Newick file. If given a part of the name only, the match must be
+rerooted Newick file (does no further processing, unlike other scripts like
+db_displayTree). If given a part of the name only, the match must be
 unique. If given the entire name it must be present exactly as written in the
 tree."""
 

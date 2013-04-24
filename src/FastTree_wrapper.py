@@ -35,8 +35,19 @@ parser.add_option("-m", "--model", help="Specify model to use with FASTTREE (D=W
 parser.add_option("-p", "--program", help="Specify the name of the FASTTREE program to use - it must be in your PATH (D=FastTreeMP)", action="store", type="str", dest="PROGRAM", default="FastTreeMP")
 parser.add_option("-t", "--nucleotides", help="Set this flag if you are inputting a nucleotide alignment (D = Protein alignment)", action="store_true", dest="nt", default=False)
 parser.add_option("-k", "--keep", help="Keep temporary files (bootstrap files and phylip files) (D = Delete them)", action="store_true", dest="keep", default=False)
+parser.add_option("-u", "--numthreads", help="Number of threads to use (By default we let FastTreeMP decide how many to use)", action="store", type="int", dest="numthreads", default=None)
 (options, args) = parser.parse_args()
 
+##
+# Set up number of threads
+# (Note - the environment variable gets cleared after the Python process exits)
+##
+old_num_threads = None
+if "OMP_NUM_THREADS" in os.environ:
+    old_num_threads = os.environ["OMP_NUM_THREADS"]
+if options.numthreads is not None:
+    os.environ["OMP_NUM_THREADS"] = str(options.numthreads)
+    
 ##
 # List of models used in FastTree
 # Note jtt is the default for AAs and jc for NTs so if we get that we just won't add a model flag
@@ -151,4 +162,4 @@ print treestr
 
 # Clean up temporary files
 if not options.keep:
-    os.system("rm %s*" %(fname) )
+    os.system("rm %s*" %(fname) )    

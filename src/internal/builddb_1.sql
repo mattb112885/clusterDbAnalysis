@@ -2,91 +2,90 @@
 /* Contains the RAW tables */
 
 CREATE TABLE rawdata(
-       "contig" VARCHAR(32),
-       "geneid" VARCHAR(32) PRIMARY KEY,
-       "ftype" VARCHAR(8),
-       "location" VARCHAR(32),
-       "genestart" INT,
-       "geneend" INT,
-       "strand" VARCHAR(4),
-       "annotation" VARCHAR(1028),
-       "aliases" VARCHAR(2048),
-       "figfam" VARCHAR(128),
-       "evidence" VARCHAR(128),
-       "nucseq" VARCHAR(90000),
-       "aaseq" VARCHAR(30000)
+       "contig" TEXT,
+       "geneid" TEXT PRIMARY KEY,
+       "ftype" TEXT,
+       "location" TEXT,
+       "genestart" INTEGER,
+       "geneend" INTEGER,
+       "strand" TEXT,
+       "annotation" TEXT,
+       "aliases" TEXT,
+       "figfam" TEXT,
+       "evidence" TEXT,
+       "nucseq" TEXT,
+       "aaseq" TEXT
        );
 
 /* BLASTP results */
 CREATE TABLE blastresults(
-       "querygene" VARCHAR(128),
-       "targetgene" VARCHAR(128),
-       "pctid" FLOAT,
-       "alnlen" INT,
-       "mismatches" INT,
-       "gapopens" INT,
-       "querystart" INT,
-       "queryend" INT,
-       "substart" INT,
-       "subend" INT,
-       "evalue" FLOAT,
-       "bitscore" FLOAT,
+       "querygene" TEXT,
+       "targetgene" TEXT,
+       "pctid" REAL,
+       "alnlen" INTEGER,
+       "mismatches" INTEGER,
+       "gapopens" INTEGER,
+       "querystart" INTEGER,
+       "queryend" INTEGER,
+       "substart" INTEGER,
+       "subend" INTEGER,
+       "evalue" REAL,
+       "bitscore" REAL,
        FOREIGN KEY(querygene) REFERENCES rawdata(geneid),
        FOREIGN KEY(targetgene) REFERENCES rawdata(geneid)
        );
 
 CREATE TABLE blastn_results(
-       "querygene" VARCHAR(128),
-       "targetgene" VARCHAR(128),
-       "pctid" FLOAT,
-       "alnlen" INT,
-       "mismatches" INT,
-       "gapopens" INT,
-       "querystart" INT,
-       "queryend" INT,
-       "substart" INT,
-       "subend" INT,
-       "evalue" FLOAT,
-       "bitscore" FLOAT,
+       "querygene" TEXT,
+       "targetgene" TEXT,
+       "pctid" REAL,
+       "alnlen" INTEGER,
+       "mismatches" INTEGER,
+       "gapopens" INTEGER,
+       "querystart" INTEGER,
+       "queryend" INTEGER,
+       "substart" INTEGER,
+       "subend" INTEGER,
+       "evalue" REAL,
+       "bitscore" REAL,
        FOREIGN KEY(querygene) REFERENCES rawdata(geneid),
        FOREIGN KEY(targetgene) REFERENCES rawdata(geneid)
        );
 
 /* abbreviation must be less than 6 characters for PHYLIP format to work correctly... */
 CREATE TABLE organisms(
-       "organism" varchar(128) PRIMARY KEY,
-       "organismabbrev" varchar(6) UNIQUE,
-       "organismid" varchar(128) UNIQUE
+       "organism" TEXT PRIMARY KEY,
+       "organismabbrev" TEXT UNIQUE,
+       "organismid" TEXT UNIQUE
        );
 
 /* I decided to reduce our memory footprint by just creating a view for
    the organism - gene links */
 CREATE TABLE geneinfo(
-       "geneid" VARCHAR(32),
-       "organismid" VARCHAR(128),
-       "organism" VARCHAR(128),
-       "organismabbrev" varchar(6),
-       "contig_mod" VARCHAR(256),
-       "strandsign" INT,
-       "aalen" INT,
-       "nuclen" INT,
+       "geneid" TEXT,
+       "organismid" TEXT,
+       "organism" TEXT,
+       "organismabbrev" TEXT,
+       "contig_mod" TEXT,
+       "strandsign" INTEGER,
+       "aalen" INTEGER,
+       "nuclen" INTEGER,
        FOREIGN KEY(geneid) REFERENCES rawdata(geneid),
        FOREIGN KEY(organismid) REFERENCES organisms(organismid),
        FOREIGN KEY(organism) REFERENCES organisms(organism),
-       FOREIGN KEY(organismabbrev) REFERENCES organisms(organismabbrev),
-       CHECK (aalen < 30000)
+       FOREIGN KEY(organismabbrev) REFERENCES organisms(organismabbrev)
        );
 
 /* Note - distance is number of genes */
 CREATE TABLE neighborhoods(
-       "centergene" VARCHAR(32),
-       "neighborgene" VARCHAR(32),
-       "distance" VARCHAR(32),
-       "contig_mod" VARCHAR(256),
-       "startloc" INT,
-       "stoploc" INT,
-       "strand" VARCHAR(4),
-       "annotation" VARCHAR(1028),
+       "centergene" TEXT,
+       "neighborgene" TEXT,
+       "distance" TEXT,
+       "contig_mod" TEXT,
+       "startloc" INTEGER,
+       "stoploc" INTEGER,
+       "strand" TEXT,
+       "annotation" TEXT,
        FOREIGN KEY(centergene) REFERENCES rawdata(geneid),
        FOREIGN KEY(neighborgene) REFERENCES rawdata(geneid)
        );
@@ -189,6 +188,13 @@ CREATE INDEX processedcontigs ON processed(contig_mod);
 CREATE INDEX processedorganismids ON processed(organismid);
 
 /* These tables are no longer needed. Drop them to reduce the memory footprint and reduce confusion. */
-/*DROP TABLE blastresults;
+DROP TABLE blastresults;
 DROP TABLE blastn_results;
-DROP TABLE geneinfo; */
+DROP TABLE geneinfo;
+
+/* This command is needed to actually get the DB to shrink upon command.
+It takes a while to run and requires about twice the size of the database while it's running,
+but after it's done it can save hundreds of gigabytes.
+
+The alternative is to do a PRAGMA auto_vacuum FULL; ... or just to keep the tables around. */
+VACUUM;

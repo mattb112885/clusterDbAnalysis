@@ -5,26 +5,26 @@ DROP TABLE IF EXISTS rpsblast_results;
 
 /* This table is cddid.tbl from NCBI */
 CREATE TABLE external_clusters(
-       "counter" INT,
-       "external_clusterid" VARCHAR(36),
-       "clustername" VARCHAR(36),
-       "description" VARCHAR(1028),
-       "profilelength" INT
+       "counter" INTEGER,
+       "external_clusterid" TEXT,
+       "clustername" TEXT,
+       "description" TEXT,
+       "profilelength" INTEGER
 );
 
 CREATE TABLE rpsblast_results(
-       "querygene" VARCHAR(128),
-       "external_clusterid" VARCHAR(128),
-       "pctid" FLOAT,
-       "alnlen" INT,
-       "mismatches" INT,
-       "gapopens" INT,
-       "querystart" INT,
-       "queryend" INT,
-       "substart" INT,
-       "subend" INT,
-       "evalue" FLOAT,
-       "bitscore" FLOAT,
+       "querygene" TEXT,
+       "external_clusterid" TEXT,
+       "pctid" REAL,
+       "alnlen" INTEGER,
+       "mismatches" INTEGER,
+       "gapopens" INTEGER,
+       "querystart" INTEGER,
+       "queryend" INTEGER,
+       "substart" INTEGER,
+       "subend" INTEGER,
+       "evalue" REAL,
+       "bitscore" REAL,
        FOREIGN KEY(querygene) REFERENCES rawdata(geneid),
        FOREIGN KEY(external_clusterid) REFERENCES external_clusters(external_clusterid)
 );

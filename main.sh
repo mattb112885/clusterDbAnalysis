@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "usage: ./main.sh [NCORES]"
+    echo "usage: ./main.sh [NCORES] (BLASTP_cutoff) (BLASTN_cutoff)"
     echo ""
     echo "Description: runs BLAST, BLASTN all vs. all against all of the"
     echo "maintained conserved domain databases in NCBI"
@@ -9,10 +9,25 @@ if [ $# -lt 1 ]; then
     echo "This script MUST be run from the directory that contains it (i.e. you must call it like "
     echo "./main.sh [NCORES]"
     echo " or else it will not work."
+    echo ""
+    echo "The default E-value cutoff is 1E-5 for BLASTP and 1 for BLASTN. Use an argument for the cutoffs"
+    echo "if you want to use something different. However, BE AWARE that if you change the cutoff and "
+    echo "BLAST results already exist they will NOT be overwritten."
+    echo ""
     exit 1
 fi
 
 NCORES=$1;
+
+BLASTP_EVALUE="1E-5"
+BLASTN_EVALUE="1"
+if [ $# -ge 2 ]; then
+    BLASTP_EVALUE="$2";
+fi
+
+if [ $# -ge 3 ]; then
+    BLASTN_EVALUE="$3";
+fi
 
 # Note - for now the mcl parameters are located in the function
 # src/specificOrganismClusterDriver.py
@@ -101,10 +116,10 @@ cat fna/*.fna > db/allgenomes.fna;
 # Haven't converted this one to a pipe yet...
 # Run blast all vs. all organisms (takes ~ 1 hour for 18 organisms and 8 cores)
 echo "Blast all vs all (BLASTP)...";
-Blast_all_v_all.py faa/ blastres/ ${NCORES};
+Blast_all_v_all.py -e "${BLASTP_EVALUE}" faa/ blastres/ ${NCORES};
 
 echo "Blast all vs all (BLASTN)..."
-Blast_all_v_all.py -n fna/ blastn_res/ ${NCORES};
+Blast_all_v_all.py -n -e "${BLASTN_EVALUE}" fna/ blastn_res/ ${NCORES};
 
 # Concatinate results files for input into the database
 # Strip titles to avoid whining about duplicate rows.

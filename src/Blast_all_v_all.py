@@ -28,6 +28,7 @@ store results in results_dir"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--blastn", help="Perform BLASTN rather than BLASTP (D: BlastP). Runs actual BLASTN, not MEGABLAST.", 
                   action="store_true", dest="blastn", default=False)
+parser.add_option("-e", "--evalue", help="E-value cutoff for BLAST (D: 1E-5).", action="store", type="float", dest="evalue", default=1E-5)
 (options, args) = parser.parse_args()
 
 if len(args) != 3:
@@ -88,9 +89,9 @@ def singleBlast(query, target, BLASTDIR, FASTADIR, options):
             # I use a higher cutoff here since it doesn't take much to store \ query blastn results anyway.
             # The window_size 0 is needed to prevent us from having multiple hits from teh same query to the same target,
             # which confounds the computation of the normalized bit scores among other things...
-            cline = "blastn -task blastn -outfmt 6 -query %s -db %s -evalue 1 -out %s" %( path.join(FASTADIR, query), path.join(FASTADIR, target), path.join(BLASTDIR, string) )
+            cline = "blastn -task blastn -outfmt 6 -query %s -db %s -evalue %s -out %s" %( path.join(FASTADIR, query), path.join(FASTADIR, target), str(options.evalue), path.join(BLASTDIR, string) )
         else:
-            cline = "blastp -outfmt 6 -query %s -db %s -evalue 1E-5 -out %s" %( path.join(FASTADIR, query), path.join(FASTADIR, target), path.join(BLASTDIR, string) )
+            cline = "blastp -outfmt 6 -query %s -db %s -evalue %s -out %s" %( path.join(FASTADIR, query), path.join(FASTADIR, target), str(options.evalue), path.join(BLASTDIR, string) )
         sys.stderr.write("%s\n" %(cline))
         os.system(cline)
 

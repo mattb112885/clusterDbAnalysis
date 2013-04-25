@@ -143,6 +143,9 @@ def genbank_extract(ptr, version_number):
     genes = []
     geneidToAlias = {}
     counter = 0
+
+    match_SEED_xref = re.compile("SEED\:(fig\|\d+\.\d+\.peg\.\d+)")
+    match_KEGG_xref = re.compile("KEGG\:.*?\+(.*)")
     for gb_seqrec in gb_seqrec_multi:
         orginfo = info_from_genbank(gb_seqrec)
         for feature in gb_seqrec.features:
@@ -164,8 +167,29 @@ def genbank_extract(ptr, version_number):
                 #get na info
                 record = feature.extract(gb_seqrec)
                 geneinfo.update(info_from_record(record))
-                #build output with custom fields (and add them to info list)
-                geneid = "fig|" + str(orginfo["taxon"]) + "." + str(version_number) + ".peg." + str(counter)
+
+                # This section is for PubSEED-derived genbank files. If we just iterate over the list we end up being off
+                # because some of the numbers are skipped in the PUBSEED files... and because they don't put the IDs in the standard place
+                # but in the "db_xref" field.
+                # Build output with custom fields (and add them to info list)
+                # There are other xrefs that I don't try to capture here...
+                aliases = []
+                geneid = None
+                if "db_xref" in feature.qualifiers:
+                    for xref in feature.qualifiers["db_xref"]:
+                        match = match_SEED_xref.match(xref)
+                        if match is not None:
+                            geneid = match.group(1)
+                        # Note that one SEED gene can have more than one KEGG match (i.e. go with more than one locus tag).
+                        # This is OK - I'll just capture all of them here.
+                        match = match_KEGG_xref.match(xref)
+                        if match is not None:
+                            aliases.append(match)
+
+                # If we got our genbank file from somewhere else (including from RAST) we need to just make an ID in the right format.
+                if geneid is None:
+                    geneid = "fig|" + str(orginfo["taxon"]) + "." + str(version_number) + ".peg." + str(counter)
+
                 geneinfo["feature_id"] = geneid
                 geneinfo["contig_id"] = orginfo["id"]
                 geneinfo["source_description"] = orginfo["gb_description"]
@@ -178,7 +202,6 @@ def genbank_extract(ptr, version_number):
                 geneinfo["gene_description"] = genedesc               
 
                 # Add locus tag and existing feature_id to list of aliases
-                aliases = []
                 if "protein_id" in feature.qualifiers:
                     aliases.append(feature.qualifiers["protein_id"][0])
                 if "locus_tag" in feature.qualifiers:

@@ -16,7 +16,7 @@ fi
 
 # Check that the organism ID is the third column
 echo "Checking format of organism ID in organisms file..."
-orgmatch=$(cat organisms | cut -f 3 | grep -P "^\d+\.\d+$")
+orgmatch=$(cat organisms | cut -f 2 | grep -P "^\d+\.\d+$")
 if [ $? -eq 1 ]; then
     echo 'ERROR: Organism IDs not found or not in the expected format (third column of organisms file, and must have format #.# i.e. 83333.1 for E coli)';
     STATUS=1
@@ -25,14 +25,9 @@ fi
 echo "Checking for uniqueness of organisms in organisms file..."
 nl=$(cat organisms | wc -l)
 numname=$(cat organisms | cut -f 1 | sort -u | wc -l);
-numabbrev=$(cat organisms | cut -f 2 | sort -u | wc -l);
-numid=$(cat organisms | cut -f 3 | sort -u | wc -l);
+numid=$(cat organisms | cut -f 2 | sort -u | wc -l);
 if [ "${nl}" != "${numname}" ]; then
     echo 'ERROR: Organism names must be unique (first column of organisms file)';
-    STATUS=1;
-fi
-if [ "${nl}" != "${numabbrev}" ]; then
-    echo 'ERROR: Organism abbreviations must be unique (second column of organisms file)';
     STATUS=1;
 fi
 if [ "${nl}" != "${numid}" ]; then
@@ -91,7 +86,7 @@ done
 echo "Checking that all raw file organism IDs have an entry in the organisms file..."
 for file in $(ls | grep -v "README"); do
     orgid=$(echo "${file}" | grep -o -P "\d+\.\d+");
-    ok=$(cat ../organisms | cut -f 3 | grep -F -w "${orgid}")
+    ok=$(cat ../organisms | cut -f 2 | grep -F -w "${orgid}")
     if [ $? -eq 1 ]; then
 	echo "ERROR: Organism ID in raw file ${file} has no entry in the organism file"
 	STATUS=1
@@ -185,7 +180,7 @@ done
 echo "Checking that all organism IDs in the genbank files have an entry in the organisms file..."
 for file in $(ls | grep -v "README"); do
     orgid=$(echo "${file}" | grep -o -P "\d+\.\d+");
-    ok=$(cat ../organisms | cut -f 3 | grep -F -w "${orgid}")
+    ok=$(cat ../organisms | cut -f 2 | grep -F -w "${orgid}")
     if [ $? -eq 1 ]; then
 	echo "ERROR: Organism ID ${orgid} in genbank file ${file} has no entry in the organism file"
 	STATUS=1

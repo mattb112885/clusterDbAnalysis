@@ -61,7 +61,6 @@ if [ -f organisms ]; then
     echo "WARNING: The old organism file has been backed up to ${NEWNAME}."
     echo "Automatically generating a new organisms file..."
     ./generateOrganismFileFromGbk.sh
-    mergeAbbreviations.py "${NEWNAME}" organisms
     echo "WARNING: The new organism file has consistent abbreviations with previous one"
     echo "but any organisms not in genbank or raw folders have been removed"
 #    rm "${NEWNAME}"

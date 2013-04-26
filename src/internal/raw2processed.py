@@ -19,7 +19,6 @@ if len(args) < 1:
 
 orgNames = {}
 orgIds = {}
-orgAbbrevs = {}
 
 def sign(num):
     if num == 0:
@@ -39,9 +38,8 @@ for line in open(args[0], "r"):
     # search for only the ID itself, which is always followed by a . in the SEED IDs
     # For example, fig|333.3.peg.3
     # 333.3 is the ID and we don't want to match 333.33 or 3333.3
-    orgNames["fig|" + spl[2] + "."] = spl[0]
-    orgIds["fig|" + spl[2] + "."] = spl[2]
-    orgAbbrevs["fig|" + spl[2] + "."] = spl[1]
+    orgNames["fig|" + spl[1] + "."] = spl[0]
+    orgIds["fig|" + spl[1] + "."] = spl[1]
 
 import fileinput
 for line in fileinput.input("-"):
@@ -53,17 +51,15 @@ for line in fileinput.input("-"):
     # Search for which organism [this is probably always the same]
     myorg = ""
     myid = ""
-    myabbrev = ""
     
     for org in orgNames.keys():
         if org in spl[1]:
             myorg = orgNames[org]
             myid = orgIds[org]
-            myabbrev = orgAbbrevs[org]
             break
 
     contig = myid + "." + spl[0]
 
-    modln = spl[1] + "\t" + myid + "\t" + myorg + "\t" + myabbrev + "\t" + contig + "\t" + str(sign(int(spl[5]) - int(spl[4]))) + "\t" + str(len(spl[11])) + "\t" + str(len(spl[12]))
+    modln = spl[1] + "\t" + myid + "\t" + myorg + "\t\t" + contig + "\t" + str(sign(int(spl[5]) - int(spl[4]))) + "\t" + str(len(spl[11])) + "\t" + str(len(spl[12]))
     print modln
 

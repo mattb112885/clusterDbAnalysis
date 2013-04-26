@@ -184,7 +184,7 @@ def genbank_extract(ptr, version_number):
                         # This is OK - I'll just capture all of them here.
                         match = match_KEGG_xref.match(xref)
                         if match is not None:
-                            aliases.append(match)
+                            aliases.append(match.group(1))
 
                 # If we got our genbank file from somewhere else (including from RAST) we need to just make an ID in the right format.
                 if geneid is None:

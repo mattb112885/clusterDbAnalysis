@@ -55,7 +55,6 @@ CREATE TABLE blastn_results(
 /* abbreviation must be less than 6 characters for PHYLIP format to work correctly... */
 CREATE TABLE organisms(
        "organism" TEXT PRIMARY KEY,
-       "organismabbrev" TEXT UNIQUE,
        "organismid" TEXT UNIQUE
        );
 
@@ -176,7 +175,7 @@ DROP VIEW sn;
  */
 
 CREATE TABLE processed AS
-       SELECT geneinfo.geneid, organisms.organism, organisms.organismid, organisms.organismabbrev, geneinfo.contig_mod,  
+       SELECT geneinfo.geneid, organisms.organism, organisms.organismid, organisms.organismid AS placeholder, geneinfo.contig_mod,  
        	      rawdata.genestart, rawdata.geneend, rawdata.strand, geneinfo.strandsign, 
               rawdata.annotation, rawdata.nucseq, rawdata.aaseq
        FROM organisms

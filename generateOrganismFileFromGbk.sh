@@ -55,9 +55,7 @@ for file in $(ls | grep -v "README"); do
 	echo "ERROR: The name of the genbank file must be [organismid].gbk - nothing with expected format of organism id (number.number) was found in the filename ${file}"
 	exit 0;
     fi
-    ABBREV=$(echo "${ABBREV} + 1" | bc)
-    NETABBREV="DEFAULT_${ABBREV}"
-    makeTabDelimitedRow.py "${ORGANISM}" "${NETABBREV}" "${ORGID}" >> ../organisms
+    makeTabDelimitedRow.py "${ORGANISM}" "${ORGID}" >> ../organisms
 done
 
 cd ..;

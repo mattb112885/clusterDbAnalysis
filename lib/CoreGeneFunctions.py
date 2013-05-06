@@ -7,7 +7,13 @@
 import fileinput, operator, optparse, sqlite3, sys, os
 from FileLocator import *
 from sanitizeString import *
+
+# This is necessary becuase ETE uses Print instaed of printing to stdout for
+# import errors (e.g. if you're missing mysql interfaces for phylomedb)
+tmp = sys.stdout
+sys.stdout = sys.stderr
 from ete2 import TextFace
+sys.stdout = tmp
 
 def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False, color = "Black"):
     '''A function to add data related to gene and organism distribution across clusters

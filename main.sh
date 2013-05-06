@@ -109,8 +109,8 @@ done
 cd ..;
 
 echo "Concatinating faa and fna files..."
-cat faa/*.faa > db/allgenomes.faa;
-cat fna/*.fna > db/allgenomes.fna;
+echo faa/*.faa | xargs cat > db/allgenomes.faa;
+echo fna/*.fna | xargs cat > db/allgenomes.fna;
 
 # Haven't converted this one to a pipe yet...
 # Run blast all vs. all organisms (takes ~ 1 hour for 18 organisms and 8 cores)
@@ -127,9 +127,10 @@ Blast_all_v_all.py -n -e "${BLASTN_EVALUE}" fna/ blastn_res/ ${NCORES};
 #
 # Also - add the gene aliases here (not above) because the annotations are ultimately built from the raw file.
 echo "Concatinating BLAST results..."
-cat blastres/* > db/blastres_cat;
-cat modtable/* > db/mod_cat;
-cat blastn_res/* > db/blastnres_cat;
+# Need to use xargs here because of too-long strings of arguments for hundreds of genomes.
+echo blastres/* | xargs cat > db/blastres_cat;
+echo blastn_res/* | xargs cat > db/blastnres_cat;
+echo modtable/* | xargs cat > db/mod_cat;
 
 echo "Adding aliases from the alias file to the gene annotations..."
 if [ -f aliases/aliases ]; then

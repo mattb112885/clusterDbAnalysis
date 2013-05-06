@@ -23,14 +23,15 @@ description = "Turn all arguments into a single row separated by tabs"
 
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-i", "--infile", help="Combine all lines of the input file and separate them by tabs. Use \"-\" for input from stdin", action="store", type="str", dest="infile", default=None)
+parser.add_option("-d", "--delimiter", help="Use other delimiter instead (D: Tabs)", action="store", type="str", dest="delimiter", default="\t")
 (options, args) = parser.parse_args()
 
 st = ""
 if options.infile == None:
-    st = "\t".join(args[0:])
+    st = options.delimiter.join(args[0:])
 elif options.infile == "-":
-    st = "\t".join( [ s.strip("\r\n") for s in fileinput.input("-") ] )
+    st = options.delimiter.join( [ s.strip("\r\n") for s in fileinput.input("-") ] )
 else:
-    st = "\t".join( [ s.strip("\r\n") for s in open(options.infile, "r") ] )
+    st = options.delimiter.join( [ s.strip("\r\n") for s in open(options.infile, "r") ] )
 
 print st

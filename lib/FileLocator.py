@@ -16,6 +16,7 @@ def locateRootDirectory():
     fileloc = os.path.abspath(__file__)
     path = os.path.dirname(fileloc)
     rootdir = os.path.abspath(os.path.join(path, ".."))
+#    rootdir = "/home/benedic1/ClusterDB_BACKUP_4_26_2013/"
     return rootdir
 
 def locateDatabase(raiseError=True):

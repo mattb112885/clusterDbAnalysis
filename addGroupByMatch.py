@@ -2,6 +2,7 @@
 
 import optparse
 import os
+import re
 import sys
 from FileLocator import *
 
@@ -12,7 +13,8 @@ If nothing is specified as a match, this function makes a group with ALL the org
 adds it to the groups file.
 """
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.add_option("-n", "--groupname", help="Group name (required)", action="store", type="str", dest="groupname", default=None)
+parser.add_option("-n", "--groupname", help="Group name (REQUIRED)", action="store", type="str", dest="groupname", default=None)
+parser.add_option("-r", "--regex", help="Treat input names as regular expressions (D: treat them as literal strings)", action="store_true", dest="regex", default=False)
 (options, args) = parser.parse_args()
 
 if options.groupname is None:
@@ -48,9 +50,15 @@ if len(args) == 0:
     matchingorgs = orglist
 else:
     for arg in args:
+        if options.regex:
+            arg = re.compile(arg)
         for org in orglist:
-            if arg.lower() in org.lower():
-                matchingorgs.add(org)
+            if options.regex:
+                if arg.search(org) is not None:
+                    matchingorgs.add(org)
+            else:
+                if arg.lower() in org.lower():
+                    matchingorgs.add(org)
 
 if len(matchingorgs) == 0:
     sys.stderr.write("ERROR: No organisms matched the specified queries.\n")

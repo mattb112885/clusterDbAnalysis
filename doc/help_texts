@@ -1,3 +1,7 @@
+o----------------------------------------------------------------------------------------------------------o
+|                                       COMMAND-LINE FUNCTIONS                                             |
+o----------------------------------------------------------------------------------------------------------o
+
 *--------------------------------------------------------------------------------------------------------------------------*
 
 addAliasesToGeneAnnotations.py
@@ -42,9 +46,11 @@ or .fasta extension) in parallel using ncores processers, and  store results
 in results_dir
 
 Options:
-  -h, --help    show this help message and exit
-  -n, --blastn  Perform BLASTN rather than BLASTP (D: BlastP). Runs actual
-                BLASTN, not MEGABLAST.
+  -h, --help            show this help message and exit
+  -n, --blastn          Perform BLASTN rather than BLASTP (D: BlastP). Runs
+                        actual BLASTN, not MEGABLAST.
+  -e EVALUE, --evalue=EVALUE
+                        E-value cutoff for BLAST (D: 1E-5).
 *--------------------------------------------------------------------------------------------------------------------------*
 
 blastResultsToDistanceMatrix.py
@@ -80,31 +86,6 @@ Options:
   -h, --help         show this help message and exit
   -k KEY, --key=KEY  Pattern to match (by regex) in any files you want to use,
                      e.g. a run ID (default: use all files in alignment_path)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-clusterIdToTable.py
-
-Usage: clusterIdToTable.py [clusterID1] [clusterID2] ... < runID > runID_clusterID_table
-
-Given a RunID from stdin and cluster IDs as arguments, makes a table
-duplicating the runID and adding the clusterID to each in a tab-delimited
-table
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-convertNcbiFilesToRast.py
-
-Usage: convertNcbiFilesToRast.py [gff_file] [faa_file] [ffn_file] > [RAST_tab_delimited_file]
-
-Given CONCATINATED gff, faa, and ffn files (i.e. download all the contigs
-available and concatinate the gff files into a single file, the faa files into
-a signle file, etc.) from genbank, does the ID matching and converts it into a
-tab-delimited file with one row for each protein (no RNAs are dealt with)
-
-Options:
-  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 countClusters.py
@@ -160,6 +141,30 @@ Options:
   -i, --includeall  If specified, include organisms not in common between the
                     two runs as non-overlapping genes. Default is to omit
                     those genes
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_displayExternalClusterHits.py
+
+Usage: db_displayExternalClusterHits.py [options] < gene_id_list
+
+ Use Biopython to display the hits to external clusters (via RPSBLAST) mapped
+onto a protein or a list of proteins. You have to run main4.sh before this
+function will work.
+
+Options:
+  -h, --help            show this help message and exit
+  -d DATABASE, --database=DATABASE
+                        Only display hits for this database (e.g. PFAM, COG,
+                        cd, ...) (D: Show all of them in separate rows above
+                        the gene)
+  -e EVALUE, --evalue=EVALUE
+                        E-value cutoff for hits to display (D:1E-5)
+  -g GC, --geneocl=GC   Column number for gene ID, starting from 1 (D=1)
+  -o OUTDIR, --outdir=OUTDIR
+                        Output directory for all of the PNG files for the
+                        input genes (D: externalHitGraphics)
+  -s, --showevalue      Show E-value for RPSBLAST hits along with the names
+                        (D: Show names only)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_displayTree.py
@@ -238,6 +243,39 @@ Options:
                         evaluate as written
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_findBadMutationsFromTblastn.py
+
+Usage: db_findBadMutationsFromTblastn.py [options] < TBLASTN_output > bad_mutation_list
+
+Given a TBLASTN output from db_TBlastN_wrapper, attempt to automatically
+identify frameshifts and fragments of the same gene that appear on separate
+lines.  The criteria for a frameshift is if the TBLASTN interval is on the
+same strand in different frames in two differnet hits and they are within
+INTERVAL base pairs of each other.  The criteria for a nonsense mutation is if
+a single hit has an internal stop codon.  The criteria for an insertion is if
+there are two hits within INTERVAL base pairs of each other.  All of these
+require manual curation to ensure that alternative causes such as gene
+duplications and two distantly-related but close-proximity genes are not the
+cause for the observed anomolies.  This function only works if we can access
+the database and pull out contigs. It won't work for TBLASTN results from
+arbitrary fastn files
+
+Options:
+  -h, --help            show this help message and exit
+  -i INTERVAL, --interval=INTERVAL
+                        Interval between two consecutive hits within which we
+                        will assume that the two hits belong to the same
+                        ancestral gene (D=1000 basepairs)
+  -n NONSENSE_PCT, --nonsense_pct=NONSENSE_PCT
+                        Only report nonsense mutations if more than -n percent
+                        of the amino acids in the homnologous regions are
+                        found after the stop codon (cut off) (D = 0: report
+                        any stop codons that are found)
+  -f, --falsepositives  Print very likely false positive issue identifications
+                        (multiple TBLASTN hits with exactly the same
+                        coordinates) - default is to ignore them
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_findClustersByOrganismList.py
 
 Usage: db_findClustersByOrganismList.py [options] run_id < organism_list > cluster_run_id_list
@@ -266,17 +304,6 @@ Options:
   -o OC, --orgcol=OC  Column number for organism starting from 1 (D=1)
   -r, --sanitized     If specified, the names in the input file have been
                       sanitized (with sanitizeString.py) (D: False)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-db_findGenesWithInternalStops.py
-
-Usage: db_findGenesWithInternalStops.py > [genes_with_internal_stops]
-
-Find genes with internal stops that are present in the database. Internal
-stops are defined as internal TAG, TGA, or TAA codons
-
-Options:
-  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getAlignmentBetweenGenes.py
@@ -496,7 +523,10 @@ db_getGeneInformation.py
 Usage: db_getGeneInformation.py [options] < gene_ids > gene_info
 
 Given a list of gene IDs, get their gene info,  including annotations, contig,
-organism, strand, and sequences
+organism, strand, and sequences.  Start is the first nucleotide of the start
+codon (e.g. A in ATG) and stop is the last nucleotide, relative to nucleotide
+1 at the start of the contig. Table headers: geneid organism_name contig_id
+start stop strand strandnum annotation DNA_seq AA_seq.
 
 Options:
   -h, --help            show this help message and exit
@@ -540,6 +570,38 @@ Options:
                         Column number (start from 1) for cluster ID
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_getGenesInRegion.py
+
+Usage: db_getGenesInRegion.py [options] < contig_and_gene_locations > geneinfo
+
+ This function takes a table with contig and regions (start and stop) as
+inputs and identifies all of the genes between the start and stop columns (by
+default, the entire  gene must be between the start and stop). It returns the
+geneinfo for the genes within the specified regions. The defaults are set up
+to take a TBLASTn results file from the ITEP TBLASTn wrapper as input
+
+Options:
+  -h, --help            show this help message and exit
+  -c CONTIGCOL, --contigcol=CONTIGCOL
+                        Column number for the contig to search, starting from
+                        1 (D=3)
+  -s STARTCOL, --startcol=STARTCOL
+                        Column number for the start of the region to search,
+                        starting from 1 (D=5)
+  -e ENDCOL, --endcol=ENDCOL
+                        Column number for the end of the region to search,
+                        starting from 1 (D=6)
+  -v OVERHANG, --overhang=OVERHANG
+                        Allow this number of amino acids to hang over the edge
+                        of the expanded region by this many nucleotides (D: 0
+                        - the entire gene must lay in the region)
+  -x EXPAND, --expand=EXPAND
+                        Expand the gene regions by this many nucleotides
+                        before searching (D: 0 - use regions as provided).
+                        Note that the genes returned can then fall entirely
+                        outside the originally-provided region.
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_getGenesWithAnnotation.py
 
 Usage: db_getGenesWithAnnotation.py "Annotation 1" "Annotation 2" ... > [Gene_id_list]
@@ -565,6 +627,16 @@ Options:
   -e EVALUE, --evalue=EVALUE
                         Evalue cutoff (D: 1E-5, the cutoff used to originally
                         generate the data)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_getItepRoot.py
+
+Usage: db_getItepRoot.py
+
+Get the current root directory of the TIEP repository
+
+Options:
+  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getOrganismsInCluster.py
@@ -710,57 +782,13 @@ db_listDbFiles.py
 
 Usage: db_listDbFiles.py [options] > filelist
 
-List all files in the src/ directory provided as part of this software package
+List all files in the src/ and src/utilities directories provided as part of
+this software package
 
 Options:
   -h, --help            show this help message and exit
   -w MAXW, --maxw=MAXW  Maximum number of characters wide (D=Print each file
                         on its own line)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-db_loadPresenceAbsence.py
-
-Usage: db_loadPresenceAbsence.py > presence_absence_pegid_table
-
-Generates a presence/absence table for every cluster in every run in the
-database and puts the peg IDs for any genes in the cluster in the appropriate
-row or NONE for absent genes. Takes no input arguments and exports the table
-to stdout. NOTE: Any organisms not included in a cluster run will be given
-NONE's for all clusters in that run - be aware of this!
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-db_makeArrowDiagram.py
-
-Usage: db_makeArrowDiagram.py [options] Newick_file < runid or db_makeArrowDiagram.py -i runid [options] Newick_file . Default activity is to do nothing - one of -s, -p, or -d must be specified...
-
-Draws gene context with specified number of genes as arrows with the
-appropraite direction (not to scale) alongside a phylogenetic tree. Only can
-draw arrows if the IDs in the tree agree with what is available in the
-database but does not crash when outgroups are also present (just nothing is
-drawn).
-
-Options:
-  -h, --help            show this help message and exit
-  -i RUNID, --runid=RUNID
-                        Run id (default: read from stdin)
-  -n MAXK, --neighborhood=MAXK
-                        Max number of genes away from target to display (D=3)
-  -a, --annotation      Show annotations for neighboring genes underneath them
-                        (D: Show annotations in a legend underneath the tree)
-  -d, --display         Display result
-  -s, --savesvg         Convert the file to svg (requires -b)
-  -p, --savepng         Convert the file to png (requires -b, implies -s)
-  -b BASENAME, --basename=BASENAME
-                        Base name for file outputs (ignored without -s or -p)
-  -r ROOTGENE, --rootgene=ROOTGENE
-                        Root on this gene (default = keep same root as nwk
-                        file).
-  -o ROOTORG, --rootorg=ROOTORG
-                        Root on this organism [part of the leaf name] (default
-                        = keep same root as nwk file).
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_makeClusterAlignment.py
@@ -789,6 +817,49 @@ Options:
                         it)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_makeClusterGraph.py
+
+Usage:  db_makeClusterGraph.py -m method -u cutoff [options] < cluster_runid_pairs 
+
+From a given cluster/runID pair, calcualte and export a GML file that can be
+opened in Cytoscape or similar viewers to visualize the cluster. By default,
+it creates GML files with name "runid_clusterid.gml" . If you specify your own
+GML file you can only provide ONE cluster/runID pair. Currently implemented
+methods: maxbit minbit avgbit normhsp loge
+
+Options:
+  -h, --help            show this help message and exit
+  -m METHOD, --method=METHOD
+                        Scoring method to use (REQUIRED)
+  -u CUTOFF, --cutoff=CUTOFF
+                        Scoring cutoff to use (REQUIRED)
+  -r RC, --runcol=RC    Column number for Run ID starting from 1 (D:1)
+  -c CC, --clusterid=CC
+                        Column number for Cluster ID starting from 1 (D: 2)
+  -n, --blastn          Use BLASTN instead of BLASTP for scoring results (D:
+                        BLASTP)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+db_makeNeighborhoodTree.py
+
+Usage: db_makeNeighborhoodTree.py -p protein_tree -r runid [options]
+
+Generates a tree with gene regions
+
+Options:
+  -h, --help            show this help message and exit
+  -r CLUSTERRUNID, --runid=CLUSTERRUNID
+                        Run ID (required)
+  -p TREEINFILE, --prottree=TREEINFILE
+                        Protein tree (required)
+  -t GENE, --treetitle=GENE
+                        Tree title (D: same as run ID)
+  -o OUTFILE, --outfile=OUTFILE
+                        Base name for output file (D: Same as input tree)
+  -d, --display         Display the resulting tree (D: Don't display, just
+                        save)
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_replaceGeneNameWithAnnotation.py
 
 Usage: db_replaceGeneNameWithAnnotation.py [options] < infile > outfile
@@ -807,20 +878,6 @@ Options:
                   False)
 *--------------------------------------------------------------------------------------------------------------------------*
 
-db_specificOrganismClusterDriver.py
-
-Usage: db_specificOrganismClusterDriver.py [groupfile] [Inflation] [cutoff] [scoremethod]
-
-This file is intended to be run as part of Main1.sh.  Run MCL clustering on
-the organisms specified in the file 'groupfile'  with specified parameters
-(Automatically dumps result file into clusters/ folder)  Alternatively, if
-scoremethod=orthomcl, runs OrthoMCL with specified inflation and  (log
-E-value) cutoff
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
 db_TBlastN_wrapper.py
 
 Usage: db_TBlastN_wrapper.py (-d|-f|-o) contig_inputs [options] < Protein_ids > Tblastn_table
@@ -832,7 +889,7 @@ must have run ./main3.sh and specify a single organism or list of organism IDs
 against which to perform the BLAST.  Output table columns:  queryid, querylen,
 subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct,
 evalue, bitscore, hitframe,                        strandedString,
-targetgeneid, targetannotation, targetgenelen, targetoverlappct
+targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID
 
 Options:
   -h, --help            show this help message and exit
@@ -892,20 +949,9 @@ Options:
                         alignment (D = Protein alignment)
   -k, --keep            Keep temporary files (bootstrap files and phylip
                         files) (D = Delete them)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-flattenClusterFile.py
-
-Usage: flattenClusterFile.py -n runname < MCL_cluster_file > flattened_file
-
-Turn MCL cluster file into a more database-friendly format, the run is given
-its own ID (input to this function) and each cluster within it is given a
-cluster ID
-
-Options:
-  -h, --help            show this help message and exit
-  -n NAME, --name=NAME  Run name (should have descriptions of Inflation,
-                        method and cutoff)
+  -u NUMTHREADS, --numthreads=NUMTHREADS
+                        Number of threads to use (By default we let FastTreeMP
+                        decide how many to use)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 Gblocks_wrapper.py
@@ -934,27 +980,6 @@ Options:
                         (half), n (none), or a (any number))
 *--------------------------------------------------------------------------------------------------------------------------*
 
-genbank2nucleotides.py
-
-Usage: genbank2nucleotides.py -f [genbank_file] > fna file
-
-Make a contig nucleic acid FASTA file out of a genbank file. Contig names MUST
-have no spaces. You should pass to this an organism ID so that the contig
-names are unique for particular organisms (and so that they match what is in
-the database) If no organism ID is passed and it cannot be inferred from the
-file name we throw an error.
-
-Options:
-  -h, --help            show this help message and exit
-  -t, --tab             Instead of a FASTA file, print a tab-delimited file
-                        with contig in column 1 and sequence in column 2
-  -o ORGID, --org=ORGID
-                        Organism ID (e.g. 83333.1) (D=Try to read from
-                        filename)
-  -f GENBANK, --file=GENBANK
-                        genbank file [D: None]
-*--------------------------------------------------------------------------------------------------------------------------*
-
 getClusterFastas.py
 
 Usage: getClusterFastas.py [options] fastafolder < cluster_info_file
@@ -971,50 +996,13 @@ Options:
                      fasta files)
 *--------------------------------------------------------------------------------------------------------------------------*
 
-getNeighbors_bothStrands_rast.py
-
-Usage: getNeighbors_bothStrands_rast.py < raw_file > neighborhood_file
-
-Compute neighbors of each gene from their location (the neighbors do not have
-to share a strand). Neighborhood is based on number of genes, not on number of
-base pairs. The function correctly deals with multiple contigs present in the
-file
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-joinColumns.py
-
-Usage: joinColumns.py -1 [col1] -2 [col2] (options) File1 File2
-
-To get around some of the obnoxiousness of the UNIX join command... This is a
-command to join on specific columns in two input files. It supports tabs as
-delimiters and does not require inputs to be sorted (so it is slower than the
-UNIX command but also easier to use). Does not munge columns - if --k2 is
-specified and there are keys in the second column not present in the first, it
-will put in the appropriate number of empty columns at the beginning of the
-line (if --k1 is specified the appropriate number of empty columns are placed
-at the end of the line) so that all columns have the same number of entries.
-
-Options:
-  -h, --help    show this help message and exit
-  -1 FIRSTCOL   Column in first file starting from 1 (required)
-  -2 SECONDCOL  Column in second file starting from 1 (required)
-  -d DELIMITER  Delimiter (default: Tab)
-  --k1          Keep non-matching rows in the first file (D: Only print
-                matching rows)
-  --k2          Keep non-matching rows in the second file (D: Only print
-                matching rows)
-*--------------------------------------------------------------------------------------------------------------------------*
-
 makeBlastScoreTable.py
 
 Usage: makeBlastScoreTable.py -m [method] -c [cutoff] [options] < blast_result_table
 
 Given a blast score table (augmented with self-bit scores for query and target
 genes), calculates a similarity value based on the desired scoring metric.
-Currently implemented metrics: minbit maxbit maxselfbit avgbit normhsp
+Currently implemented metrics: maxbit minbit avgbit normhsp
 
 Options:
   -h, --help            show this help message and exit
@@ -1024,23 +1012,30 @@ Options:
                         Score cutoff to use
   -n, --noprint         Set this flag if you do not want to print edges less
                         than the cutoff as zeros (default = False - print
-                        those edges
+                        those edges)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 makeCoreClusterAnalysisTree.py
 
 Usage: makeCoreClusterAnalysisTree.py [options] newick_file runid
 
-Generate an ETE tree with internal node labels corresponding to the number of
+ Generate an ETE tree with internal node labels corresponding to the number of
 clusters conserved in the nodes beneath it (conservation being defined by a
-variery of options below). The input MUST be a Newick file with organism names
-replaced.
+variery of options below). The input MUST be a Newick file with organism IDs
+REPLACED with their names.  The function alternatively (or in addition)
+exports a XLS file with sheet names equal to the node number printed on the
+tree containing the cluster, runid pair and a representative annotation from
+each cluster identified with these properties...
 
 Options:
   -h, --help            show this help message and exit
   -d, --display         Display tree
   -v, --savesvg         Save tree as SVG (requires -b)
   -p, --savepng         save tree as PNG (implies -v, requires -b)
+  -x, --savexls         Output lists of clusters for each tree to XLS (D:
+                        Dont). Requires xlwt.
+  -b BASENAME, --basename=BASENAME
+                        Output file base name (D: automatically generated)
   -r REROOT_ORG, --reroot=REROOT_ORG
                         Reroot tree to specified leaf before doing calculation
                         (D: Use tree as is)
@@ -1060,8 +1055,6 @@ Options:
                         in the cluster)
   -y, --any             Count clusters if they have representatives in ANY
                         descendent node from each internal node.
-  -b BASENAME, --basename=BASENAME
-                        Output file base name (D: automatically generated)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 makeHistorgram.py
@@ -1090,33 +1083,6 @@ makePresenceAbsenceFasta.py
 Usage: makePresenceAbsenceFasta.py < presence_absence_01_table > presence_absence_fasta_file
 
 Create a presence/absence fasta file from a presence / absence 0-1 table
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-makeTabDelimitedRow.py
-
-Usage: makeTabDelimitedRow.py [Things to separate with tabs] > Tab-delimited line
-makeTabDelimitedRow.py -i [Input file] > Tab_delimited line
-
-Turn all arguments into a single row separated by tabs
-
-Options:
-  -h, --help            show this help message and exit
-  -i INFILE, --infile=INFILE
-                        Combine all lines of the input file and separate them
-                        by tabs. Use "-" for input from stdin
-*--------------------------------------------------------------------------------------------------------------------------*
-
-mergeAbbreviations.py
-
-Usage: mergeAbbreviations.py [organism_file_with_abbrevs] [organism_file_to_replace_abbrevs]
-
-This function is intended for internal use. Merge abbreviations from the old
-organism file into the new one in cases where they exist in the old one.
-Replaces the new organism file (without warning) with another one hat has
-those abbreviations in place.
 
 Options:
   -h, --help  show this help message and exit
@@ -1266,56 +1232,6 @@ Options:
   --color=COLOR        Set color of dots (default: as chosen by matplotlib)
 *--------------------------------------------------------------------------------------------------------------------------*
 
-proteinTreeGeneRegion.py
-
-Usage: proteinTreeGeneRegion.py -p protein_tree [options]
-
-Generates a tree with gene regions
-
-Options:
-  -h, --help            show this help message and exit
-  -r CLUSTERRUNID, --runid=CLUSTERRUNID
-                        Run ID (required)
-  -p TREEINFILE, --prottree=TREEINFILE
-                        Protein tree (required)
-  -t GENE, --treetitle=GENE
-                        Tree title
-*--------------------------------------------------------------------------------------------------------------------------*
-
-raw2faa.py
-
-Usage: raw2faa.py < RAW_file > faa_file
-
-Make an amino-acid fasta file for all the proteins in the piped-in RAW file
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-raw2fna.py
-
-Usage: raw2fna.py < RAW_file > fna_file
-
-Make a nucleic-acid fasta file for all the genes in the piped-in RAW file
-(coding sequences only!)
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-raw2processed.py
-
-Usage: raw2processed.py Organism_file < RAW_file > Processed_file
-
-Processes organism file into a nicer format, adding organism and gene length
-information to the table and removing unneeded columns. The raw file must have
-organism / gene IDs similar to what is given by RAST and peg in teh
-appropriate column to designate proteins rather than nucleic acid entries.
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
 RaxML_wrapper.py
 
 Usage: RaxML_wrapper.py [options] < FASTA_file > Newick_file
@@ -1399,6 +1315,27 @@ Options:
                         file (fig_xx_yy instead of fig|xx.yy)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+rerootTree.py
+
+Usage:  rerootTree.py -l root_leaf_name < Newick_tree > Newick_tree_rerooted
+rerootTree.py -p root_leaf_part < Newick_tree > Newick_tree_reroorted 
+
+ Given a Newick file and either the name or part of the name of a leaf on
+which to reroot the tree, reroots the tree and returns a rerooted Newick file
+(does no further processing, unlike other scripts like db_displayTree). If
+given a part of the name only, the match must be unique. If given the entire
+name it must be present exactly as written in the tree.
+
+Options:
+  -h, --help            show this help message and exit
+  -l LEAFNAME, --leafname=LEAFNAME
+                        Leaf name on which to reroot (must exactly match the
+                        text in a leaf name)
+  -p LEAFPART, --leafpart=LEAFPART
+                        PART of a leaf name on which to reroot. The string
+                        must be part of exactly one of the leaf names.
+*--------------------------------------------------------------------------------------------------------------------------*
+
 Rpsblast_all_vs_one.py
 
 Usage: Rpsblast_all_vs_one.py [options] target_db inputdir outputdir
@@ -1414,45 +1351,6 @@ Options:
                         Extension for input fasta files (D: faa)
   -c CUTOFF, --cutoff=CUTOFF
                         E-value cutoff (D: 1E-5)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-startDifference.py
-
-Usage: startDifference.py < RAW_file > Min_distance_file
-
-Calculates the minimum distance between consecutive genes. Negative values
-indicaite overlaps.  WARNING: Does not look at whether contigs are the same or
-not.
-
-Options:
-  -h, --help  show this help message and exit
-*--------------------------------------------------------------------------------------------------------------------------*
-
-tblastn_all_vs_all.py
-
-Usage: tblastn_all_vs_all.py [Faa_folder] [Contig_folder] [Output_folder] [Options]
-
-Run TBLASTN all vs. all for faa files in the faa_folder and fna files in the
-contig_folder The program expects all protein fasta files to end with .faa or
-.fasta and all contig files to end with .fna
-
-Options:
-  -h, --help            show this help message and exit
-  -t THRESHOLD, --threshold=THRESHOLD
-                        E-value threshold (D=1E-5)
-  -n NCORES, --ncores=NCORES
-                        Number of cores (D=1)
-*--------------------------------------------------------------------------------------------------------------------------*
-
-transposeFile.py
-
-Usage: transposeFile.py < delimited_file > transposed_delimited_file
-
-Transpose all the stuff in a file (I wrote this to get around Excel's
-shockingly small column limit)
-
-Options:
-  -h, --help  show this help message and exit
 *--------------------------------------------------------------------------------------------------------------------------*
 
 unsanitizeGeneIds.py
@@ -1481,6 +1379,72 @@ phylipSeqbootScript.sh
 USAGE: phylipSeqbootScript.sh [phylip_file] [out_file] [N_replicates]
 DESCRIPTION: Wrapper script for Phylip's SEQBOOT package.
 It has not been thoroughly tested.
+*--------------------------------------------------------------------------------------------------------------------------*
+
+clusterIdToTable.py
+
+Usage: clusterIdToTable.py [clusterID1] [clusterID2] ... < runID > runID_clusterID_table
+
+Given a RunID from stdin and cluster IDs as arguments, makes a table
+duplicating the runID and adding the clusterID to each in a tab-delimited
+table
+
+Options:
+  -h, --help  show this help message and exit
+*--------------------------------------------------------------------------------------------------------------------------*
+
+joinColumns.py
+
+Usage: joinColumns.py -1 [col1] -2 [col2] (options) File1 File2
+
+To get around some of the obnoxiousness of the UNIX join command... This is a
+command to join on specific columns in two input files. It supports tabs as
+delimiters and does not require inputs to be sorted (so it is slower than the
+UNIX command but also easier to use). Does not munge columns - if --k2 is
+specified and there are keys in the second column not present in the first, it
+will put in the appropriate number of empty columns at the beginning of the
+line (if --k1 is specified the appropriate number of empty columns are placed
+at the end of the line) so that all columns have the same number of entries.
+
+Options:
+  -h, --help    show this help message and exit
+  -1 FIRSTCOL   Column in first file starting from 1 (required)
+  -2 SECONDCOL  Column in second file starting from 1 (required)
+  -d DELIMITER  Delimiter (default: Tab)
+  --k1          Keep non-matching rows in the first file (D: Only print
+                matching rows)
+  --k2          Keep non-matching rows in the second file (D: Only print
+                matching rows)
+*--------------------------------------------------------------------------------------------------------------------------*
+
+makeTabDelimitedRow.py
+
+Usage: makeTabDelimitedRow.py [Things to separate with tabs] > Tab-delimited line
+makeTabDelimitedRow.py -i [Input file] > Tab_delimited line
+
+Turn all arguments into a single row separated by tabs
+
+Options:
+  -h, --help            show this help message and exit
+  -i INFILE, --infile=INFILE
+                        Combine all lines of the input file and separate them
+                        by tabs. Use "-" for input from stdin
+*--------------------------------------------------------------------------------------------------------------------------*
+
+transposeFile.py
+
+Usage: transposeFile.py < delimited_file > transposed_delimited_file
+
+Transpose all the stuff in a file (I wrote this to get around Excel's
+shockingly small column limit)
+
+Options:
+  -h, --help  show this help message and exit
+
+o----------------------------------------------------------------------------------------------------------o
+|                                       CONVENIENCE SCRIPTS                                                |
+o----------------------------------------------------------------------------------------------------------o
+
 *--------------------------------------------------------------------------------------------------------------------------*
 
 annotation2clustergeneinfo.sh

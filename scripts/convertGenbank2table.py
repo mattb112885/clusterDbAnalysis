@@ -340,7 +340,7 @@ genomes are really different.""")
     sys.stderr.write("Text file saved as %s\n" % geneout_filename)
 
     # IMPORTANT: Append, don't use "w" here (we don't want to blow away all the different organism entries...)
-    alias_file = open(alias_filename, "a")
+    alias_file = open(alias_filename, "a+")
     for geneid in aliases:
         for alias in aliases[geneid]:
             alias_file.write("%s\t%s\n" %(geneid, alias))

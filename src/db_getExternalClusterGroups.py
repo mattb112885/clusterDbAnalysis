@@ -28,22 +28,17 @@ cur = con.cursor()
 
 addn = ""
 addd = ""
-addj = ""
 addl = ""
 if options.addname:
     addn = " , external_clusters.clustername"
-    addj = " INNER JOIN external_clusters ON external_clusters.external_clusterid = rpsblast_results.external_clusterid "
 if options.adddescription:
     addd = " , external_clusters.description"
-    addj = " INNER JOIN external_clusters ON external_clusters.external_clusterid = rpsblast_results.external_clusterid "
 if options.database != "all":
-    lk = "\"%s%%\"" %(options.database)
-    addl = " AND rpsblast_results.external_clusterid LIKE %s" %(lk)
-
+    addl = "AND external_clusters.external_clusterid LIKE %s" %(lk)
 
 cmd = """SELECT rpsblast_results.* %s %s FROM rpsblast_results
-         %s
-         WHERE rpsblast_results.querygene = ? %s """ %(addn, addd, addj, addl)
+         INNER JOIN external_clusters ON external_clusters.cdd_id = rpsblast_results.cdd_id
+         WHERE rpsblast_results.querygene = ? %s """ %(addn, addd, addl)
 
 for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")

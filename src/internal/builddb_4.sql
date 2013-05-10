@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS rpsblast_results;
 
 /* This table is cddid.tbl from NCBI */
 CREATE TABLE external_clusters(
-       "counter" INTEGER,
+       "cdd_id" INTEGER,
        "external_clusterid" TEXT,
        "clustername" TEXT,
        "description" TEXT,
@@ -14,7 +14,7 @@ CREATE TABLE external_clusters(
 
 CREATE TABLE rpsblast_results(
        "querygene" TEXT,
-       "external_clusterid" TEXT,
+       "cdd_id" INTEGER,
        "pctid" REAL,
        "alnlen" INTEGER,
        "mismatches" INTEGER,
@@ -26,7 +26,7 @@ CREATE TABLE rpsblast_results(
        "evalue" REAL,
        "bitscore" REAL,
        FOREIGN KEY(querygene) REFERENCES rawdata(geneid),
-       FOREIGN KEY(external_clusterid) REFERENCES external_clusters(external_clusterid)
+       FOREIGN KEY(cdd_id) REFERENCES external_clusters(cdd_id)
 );
 
 .separator "\t"
@@ -35,5 +35,6 @@ CREATE TABLE rpsblast_results(
 .import db/external_CDD rpsblast_results
 
 CREATE INDEX externalclusterididx ON external_clusters (external_clusterid);
+CREATE INDEX externalclustercddid ON external_clusters (cdd_id);
 CREATE INDEX rpsblastquery ON rpsblast_results (querygene);
-CREATE INDEX rpsblastexternalclusterididx ON rpsblast_results (external_clusterid);
+CREATE INDEX rpsblastcddidx ON rpsblast_results (cdd_id);

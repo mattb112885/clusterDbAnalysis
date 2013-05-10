@@ -24,15 +24,6 @@ target_db = args[0]
 inputdir = args[1]
 outputdir = args[2]
 
-if not os.path.exists(target_db + ".phr"):
-    # The -S 1 is because NCBI recommended NOT using scaling even
-    # though they set it as the default anyway.
-    # See:
-    #  ftp://ftp.ncbi.nih.gov/blast/documents/rpsblast.html
-    # This is the docs for the old version - they removed the warning
-    # from the new version but didn't explain why...
-    os.system("formatrpsdb -i \"%s\" -S 1" %(target_db))
-
 faa_list = []
 for f in os.listdir(os.path.join(args[1])):
     if f.endswith(".%s" %(options.extension)):
@@ -49,7 +40,11 @@ def singleRpsBlast(faa, target_db, outputdir, evalue):
     outfile = os.path.join(outputdir, "%s_rpsout" %(os.path.basename(faa)))
     if os.path.exists(outfile):
         return
-    cmd = "rpsblast -i %s -d %s -o %s -m 8 -e %e -P 1;" %(faa, target_db, outfile, evalue)
+    cmd = "rpsblast -query %s -db %s -out %s -outfmt 6 -evalue %e" %(faa, target_db, outfile, evalue)
+    # This was the command we ran on the old BLAST
+    # NCBI updated the RPSBLAST with recent BLAST+ and the CDD no longer works with the old compiler
+    # so... lets just make everything conform to thh new standard.
+#    cmd = "rpsblast -i %s -d %s -o %s -m 8 -e %e -P 1;" %(faa, target_db, outfile, evalue)
     sys.stderr.write("%s\n" %(cmd))
     os.system(cmd)
 

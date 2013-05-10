@@ -26,7 +26,9 @@ ecc = options.ecc - 1
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-q = "SELECT * FROM rpsblast_results WHERE external_clusterid = ? AND evalue < ?"
+q = """SELECT * FROM rpsblast_results
+     INNER JOIN external_clusters ON external_clusters.cdd_id = rpsblast_results.cddid
+     WHERE external_clusterid = ? AND evalue < ?"""
 
 for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")

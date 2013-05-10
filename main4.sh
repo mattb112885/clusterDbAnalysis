@@ -18,11 +18,13 @@ mkdir rpsblast_res 2> /dev/null
 mkdir cd_db 2> /dev/null
 
 cd cd_db
-if [ ! -f cdd.tar.gz ]; then
+if [ ! -f Cdd.pn ]; then
     echo "DOWNLOADING the conserved protein domain database files..."
     wget ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/cdd.tar.gz
     # Note - this tar.gz file doesn't create another directory for all the files.
+    echo "Unzipping the conserved protein domain database..."
     tar xzf cdd.tar.gz
+    rm cdd.tar.gz
 else
     echo "Conserved-protein database already present in expected location."
 fi
@@ -39,11 +41,23 @@ if [ ! -f ../db/cddid.tbl ]; then
     sed s/\"//g cddid.tbl > ../db/cddid.tbl
 fi
 
+# This program has to be run from the cd_db folder - it doesn't work if you try to compile
+# while you're in a different folder
+if [ ! -f Cdd.pn.aux ]; then
+    echo "Compiling the CDD RPSBLAST database..."
+    makeprofiledb -in Cdd.pn -dbtype rps
+fi
+
 cd ..
 
 Rpsblast_all_vs_one.py -n "${NCORES}" -c 1E-5 "cd_db/Cdd.pn" "faa/" "rpsblast_res/"
 cat rpsblast_res/* > db/external_CDD
-cat db/external_CDD | sed -r "s/^(.*?\s+.*?),/\1/g" > db/external_CDD_MOD
+# Note - it's possible that this will change in the future (if NCBI decides to change the
+# output file formats again). But for now all my hits look like gnl|CDD|...
+#
+# The ID number resulting from stripping that off SHOULD match up with the first column
+# of the cddid.tbl table. So we can salvage this...
+cat db/external_CDD | sed -r 's/gnl\|CDD\|([0-9]+)/\1/g' > db/external_CDD_MOD
 mv db/external_CDD_MOD db/external_CDD
 
 sqlite3 db/DATABASE.sqlite < src/internal/builddb_4.sql

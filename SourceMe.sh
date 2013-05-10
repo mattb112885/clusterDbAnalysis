@@ -10,8 +10,6 @@
 #
 # source [results_from_pwd]/SourceMe.sh
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 # Do not echo from things sourced in .bashrc.
 # Doing so breaks sftp, scp and who knows what else.
 #echo ""
@@ -31,8 +29,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #echo ""
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export PYTHONPATH=$PYTHONPATH:$DIR"/lib"
-export PATH=$PATH:$DIR"/src"
-export PATH=$PATH:$DIR"/src/internal"
-export PATH=$PATH:$DIR"/src/utilities"
-export PATH=$PATH:$DIR"/scripts"
+export PYTHONPATH=$DIR"/lib":$PYTHONPATH
+export PATH=$DIR"/src":$PATH
+export PATH=$DIR"/src/internal":$PATH
+export PATH=$DIR"/src/utilities":$PATH
+export PATH=$DIR"/scripts":$PATH

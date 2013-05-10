@@ -282,7 +282,7 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
 
     # Get clusters that have enough members to bother trying to color them (as determined by
     # the greyout keyword)
-    multipleclusters = [c for c in uniqueclusters if allclusters.count(c) > greyout]
+    multipleclusters = [c for c in uniqueclusters if allclusters.count(c) >= greyout]
 
     # Don't die if nothing has enough clusters...
     if len(multipleclusters) > 0:
@@ -291,7 +291,7 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
         getcolor = {}
 
     #also add in grey (0.5,0.5,0.5 in RGB) for all others
-    singleclusters = [c for c in uniqueclusters if allclusters.count(c) <= greyout]
+    singleclusters = [c for c in uniqueclusters if allclusters.count(c) < greyout]
     getcolor.update([(sc, (0.5,0.5,0.5)) for sc in singleclusters])
 
     #generate the region images for any leaf that has them, and map onto the tree
@@ -377,6 +377,7 @@ if __name__ == "__main__":
     parser.add_option("-t", "--treetitle", help="Tree title (D: same as run ID)", action="store", type="str", dest="gene", default=None)
     parser.add_option("-o", "--outfile", help="Base name for output file (D: Same as input tree)", action="store", type="str", dest="outfile", default=None)
     parser.add_option("-d", "--display", help="Display the resulting tree (D: Don't display, just save)", action="store_true", dest="display", default=False)
+    parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", dest="greyout", default=3)
     (options,args) = parser.parse_args()
 
     if options.treeinfile is None:
@@ -413,7 +414,7 @@ if __name__ == "__main__":
     con = sqlite3.connect(locateDatabase())
     cur = con.cursor()
 
-    t, ts = draw_tree_regions(clusterrunid, t, ts, cur)
+    t, ts = draw_tree_regions(clusterrunid, t, ts, cur, greyout=options.cutoff)
 
     # Now that we don't need to reference anything with the gene IDs any more, try to change them into
     # annotations

@@ -377,7 +377,7 @@ if __name__ == "__main__":
     parser.add_option("-t", "--treetitle", help="Tree title (D: same as run ID)", action="store", type="str", dest="gene", default=None)
     parser.add_option("-o", "--outfile", help="Base name for output file (D: Same as input tree)", action="store", type="str", dest="outfile", default=None)
     parser.add_option("-d", "--display", help="Display the resulting tree (D: Don't display, just save)", action="store_true", dest="display", default=False)
-    parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", dest="greyout", default=3)
+    parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", dest="cutoff", default=3)
     (options,args) = parser.parse_args()
 
     if options.treeinfile is None:

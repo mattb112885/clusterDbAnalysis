@@ -4,6 +4,7 @@ import optparse
 import os
 import sqlite3
 import sys
+import csv
 
 from ete2 import Tree, TextFace, CircleFace
 
@@ -28,6 +29,7 @@ parser.add_option("-d", "--display", help="Display tree", action="store_true", d
 parser.add_option("-v", "--savesvg", help="Save tree as SVG (requires -b)", action="store_true", dest="savesvg", default=False)
 parser.add_option("-p", "--savepng", help="save tree as PNG (implies -v, requires -b)", action="store_true", dest="savepng", default=False)
 parser.add_option("-x", "--savexls", help="Output lists of clusters for each tree to XLS (D: Dont). Requires xlwt.", action="store_true", dest="savexls", default=False)
+parser.add_option("-t", "--savetxt", help="Output lists of clusters for each tree to many tab delimited files (D: Dont). ", action="store_true", dest="savetxt", default=False)
 parser.add_option("-b", "--basename", help="Output file base name (D: automatically generated)", action="store", dest="basename", default=None)
 
 parser.add_option("-r", "--reroot", help="Reroot tree to specified leaf before doing calculation (D: Use tree as is)",
@@ -108,6 +110,22 @@ if options.savexls:
             sheet.write(rownum, 2, findRepresentativeAnnotation(clusterrun[0], clusterrun[1], cur))
             rownum += 1
     wb.save("%s.xls" %(options.basename) )        
+
+if options.savetxt:
+    #we will save these, as the lookup is slow
+    RepresentativeAnnotation={}
+    for nodenum in data:
+        with open("node"+str(nodenum)+".tsv","wb") as tsvfile:
+            tsv=csv.writer(tsvfile, delimiter='\t', quoting=False)
+            for clusterrun in data[nodenum]:
+                col1=clusterrun[0]
+                col2=clusterrun[1]
+                try: 
+                    col3=RepresentativeAnnotation[clusterrun[1]]
+                except KeyError: 
+                    col3=findRepresentativeAnnotation(clusterrun[0], clusterrun[1], cur)
+                    RepresentativeAnnotation[clusterrun[1]]=col3
+                tsv.writerow([col1,col2,col3])
 
 if options.savesvg:
     # Some versions of ETE create a "test.svg" and others do not.

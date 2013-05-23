@@ -19,9 +19,9 @@ parser.add_option("-s", "--simpleoutput",
 subpaths = ['src','scripts','src/utilities']
 paths = [os.path.join(locateRootDirectory(), sub) for sub in subpaths]
 
-def printcol(ls, indent=0, out=sys.stdout):
+def printcol(ls, indent=0, out=sys.stdout, width=72):
+    maxw = width-indent
     # Pretty-print into columns, but keep alphabetical order by column
-    maxw = options.maxw-indent
     maxl = max( [ len(s) for s in ls ] )+1 #need 1 space to prevent 2 longest items abutting
     gte_one = lambda x: x if x>1 else 1
     cols = gte_one(int(maxw//maxl)) #floor division gives us the number of columns, must be >1, leave space for indent
@@ -45,12 +45,11 @@ for path in paths:
         found = [h for h in ls if hits(h)]
     #keep only if it's executable
     found=[h for h in found]
-    if options.simpleoutput: 
-        printcol(found)
-    else:
-        if len(found) > 0:
-            print('\nPrograms found in '+path+':')
-            printcol(found, indent=2)
+    if len(found) > 0:
+        if options.simpleoutput: 
+            printcol(found, width=1)
         else:
-            print('\nNo programs found in '+path+'.')
-
+            print('\nPrograms found in '+path+':')
+            printcol(found, indent=2, width = options.maxw)
+    elif not options.simpleoutput: 
+        print('\nNo programs found in '+path+'.')

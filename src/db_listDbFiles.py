@@ -9,6 +9,11 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-w", "--maxw", 
                   help="Maximum number of characters wide (D=Print each file on its own line)", 
                   action="store", type="int", dest="maxw", default=1)
+#can be used for auto-documentation like: 
+#db_listDbFiles.py -s  | xargs -I % bash -c "echo;echo "-------------------------------";echo %; % -h" > DOCS.txt
+parser.add_option("-s", "--simpleoutput", 
+                  help="Force printing exactly one command per line, no other formatting, overides -w (D=Print human readable output)", 
+                  action="store_true", dest="simpleoutput", default=False)
 (options, args) = parser.parse_args()
 
 subpaths = ['src','scripts','src/utilities']
@@ -26,7 +31,7 @@ def printcol(ls, indent=0, out=sys.stdout):
     lines = [justified[r::rows] for r in range(rows)] # make alphabetized by column
     text = "\n".join([" "*indent+"".join(l) for l in lines])
     out.write(text)
-    out.write("\n")
+    out.write("\n") #need final return
 
 for path in paths:
     ls = glob.glob(os.path.join(path,"*")) # will not list directories or .hidden, gives path
@@ -40,10 +45,12 @@ for path in paths:
         found = [h for h in ls if hits(h)]
     #keep only if it's executable
     found=[h for h in found]
-    if len(found) > 0:
-        print('\nPrograms found in '+path+':')
-        printcol(found, indent=2)
+    if options.simpleoutput: 
+        printcol(found)
     else:
-        print('\nNo programs found in '+path+'.')
-print("\n")
+        if len(found) > 0:
+            print('\nPrograms found in '+path+':')
+            printcol(found, indent=2)
+        else:
+            print('\nNo programs found in '+path+'.')
 

@@ -29,14 +29,15 @@ cur = con.cursor()
 addn = ""
 addd = ""
 addl = ""
+lk = '%' + options.database + '%'
 if options.addname:
     addn = " , external_clusters.clustername"
 if options.adddescription:
     addd = " , external_clusters.description"
 if options.database != "all":
-    addl = "AND external_clusters.external_clusterid LIKE %s" %(lk)
+    addl = "AND external_clusters.external_clusterid LIKE \"%s\"" %(lk)
 
-cmd = """SELECT rpsblast_results.* %s %s FROM rpsblast_results
+cmd = """SELECT rpsblast_results.*, external_clusters.external_clusterid %s %s FROM rpsblast_results
          INNER JOIN external_clusters ON external_clusters.cdd_id = rpsblast_results.cdd_id
          WHERE rpsblast_results.querygene = ? %s """ %(addn, addd, addl)
 

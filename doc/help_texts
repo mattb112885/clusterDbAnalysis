@@ -842,6 +842,7 @@ Options:
 
 db_makeNeighborhoodTree.py
 
+No module named MySQLdb
 Usage: db_makeNeighborhoodTree.py -p protein_tree -r runid [options]
 
 Generates a tree with gene regions
@@ -1017,6 +1018,7 @@ Options:
 
 makeCoreClusterAnalysisTree.py
 
+No module named MySQLdb
 Usage: makeCoreClusterAnalysisTree.py [options] newick_file runid
 
  Generate an ETE tree with internal node labels corresponding to the number of
@@ -1306,9 +1308,6 @@ Options:
   -f ORGFILE, --orgfile=ORGFILE
                         Organism file (optional, default = organisms file in
                         root directory of current install)
-  -a, --useabbrev       Use abbreviation? (If specified, use the abbreviated
-                        form of the organism name. If not specified, use the
-                        entire organism name)
   -k, --keeppeg         Keep PEG ID? (if specified, keeps peg id. If not,
                         throws it away)
   -s, --sanitized       Specify this if the organism IDs are sanitized in the
@@ -1317,6 +1316,7 @@ Options:
 
 rerootTree.py
 
+No module named MySQLdb
 Usage:  rerootTree.py -l root_leaf_name < Newick_tree > Newick_tree_rerooted
 rerootTree.py -p root_leaf_part < Newick_tree > Newick_tree_reroorted 
 
@@ -1429,6 +1429,8 @@ Options:
   -i INFILE, --infile=INFILE
                         Combine all lines of the input file and separate them
                         by tabs. Use "-" for input from stdin
+  -d DELIMITER, --delimiter=DELIMITER
+                        Use other delimiter instead (D: Tabs)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 transposeFile.py

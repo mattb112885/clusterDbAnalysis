@@ -18,7 +18,9 @@ def getHitsToExternalClusters(external_clusterid_list, evalue, cur):
     '''
 
     hits = []
-    q = "SELECT querygene,evalue FROM rpsblast_results WHERE external_clusterid = ? AND evalue < ?"
+    q = """SELECT querygene,evalue FROM rpsblast_results
+         INNER JOIN external_clusters ON external_clusters.cdd_id = rpsblast_results.cdd_id
+         WHERE external_clusters.external_clusterid = ? AND evalue < ?"""
     for externalid in external_clusterid_list:
         cur.execute(q, (externalid, evalue))
         for res in cur:
@@ -40,9 +42,10 @@ def getRpsBlastForQueryGenes(querygene_list, evalue, cur, database = "all"):
     addl = ""
     if options.database != "all":
         lk = "\"%s%%\"" %(options.database)
-        addl = " AND rpsblast_results.external_clusterid LIKE %s" %(lk)
+        addl = " AND external_clusters.external_clusterid LIKE %s" %(lk)
 
-    cmd = """SELECT * FROM rpsblast_results
+    cmd = """SELECT rpsblast_results.*, external_clusters.external_clusterid FROM rpsblast_results
+         INNER JOIN external_clusters ON external_clusters.cdd_id = rpsblast_results.cdd_id
          WHERE rpsblast_results.querygene = ? AND evalue < ? %s """ %(addl)
 
     hits = []
@@ -114,7 +117,7 @@ for geneid in genelist:
     rpsblast_hits = getRpsBlastForQueryGenes( [geneid], options.evalue, cur, database=options.database )
 
     # Get a divergent color mapping.
-    rps_targets = map(operator.itemgetter(1), rpsblast_hits)
+    rps_targets = map(operator.itemgetter(12), rpsblast_hits)
     colorscheme = colormap(rps_targets)
 
     # RPSBLAST hits have coordinates relative to the beginning of the protein (not relative to the location on the contig).
@@ -147,17 +150,18 @@ for geneid in genelist:
 
     n = 2
     for rps in rpsblast_hits:
+        rps_id = rps[1]
         hitstart = rps[6]
         hitend = rps[7]
-        rps_name = rps[1]
         evalue = rps[10]
+        rps_name = rps[12]
         color = colorscheme[rps_name]
         
         # FIXME - this should become its own function
-        q = "SELECT clustername FROM external_clusters WHERE external_clusterid = ?"
-        cur.execute(q, (rps_name,))
+        q = "SELECT clustername FROM external_clusters WHERE cdd_id = ?"
+        cur.execute(q, (rps_id,))
         for res in cur:
-            cname = res[0]
+            cname = str(res[0])
 
         rps_name = rps_name + "(%s)" %(cname)
         if options.showevalue:

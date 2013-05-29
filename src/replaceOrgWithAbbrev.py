@@ -33,7 +33,6 @@ if options.orgfile == None:
     sys.stderr.write("ERROR: Orgfile (-f orgfile) is a required argument to replaceOrgWithAbbrev\n")
     exit(2)
 
-useabbrev = options.useabbrev
 keeppeg = options.keeppeg
 
 orgAbbrev = {}

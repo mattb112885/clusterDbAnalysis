@@ -43,9 +43,13 @@ fi
 
 # This program has to be run from the cd_db folder - it doesn't work if you try to compile
 # while you're in a different folder
+#
+# Note - the scale 1.0 was "strongly recommended" in one of the NCBI docs. Without it, the
+# sensitivity is drastically decreased, but with it we find everything that we expect from e.g.
+# searching proteins vs. the CDD website.
 if [ ! -f Cdd.pn.aux ]; then
     echo "Compiling the CDD RPSBLAST database..."
-    makeprofiledb -in Cdd.pn -dbtype rps
+    makeprofiledb -in Cdd.pn -dbtype rps -scale 1.0
 fi
 
 cd ..

@@ -27,7 +27,7 @@ con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
 q = """SELECT * FROM rpsblast_results
-     INNER JOIN external_clusters ON external_clusters.cdd_id = rpsblast_results.cddid
+     INNER JOIN external_clusters ON external_clusters.cdd_id = rpsblast_results.cdd_id
      WHERE external_clusterid = ? AND evalue < ?"""
 
 for line in fileinput.input("-"):

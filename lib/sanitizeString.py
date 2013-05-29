@@ -52,7 +52,3 @@ def sanitizeByType(container, sanitizeby='tsv', onlycolumns=False):
             seq_record.id=sanitizeString(seq_record.description, False)
             seq_record.description=''
             SeqIO.write(seq_record, stdout, "fasta")
-
-if __name__=="__main__":
-    import sys
-    sanitizeByType(iter(sys.stdin), sanitizeby='fasta')

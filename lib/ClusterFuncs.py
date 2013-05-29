@@ -68,8 +68,7 @@ def getValidBlastScoreMethods():
     List currently-supported BLAST scoring metrics
     '''
     symmetric_scores = ['maxbit', 'minbit', 'avgbit', 'normhsp']
-    not_symmetric_scores = [ 'loge' ]
-
+    not_symmetric_scores = [ 'loge', 'selfbit', 'otherbit' ]
     return symmetric_scores, not_symmetric_scores
 
 def calculateScoreFromBlastres(blastres, method, cutoff, include_zeros=False, needsymmetric = False):
@@ -116,6 +115,10 @@ def calculateScoreFromBlastres(blastres, method, cutoff, include_zeros=False, ne
             score = bitscore/hsplen
         elif method == "loge":
             score = -math.log10(evalue + 1E-200)
+        elif method == "selfbit":
+            score =  bitscore / (qselfbit)
+        elif method == "otherbit":
+            score =  bitscore / (tselfbit)
         if score < cutoff:
             score = 0
         if score == 0 and not include_zeros:

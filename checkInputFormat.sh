@@ -14,7 +14,7 @@ if [ ! -f "organisms" ]; then
     STATUS=1
 fi
 
-# Check that the organism ID is the third column
+# Check that the organism ID is the second column
 echo "Checking format of organism ID in organisms file..."
 orgmatch=$(cat organisms | cut -f 2 | grep -P "^\d+\.\d+$")
 if [ $? -eq 1 ]; then
@@ -42,11 +42,18 @@ if [ $? -eq 0 ]; then
     STATUS=1;
 fi
 
-
 # Check existence of groups file (for clustering)
 echo "Checking existence of groups file..."
 if [ ! -f "groups" ]; then
     echo 'ERROR: groups file not found in expected location';
+    STATUS=1;
+fi
+
+echo "Checking for uniqueness of groups..."
+ng=$(cat groups | wc -l);
+numgroups=$(cat groups | sort -u | wc -l);
+if [ "${ng}" != "${numgroups}" ]; then
+    echo 'ERROR: Group names must be unique';
     STATUS=1;
 fi
 

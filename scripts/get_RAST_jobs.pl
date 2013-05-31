@@ -18,7 +18,7 @@ GetOptions(
 	   "job_list=s" => \$jobs_in,
 	   "format=s" => \$format,
 	   "verbose" => \$verbose,
-	   "help|?" => \&pod2usage # Help
+	   "help|?" => \&pod2usage(1) # Help
 	   );
 
 ### I/O error & defaults

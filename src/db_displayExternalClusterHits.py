@@ -177,8 +177,8 @@ for geneid in genelist:
         n += 1
 
     gd_diagram.draw(format="linear", start=start, end=end, fragments=1)
-    pathname = os.path.join( options.outdir, sanitizeString(geneid, False) + ".png" )
-    gd_diagram.write(pathname, "PNG")
+    pathname = os.path.join( options.outdir, sanitizeString(geneid, False) + ".svg" )
+    gd_diagram.write(pathname, "SVG")
     sys.stderr.write("Image file for gene %s written to %s\n" %(geneid, pathname))
 
 con.close()

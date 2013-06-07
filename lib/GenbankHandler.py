@@ -8,12 +8,15 @@ for increased compatibility between ITEP and other tools.
 
 import sys
 
-def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
+def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
     '''
     Given a RAW table (list of tuples) and a genbank object,
     attempt to match up every object in the RAW table with every
     gene in the table and add the ITEP IDs as a db_xrer (called ITEP)
     to the genbank file.
+
+    If truncateContigIds is set to TRUE the contig IDs for every locus are truncated
+    to 16 characters.
     '''
     # Index search on the table
     startidx = 4
@@ -40,6 +43,13 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
     # DNA sequence (due to possible differences in translation)
     # If these all match with a given element of the table then its good.
     for ii in range(len(multi_gbk_object)):
+        if len(multi_gbk_object[ii].name) > 16:
+            if truncateContigIds:
+                sys.stderr.write("WARNING: Truncated contig ID %s to %s (16 characters)\n" %(multi_gbk_object[ii].name, multi_gbk_object[ii].name[:16]))
+                multi_gbk_object[ii].name = multi_gbk_object[ii].name[:16]
+            else:
+                raise IOError("ERROR: Contig ID %s is too long - writing it back out with biopython will fail" %(multi_gbk_object[ii].name))
+            pass
         for jj in range(len(multi_gbk_object[ii].features)):
             # We don't want to modify things that aren't coding sequences...
             if multi_gbk_object[ii].features[jj].type != "CDS":

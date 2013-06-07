@@ -42,7 +42,11 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
     # Stop location
     # DNA sequence (due to possible differences in translation)
     # If these all match with a given element of the table then its good.
+    all_contigs = set()
     for ii in range(len(multi_gbk_object)):
+        # If we have to, truncate the contig names so that biopython can actually produce some output.
+        # However, if the user doesn't tell us to truncate them and they would have to, throw an error instead
+        # to warn the user of the problem.
         if len(multi_gbk_object[ii].name) > 16:
             if truncateContigIds:
                 sys.stderr.write("WARNING: Truncated contig ID %s to %s (16 characters)\n" %(multi_gbk_object[ii].name, multi_gbk_object[ii].name[:16]))
@@ -50,6 +54,16 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
             else:
                 raise IOError("ERROR: Contig ID %s is too long - writing it back out with biopython will fail" %(multi_gbk_object[ii].name))
             pass
+
+        # Truncating at 16 characters could cause the same contig ID to appear mutliple times in the same file, which is BAD.
+        # Lets check for such nonsense...
+        if multi_gbk_object[ii].name in all_contigs:
+            raise IOError("ERROR: Contig name %s (before or after truncation) would have appeared multiple times in the same genbank file. This is bad!")
+        else:
+            all_contigs.add(multi_gbk_object[ii].name)
+            pass
+
+        # Add ITEP IDs to the genbank files.
         for jj in range(len(multi_gbk_object[ii].features)):
             # We don't want to modify things that aren't coding sequences...
             if multi_gbk_object[ii].features[jj].type != "CDS":
@@ -62,7 +76,6 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
             featureend = int(location.end)
             querytup = (featurestart, featureend)
             if querytup in indexed_array and seq == indexed_array[querytup][0]:
-#                sys.stderr.write("%s OK\n") %(indexed_array[querytup][1])
                 if "db_xref" in multi_gbk_object[ii].features[jj].qualifiers:
                     multi_gbk_object[ii].features[jj].qualifiers["db_xref"].append("ITEP:%s" %(indexed_array[querytup][1]))
                 else:
@@ -75,11 +88,3 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
         pass
 
     return multi_gbk_object
-
-if __name__ == "__main__":
-    from Bio import SeqIO
-    gbk_obj = SeqIO.parse(open(sys.argv[1], "r"), "genbank")
-    tbl_obj = [ line.strip("\r\n").split("\t") for line in open(sys.argv[2], "r") ]
-    modified_gbk = addItepGeneIdsToGenbank(gbk_obj, tbl_obj)
-
-    SeqIO.write(modified_gbk, sys.argv[3], "genbank")

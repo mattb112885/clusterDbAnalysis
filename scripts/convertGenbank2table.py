@@ -11,9 +11,12 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import generic_protein
 
 from FileLocator import *
+from GenbankHandler import *
 
 '''
-Standards set by Matt, 10/30/2012
+Produce an ITEP-compatible tab-delimited file ("raw file") from a Genbank file.
+
+Standards enforced:
 0: All organism IDs must match the regex \d+\.\d+
 1: All raw files must be in the raw/ directory and named [organismid].txt
 2: All genbank files must be in the genbank/ directory and named [organismid].gbk
@@ -25,6 +28,10 @@ Standards set by Matt, 10/30/2012
     - Gene IDs are in the format fig\|\d+\.\d+\.peg\.\d+ where the first \d+\.\d+ is the organism ID of the corresponding genes
     - Strand must be + or -
     - "Start" is the nucleotide position of the first transcribed base (i.e. for - strand genes, the start position will be bigger than the stop).
+
+Optionally we add the ITEP IDs to the genbank file, but if you want to do this you must
+be prepared for the contig IDs to be truncated to 16 characters (due to Biopython limitations we
+cannot write the genbank file if they are longer than this).
 '''
 
 def lookupStrainID(accession):
@@ -131,14 +138,14 @@ def info_from_record(record):
     #    info["Database cross-references"] = ";".join(record.dbxrefs)
     return info
 
-def genbank_extract(ptr, version_number):
+def genbank_extract(ptr, version_number, truncateContig=False):
     '''Extract data from a genbank file...returns some organism-specific data,
     a dictionary from gene ID to a list of aliases to that gene ID (including the
     original IDs from the genbank file), and the data needed to build the raw data
     table required by ITEP.'''
-    #get data
+
     gb_seqrec_multi = SeqIO.parse(ptr, "genbank")
-    #loop, as there may be multple genbanks together (although this is non-canonical)
+
     #lists to store extracted seqs
     genes = []
     geneidToAlias = {}
@@ -175,11 +182,13 @@ def genbank_extract(ptr, version_number):
                 # There are other xrefs that I don't try to capture here...
                 aliases = []
                 geneid = None
+                seedConflictCheck = False
                 if "db_xref" in feature.qualifiers:
                     for xref in feature.qualifiers["db_xref"]:
                         match = match_SEED_xref.match(xref)
                         if match is not None:
                             geneid = match.group(1)
+                            seedConflictCheck = True
                         # Note that one SEED gene can have more than one KEGG match (i.e. go with more than one locus tag).
                         # This is OK - I'll just capture all of them here.
                         match = match_KEGG_xref.match(xref)
@@ -188,15 +197,30 @@ def genbank_extract(ptr, version_number):
 
                 # If we got our genbank file from somewhere else (including from RAST) we need to just make an ID in the right format.
                 if geneid is None:
-                    geneid = "fig|" + str(orginfo["taxon"]) + "." + str(version_number) + ".peg." + str(counter)
+                    # This flag is used to make sure that if we pull out ONE SEED ID then ALL of them have to be pulled out in the same manner.
+                    # If this is not the case we will most likely get duplicated IDs which is BAD.
+                    if seedConflictCheck:
+                        raise IOError("ERROR: In order to avoid namespace collisions, if at least one gene has a PubSEED ID attached then ALL of them must.")
+                    else:
+                        geneid = "fig|" + str(orginfo["taxon"]) + "." + str(version_number) + ".peg." + str(counter)
+                        pass
+                    pass
 
                 geneinfo["feature_id"] = geneid
-                geneinfo["contig_id"] = orginfo["id"]
+
+                if truncateContig and len(orginfo["id"]) > 16:
+                    geneinfo["contig_id"] = orginfo["id"][:16]
+                else:
+                    geneinfo["contig_id"] = orginfo["id"]
+                    pass
+
                 geneinfo["source_description"] = orginfo["gb_description"]
+
                 if "protein_id" in feature.qualifiers:
                     geneinfo["location"] = feature.qualifiers["protein_id"][0]
                 else:
                     geneinfo["location"] = ""
+
                 genename = geneinfo["aliases"]
                 genedesc = geneinfo["function"] + " " + orginfo["gb_description"]
                 geneinfo["gene_description"] = genedesc               
@@ -212,9 +236,6 @@ def genbank_extract(ptr, version_number):
                 genes.append(geneinfo)
 
     return orginfo, genes, geneidToAlias
-
-def findtypes(info):
-    return dict([(k, type(v)) for k, v in info.items()])
 
 #Entrez requires an email, if not set namually, this guesses one
 email = None
@@ -248,13 +269,22 @@ if __name__ == '__main__':
                       action="store_true", dest="replace", default=False)
     parser.add_option("-v", "--version_number", help="The second number in the \d+\.\d+ format of the organism ID - use this to distinguish between multiple genbank files with the same taxID (D:88888)",
                       action="store", type="int", dest="version_number", default=88888)
+    parser.add_option("-i", "--add_itepids", help="Specify this flag to add ITEP Ids to your genbank file (note - this option will cause contig IDs to be truncated to 16 characters and will fail if the resulting truncation makes your contig names non-unique)",
+                      action="store_true", dest="add_itepids", default=False)
     (options, args) = parser.parse_args()
     
     if options.genbank_file is None:
         sys.stderr.write("ERROR: Genbank_file (-g) is a required argument\n")
         exit(2)
 
-    orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number)
+    # We have to truncate contig IDs if we want to add ITEP IDs to the genbank file (due to biopython limits)
+    if options.add_itepids:
+        truncateContig = True
+    else:
+        truncateContig = False
+
+    # Extract data from the Genbank file
+    orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number, truncateContig=truncateContig)
 
     rootdir = locateRootDirectory()
     organism_id = str(orginfo["taxon"]) + "." + str(options.version_number)
@@ -276,7 +306,7 @@ replace the existing file with a new one and remove the existing file, or use a 
 if the genomes are really different.\n""" %(geneout_filename))
             exit(2)
 
-    if os.path.exists(genbank_filename) and not options.replace:
+    if os.path.exists(genbank_filename):
         if options.replace:
             # Note - to make this really robusst I should probably add a timestamp or something...
             bkgenbank_filename = os.path.join(rootdir, "%s.txt.bk" %(organism_id))
@@ -312,23 +342,20 @@ genomes are really different.""")
                 alias_ptr.write(line)
         alias_ptr.close()
 
-    # Lets re-write the genbank file first.
-    shutil.copyfile(options.genbank_file, genbank_filename)
-
-    # Now we generate a tab-delimited file with the following fields:
+    # Generate raw file.
     names = ["contig_id",          #from gi of gb file
-    "feature_id",         #taxonID from NCBI lookup of accession, geneID from the db_xref GI in feature
-    "type",               #CDS = peg
-    "location",           #ignored by iTEP, source accession here
-    "start",              #+1 index and rev if on neg strand
-    "stop",               #+1 index and rev if on neg strand
-    "strand",             #converted to + or -
-    "function",           #from feature product
-    "aliases",            #ignored by iTEP, from gene accession
-    "figfam",             #ignored by iTEP, empty for all
-    "evidence_codes",     #ignored by iTEP, empty for all
-    "nucleotide_sequence",#as recorded in feature
-    "aa_sequence"]        #as recorded in feature, not translated manually
+             "feature_id",         #taxonID from NCBI lookup of accession, geneID from the db_xref GI in feature
+             "type",               #CDS = peg
+             "location",           #ignored by ITEP, source accession here
+             "start",              #+1 index and rev if on neg strand
+             "stop",               #+1 index and rev if on neg strand
+             "strand",             #converted to + or -
+             "function",           #from feature product
+             "aliases",            #ignored by ITEP, from gene accession
+             "figfam",             #ignored by ITEP, empty for all
+             "evidence_codes",     #ignored by ITEP, empty for all
+             "nucleotide_sequence",#as recorded in feature
+             "aa_sequence"]        #as recorded in feature, not translated manually
 
     geneout_file = open(geneout_filename, 'w')
     geneout = csv.DictWriter(geneout_file, fieldnames = names, delimiter="\t")
@@ -336,8 +363,27 @@ genomes are really different.""")
 
     for gene in genes:
         geneout.writerow(dict([(n, gene[n]) for n in names]))
+        pass
+
     geneout_file.close()
     sys.stderr.write("Text file saved as %s\n" % geneout_filename)
+
+    # Now we need to write a new Genbank file. What we do here depends on if we decided to
+    # add ITEP IDs or not.
+    if options.add_itepids:
+        tbl = [ line.strip("\r\n").split("\t") for line in open(geneout_filename, "r") ]
+        multi_gbk_object = SeqIO.parse(ptr, "genbank")
+        # Add the ITEP IDs and truncate contig names if necessary
+        gb_seqrec_id = addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=True)
+        # Save the resulting file
+        fid = open(genbank_filename, "w")
+        SeqIO.write(gb_seqrec_multi, fid, "genbank")
+        fid.close()
+        pass
+    else:
+        shutil.copyfile(options.genbank_file, genbank_filename)
+        pass
+
 
     # IMPORTANT: Append, don't use "w" here (we don't want to blow away all the different organism entries...)
     alias_file = open(alias_filename, "a+")

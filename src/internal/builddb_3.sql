@@ -24,7 +24,8 @@ CREATE TABLE contigs(
 .separator "\t"
 .import db/contigs contigs
 
-CREATE INDEX contigcontigs ON contigs(contig_mod);
+/* If this one isn't unique we're in trouble */
+CREATE UNIQUE INDEX contigcontigs ON contigs(contig_mod);
 
 CREATE TABLE tblastn(
        "queryid" TEXT,
@@ -49,3 +50,4 @@ CREATE TABLE tblastn(
        FOREIGN KEY(targetcontig) REFERENCES contigs(contig_mod)
 );
 
+ANALYZE;

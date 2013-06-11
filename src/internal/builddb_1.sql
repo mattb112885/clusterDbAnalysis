@@ -52,7 +52,6 @@ CREATE TABLE blastn_results(
        FOREIGN KEY(targetgene) REFERENCES rawdata(geneid)
        );
 
-/* abbreviation must be less than 6 characters for PHYLIP format to work correctly... */
 CREATE TABLE organisms(
        "organism" TEXT PRIMARY KEY,
        "organismid" TEXT UNIQUE
@@ -72,7 +71,6 @@ CREATE TABLE geneinfo(
        FOREIGN KEY(geneid) REFERENCES rawdata(geneid),
        FOREIGN KEY(organismid) REFERENCES organisms(organismid),
        FOREIGN KEY(organism) REFERENCES organisms(organism),
-       FOREIGN KEY(organismabbrev) REFERENCES organisms(organismabbrev)
        );
 
 /* Note - distance is number of genes */
@@ -97,18 +95,24 @@ CREATE TABLE neighborhoods(
 .import db/blastnres_cat blastn_results
 .import db/neighborhoods neighborhoods
 
+/* Removing these might be slower on large data sets. Needs testing.
+
+It was ~10% faster on a set of 4 genomes.
+
 CREATE INDEX blastqueryidx ON blastresults (querygene);
 CREATE INDEX blasttargetidx ON blastresults (targetgene);
 
 CREATE INDEX blastnqueryidx ON blastn_results (querygene);
 CREATE INDEX blastntargetidx ON blastn_results (targetgene);
 
+*/
+
+CREATE INDEX blastidx ON blastresults(querygene, targetgene);
+CREATE INDEX blastnidx ON blastn_results(querygene, targetgene);
+
 CREATE INDEX neighborhoodcenteridx ON neighborhoods (centergene);
 
 /* Add self-bit score to blastp results table */
-/*CREATE TABLE blast_self AS
-       SELECT * FROM blastresults 
-       WHERE blastresults.querygene = blastresults.targetgene; */
 
 CREATE TABLE blast_self AS 
        SELECT * FROM blastresults 
@@ -122,9 +126,6 @@ CREATE TABLE blast_self AS
 	     AND blastresults.targetgene = s.targetgene
 	     AND blastresults.querygene = blastresults.targetgene;
 
-/*CREATE TABLE blastn_self AS
-       SELECT * FROM blastn_results 
-       WHERE blastn_results.querygene = blastn_results.targetgene; */
 
 CREATE TABLE blastn_self AS 
        SELECT * FROM blastn_results 
@@ -139,8 +140,10 @@ CREATE TABLE blastn_self AS
 	     AND blastn_results.querygene = blastn_results.targetgene
 	     AND s.bitscore = blastn_results.bitscore;
 
-CREATE INDEX selfqueryidx ON blast_self(querygene);
-CREATE INDEX blastnselfqueryidx ON blastn_self(querygene);
+/* We need to index the self-bit scores.
+   These SHOULD be unique ... */
+CREATE UNIQUE INDEX selfqueryidx ON blast_self(querygene);
+CREATE UNIQUE INDEX blastnselfqueryidx ON blastn_self(querygene);
 
 CREATE VIEW s AS
        SELECT blastresults.*, blast_self.bitscore AS queryselfbit
@@ -164,6 +167,8 @@ CREATE TABLE blastnres_selfbit AS
 CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);
 CREATE INDEX selfbittargetidx ON blastres_selfbit(targetgene);
 
+CREATE INDEX selfbitquerytarget ON blastres_selfbit(querygene, targetgene);
+
 CREATE INDEX blastn_selfbitqueryidx ON blastnres_selfbit(querygene);
 CREATE INDEX blastn_selfbittargetidx ON blastnres_selfbit(targetgene);
 
@@ -182,7 +187,7 @@ CREATE TABLE processed AS
        INNER JOIN geneinfo ON geneinfo.organismid = organisms.organismid
        INNER JOIN rawdata ON geneinfo.geneid = rawdata.geneid;
 
-CREATE INDEX processedgeneids ON processed(geneid);
+CREATE UNIQUE INDEX processedgeneids ON processed(geneid);
 CREATE INDEX processedcontigs ON processed(contig_mod);
 CREATE INDEX processedorganismids ON processed(organismid);
 
@@ -197,3 +202,6 @@ but after it's done it can save hundreds of gigabytes.
 
 The alternative is to do a PRAGMA auto_vacuum FULL; ... or just to keep the tables around. */
 VACUUM;
+
+/* This should make some queries faster and doesn't take much time. */
+ANALYZE;

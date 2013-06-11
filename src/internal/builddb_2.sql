@@ -15,9 +15,11 @@ CREATE TABLE clusters(
 .separator "\t"
 .import db/flat_clusters clusters
 
-CREATE INDEX clusteridx ON clusters (geneid);
+CREATE UNIQUE INDEX clusteridx ON clusters (geneid);
 CREATE INDEX clusterrunidx ON clusters (runid) ;
 CREATE INDEX clusterididx ON clusters (clusterid);
+
+CREATE INDEX clusteridclusterrunidx ON clusters(runid, clusterid);
 
 /* Clusters adjacent to what organism they belong to */
 CREATE VIEW clusterorgs AS
@@ -27,3 +29,5 @@ CREATE VIEW clusterorgs AS
 
 /* Cluster IDs and what organisms are part of those cluster IDs */
 CREATE VIEW distinctorgs AS SELECT DISTINCT clusterorgs.runid, clusterorgs.organism FROM clusterorgs;
+
+ANALYZE;

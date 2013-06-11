@@ -34,7 +34,9 @@ CREATE TABLE rpsblast_results(
 .import db/cddid.tbl external_clusters
 .import db/external_CDD rpsblast_results
 
-CREATE INDEX externalclusterididx ON external_clusters (external_clusterid);
-CREATE INDEX externalclustercddid ON external_clusters (cdd_id);
+CREATE UNIQUE INDEX externalclusterididx ON external_clusters (external_clusterid);
+CREATE UNIQUE INDEX externalclustercddid ON external_clusters (cdd_id);
 CREATE INDEX rpsblastquery ON rpsblast_results (querygene);
 CREATE INDEX rpsblastcddidx ON rpsblast_results (cdd_id);
+
+ANALYZE;

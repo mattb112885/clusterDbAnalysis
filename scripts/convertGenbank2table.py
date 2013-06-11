@@ -372,12 +372,12 @@ genomes are really different.""")
     # add ITEP IDs or not.
     if options.add_itepids:
         tbl = [ line.strip("\r\n").split("\t") for line in open(geneout_filename, "r") ]
-        multi_gbk_object = SeqIO.parse(ptr, "genbank")
+        multi_gbk_object = SeqIO.parse(options.genbank_file, "genbank")
         # Add the ITEP IDs and truncate contig names if necessary
         gb_seqrec_id = addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=True)
         # Save the resulting file
         fid = open(genbank_filename, "w")
-        SeqIO.write(gb_seqrec_multi, fid, "genbank")
+        SeqIO.write(gb_seqrec_id, fid, "genbank")
         fid.close()
         pass
     else:

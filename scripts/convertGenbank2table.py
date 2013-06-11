@@ -383,6 +383,7 @@ genomes are really different.""")
     else:
         shutil.copyfile(options.genbank_file, genbank_filename)
         pass
+    sys.stderr.write("Genbank file saved as %s\n" % genbank_filename)
 
 
     # IMPORTANT: Append, don't use "w" here (we don't want to blow away all the different organism entries...)

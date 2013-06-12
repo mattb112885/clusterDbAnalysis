@@ -228,6 +228,30 @@ def organismNameToId(orgname, cur, issanitized = False):
     else:
         raise ValueError("ERROR: Organism name %s not found in database")
 
+def organismIdToName(orgid, cur, issanitized=False):
+    q = "SELECT organism, organismid FROM organisms;"
+    cur.execute(q)
+    idToOrg = {}
+    for res in cur:
+        if issanitized:
+            idToOrg[sanitizeString(res[1], False)] = res[0]
+        else:
+            idToOrg[res[1]] = res[0]
+    if orgid in idToOrg:
+        return idToOrg[orgid]
+    else:
+        raise ValueError("ERROR: Organism ID %s not found in database")
+
+'''
+# Test the organism name finder
+from FileLocator import *
+import sqlite3
+con = sqlite3.connect(locateDatabase())
+cur = con.cursor()
+print organismIdToName("192952.1", cur)
+print organismIdToName("192952_1", cur, issanitized=True)
+print organismIdToName("7809798710412412.89713", cur)
+'''
 '''
 # Test the organism ID finder
 from FileLocator import *

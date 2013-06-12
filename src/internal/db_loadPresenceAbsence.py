@@ -12,10 +12,16 @@ import sqlite3
 import optparse
 from FileLocator import *
 from sanitizeString import *
+from ClusterFuncs import *
 
 # This is only for self-documenting purposes - this function takes no arguments.                                                                                                                              
 usage="%prog > presence_absence_pegid_table"
-description="Generates a presence/absence table for every cluster in every run in the database and puts the peg IDs for any genes in the cluster in the appropriate row or NONE for absent genes. Takes no input arguments and exports the table to stdout. NOTE: Any organisms not included in a cluster run will be given NONE's for all clusters in that run - be aware of this!"
+description="""Generates a presence/absence table for every cluster in every run 
+in the database and puts the peg IDs for any genes in the cluster in the appropriate 
+row or NONE for absent genes. Takes no input arguments and exports the table to 
+stdout. NOTE: Any organisms not included in a cluster run will be given NONE's for 
+all clusters in that run - be aware of this! Also... if user-specified data are
+included, we include them in the presence-absence table by joining the clusters."""
 parser = optparse.OptionParser(usage=usage, description=description)
 (options,args) = parser.parse_args()
 
@@ -29,7 +35,6 @@ for rec in cur:
 
 # [runid, clusterid] --> {organism --> genelist}
 rc2go = {}
-rc2genelist = {}
 cur.execute("SELECT * from clusterorgs;")
 for rec in cur:
     rectup = (rec[0], rec[1])
@@ -43,16 +48,28 @@ for rec in cur:
         orgdict = {}
         orgdict[rec[3]] = [ rec[2] ]
         rc2go[rectup] = orgdict
-    if rectup in rc2genelist:
-        rc2genelist[rectup].append(rec[2])
-    else:
-        rc2genelist[rectup] = [ rec[2] ]
 
-# gene --> annotation
-cur.execute("SELECT geneid, annotation FROM processed;")
-gene2annote = {}
-for rec in cur:
-    gene2annote[rec[0]] = rec[1]
+# Attempt to add user-added genes to this list
+# We can only do that if the cluster and run are defined for the organism
+# in question.
+try:
+    cur.execute("SELECT runid, clusterid, organismid, user_geneid FROM user_genes WHERE runid IS NOT NULL and clusterid IS NOT NULL;")
+    for res in cur:
+        runid = res[0]
+        clusterid = res[1]
+        organismname = organismIdToName(res[2], cur, issanitized=False)
+        geneid = res[3]
+        rectup = (runid, clusterid)
+        if rectup not in rc2go:
+            sys.stderr.write("WARNING: User-specified cluster-run pair (%s, %s) not found in the database\n" %(runid, clusterid))
+            continue
+        if organismname in rc2go[rectup]:
+            rc2go[rectup][organismname].append(geneid)
+        else:
+            rc2go[rectup][organismname] = [ geneid ]
+except sqlite3.OperationalError:
+    sys.stderr.write("No user-specified genes are loaded in the database (if you have user-specified genes use main5.sh to load them\n")
+    pass
 
 # Generate title row
 titleRow = "\t".join(orgList)
@@ -65,10 +82,7 @@ for rectup in rc2go:
     myclusterid = rectup[1]
     myorgdict = rc2go[rectup]
     # Get most common annotation
-    annotelist = []
-    for gene in rc2genelist[rectup]:
-        annotelist.append(gene2annote[gene])
-    myannote = max(set(annotelist), key=annotelist.count)
+    myannote = findRepresentativeAnnotation(myrunid, myclusterid, cur)
     # Get the organism peg list
     myorgstr = ""
     for org in orgList:
@@ -80,7 +94,7 @@ for rectup in rc2go:
     myline = "%s\t%s\t%s\t%s" %(myrunid, myclusterid, myannote, myorgstr)
     mytable.append(myline)
 
-# Generate MySQL table with this info in it.
+# Generate SQL table with this info in it.
 cur.execute("DROP TABLE IF EXISTS presenceabsence;")
 
 cmd = """CREATE TABLE presenceabsence (
@@ -103,7 +117,7 @@ for ln in mytable:
     cmd = cmd.rstrip(",")
     cmd += ");"
     cur.execute(cmd, tuple(sp))
-# Needed since we added a table...
+# We have to commit because we added a table.
 con.commit()
 con.close()
     

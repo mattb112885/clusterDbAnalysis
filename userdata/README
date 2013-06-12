@@ -1,0 +1,35 @@
+Thsi folder is to contain user-inputted data that is imported in the database and optionally
+used for certain analyses.
+
+Currently supported files:
+
+* user_genes
+
+Specs are listed below.
+
+
+## user_genes
+
+A tab-delimited table with the following columns. Leave the column empty if the data is unavailable.
+
+user_geneid TEXT PRIMARY KEY : User-specified gene ID (must be unique and distinct from any of those in the
+                               genes in ITEP)
+organismid TEXT NOT NULL     : Organism ID (must match an organism ID in ITEP)
+genetype TEXT NOT NULL       : Type of gene (something to identify to you where it came from)
+contigid TEXT                : Contig ID (NULL or matching a contig in ITEP)
+startloc INTEGER             : Beginning of the HSP (this might have different meaning for different type)
+stoploc INTEGER              : Stop of the HSP (this might have different meaning for different type)
+runid TEXT                   : Run ID for a cluster you believe the gene belongs to
+clusterid INTEGER            : Cluster ID for a cluster you believe the gene belongs to
+seq TEXT                     : Sequence of the user-defined gene (if available)
+annotation TEXT              : Putative function
+
+Any of the fields can be undefined.
+
+Currently the following uses will be supported:
+
+- Genes without sequences can still be used for presence/absence analysis (optionally)
+- User-specified genes can be searched by ID, type or function and some of the existing tools
+  (e.g. annoteSeq2Fasta.py) can be used with the resulting table.
+
+More support will likely be added in the future.

@@ -229,6 +229,11 @@ def organismNameToId(orgname, cur, issanitized = False):
         raise ValueError("ERROR: Organism name %s not found in database")
 
 def organismIdToName(orgid, cur, issanitized=False):
+    '''
+    Convert an organism ID (in format \d+\.\d+) into the name of the organism.
+
+    If issanitized is True we expect the format \d+_\d+ instead.
+    '''
     q = "SELECT organism, organismid FROM organisms;"
     cur.execute(q)
     idToOrg = {}
@@ -241,6 +246,53 @@ def organismIdToName(orgid, cur, issanitized=False):
         return idToOrg[orgid]
     else:
         raise ValueError("ERROR: Organism ID %s not found in database")
+
+def getContigIds(cur, orgid=None):
+    '''
+    Obtain a list of contig IDs and return a list of them.
+
+    By default, grabs ALL contigs.
+    If orgid isn't None, grabs contigs only for organism with id "orgid".
+    '''
+
+    # Note - I didn't use the contigs table here because
+    # the user might not have loaded up the contigs.
+    q = "SELECT DISTINCT contig_mod FROM processed"
+
+    if orgid is None:
+        cur.execute(q)
+    else:
+        cur.execute(q + " WHERE organismid = ?", (orgid,))
+
+    contig_ids = []
+    for res in cur:
+        contig_ids.append(str(res[0]))
+    return contig_ids
+
+def getContigSequence(cur, contig_list):
+    '''
+    Accepts as input a list of contig IDs (in ITEP format).
+
+    Returns dictionary from contig ID to sequence.
+    '''
+    q = "SELECT contig_mod, seq FROM contigs WHERE contig_mod = ?"
+    contig_dict = {}
+    for contig in contig_list:
+        cur.execute(q, (contig, ))
+        for res in cur:
+            contig_dict[res[0]] = res[1]
+
+    return contig_dict
+
+'''
+# Test the contig sequence ID and sequence getters
+from FileLocator import *
+import sqlite3
+con = sqlite3.connect(locateDatabase())
+cur = con.cursor()
+contigids = getContigIds(cur, orgid="192952.1")
+print getContigSequence(cur, contigids)
+'''
 
 '''
 # Test the organism name finder

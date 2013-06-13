@@ -291,7 +291,7 @@ def getContigSequence(cur, contig_list):
 
     return contig_dict
 
-
+'''
 # Test the contig sequence ID and sequence getters
 from FileLocator import *
 import sqlite3
@@ -301,6 +301,7 @@ contigids = getContigIds(cur, orgid="192952.1")
 contigids_2 = getContigIds(cur, orgname="Methanosarcina acetivorans C2A")
 print contigids_2
 #print getContigSequence(cur, contigids)
+'''
 
 '''
 # Test the organism name finder

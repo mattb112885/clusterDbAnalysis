@@ -247,21 +247,28 @@ def organismIdToName(orgid, cur, issanitized=False):
     else:
         raise ValueError("ERROR: Organism ID %s not found in database")
 
-def getContigIds(cur, orgid=None):
+def getContigIds(cur, orgid=None, orgname=None, issanitized=False):
     '''
     Obtain a list of contig IDs and return a list of them.
 
     By default, grabs ALL contigs.
     If orgid isn't None, grabs contigs only for organism with id "orgid".
+    If the organism's name isn't none, grabs contigs only for the specified organism.
     '''
+
+    if orgid is not None and orgname is not None:
+        raise IOError("Cannot specify both an organism ID and an organism name")
+
+    if orgname is not None:
+        orgid = organismNameToId(orgname, cur, issanitized=issanitized)
 
     # Note - I didn't use the contigs table here because
     # the user might not have loaded up the contigs.
     q = "SELECT DISTINCT contig_mod FROM processed"
 
-    if orgid is None:
+    if orgid is None and orgname is None:
         cur.execute(q)
-    else:
+    elif orgid is not None:
         cur.execute(q + " WHERE organismid = ?", (orgid,))
 
     contig_ids = []
@@ -284,15 +291,16 @@ def getContigSequence(cur, contig_list):
 
     return contig_dict
 
-'''
+
 # Test the contig sequence ID and sequence getters
 from FileLocator import *
 import sqlite3
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 contigids = getContigIds(cur, orgid="192952.1")
-print getContigSequence(cur, contigids)
-'''
+contigids_2 = getContigIds(cur, orgname="Methanosarcina acetivorans C2A")
+print contigids_2
+#print getContigSequence(cur, contigids)
 
 '''
 # Test the organism name finder

@@ -24,7 +24,7 @@ clusterid INTEGER            : Cluster ID for a cluster you believe the gene bel
 seq TEXT                     : Sequence of the user-defined gene (if available)
 annotation TEXT              : Putative function
 
-Any of the fields can be undefined.
+Any of the fields can be undefined except user_geneid, organismid and genetype
 
 Currently the following uses will be supported:
 

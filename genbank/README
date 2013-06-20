@@ -1,14 +1,31 @@
 ### GENBANK Readme file
-#
 
-This folder is intended to contain Genbank files. We now require genbank
+########
+# NOTE #
+########
+
+This folder is intended to contain Genbank files. We require genbank
 files for every organism because they are needed to automatically generate
-intermediates and also for TBLASTN and other whole-genome analyses.
+intermediates and also for TBLASTN and other whole-genome analyses. They are also
+a common exchange format that is readily available from many sources.
 
-To put the whole-genome info into the database, first
-put genbank files in this folder and then run ./main3.sh from the root folder
-of this distribution. This function parses out the necessary info and puts
-the genome nucleotide sequences into the database.
+The convertGenbank2Table.py function automatically takes care of formatting
+and naming requirements for Genbank files (which are listed below for your reference).
+
+**To import a Genbank file into ITEP do the following **
+
+1: Put the genbank file somewhere OTHER THAN THIS FOLDER
+2: Run convertGenbank2Table.py (see help for that function for syntax help).
+
+convertGenbank2Table will generate a "raw" file (see raw/README), which is a tab-delimited
+file, and a Genbank file. A copy of your Genbank file will be placed here with the correct
+name for the programs to work. If you ask convertGenbank2Table.py to add ITEP IDs to your 
+genbank file, the Genbank file placed here will have the ITEP IDs in it.
+
+
+#######################################################################
+
+FOR REFERENCE (you don't need to worry about this unless something goes wrong)
 
 #############################
 #  FILE NAMING REQUIREMENTS #

@@ -70,7 +70,7 @@ CREATE TABLE geneinfo(
        "nuclen" INTEGER,
        FOREIGN KEY(geneid) REFERENCES rawdata(geneid),
        FOREIGN KEY(organismid) REFERENCES organisms(organismid),
-       FOREIGN KEY(organism) REFERENCES organisms(organism),
+       FOREIGN KEY(organism) REFERENCES organisms(organism)
        );
 
 /* Note - distance is number of genes */

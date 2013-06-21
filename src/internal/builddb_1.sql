@@ -190,6 +190,7 @@ CREATE TABLE processed AS
 CREATE UNIQUE INDEX processedgeneids ON processed(geneid);
 CREATE INDEX processedcontigs ON processed(contig_mod);
 CREATE INDEX processedorganismids ON processed(organismid);
+CREATE INDEX processedorganisms ON processec(organisms);
 
 /* These tables are no longer needed. Drop them to reduce the memory footprint and reduce confusion. */
 DROP TABLE blastresults;

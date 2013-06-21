@@ -14,6 +14,9 @@ fi
 
 NCORES=$1
 
+# Make sure we are pointing at the right version of the repo
+source SourceMe.sh
+
 mkdir rpsblast_res 2> /dev/null
 mkdir cd_db 2> /dev/null
 

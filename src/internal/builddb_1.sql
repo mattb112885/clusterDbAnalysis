@@ -167,7 +167,9 @@ CREATE TABLE blastnres_selfbit AS
 CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);
 CREATE INDEX selfbittargetidx ON blastres_selfbit(targetgene);
 
+/* Riddle me this... adding this makes the queries for MCL clustering a lot SLOWER...
 CREATE INDEX selfbitquerytarget ON blastres_selfbit(querygene, targetgene);
+*/
 
 CREATE INDEX blastn_selfbitqueryidx ON blastnres_selfbit(querygene);
 CREATE INDEX blastn_selfbittargetidx ON blastnres_selfbit(targetgene);

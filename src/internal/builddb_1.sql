@@ -167,7 +167,9 @@ CREATE TABLE blastnres_selfbit AS
 CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);
 CREATE INDEX selfbittargetidx ON blastres_selfbit(targetgene);
 
+/* This caused performance issues with MCL... why? I have no idea.
 CREATE INDEX selfbitquerytarget ON blastres_selfbit(querygene, targetgene);
+*/
 
 CREATE INDEX blastn_selfbitqueryidx ON blastnres_selfbit(querygene);
 CREATE INDEX blastn_selfbittargetidx ON blastnres_selfbit(targetgene);

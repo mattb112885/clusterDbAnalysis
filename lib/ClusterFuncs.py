@@ -226,7 +226,7 @@ def organismNameToId(orgname, cur, issanitized = False):
     if orgname in orgToId:
         return orgToId[orgname]
     else:
-        raise ValueError("ERROR: Organism name %s not found in database")
+        raise ValueError("ERROR: Organism name %s not found in database" %(orgname))
 
 def organismIdToName(orgid, cur, issanitized=False):
     '''

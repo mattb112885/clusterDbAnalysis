@@ -57,7 +57,10 @@ try:
     for res in cur:
         runid = res[0]
         clusterid = res[1]
-        organismname = organismIdToName(res[2], cur, issanitized=False)
+        # We have to do this to avoid overwriting the cursor we are looping over.
+        cur2 = con.cursor()
+        organismname = organismIdToName(res[2], cur2, issanitized=False)
+        cur2.close()
         geneid = res[3]
         rectup = (runid, clusterid)
         if rectup not in rc2go:
@@ -70,6 +73,9 @@ try:
 except sqlite3.OperationalError:
     sys.stderr.write("No user-specified genes are loaded in the database (if you have user-specified genes use main5.sh to load them\n")
     pass
+except:
+    sys.stderr.write(str(sys.exc_info()))
+    raise
 
 # Generate title row
 titleRow = "\t".join(orgList)

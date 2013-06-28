@@ -58,7 +58,7 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
         # Truncating at 16 characters could cause the same contig ID to appear mutliple times in the same file, which is BAD.
         # Lets check for such nonsense...
         if multi_gbk_object[ii].name in all_contigs:
-            raise IOError("ERROR: Contig name %s (before or after truncation) would have appeared multiple times in the same genbank file. This is bad!")
+            raise IOError("ERROR: Contig name %s (before or after truncation) would have appeared multiple times in the same genbank file. This is bad!" %(multi_gbk_object[ii].name))
         else:
             all_contigs.add(multi_gbk_object[ii].name)
             pass

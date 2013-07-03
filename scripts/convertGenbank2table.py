@@ -127,8 +127,8 @@ def info_from_feature(feature):
     except TypeError:
         # Old versions of Biopython use an access function instead of casting ExactLocation as an int.
         # This syntax is marked as obsolete and will probably go away in a future version of Biopython.
-        info["start"] = feature.location.start.position() + 1
-        info["stop"] = feature.location.end.position()
+        info["start"] = feature.location.start.position + 1
+        info["stop"] = feature.location.end.position
     except:
         raise
 

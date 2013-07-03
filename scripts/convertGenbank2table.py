@@ -119,8 +119,17 @@ def info_from_feature(feature):
     # Thus we only add 1 to the start.
     # I verified that this gives the correct answer relative to what is in the PubSEED
     # for some + and - strand genes in E. coli.
-    info["start"] = int(feature.location.start) + 1
-    info["stop"] = int(feature.location.end)
+    try:
+        info["start"] = int(feature.location.start) + 1
+        info["stop"] = int(feature.location.end)
+    except TypeError:
+        # Old versions of Biopython use an access function instead of casting ExactLocation as an int.
+        # This syntax is marked as obsolete and will probably go away in a future version of Biopython.
+        info["start"] = feature.location.start.position() + 1
+        info["stop"] = feature.location.end.position()
+    except:
+        raise
+
     if feature.strand == +1:
         info["strand"] = str("+")
     if feature.strand == -1:
@@ -276,6 +285,10 @@ if __name__ == '__main__':
     if options.genbank_file is None:
         sys.stderr.write("ERROR: Genbank_file (-g) is a required argument\n")
         exit(2)
+
+    # Check the version of Biopython. This script has been backported to work with some older versions but other scripts might have issues.
+    if Bio.__version__ < 1.61:
+        sys.stderr.write("WARNING: Your Biopython distribution (%1.2f) may be too old to work with some ITEP scripts (1.61 or newer recommended)\n")
 
     # We have to truncate contig IDs if we want to add ITEP IDs to the genbank file (due to biopython limits)
     if options.add_itepids:

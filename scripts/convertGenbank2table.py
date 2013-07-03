@@ -13,6 +13,8 @@ from Bio.Alphabet import generic_protein
 from FileLocator import *
 from GenbankHandler import *
 
+RECOMMENDED_BIOPYTHON_VERSION = 1.61
+
 '''
 Produce an ITEP-compatible tab-delimited file ("raw file") from a Genbank file.
 
@@ -287,8 +289,8 @@ if __name__ == '__main__':
         exit(2)
 
     # Check the version of Biopython. This script has been backported to work with some older versions but other scripts might have issues.
-    if Bio.__version__ < 1.61:
-        sys.stderr.write("WARNING: Your Biopython distribution (%1.2f) may be too old to work with some ITEP scripts (1.61 or newer recommended)\n")
+    if float(Bio.__version__) < RECOMMENDED_BIOPYTHON_VERSION:
+        sys.stderr.write("WARNING: Your Biopython distribution (%s) may be too old to work with some ITEP scripts (1.61 or newer recommended)\n" %(Bio.__version__))
 
     # We have to truncate contig IDs if we want to add ITEP IDs to the genbank file (due to biopython limits)
     if options.add_itepids:

@@ -42,10 +42,14 @@ def addCoreDataToTree(ete_tree, runid, sanitized = False, any_org = False, all_o
     return ete_tree, nodeNumToClusterList
 
 def getClusterOrgsByRun(runid):
-    '''I separated this call from the findGenesByOrganismList below because we often need to call the latter
+    '''
+    Get a list of cluster IDs and organisms found in a cluster run.
+
+    I separated this call from the findGenesByOrganismList below because we often need to call the latter
     many times and this one is the same for all of them (if the run ID is the same).
 
-    The return object is a list of (runid, clusterid, organism) tuples sorted by run ID then by cluster ID.'''
+    The return object is a list of (runid, clusterid, organism) tuples sorted by cluster ID and then by organism.
+    '''
     # From the sqlite database, download the list of clusterorgs
 
     con = sqlite3.connect(locateDatabase())
@@ -67,7 +71,7 @@ def getClusterOrgsByRun(runid):
 
 def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
     '''Identify clusters that have a specific set of properties with respect to a given set of
-    organisms. The valid properties are ANY, ALL, ONLY, and NONE.
+    organisms (orglist). The valid properties are ANY, ALL, ONLY, and NONE.
 
     Specifiy sanitized=TRUE if the organism names passed here are sanitized (spaces, periods, etc. replaced by
     underscores - see sanitizeString.py for the standard way to sanitize names).
@@ -148,7 +152,7 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
     goodClusters = []
     for l in cl:
         # Basically we slurp up all cluster,org pairs corresponding to a specific
-        # cluster and then once we have all of them we check if they are unique, have all of the organisms of interest,
+        # cluster and then once we have all of them we check if they are unique WITHIN the ingroup (orgset), have all of the organisms of interest,
         # etc...
         if l[1] != previd:
             if previd != -1:
@@ -176,8 +180,8 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
             currentorgs.clear()
             previd = l[1]
             prevrun = l[0]
-
-        if l[2] in currentorgs:
+        # Bugfix 07-05-13 - unique only has to apply to the ingroup (orgset)
+        if l[2] in currentorgs and l[2] in orgset:
             uniqok = False
         currentorgs.add(l[2])
 

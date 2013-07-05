@@ -5,6 +5,7 @@
 import fileinput, optparse
 import os, sys, csv, getpass, socket, shutil, re
 
+import Bio
 from Bio import Entrez, SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -280,7 +281,7 @@ if __name__ == '__main__':
                       action="store_true", dest="replace", default=False)
     parser.add_option("-v", "--version_number", help="The second number in the \d+\.\d+ format of the organism ID - use this to distinguish between multiple genbank files with the same taxID (D:88888)",
                       action="store", type="int", dest="version_number", default=88888)
-    parser.add_option("-i", "--add_itepids", help="Specify this flag to add ITEP Ids to your genbank file (note - this option will cause contig IDs to be truncated to 16 characters and will fail if the resulting truncation makes your contig names non-unique)",
+    parser.add_option("-i", "--add_itepids", help="Specify this flag to add ITEP Ids to your genbank file (note - this option will cause contig IDs to be replaced with IDs less than 16 characters)",
                       action="store_true", dest="add_itepids", default=False)
     (options, args) = parser.parse_args()
     
@@ -389,7 +390,7 @@ genomes are really different.""")
         tbl = [ line.strip("\r\n").split("\t") for line in open(geneout_filename, "r") ]
         multi_gbk_object = SeqIO.parse(options.genbank_file, "genbank")
         # Add the ITEP IDs and truncate contig names if necessary
-        gb_seqrec_id = addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=True)
+        gb_seqrec_id = addItepGeneIdsToGenbank(multi_gbk_object, tbl, replaceContigIds=True)
         # Save the resulting file
         fid = open(genbank_filename, "w")
         SeqIO.write(gb_seqrec_id, fid, "genbank")

@@ -8,7 +8,7 @@ for increased compatibility between ITEP and other tools.
 
 import sys
 
-def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
+def addItepGeneIdsToGenbank(multi_gbk_object, tbl, replaceContigIds=False):
     '''
     Given a RAW table (list of tuples) and a genbank object,
     attempt to match up every object in the RAW table with every
@@ -42,30 +42,27 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=False):
     # Stop location
     # DNA sequence (due to possible differences in translation)
     # If these all match with a given element of the table then its good.
-    all_contigs = set()
     for ii in range(len(multi_gbk_object)):
         # If we have to, truncate the contig names so that biopython can actually produce some output.
         # However, if the user doesn't tell us to truncate them and they would have to, throw an error instead
         # to warn the user of the problem.
-        if len(multi_gbk_object[ii].name) > 16:
-            if truncateContigIds:
-                sys.stderr.write("WARNING: Truncated contig ID %s to %s (16 characters)\n" %(multi_gbk_object[ii].name, multi_gbk_object[ii].name[:16]))
-                multi_gbk_object[ii].name = multi_gbk_object[ii].name[:16]
-            else:
-                raise IOError("ERROR: Contig ID %s is too long - writing it back out with biopython will fail" %(multi_gbk_object[ii].name))
-            pass
-
-        # Truncating at 16 characters could cause the same contig ID to appear mutliple times in the same file, which is BAD.
-        # Lets check for such nonsense...
-        if multi_gbk_object[ii].name in all_contigs:
-            raise IOError("ERROR: Contig name %s (before or after truncation) would have appeared multiple times in the same genbank file. This is bad!" %(multi_gbk_object[ii].name))
-        else:
-            all_contigs.add(multi_gbk_object[ii].name)
-            pass
+        original_name = multi_gbk_object[ii].name
+        if replaceContigIds:
+            new_name = "REP_CTG%08d" %(ii)
+            sys.stderr.write("WARNING: Replaced contig ID %s with %s (original ID is saved as a db_xref in the source feature)\n" %(original_name, new_name))
+            multi_gbk_object[ii].name = new_name
+        elif len(multi_gbk_object[ii].name) > 16: 
+            raise IOError("ERROR: Contig ID %s is too long - writing it back out with biopython will fail (specify replacing IDs to circumvent this)" %(multi_gbk_object[ii].name))
 
         # Add ITEP IDs to the genbank files.
         for jj in range(len(multi_gbk_object[ii].features)):
             # We don't want to modify things that aren't coding sequences...
+            if multi_gbk_object[ii].features[jj].type == "source":
+                if "db_xref" in multi_gbk_object[ii].features[jj].qualifiers:
+                    multi_gbk_object[ii].features[jj].qualifiers["db_xref"].append("originalContig:%s" %(original_name))
+                else:
+                    multi_gbk_object[ii].features[jj].qualifiers["db_xref"] = [ "originalContig:%s" %(original_name) ]
+
             if multi_gbk_object[ii].features[jj].type != "CDS":
                 continue
             record = multi_gbk_object[ii].features[jj].extract(multi_gbk_object[ii])

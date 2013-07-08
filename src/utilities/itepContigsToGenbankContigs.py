@@ -88,8 +88,7 @@ con.close()
 # This won't catch everything if there are redundatn names and so on but it is something at least...
 for link in putative_links:
     if link not in valid_contigs:
-        sys.stderr.write("ERROR: ID mismatch between what is in genbank file and what is expected to be in ITEP -  ID %s was not found in ITEP but was generated from the genbank file\n" %(link))
-        exit(2)
+        sys.stderr.write("WARNING: ID mismatch between what is in genbank file and what is expected to be in ITEP -  ID %s was not found in ITEP but was generated from the genbank file\n" %(link))
 
 for link in putative_links:
     print "%s\t%s" %(link, putative_links[link])

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import optparse
+import os
+import random
 from Bio import SeqIO
 from GenbankHandler import *
 
@@ -16,7 +18,19 @@ The original ID will be saved as a db_xref.
 (options, args) = parser.parse_args()
 
 gbk_obj = SeqIO.parse(open(args[0], "r"), "genbank")
-tbl_obj = [ line.strip("\r\n").split("\t") for line in open(args[1], "r") ]
-modified_gbk = addItepGeneIdsToGenbank(gbk_obj, tbl_obj, replaceContigIds=options.truncateContigIds)
 
-SeqIO.write(modified_gbk, args[2], "genbank")
+tbl_obj = [ line.strip("\r\n").split("\t") for line in open(args[1], "r") ]
+modified_gbk, newToOriginalName = addItepGeneIdsToGenbank(gbk_obj, tbl_obj)
+
+# Make a temporary file containing replaced IDs
+fname = str(random.randint(0,1E10))
+tmp_fid = open(fname, "w")
+SeqIO.write(modified_gbk, tmp_fid, "genbank")
+tmp_fid.close()
+
+tmp_fid = open(fname, "r")
+output_fid = open(args[2], "w")
+replaceTemporaryIdsWithOriginalIds(tmp_fid, newToOriginalName, output_fid)
+output_fid.close()
+tmp_fid.close()
+os.remove(fname)

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Usage: ./main5.sh
 #
@@ -10,6 +10,9 @@ if [ ! -f userdata/user_genes ]; then
     echo ""
     exit 1;
 fi
+
+# Make sure we are pointing at the right version of the repo
+source SourceMe.sh
 
 # Load user_genes into the database
 echo "Loading user gene data..."

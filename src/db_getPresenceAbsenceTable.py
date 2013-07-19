@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import re
 import os
 import sys
 import sqlite3
@@ -19,6 +20,12 @@ parser.add_option("-r", "--runid", help="Only print results for the specified ru
 parser.add_option("-c", "--clusterid", help="Only print results for the specified cluster ID (D: Prints the table for all of them)", action="store", type="int", dest="clusterid", default=None)
 parser.add_option("-t", "--treeorder", help="Given a newick file with the SAME organism names as the presence\absence table, orders the columns to conform with the tree (D: no ordering)",
                   action = "store", type="str", dest="treeorder", default=None)
+parser.add_option("-u", "--useronly", help="""WARNING: HACKY and Requires main5 to have been run. 
+Only return those genes that were provided by the user (it is assumed that only ITEP genes match fig|\d+\.\d+\.peg\.\d+).""",
+                  action = "store_true", dest="useronly", default=False)
+parser.add_option("-i", "--iteponly", help="""WARNING: HACKY and Requires main5 to have been run. 
+Only return genes originating from ITEP (it is assumed that only ITEP genes match fig|\d+\.\d+\.peg\.\d+).""",
+                  action = "store_true", dest="iteponly", default=False)
 (options,args) = parser.parse_args()
 
 def treeorder(treefile):
@@ -38,6 +45,10 @@ if options.number and options.binary:
 
 if options.number and options.binary:
     sys.stderr.write("ERROR: Cannot specify both -r and -c (supply rin and clusterid to -c )\n")
+    exit(2)
+
+if options.iteponly and options.useronly:
+    sys.stderr.write("ERROR: Cannot ask for both only itep and only user-specified genes\n")
     exit(2)
 
 con = sqlite3.connect(locateDatabase())
@@ -84,8 +95,48 @@ else:
 
 istitle = True
 titles = []
+itep_finder = re.compile("fig\|\d+\.\d+\.peg\.\d+")
 for rec in cur:
     lst = [ str(s) for s in rec ]
+    # HACK ALERT!
+    # We pull things out of the list that do not match our expected ITEP format
+    if options.useronly:
+        for ii in range(len(lst)):
+            # Skip info columns and don't replace NONEs
+            if ii < 3 or lst[ii] == "NONE":
+                continue
+            spl = lst[ii].split(";")
+            keep = []
+            for s in spl:
+                if itep_finder.match(s) is None:
+                    keep.append(s)
+                pass
+            if len(keep) == 0:
+                lst[ii] = "NONE"
+            else:
+                lst[ii] = ";".join(keep)
+                pass
+            pass
+        pass
+    # Might as well add this too... pull things out of the list that DO match our ITEP format
+    elif options.iteponly:
+        for ii in range(len(lst)):
+            if ii < 3 or lst[ii] == "NONE":
+                continue
+            spl = lst[ii].split(";")
+            keep = []
+            for s in spl:
+                if itep_finder.match(s) is not None:
+                    keep.append(s)
+                pass
+            if len(keep) == 0:
+                lst[ii] = "NONE"
+            else:
+                lst[ii] = ";".join(keep)
+                pass
+            pass
+        pass
+
     for ii in range(len(lst)):
         if ii < 3:
             continue

@@ -29,6 +29,9 @@ if [ $# -ge 3 ]; then
     BLASTN_EVALUE="$3";
 fi
 
+# Make sure we are pointing at the correct folder for organisms, groups, etc
+source SourceMe.sh
+
 # Note - for now the mcl parameters are located in the function
 # src/specificOrganismClusterDriver.py
 

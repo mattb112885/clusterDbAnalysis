@@ -4,6 +4,9 @@
 # with names containing the organism ID in them,
 # tmport the contigs into the sql database
 
+# Make sure we are pointing at the correct version of the repo...
+source SourceMe.sh
+
 # Do a reset on the contig file so we don't keep adding the same genomes to the file over and over
 rm db/contigs 2> /dev/null;
 

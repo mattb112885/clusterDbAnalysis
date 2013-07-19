@@ -167,7 +167,11 @@ CREATE TABLE blastnres_selfbit AS
 CREATE INDEX selfbitqueryidx ON blastres_selfbit(querygene);
 CREATE INDEX selfbittargetidx ON blastres_selfbit(targetgene);
 
+<<<<<<< HEAD
 /* Riddle me this... adding this makes the queries for MCL clustering a lot SLOWER...
+=======
+/* This caused performance issues with MCL... why? I have no idea.
+>>>>>>> 436d7100ba22491409c34cd173e80b4ca0775164
 CREATE INDEX selfbitquerytarget ON blastres_selfbit(querygene, targetgene);
 */
 
@@ -192,6 +196,7 @@ CREATE TABLE processed AS
 CREATE UNIQUE INDEX processedgeneids ON processed(geneid);
 CREATE INDEX processedcontigs ON processed(contig_mod);
 CREATE INDEX processedorganismids ON processed(organismid);
+CREATE INDEX processedorganisms ON processed(organism);
 
 /* These tables are no longer needed. Drop them to reduce the memory footprint and reduce confusion. */
 DROP TABLE blastresults;

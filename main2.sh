@@ -19,6 +19,9 @@ SCOREMETHOD=$2;
 # MCL parameter -rcutoff
 RCUTOFF=$3;
 
+# Make sure we are pointing at the right version of the repo
+source SourceMe.sh
+
 ##########################
 
 # This is the second main function for database building.

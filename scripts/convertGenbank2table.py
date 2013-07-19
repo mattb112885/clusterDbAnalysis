@@ -5,6 +5,7 @@
 import fileinput, optparse
 import os, sys, csv, getpass, socket, shutil, re
 
+import Bio
 from Bio import Entrez, SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -12,6 +13,8 @@ from Bio.Alphabet import generic_protein
 
 from FileLocator import *
 from GenbankHandler import *
+
+RECOMMENDED_BIOPYTHON_VERSION = 1.61
 
 '''
 Produce an ITEP-compatible tab-delimited file ("raw file") from a Genbank file.
@@ -119,8 +122,17 @@ def info_from_feature(feature):
     # Thus we only add 1 to the start.
     # I verified that this gives the correct answer relative to what is in the PubSEED
     # for some + and - strand genes in E. coli.
-    info["start"] = int(feature.location.start) + 1
-    info["stop"] = int(feature.location.end)
+    try:
+        info["start"] = int(feature.location.start) + 1
+        info["stop"] = int(feature.location.end)
+    except TypeError:
+        # Old versions of Biopython use an access function instead of casting ExactLocation as an int.
+        # This syntax is marked as obsolete and will probably go away in a future version of Biopython.
+        info["start"] = feature.location.start.position + 1
+        info["stop"] = feature.location.end.position
+    except:
+        raise
+
     if feature.strand == +1:
         info["strand"] = str("+")
     if feature.strand == -1:
@@ -138,7 +150,7 @@ def info_from_record(record):
     #    info["Database cross-references"] = ";".join(record.dbxrefs)
     return info
 
-def genbank_extract(ptr, version_number, truncateContig=False):
+def genbank_extract(ptr, version_number):
     '''Extract data from a genbank file...returns some organism-specific data,
     a dictionary from gene ID to a list of aliases to that gene ID (including the
     original IDs from the genbank file), and the data needed to build the raw data
@@ -207,13 +219,7 @@ def genbank_extract(ptr, version_number, truncateContig=False):
                     pass
 
                 geneinfo["feature_id"] = geneid
-
-                if truncateContig and len(orginfo["id"]) > 16:
-                    geneinfo["contig_id"] = orginfo["id"][:16]
-                else:
-                    geneinfo["contig_id"] = orginfo["id"]
-                    pass
-
+                geneinfo["contig_id"] = orginfo["id"]
                 geneinfo["source_description"] = orginfo["gb_description"]
 
                 if "protein_id" in feature.qualifiers:
@@ -269,22 +275,18 @@ if __name__ == '__main__':
                       action="store_true", dest="replace", default=False)
     parser.add_option("-v", "--version_number", help="The second number in the \d+\.\d+ format of the organism ID - use this to distinguish between multiple genbank files with the same taxID (D:88888)",
                       action="store", type="int", dest="version_number", default=88888)
-    parser.add_option("-i", "--add_itepids", help="Specify this flag to add ITEP Ids to your genbank file (note - this option will cause contig IDs to be truncated to 16 characters and will fail if the resulting truncation makes your contig names non-unique)",
-                      action="store_true", dest="add_itepids", default=False)
     (options, args) = parser.parse_args()
     
     if options.genbank_file is None:
         sys.stderr.write("ERROR: Genbank_file (-g) is a required argument\n")
         exit(2)
 
-    # We have to truncate contig IDs if we want to add ITEP IDs to the genbank file (due to biopython limits)
-    if options.add_itepids:
-        truncateContig = True
-    else:
-        truncateContig = False
+    # Check the version of Biopython. This script has been backported to work with some older versions but other scripts might have issues.
+    if float(Bio.__version__) < RECOMMENDED_BIOPYTHON_VERSION:
+        sys.stderr.write("WARNING: Your Biopython distribution (%s) may be too old to work with some ITEP scripts (1.61 or newer recommended)\n" %(Bio.__version__))
 
     # Extract data from the Genbank file
-    orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number, truncateContig=truncateContig)
+    orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number)
 
     rootdir = locateRootDirectory()
     organism_id = str(orginfo["taxon"]) + "." + str(options.version_number)
@@ -368,23 +370,31 @@ genomes are really different.""")
     geneout_file.close()
     sys.stderr.write("Text file saved as %s\n" % geneout_filename)
 
-    # Now we need to write a new Genbank file. What we do here depends on if we decided to
-    # add ITEP IDs or not.
-    if options.add_itepids:
-        tbl = [ line.strip("\r\n").split("\t") for line in open(geneout_filename, "r") ]
-        multi_gbk_object = SeqIO.parse(options.genbank_file, "genbank")
-        # Add the ITEP IDs and truncate contig names if necessary
-        gb_seqrec_id = addItepGeneIdsToGenbank(multi_gbk_object, tbl, truncateContigIds=True)
-        # Save the resulting file
-        fid = open(genbank_filename, "w")
-        SeqIO.write(gb_seqrec_id, fid, "genbank")
-        fid.close()
-        pass
-    else:
-        shutil.copyfile(options.genbank_file, genbank_filename)
-        pass
-    sys.stderr.write("Genbank file saved as %s\n" % genbank_filename)
+    # Now we need to write a new Genbank file.
+    # We have to make a temporary one in order to work around biopython issues.
+    
+    tbl = [ line.strip("\r\n").split("\t") for line in open(geneout_filename, "r") ]
+    multi_gbk_object = SeqIO.parse(options.genbank_file, "genbank")
 
+    # Add the ITEP IDs - produces temporary IDs that we need to turn back into the originals
+    gb_seqrec_id, newToOriginalName = addItepGeneIdsToGenbank(multi_gbk_object, tbl)
+
+    # Save the resulting file with a temporary name
+    import random
+    tmp_fname = str(random.randint(0, 10)) + ".gbk"
+    tmp_fid = open(tmp_fname, "w")
+    SeqIO.write(gb_seqrec_id, tmp_fid, "genbank")
+    tmp_fid.close()
+
+    # Replace the temporary IDs with new IDs
+    tmp_fid = open(tmp_fname, "r")
+    fid = open(genbank_filename, "w")
+    replaceTemporaryIdsWithOriginalIds(tmp_fid, newToOriginalName, fid)
+    tmp_fid.close()
+    fid.close()
+    os.remove(tmp_fname)
+
+    sys.stderr.write("Genbank file saved as %s\n" % genbank_filename)
 
     # IMPORTANT: Append, don't use "w" here (we don't want to blow away all the different organism entries...)
     alias_file = open(alias_filename, "a+")

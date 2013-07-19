@@ -15,7 +15,7 @@ CREATE TABLE clusters(
 .separator "\t"
 .import db/flat_clusters clusters
 
-CREATE UNIQUE INDEX clusteridx ON clusters (geneid);
+CREATE INDEX clusteridx ON clusters (geneid);
 CREATE INDEX clusterrunidx ON clusters (runid) ;
 CREATE INDEX clusterididx ON clusters (clusterid);
 

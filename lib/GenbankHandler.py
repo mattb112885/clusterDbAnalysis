@@ -16,20 +16,22 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
     to the genbank file.
     '''
     # Index search on the table
+    contigidx = 0
+    ididx = 1
     startidx = 4
     stopidx = 5
     seqidx = 11
-    ididx = 1
     indexed_array = {}
     for ln in tbl:
         # Do both of these because of possible incompatibilities in how the orderinf of
         # start and stop works...
+        contig = ln[contigidx]
         start = int(ln[startidx])
         stop = int(ln[stopidx])
         seq = ln[seqidx]
         myid = ln[ididx]
-        indexed_array[(start, stop)] = (seq, myid)
-        indexed_array[(stop, start)] = (seq, myid)
+        indexed_array[(contig, start, stop)] = (seq, myid)
+        indexed_array[(contig, stop, start)] = (seq, myid)
 
     # First we need this to not be a generator so we can actually modify the darn thing
     multi_gbk_object = list(multi_gbk_object)
@@ -63,9 +65,9 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
             seq = record.seq.tostring()
             # Get locations to match up (note they are splice indexes and start from 0 hence the +1 to start and nothing added to end)
             location = multi_gbk_object[ii].features[jj].location
-            featurestart = int(location.start + 1)
+            featurestart = int(location.start) + 1
             featureend = int(location.end)
-            querytup = (featurestart, featureend)
+            querytup = (original_name, featurestart, featureend)
             if querytup in indexed_array and seq == indexed_array[querytup][0]:
                 if "db_xref" in multi_gbk_object[ii].features[jj].qualifiers:
                     multi_gbk_object[ii].features[jj].qualifiers["db_xref"].append("ITEP:%s" %(indexed_array[querytup][1]))

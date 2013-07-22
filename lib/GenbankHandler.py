@@ -43,10 +43,13 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
     # If these all match with a given element of the table then its good.
     newToOriginalName = {}
     for ii in range(len(multi_gbk_object)):
-        # If we have to, truncate the contig names so that biopython can actually produce some output.
-        # However, if the user doesn't tell us to truncate them and they would have to, throw an error instead
-        # to warn the user of the problem.
-        original_name = multi_gbk_object[ii].name
+        # This needs to match what we do to make the raw file table in the first place.
+        if multi_gbk_object[ii].id == "unknown":
+            original_name = multi_gbk_object[ii].name
+        else:
+            original_name = multi_gbk_object[ii].id
+        # We make a temporary contig ID that is less than the 16 character limit from Biopython.
+        # This will be OK as long as the number of contigs is less than 10 million or so.
         new_name = "REP_CTG%08d" %(ii)
         multi_gbk_object[ii].name = new_name
         newToOriginalName[new_name] = original_name

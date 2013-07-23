@@ -52,7 +52,7 @@ mkdir clusters 2> /dev/null;
 mkdir flatclusters 2> /dev/null;
 
 # Check the groups file consistency
-db_checkGroupsFile;
+db_checkGroupsFile.py;
 if [ $? -ne 0 ]; then
     echo "Errors in groups file. Stop."
     exit 1

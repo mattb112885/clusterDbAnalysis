@@ -174,7 +174,7 @@ def regionlength(genelocs):
     end = min(min(starts),min(ends))
     return start, end
 
-def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
+def make_region_drawing(genelocs, getcolor, centergenename, maxwidth, label=False):
     '''
     Makes a PNG figure for regions with a given color mapping, set of gene locations...
 
@@ -203,12 +203,11 @@ def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
             centerdstart, centerend = int(feature.location.start), int(feature.location.end)
             centerdstrand = feature.strand
         color = getcolor[feature.qualifiers["cluster_id"]]
-
         
-        gd_feature_set.add_feature(feature, name = feature.id,
+        gd_feature_set.add_feature(feature, name = str(feature.qualifiers["cluster_id"]),
                                    color=color, border = bordercol, 
                                    sigil="ARROW", arrowshaft_height=arrowshaft_height, arrowhead_length = arrowhead_length,
-                                   label=False,  label_angle=20, label_size = default_fontsize
+                                   label=label,  label_angle=20, label_size = default_fontsize
                                    )
     start, end = regionlength(genelocs)
     pagew_px = maxwidth / scale
@@ -227,7 +226,7 @@ def make_region_drawing(genelocs, getcolor, centergenename, maxwidth):
         os.system("convert -rotate 180 %s %s" % (imgfileloc, imgfileloc))
     return imgfileloc
 
-def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
+def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, label=False):
     '''
     Draw the neighborhoods around each of the genes in a gene tree given the cluster and run IDs and the tree (t)
 
@@ -311,7 +310,7 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3):
         except KeyError: 
             continue 
         sys.stderr.write("Making region drawing for gene ID %s...\n" %(newname))
-        imgfileloc = make_region_drawing(genelocs, getcolor, newname, maxwidth)
+        imgfileloc = make_region_drawing(genelocs, getcolor, newname, maxwidth, label=label)
         imageFace = faces.ImgFace(imgfileloc)
         leaf.add_face(imageFace, column=2, position = 'aligned')
         if newname in tblastnadded:
@@ -377,7 +376,8 @@ if __name__ == "__main__":
     parser.add_option("-t", "--treetitle", help="Tree title (D: same as run ID)", action="store", type="str", dest="gene", default=None)
     parser.add_option("-o", "--outfile", help="Base name for output file (D: Same as input tree)", action="store", type="str", dest="outfile", default=None)
     parser.add_option("-d", "--display", help="Display the resulting tree (D: Don't display, just save)", action="store_true", dest="display", default=False)
-    parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", dest="cutoff", default=3)
+    parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", action="store", dest="cutoff", default=3)
+    parser.add_option("-l", "--label", help="Add labels to the genes. The labels are the cluster IDs for the clusters in which the genes are found in the specified cluster run (D: Dont because its very messy)", action="store_true", dest="label", default=False)
     (options,args) = parser.parse_args()
 
     if options.treeinfile is None:
@@ -414,7 +414,7 @@ if __name__ == "__main__":
     con = sqlite3.connect(locateDatabase())
     cur = con.cursor()
 
-    t, ts = draw_tree_regions(clusterrunid, t, ts, cur, greyout=options.cutoff)
+    t, ts = draw_tree_regions(clusterrunid, t, ts, cur, greyout=options.cutoff, label=options.label)
 
     # Now that we don't need to reference anything with the gene IDs any more, try to change them into
     # annotations

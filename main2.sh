@@ -51,6 +51,13 @@ source SourceMe.sh
 mkdir clusters 2> /dev/null;
 mkdir flatclusters 2> /dev/null;
 
+# Check the groups file consistency
+db_checkGroupsFile.py;
+if [ $? -ne 0 ]; then
+    echo "Errors in groups file. Stop."
+    exit 1
+fi
+
 # Generate clusters based on specified groups
 # (if the cluster file for a particular group already exists, it is skipped over
 # since the results should generally be the same.)

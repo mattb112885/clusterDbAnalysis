@@ -28,10 +28,43 @@ command -v python > /dev/null 2>&1 || {
 
 command -v sqlite3 > /dev/null 2>&1 || { 
     echo "";
-    echo "ERROR:Unable to find required dependency SQLite3";
+    echo "ERROR:Unable to find required dependency sqlite3";
     echo "";
     $STATUS=1;
 }
+
+# Check for Python packages (note this doens't do version checking)
+python -c 'import Bio'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Unable to find required package Biopython (Bio). This package is needed for many IO and graphics operations in ITEP"
+    echo ""
+    $STATUS=1;
+fi
+
+python -c 'import ete2'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Unable to find required package ETE (ete2). This package is needed for any tree manipulation in ITEP"
+    echo ""
+    $STATUS=1;
+fi
+
+python -c 'import ruffus'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Unable to find required package ruffus (ruffus). This package is needed for parallelizing BLAST and RPSBlast calls"
+    echo ""
+    $STATUS=1;
+fi
+
+python -c 'import scipy'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Unable to find required package scipy. This package is needed for various analyses in ITEP."
+    echo ""
+    $STATUS=1;
+fi
 
 # Check for useful things
 command -v CompareToBootstrap.pl > /dev/null 2>&1 || {
@@ -101,5 +134,27 @@ command -v svr_retrieve_RAST_job > /dev/null 2>&1 || {
     echo "http://blog.theseed.org/servers/installation/distribution-of-the-seed-server-packages.html";
     echo "";
 }
+
+python -c 'import networkx'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "WARNING: Unable to find the Python package networkx. You will need to install this to generate GML files for visualization"
+    echo "of clusters in other programs like Cytoscape."
+    echo ""
+fi
+
+python -c 'import reportlab'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "WARNING: Unable to find the Python package reportlab. You will need this package to use some Biopython graphics capabilities."
+    echo ""
+fi
+
+python -c 'import matplotlib'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "WARNING: Unable to find the Python package matplotlib. This package is needed for some of ITEP's plotting functionality."
+    echo ""
+fi
 
 exit ${STATUS};

@@ -17,6 +17,12 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
+./checkForDependencies.sh
+if [ $? -eq 1 ]; then
+    echo "ERROR: One or more required dependencies was not found";
+    exit 1;
+fi
+
 NCORES=$1;
 
 BLASTP_EVALUE="1E-5"

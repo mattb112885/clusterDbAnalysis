@@ -2,6 +2,7 @@
 
 import fileinput, optparse, sys, sqlite3
 from FileLocator import *
+from ClusterFuncs import *
 
 usage="%prog [options] < runid > organism_list"
 description="""Get a list of organisms included in each piped-in cluster run 
@@ -17,9 +18,9 @@ cur = con.cursor()
 
 for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")
-    run = spl[rc]
-    cur.execute("SELECT DISTINCT organism FROM clusterorgs WHERE runid=?", (run, ))
-    for res in cur:
-        print "".join(str(s) for s in res)
+    runid = spl[rc]
+    orglist = getOrganismsInClusterRun(runid, cur)
+    for org in orglist:
+        print "\t".join( [ runid, org ] )
 
 con.close()

@@ -13,10 +13,12 @@ import sys
 import math
 from FileLocator import *
 
-usage="%prog [options] > BBH_table"
+usage="""%prog [options] > BBH_table"""
 description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"
 parser = optparse.OptionParser(description=description, usage=usage)
 parser.add_option("-m", "--method", help="Scoring metric to use to define best hit (D=evalue)", action="store", type="str", dest="method", default="evalue")
+parser.add_option("-r", "--runid", help="Get bidirectional best BLAST hits for organisms in this cluster run only (D: Get them for all organisms in the database)",
+                  action="store", type="str", dest="runid", default=None)
 (options, args) = parser.parse_args()
 
 okmethods = [ "evalue", "maxbit", "minbit" ]
@@ -28,6 +30,9 @@ if not options.method in okmethods:
 
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
+
+if options.runid is not None:
+    
 
 # Get a list of BLAST results with
 # organism for query and target attached.

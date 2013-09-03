@@ -12,6 +12,7 @@ import optparse
 import sys
 import math
 from FileLocator import *
+from ClusterFuncs import *
 
 usage="""%prog [options] > BBH_table"""
 description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"
@@ -31,8 +32,9 @@ if not options.method in okmethods:
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
+orglist = None
 if options.runid is not None:
-    
+    orglist = set(getOrganismsInClusterRun(options.runid, cur))
 
 # Get a list of BLAST results with
 # organism for query and target attached.
@@ -49,7 +51,12 @@ Best_pairs = {}
 sys.stderr.write("Reading best hits and calculating scores... this could take some time\n")
 n = 0
 for s in cur:
+    # Filter for specific organism pairings
+    if orglist is not None:
+        if str(s[14]) not in orglist or str(s[15]) not in orglist:
+            continue
 
+    # This is just a counter.
     if n - (n/100000)*100000 == 0:
         sys.stderr.write("%d\n" %(n) )
 

@@ -64,23 +64,5 @@ fi
 echo "Running MCL on organisms in the groups file...";
 db_specificOrganismClusterDriver.py groups ${INFLATION} ${RCUTOFF} ${SCOREMETHOD};
 
-# Modify the format of cluster files to be SQL-friendly.
-# Each separate clustering is given a random (very highly likely unique) identifier
-# which is subsequently used to identify which clustering solution we want from SQL
-# given a set of organism names
-cd clusters;
-for file in *; do
-    cat ${file} | flattenClusterFile.py -n ${file} > ../flatclusters/${file};
-done
-cd ..;
-
-cat flatclusters/* > db/flat_clusters;
-
-# Import clusters into the db
-echo "Importing cluster information into database...";
-sqlite3 db/DATABASE.sqlite < src/internal/builddb_2.sql;
-
-# Once clusters are loaded, make a pre-built presence\absence table.
-# This is a python script because it involves some operations that would be impossible or hard in pure SQL.
-echo "Making a pre-built presence\absence table in the database..."
-db_loadPresenceAbsence.py;
+# Deal with importing clusters
+sh importAllClusters.sh

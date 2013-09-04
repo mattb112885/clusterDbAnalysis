@@ -24,6 +24,8 @@ parser.add_option("-n", "--none", help="Only include clusters that have DOES NOT
 parser.add_option("-u", "--uniq", help="Only include clusters that contain exactly ONE representative in any matching organisms (D: Any number)", action="store_true", dest="uniq", default=False)
 parser.add_option("-o", "--orgcol", help="Column number for organism starting from 1 (D=1)", action="store", type="int", dest="oc", default=1)
 parser.add_option("-r", "--sanitized", help="If specified, the names in the input file have been sanitized (with sanitizeString.py) (D: False)", action="store_true", dest="sanitized", default=False)
+parser.add_option("-p", "--pct_cutoff", help="Percentage of organisms in the specified list of organisms that must have a member to be included (incompatible with -a, -y, and -n but can be used with -s)",
+                  action="store", type="float", dest="pct_cutoff", default=None)
 #parser.add_option("-m", "--minorgs", help="Minimum number of organisms in clusters to be included (D=no minimum)", action="store", type="int", dest="minorg", default=None)
 (options, args) = parser.parse_args()
 
@@ -43,8 +45,8 @@ if options.only and options.none:
     sys.stderr.write("ERROR: ONLY and NONE options are contradictory\n")
     exit(2)
 
-if not (options.only or options.all or options.any or options.none):
-    sys.stderr.write("ERROR: At least one of -a, -y, -s, -n must be specified\n")
+if not (options.only or options.all or options.any or options.none or options.pct_cutoff is not None):
+    sys.stderr.write("ERROR: At least one of -a, -y, -s, -n, -p must be specified\n")
     exit(2)
 
 oc = options.oc - 1
@@ -60,7 +62,9 @@ clusterrun_list = findGenesByOrganismList(orglist, args[0],
                                           all_org = options.all,
                                           only_org = options.only,
                                           none_org = options.none,
-                                          uniq_org = options.uniq)
+                                          uniq_org = options.uniq,
+                                          pct_cutoff = options.pct_cutoff
+                                          )
 
 for cr in clusterrun_list:
     print "%s\t%s" %(cr[0], cr[1])

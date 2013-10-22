@@ -2,7 +2,7 @@
 
 if [ $# -ne 2 ]; then
     echo ""
-    echo "USAGE: ./annotation2clustergeneinfo.sh [annotation] [run ID] > geneinfo_file"
+    echo "USAGE: ./annotation2clustergeneinfo.sh annotation run_ID > geneinfo_file"
     echo ""
     echo "DESCRIPTION: Given a gene annotation,alias, or anything that is found in the"
     echo "annotation (NOT a gene ID as given in the database), e.g. 'MA0001',"

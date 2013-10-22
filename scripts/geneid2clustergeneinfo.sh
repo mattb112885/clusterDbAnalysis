@@ -2,7 +2,7 @@
 
 if [ $# -lt 2 ]; then
     echo ""
-    echo "USAGE: ./geneid2clustergeneinfo.sh [gene ID] [run ID] (alternate_base) > geneinfo_file"
+    echo "USAGE: ./geneid2clustergeneinfo.sh gene_ID run_ID [alternate_base] > geneinfo_file"
     echo ""
     echo "DESCRIPTION: Given a gene ID as given in the database (e.g. fig|83333.1.peg.1, the fig| is optional)",
     echo "generates a geneinfo file for the cluster(s) containing matching genes"

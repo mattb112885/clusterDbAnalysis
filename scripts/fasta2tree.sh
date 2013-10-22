@@ -2,7 +2,7 @@
 
 if [ $# -ne 2 ]; then
     echo ""
-    echo "USAGE: fasta2tree.sh [fasta-file] [outfile]"
+    echo "USAGE: fasta2tree.sh fasta_file outfile"
     echo ""
     echo "DESCRIPTION: Given an un-aligned fasta file,"
     echo "Performs the following standard steps to make"

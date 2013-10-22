@@ -4,7 +4,7 @@
 
 if [ $# -lt 2 ]; then
     echo ""
-    echo "USAGE: completeCoreAnalysis.sh [runid] [rootorg] [NTHREADS (optional)]";
+    echo "USAGE: completeCoreAnalysis.sh runid rootorg [NTHREADS (optional)]";
     echo "rootorg should have spaces replaced by underscores"
     echo ""
     echo "DESCRIPTION: Performs common tasks needed to compute a core tree,"

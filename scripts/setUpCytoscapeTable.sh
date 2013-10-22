@@ -2,7 +2,7 @@
 
 if [ $# -ne 4 ]; then
     echo ""
-    echo "USAGE: setUpCytoscapeTable.sh [runid] [clusterid] [score_metric] [cutoff] > table"
+    echo "USAGE: setUpCytoscapeTable.sh runid clusterid score_metric cutoff > table"
     echo ""
     echo "DESCRIPTION: Create a BLAST score table for import into Cytoscape"
     echo "from a specified cluster run using a specified scoring metric"

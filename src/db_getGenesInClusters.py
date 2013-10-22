@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This is a pipe command. Pipe in a 2-column table
 # containing the run ID in the first column and the

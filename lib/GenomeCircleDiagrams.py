@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import Bio.SeqFeature as SeqFeature
 import Bio.Graphics.GenomeDiagram as GenomeDiagram
 from reportlab.lib import colors

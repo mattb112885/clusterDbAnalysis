@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Provide a list of organisms to match [can match any portion of the organism
 # so if you give it just "mazei" it will return to you a list of Methanosarcina mazei]

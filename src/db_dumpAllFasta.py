@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Dump a fasta file with UPDATED annotations (including ALIASES)
 # from the database.

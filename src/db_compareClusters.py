@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Compare all of the clusters between two specified cluster runs
 #

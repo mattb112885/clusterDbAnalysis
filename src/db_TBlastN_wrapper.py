@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Wrapper script for TBLASTN verification of presence\absence
 # across different genomes

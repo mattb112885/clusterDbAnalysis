@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import fileinput
 import optparse
@@ -9,10 +9,7 @@ from FileLocator import *
 from ClusterFuncs import *
 
 usage = "%prog [options] < contig_ids > contig_sequences"
-description = """Get contig IDs. 
-By default returns ALL contig IDs. Optionally return contigs only
-for specific organisms.
-"""
+description = """Get the complete DNA sequence for contigs with specified IDs."""
 
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-f", "--fasta", help="Return sequences as FASTA file (the default is a two-column table)", 

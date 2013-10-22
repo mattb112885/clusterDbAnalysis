@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This is a pipe command. Pipe in the results from the blastres_bitscore table
 # that you want to calculate scores for.

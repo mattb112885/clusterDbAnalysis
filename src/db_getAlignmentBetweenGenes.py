@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Use MAFFT to make a quick and dirty alignment between a (small) set of genes of interest.
 

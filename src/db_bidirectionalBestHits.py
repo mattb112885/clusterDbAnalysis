@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Returns a list of all bidirectional best hits 
 # between any pair of organisms from the

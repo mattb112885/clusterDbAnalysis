@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Generates fna file from tne input file (piped) and exports it to stdout
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''This file contains scripts for the purpose of locating key files and
 directories in the installed package.

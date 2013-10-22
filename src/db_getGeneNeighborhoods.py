@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Get gene neighborhoods within +/- K (default = 3) from each gene in stdin
 #

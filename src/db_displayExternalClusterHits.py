@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # FIXME - Put these into a library (should be their own library since external clusters
 # are kind of unique (definitely distinct from de novo computed ones)

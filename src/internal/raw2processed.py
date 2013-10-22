@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Generates a new table with only information we need to make it easier to calculate some statistics:
 # Gene (col 1)

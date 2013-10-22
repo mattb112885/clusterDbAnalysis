@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # This is  a pipe command
 # Create a presence-absence fasta file

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import optparse, os, re, sys
 from Bio import SeqIO

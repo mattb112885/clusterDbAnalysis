@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Utility script
 # Pipe in a run ID(s) and specify a cluster ID (or multiple) on the command line

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''
 This file contains functions intended to deal with modifications to GENBANK files

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This is a pipe command
 # Pipe in a tab-delimited file containing gene IDs

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Given a list of organisms to stdin and a cluster run,
 # identify clusters within that run that only have representatives

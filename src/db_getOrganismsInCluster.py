@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import fileinput, optparse, sys, sqlite3
 from FileLocator import *

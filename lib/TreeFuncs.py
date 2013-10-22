@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''Convenient functions for tree-drawing and manipulation with ETE
 (common operations used by our scripts)'''

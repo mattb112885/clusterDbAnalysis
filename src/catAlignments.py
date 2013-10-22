@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Concatenate alignments (from FASTA format)
 # Alignments are all of the files that match the specified search key.

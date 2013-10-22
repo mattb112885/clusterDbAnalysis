@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # From my initial tests I think the results are correct but it's still possible
 # an off-by-one is lurking somewhere...

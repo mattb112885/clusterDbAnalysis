@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # BLAST_ALL_v_ALL
 # Run (in parallel) blast jobs blasting all fasta files in the FASTA folder against

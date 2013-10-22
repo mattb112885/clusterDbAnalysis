@@ -1,7 +1,4 @@
-#!/usr/bin/python
-
-# Because Unix's join function is picky EVEN THOUGH I SORTED THE FUCKIGN ROWS
-# I'm writing this instead.
+#!/usr/bin/env python
 
 import optparse
 import sys

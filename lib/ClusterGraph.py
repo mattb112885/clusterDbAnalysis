@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''This library contains functions for generating a GML file for a particular
 cluster of interest.

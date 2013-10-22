@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import scipy.spatial.distance as dist
 import scipy.cluster.hierarchy as hier

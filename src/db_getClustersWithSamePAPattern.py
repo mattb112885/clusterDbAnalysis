@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Get clusters (in the same run) with the same presence/absence pattern as
 # the cluster/runID pair as specified...

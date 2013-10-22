@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Make a alignment for a particular cluster and add it to the database
 #

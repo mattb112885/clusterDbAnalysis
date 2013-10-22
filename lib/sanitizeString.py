@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Standard function for string sanitization
 # Mostly to prevent Newick files from getting confused

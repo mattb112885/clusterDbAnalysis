@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # EMACS does not support tabs very well - trying to insert a tab often ends up inserting
 # a bunch of spaces instead.

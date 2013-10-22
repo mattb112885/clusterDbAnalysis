@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # This is a pipe command intended to take in the original cluster files from MCL
 #

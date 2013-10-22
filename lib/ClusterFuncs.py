@@ -63,6 +63,7 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     cur.execute("DROP TABLE desiredgenes;")
     return resultTable
 
+
 def getValidBlastScoreMethods():
     '''
     List currently-supported BLAST scoring metrics
@@ -208,6 +209,15 @@ def getGeneInfo(genelist, cur):
         for k in cur:
             res.append( [ str(s) for s in k ] )
     return res
+
+def getOrganismsInClusterRun(runid, cur):
+    '''
+    Get a list of organism names in a cluster run. Returns them as a list.
+    '''
+    organisms = []
+    cur.execute("SELECT DISTINCT organism FROM clusterorgs WHERE runid=?", (runid, ))
+    organisms = [ str(s[0]) for s in cur ]
+    return organisms
 
 def organismNameToId(orgname, cur, issanitized = False):
     '''

@@ -69,7 +69,7 @@ def getClusterOrgsByRun(runid):
 
     return cl
 
-def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False):
+def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_org = False, all_org = False, only_org = False, none_org = False, uniq_org = False, pct_cutoff = None):
     '''Identify clusters that have a specific set of properties with respect to a given set of
     organisms (orglist). The valid properties are ANY, ALL, ONLY, and NONE.
 
@@ -102,6 +102,8 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
     +-----------+---------+-----------
      ANY + ONLY |  >= 1   |    == 0    - Genes that are found only in the ingroup (but not necessarily in all of its members)
     +-----------+---------+-----------
+     PCT_CUTOFF | >=PCT*N |    [Normally >=0 but you can also specify ONLY here]
+    +-----------|---------+-----------
      ALL + NONE |
      ANY + NONE | Contradictions (raise errors).
      ONLY + NONE|     
@@ -109,7 +111,7 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
 
     *: No clusters have 0 representatives
 
-    N is the number of organisms in the ingroup and O is the number in the outgroup.
+    N is the number of organisms in the ingroup
 
     UNIQ specifies that in addition to any other flags, genes in every organism in the ingroup
     must be uniquely represented in the cluster. Some groups definitions of "core genes" are
@@ -128,8 +130,18 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
         raise ValueError("ERROR: any_org and none_org options are contradictory\n")
     if only_org and none_org:
         raise ValueError("ERROR: only_org and none_org options are contradictory\n")
-    if not (only_org or all_org or any_org or none_org):
-        raise ValueError("ERROR: At least one of any_org, all_org, none_org, or only_org must be specified.\n")
+    if not (only_org or all_org or any_org or none_org or pct_cutoff is not None):
+        raise ValueError("ERROR: At least one of any_org, all_org, none_org, only_org or a pct_cutoff must be specified.\n")
+    if pct_cutoff is not None and (float(pct_cutoff) > 100 or float(pct_cutoff) < 0):
+        raise ValueError("ERROR: Percent cutoff must be between 0 and 100.\n")
+    if pct_cutoff is not None and ( all_org or any_org or none_org ):
+        raise ValueError("ERROR: Cannot specify both a percent cutoff and ANY, ALL or NONE\n")
+
+    if pct_cutoff is not None:
+        use_pct_cutoff = True
+        pct_cutoff = float(pct_cutoff)
+    else:
+        use_pct_cutoff = False
 
     # Change sanitized gene names to un-sanitized gene names using the organisms file.
     if sanitized:
@@ -156,7 +168,7 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
         # etc...
         if l[1] != previd:
             if previd != -1:
-                (anyok, allok, noneok, onlyok) = False,False,False,False
+                (anyok, allok, noneok, onlyok, pctok) = False,False,False,False,False
                 # Check ANY
                 intersection = orgset & currentorgs
                 if len(intersection) > 0:
@@ -170,9 +182,13 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
                 diff = currentorgs - orgset
                 if len(diff) == 0:
                     onlyok = True
+                # Check percent
+                if pct_cutoff is not None and len(intersection) >= len(orgset) * pct_cutoff/100.0:
+                    pctok = True
 
                 # Our criteria: we can't have any of the options be TRUE and not have the corresponding condition also be true
-                if not ( ( any_org and not anyok) or ( all_org and not allok) or (none_org and not noneok) or (only_org and not onlyok) or (uniq_org and not uniqok) ):       
+                if not ( ( any_org and not anyok) or ( all_org and not allok) or (none_org and not noneok)
+                         or (only_org and not onlyok) or (uniq_org and not uniqok) or ( use_pct_cutoff and not pctok) ):
                     goodClusters.append( (prevrun, previd) )
 
             # Reset

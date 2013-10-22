@@ -7,27 +7,50 @@
 # The best hit is defined by E-value but could later be defined by any
 # other score we want with appropriate input arguments...
 
-import sqlite3
-import optparse
-import sys
+import fileinput
 import math
+import optparse
+import sqlite3
+import sys
 from FileLocator import *
-
-usage="%prog [options] > BBH_table"
-description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"
-parser = optparse.OptionParser(description=description, usage=usage)
-parser.add_option("-m", "--method", help="Scoring metric to use to define best hit (D=evalue)", action="store", type="str", dest="method", default="evalue")
-(options, args) = parser.parse_args()
+from ClusterFuncs import *
 
 okmethods = [ "evalue", "maxbit", "minbit" ]
+
+usage="""%prog [options] > BBH_table"""
+description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"
+parser = optparse.OptionParser(description=description, usage=usage)
+parser.add_option("-m", "--method", help="Scoring metric to use to define best hit (D=evalue). Defined methods: %s" %(" ".join(okmethods)),
+                  action="store", type="str", dest="method", default="evalue")
+parser.add_option("-r", "--runid", help="Get bidirectional best BLAST hits for organisms in this cluster run only (D: Get them for all organisms in the database)",
+                  action="store", type="str", dest="runid", default=None)
+parser.add_option("-f", "--orgfile", help="File containing s list of organisms to which to limit search. Use \"-\" for stdin. Cannot use with -r. (D: Get hits between all organisms in the database)",
+                  action="store", type="str", dest="orgfile", default=None)
+parser.add_option("-o", "--orgcol", help="Column number for organism ids (ignored unless -f is specified), starting from 1 (D=1)", action="store", type="int", dest="oc", default=1)
+(options, args) = parser.parse_args()
+
+oc = options.oc - 1
 
 if not options.method in okmethods:
     sys.stderr.write("ERROR: Specified method in db_bidirectionalBestHits.py not implemented.\n")
     sys.stderr.write("Implemented methods: %s\n" %("\t".join(okmethods)))
     exit(2)
 
+if options.runid is not None and options.orgfile is not None:
+    sys.stderr.write("ERROR: runid (-r) and orgfile (-f) flags are incompatible - pick one or the other.\n")
+    exit(2)
+
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
+
+orglist = None
+if options.runid is not None:
+    orglist = set(getOrganismsInClusterRun(options.runid, cur))
+elif options.orgfile is not None:
+    orglist = set()
+    for line in fileinput.input(options.orgfile):
+        spl = line.strip("\r\n").split("\t")
+        orglist.add(spl[oc])
 
 # Get a list of BLAST results with
 # organism for query and target attached.
@@ -44,7 +67,12 @@ Best_pairs = {}
 sys.stderr.write("Reading best hits and calculating scores... this could take some time\n")
 n = 0
 for s in cur:
+    # Filter for specific organism pairings
+    if orglist is not None:
+        if str(s[14]) not in orglist or str(s[15]) not in orglist:
+            continue
 
+    # This is just a counter.
     if n - (n/100000)*100000 == 0:
         sys.stderr.write("%d\n" %(n) )
 
@@ -67,6 +95,10 @@ for s in cur:
     else:
         Best_pairs[mypair] = (ls[1], myscore, ls[14])
     n += 1
+
+if len(Best_pairs.keys()) == 0:
+    sys.stderr.write("ERROR: No bidirectional best hits found (were the organisms passed into this function correct?)\n")
+    exit(2)
 
 # Look at all the best queries and see if the target gene paired with the same organism
 # has a best hit as the query.

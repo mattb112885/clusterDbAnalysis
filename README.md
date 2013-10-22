@@ -35,7 +35,11 @@ These scripts should be run in the following order to set up the database, once 
     Pre-computes a presence-absence table for every gene and every organism for each cluster run.
 
     Imports the results into the sqlite database
-  
+
+    NOTE - If you wish, rather than running MCL on blast results, you can also have the option of importing your own clustering results that are generated using any
+    other method you want. The only requirements are that you format the input files correctly and that the gene IDs are ITEP IDs (matching fig\|\d+\.\d+\.peg\.\d+). See the wiki
+    and help text for importExternalClustering.py for details.
+
 * main3.sh 
 
     Parses Genbank files in the genbank/ folder to get whole-genome nucleotide sequences.
@@ -52,6 +56,9 @@ These scripts should be run in the following order to set up the database, once 
 
     Imports results into the database
 
+* main5.sh
+
+    Import user-specified gene calls and cluster information into the database. At the moment this is only used to amend the existing presence-absence tables but other uses are likely forthcoming.
 
 ## Other files included in this folder
 
@@ -78,6 +85,11 @@ These scripts should be run in the following order to set up the database, once 
     This function is meant for internal use. It will delete the existing organism file and replace 
     with one automatically generated from the genbank files (it looks for the field /organism="[organismname]"
     and pulls out the organism name from that, and gets the organism ID from the file name)
+
+* importAllClusters.sh
+
+    This function performs tasks needed to import all of the clusters found in clusters/ and flatclusters/ into the database
+    and generate a presence-absence table.
 
 * removeOrganism.sh 
 

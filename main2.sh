@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Usage: ./main2.sh [inflation] [scoremethod] [cutoff]
+# Usage: ./main2.sh inflation scoremethod cutoff
 # Note - for now the mcl parameters are located in the function
 # src/specificOrganismClusterDriver.py
 if [ $# -lt 3 ]; then
-    echo "Usage: ./main2.sh [inflation] [scoremethod] [cutoff]";
+    echo "Usage: ./main2.sh inflation scoremethod cutoff";
     echo ""
     echo "Description: This script runs MCL with the specified parameters"
     echo "This script must be run from the directory where it is located"

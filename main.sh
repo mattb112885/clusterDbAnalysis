@@ -1,13 +1,13 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "usage: ./main.sh [NCORES] (BLASTP_cutoff) (BLASTN_cutoff)"
+    echo "usage: ./main.sh NCORES [BLASTP_cutoff] [BLASTN_cutoff]"
     echo ""
     echo "Description: runs BLAST, BLASTN all vs. all against all of the"
     echo "maintained conserved domain databases in NCBI"
     echo ""
     echo "This script MUST be run from the directory that contains it (i.e. you must call it like "
-    echo "./main.sh [NCORES]"
+    echo "./main.sh NCORES"
     echo " or else it will not work."
     echo ""
     echo "The default E-value cutoff is 1E-5 for BLASTP and 1 for BLASTN. Use an argument for the cutoffs"

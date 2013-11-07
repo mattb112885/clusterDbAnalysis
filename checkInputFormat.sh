@@ -18,7 +18,7 @@ fi
 echo "Checking format of organism ID in organisms file..."
 orgmatch=$(cat organisms | cut -f 2 | grep -P "^\d+\.\d+$")
 if [ $? -eq 1 ]; then
-    echo 'ERROR: Organism IDs not found or not in the expected format (third column of organisms file, and must have format #.# i.e. 83333.1 for E coli)';
+    echo 'ERROR: Organism IDs not found or not in the expected format (second column of organisms file, and must have format #.# i.e. 83333.1 for E coli)';
     STATUS=1
 fi
 
@@ -31,7 +31,7 @@ if [ "${nl}" != "${numname}" ]; then
     STATUS=1;
 fi
 if [ "${nl}" != "${numid}" ]; then
-    echo 'ERROR: Organism IDs must be unique (third column of organisms file)';
+    echo 'ERROR: Organism IDs must be unique (second column of organisms file)';
     STATUS=1;
 fi
 # Check for bad characters in organism names

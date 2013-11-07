@@ -17,9 +17,9 @@
 
 import optparse, fileinput
 
-usage="""%prog [Things to separate with tabs] > Tab-delimited line
+usage="""%prog "cell_1" "cell_2" ... > Tab-delimited line
 %prog -i [Input file] > Tab_delimited line"""
-description = "Turn all arguments into a single row separated by tabs"
+description = "Turn all arguments (cell_1, cell_2, ...) into a single row separated by tabs"
 
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-i", "--infile", help="Combine all lines of the input file and separate them by tabs. Use \"-\" for input from stdin", action="store", type="str", dest="infile", default=None)

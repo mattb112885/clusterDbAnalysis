@@ -26,8 +26,8 @@
 import sqlite3, fileinput, optparse
 from FileLocator import *
 
-# Get input arguments                                                                         
-usage = "%prog [options] < [ runid_clusterid_table] > cluster_gene_info"
+# Get input arguments                                                                  
+usage = "%prog [options] < runid_clusterid_table > cluster_gene_info"
 description = """Given a list of run ID / cluster ID pairs (one pair in each row of the input table), 
 get a list of info in each gene in those clusters including organism, strand, location, contig, and sequences""" 
 parser = optparse.OptionParser(usage=usage, description=description)

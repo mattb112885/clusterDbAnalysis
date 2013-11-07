@@ -4,15 +4,15 @@ import fileinput, optparse, sqlite3, sys, re
 from FileLocator import *
 from sanitizeString import *
 
-usage = "%prog -g [GPR_file] -i [RunID] > Rxn_presence_absence"
+usage = "%prog -g GPR_file -i RunID [options] > Rxn_presence_absence"
 description = """This function takes a two-column table containing
 gene protein reaction relationships (GPR) and produces a table
 telling whether the reaction is present in each organism in a given cluster run
 based on the presence\absence of individual genes from the clustering results.
 
 The GPR_file should have exactly two columns:
-- A column of reaction IDs (first column)
-- A column of Gene-protein relationships [I.E. "GeneX and GeneY"] (second column)
+* A column of reaction IDs (first column)
+* A column of Gene-protein relationships [I.E. "GeneX and GeneY"] (second column)
 
 This will only work if the gene IDs are the same in the GPRs as they are in the database.
 

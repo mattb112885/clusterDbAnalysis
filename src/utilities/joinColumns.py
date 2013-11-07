@@ -3,7 +3,7 @@
 import optparse
 import sys
 
-usage="%prog -1 [col1] -2 [col2] (options) File1 File2"
+usage="%prog [options] -1 col1 -2 col2 File1 File2"
 description = """To get around some of the obnoxiousness of the UNIX join command...
 This is a command to join on specific columns in two input files. It supports tabs as
 delimiters and does not require inputs to be sorted (so it is slower than the UNIX command

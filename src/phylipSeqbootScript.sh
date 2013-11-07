@@ -4,7 +4,8 @@
 # seqboot non-interactively
 
 if [ $# -ne 3 ]; then
-    echo "USAGE: phylipSeqbootScript.sh [phylip_file] [out_file] [N_replicates]";
+    echo "USAGE: phylipSeqbootScript.sh phylip_file out_file N_replicates";
+    echo ""
     echo "DESCRIPTION: Wrapper script for Phylip's SEQBOOT package."
     echo "It has not been thoroughly tested."
     exit 0;

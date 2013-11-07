@@ -9,7 +9,7 @@ from FileLocator import *
 TABLEDESCRIPTION = """queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, hitframe, 
                       strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID"""
 
-usage = "%prog (-d|-f|-o) contig_inputs [options] < Protein_ids > Tblastn_table"
+usage = "%prog (-d|-f|-o) [options] < Protein_ids > Tblastn_table"
 description = """Attempts to run TBLASTN and identify
 missing genes. It identifies called genes that match the hit location and
 also tries to find genes on the opposite strand that conflict.

@@ -7,7 +7,7 @@ import sys
 
 from FileLocator import *
 
-usage = "%prog < external_clusterids > similarities"
+usage = "%prog [options] < external_clusterids > similarities"
 description = """Given a list of external clusterIDs (from cog, pfam, tigrfam...), attempts to identify proteins
 in the database that are homologous (by RPSBLAST) to the profile implied by those clusters, and returns them
 and their E-values."""

@@ -9,8 +9,8 @@ from Bio import SeqIO
 
 from FileLocator import *
 
-usage = """%prog -g genbankfile (options) > Conversion_table
-%prog -o organismid (options) > Conversion_table
+usage = """%prog -g genbankfile [options] > Conversion_table
+%prog -o organismid [options] > Conversion_table
 %prog -g genbankfile -o organismid > Conversion_table
 """
 description = """

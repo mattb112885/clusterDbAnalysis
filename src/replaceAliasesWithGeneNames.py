@@ -3,7 +3,7 @@
 import optparse
 import sys
 
-usage = "%prog [aliases file] [file_to_replace]"
+usage = "%prog aliases file file_to_replace"
 description = """Given a file containing aliased gene names,
 replaces those aliases with the corresponding gene ID (e.g. fig|...).
 I used this to take GPRs from a model (with corresponding locus tags)

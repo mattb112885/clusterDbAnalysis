@@ -5,7 +5,7 @@ from FileLocator import *
 
 ok_databases = ["all", "cd", "cog", "pfam", "tigr", "prk", "smart"]
 
-usage = "%prog [Options] (Description 1) (Description 2) ..."
+usage = "%prog [Options] \"Description 1\" \"Description 2\" ..."
 description = """Identify external clusters (optionally in a specific database)
 that match a specified description. If more than one description is provided, return
 all clusters matching at least one description."""

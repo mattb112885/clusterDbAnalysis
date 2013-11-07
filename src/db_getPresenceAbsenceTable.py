@@ -8,7 +8,7 @@ import optparse
 from FileLocator import *
 
 usage="%prog [options] > presence_absence_table"
-description="""Generates a presence\absence table (or slices thereof) based on
+description="""Generates a presence - absence table (or slices thereof) based on
 the one automatically loaded as part of main2.sh. 
 Default activity is to dump the database as is (pegs)."""
 parser = optparse.OptionParser(usage=usage, description=description)

@@ -3,7 +3,7 @@
 import fileinput, optparse, sys, sqlite3
 from FileLocator import *
 
-usage="""%prog < runid_clusterid_pair > organism_list"""
+usage="""%prog [options] < runid_clusterid_pair > organism_list"""
 description="Get a list of organisms included in the specified run / cluster ID pair"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--runcol", help="Column number for run ID starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)

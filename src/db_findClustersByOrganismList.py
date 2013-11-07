@@ -8,13 +8,13 @@ import optparse
 import sys
 from CoreGeneFunctions import *
 
-usage="%prog [options] run_id < organism_list > cluster_run_id_list"
+usage="%prog (-a|-n|-p|-s|-y) [options] run_id < organism_list > cluster_run_id_list"
 description="""Find clusters with a paritcular quality relative to the list of organisms you specified.
-Note: To find core gene clusters for a particular group, use both -a and -u
+Note: To find conserved gene clusters use -a
+To find core gene clusters for a particular group, use both -a and -u
 To find core genes only in a parituclar group (to the exclusion of all the others in that cluster run), use -a, -u, and -s
-By some group's definitions core genes can be duplicates in some genomes. In such a case exclude the -u.
 To find clusers that exclude all the specified organisms use -n
-Using only -u will result in an error.
+Using only -u or various contradictory combinations will result in an error.
 """
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-a", "--all", help="Only include clusters that have at least one representative in ALL of the specified organisms", action="store_true", dest="all", default=False)

@@ -21,7 +21,7 @@ import sys
 import re
 import optparse
 
-usage="%prog [-n] Fasta_dir Results_dir Ncores"
+usage="%prog [options] Fasta_dir Results_dir Ncores"
 description="""Automatically make blast databases for all files in fasta_dir 
 (must have .faa or .fasta extension) in parallel using ncores processers, and 
 store results in results_dir"""

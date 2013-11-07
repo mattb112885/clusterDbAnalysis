@@ -5,7 +5,7 @@
 
 import fileinput, optparse, sys, os
 
-usage="%prog < runid_clusterid_pair > same_clusters"
+usage="%prog [options] < runid_clusterid_pair > same_clusters"
 description="""Generate a list of clusters with the same organism presence/absence pattern as the specified cluster/runID pair
 Only looks in the same run as specified, and does not account for the number of genes present in each organism."""
 

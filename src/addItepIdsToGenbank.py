@@ -6,7 +6,7 @@ import random
 from Bio import SeqIO
 from GenbankHandler import *
 
-usage = "addItepIdsToGenbank [genbank_file] [raw_file] [output_file]"
+usage = "%prog genbank_file raw_file output_file"
 description = """Takes an existing Genbank file and a tab-delimited raw file (from the raw/ 
 folder) and adds to it a db_xref for 'ITEP' that contains ITEP IDs"""
 

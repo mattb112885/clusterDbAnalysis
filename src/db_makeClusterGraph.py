@@ -21,7 +21,6 @@ Currently implemented methods: %s """ %(" ".join(all_methods) )
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-m", "--method", help="Scoring method to use (REQUIRED)", action="store", type="str", dest="method", default=None)
 parser.add_option("-u", "--cutoff", help="Scoring cutoff to use (REQUIRED)", action="store", type="float", dest="cutoff", default=None)
-
 parser.add_option("-r", "--runcol", help="Column number for Run ID starting from 1 (D:1)", action="store", type="int", dest="rc", default=1)
 parser.add_option("-c", "--clusterid", help="Column number for Cluster ID starting from 1 (D: 2)", action="store", type="int", dest="cc", default=2)
 parser.add_option("-n", "--blastn", help="Use BLASTN instead of BLASTP for scoring results (D: BLASTP)", action="store_true", dest="blastn", default=False)

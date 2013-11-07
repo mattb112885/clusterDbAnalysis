@@ -3,8 +3,9 @@
 from FileLocator import *
 import os, optparse, sys, glob
 
-usage = "%prog [options] [searchstring] > filelist"
-description="List all files in the ITEP directories provided as part of this software package"
+usage = "%prog [options] [\"searchstring_1\" \"searchstring_2\" ... ] > filelist"
+description="""List all files in the ITEP directories provided as part of this software package.
+If searchstrings are provided, only returns those matching the search strings."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-w", "--maxw", 
                   help="Maximum number of characters wide (D=Print each file on its own line)", 

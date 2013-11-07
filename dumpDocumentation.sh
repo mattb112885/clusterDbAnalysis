@@ -5,6 +5,8 @@
 mkdir "doc" 2> /dev/null
 rm doc/help_texts
 
+source SourceMe.sh
+
 echo "o----------------------------------------------------------------------------------------------------------o" >> doc/help_texts
 echo "|                                       COMMAND-LINE FUNCTIONS                                             |" >> doc/help_texts
 echo "o----------------------------------------------------------------------------------------------------------o" >> doc/help_texts

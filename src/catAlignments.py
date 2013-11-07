@@ -13,8 +13,10 @@ import re
 import sys
 import optparse
 
-usage="%prog [ -k Searchkey ] alignment_path"
-description="Concatinate all alignments in alignment_path (all must have exactly one represenative from each organism, as determined from the gene ID). Searchkey is a pattern in the files to search from, e.t. part of the RunID for which you want to generate a concatinated alignment."
+usage="%prog [options] alignment_path > concatenated_alignment"
+description="""Concatinate all alignments in alignment_path.
+All alignments must have exactly one represenative from each organism and all
+must have representatives from the same set of organisms."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-k", "--key", help="Pattern to match (by regex) in any files you want to use, e.g. a run ID (default: use all files in alignment_path)", action="store", type="str", dest="key", default=None)
 (options, args) = parser.parse_args()

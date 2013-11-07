@@ -17,21 +17,18 @@ import optparse
 from sanitizeString import *
 from FileLocator import *
 
-organism_file = locateOrganismFile()
-
 usage="%prog [options] < text_file > text_file_with_orgname"
 description="Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file (e.g. a newick file)"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-f", "--orgfile", help="Organism file (optional, default = organisms file in root directory of current install)", 
-                  action="store", type="str", dest="orgfile", default=organism_file)
+                  action="store", type="str", dest="orgfile", default=None)
 parser.add_option("-k", "--keeppeg", help="Keep PEG ID? (if specified, keeps peg id. If not, throws it away)", action="store_true", dest="keeppeg", default=False)
 parser.add_option("-s", "--sanitized", help="Specify this if the organism IDs are sanitized in the file (fig_xx_yy instead of fig|xx.yy)", 
                   action="store_true", dest="sanitized", default=False)
 (options, args) = parser.parse_args()
 
-if options.orgfile == None:
-    sys.stderr.write("ERROR: Orgfile (-f orgfile) is a required argument to replaceOrgWithAbbrev\n")
-    exit(2)
+if options.orgfile is None:
+    options.orgfile = locateOrganismFile()
 
 keeppeg = options.keeppeg
 

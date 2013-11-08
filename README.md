@@ -1,6 +1,12 @@
 ## Documentation
 
-Tutorials for use of this toolkit are available on the [wiki page](https://github.com/mattb112885/clusterDbAnalysis/wiki/) for this project
+Tutorials for use of this toolkit are available on the [wiki page](https://github.com/mattb112885/clusterDbAnalysis/wiki/) for this project. You can also download
+them locally using:
+
+$ git submodule init
+$ git submodule update
+
+(If you have already initialized before you only need to update).
 
 Help text for all Python scripts is available using the "-h" command. In addition we have dumped all of the help text to /doc/help_texts to make for easy searching.
 

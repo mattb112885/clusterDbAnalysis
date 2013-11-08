@@ -14,7 +14,7 @@ description = """Attempts to run TBLASTN and identify
 missing genes. It identifies called genes that match the hit location and
 also tries to find genes on the opposite strand that conflict.
 
-Either you must specify the compiled contig database or must have run ./main3.sh and
+Either you must specify the compiled contig database or must have run ./setup_step3.sh and
 specify a single organism or list of organism IDs against which to perform the BLAST.
 
 Output table columns: 

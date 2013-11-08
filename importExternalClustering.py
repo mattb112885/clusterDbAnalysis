@@ -34,7 +34,7 @@ There should be no headers in either type of file.
 
 If MCL format is provided, the run ID is either what is user-specified or (if not specified) is assigned to be
 the same name as the input file. Cluster IDs are generated as sequential integerrs (same as what is done when 
-running main2.sh).
+running setup_step2.sh).
 
 If flat format is provided, you should have already assigned a run ID (or IDs) and therefore you will get an
 error if attempting to assign a different run ID.
@@ -75,7 +75,7 @@ if not os.path.isfile(infile):
     exit(2)
 
 # If cluster and flatcluster directories do not exist, create them
-# (this is necessary if main2.sh hasn't been run yet, i.e. if a user ONLY wants
+# (this is necessary if setup_step2.sh hasn't been run yet, i.e. if a user ONLY wants
 # to use clusters generated externally, and not use MCL from ITEP's scripts.
 rootdir = locateRootDirectory()
 clusterdir = os.path.join(rootdir, "clusters")

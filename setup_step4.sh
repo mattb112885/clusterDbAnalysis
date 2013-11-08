@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-    echo " USAGE: ./main4.sh NCORES"
+    echo " USAGE: ./setup_step4.sh NCORES"
     echo ""
     echo " This script downloads the NCBI CDD database (if it isn't already"
     echo " on your machine) and runs RPS-BLAST to identify similarity of all of your"

@@ -1,14 +1,18 @@
 #!/bin/bash
 
-# Usage: ./main2.sh inflation scoremethod cutoff
+# Usage: ./setup_step2.sh inflation scoremethod cutoff
 # Note - for now the mcl parameters are located in the function
 # src/specificOrganismClusterDriver.py
 if [ $# -lt 3 ]; then
-    echo "Usage: ./main2.sh inflation scoremethod cutoff";
+    echo "Usage: ./setup_step2.sh inflation scoremethod cutoff";
     echo ""
     echo "Description: This script runs MCL with the specified parameters"
     echo "This script must be run from the directory where it is located"
-    echo " (e.g. as ./main2.sh )"
+    echo " (e.g. as ./setup_step2.sh )"
+    echo ""
+    echo "For an alternative option for importing clustering results see"
+    echo "importAllClusters.sh and importExternalClustering.py"
+    echo ""
     exit 0;
 fi
 

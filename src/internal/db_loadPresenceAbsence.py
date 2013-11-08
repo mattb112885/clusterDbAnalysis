@@ -71,7 +71,7 @@ try:
         else:
             rc2go[rectup][organismname] = [ geneid ]
 except sqlite3.OperationalError:
-    sys.stderr.write("No user-specified genes are loaded in the database (if you have user-specified genes use main5.sh to load them\n")
+    sys.stderr.write("No user-specified genes are loaded in the database (if you have user-specified genes use setup_step5.sh to load them\n")
     pass
 except:
     sys.stderr.write(str(sys.exc_info()))

@@ -11,7 +11,7 @@ if [ $# -lt 2 ]; then
     echo ""
     echo "SEE ALSO ./annotation2clustergeneinfo.sh"
     echo ""
-    echo "DEPENDENCIES: The database must be loaded (with main.sh) and the specified run ID"
+    echo "DEPENDENCIES: The database must be loaded (with setup_step1.sh) and the specified run ID"
     echo "must be one of the possible run IDs (from db_getAllClusterRuns.py). The gene ID must"
     echo "also be the gene for one of the genes in the database. Failure results in an empty file."
     echo ""

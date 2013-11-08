@@ -7,7 +7,7 @@ def getHitsToExternalClusters(external_clusterid_list, evalue, cur):
     This function identifies all genes in the database that have a RPSBLAST hit with an e-value better
     than the specified evalue (closer to 0) and returns a list tuples (geneID, external_clusterID, E-value)
 
-    You must run main4.sh for this function to work.
+    You must run setup_step4.sh for this function to work.
 
     external_clusterid_list is a list of strings (e.g. pfam00001) corresponding to external cluster IDs.
     evalue is a floating-point value (e.g. 1E-5)
@@ -72,7 +72,7 @@ from FileLocator import *
 
 usage = "%prog [options] < gene_id_list"
 description = """ Use Biopython to display the hits to external clusters
-(via RPSBLAST) mapped onto a protein or a list of proteins. You have to run main4.sh
+(via RPSBLAST) mapped onto a protein or a list of proteins. You have to run setup_step4.sh
 before this function will work.
 """
 

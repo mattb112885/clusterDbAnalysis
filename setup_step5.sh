@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# Usage: ./main5.sh
-#
 # Load user-specifc data into the database
 
 if [ ! -f userdata/user_genes ]; then
-    echo "Main5.sh is intended for loading the user_genes file (located in userdata/)"
+    echo "setup_step5.sh is intended for loading the user_genes file (located at userdata/user_genes)"
     echo "No user_genes file was found so this command is a no-op."
     echo ""
     exit 1;

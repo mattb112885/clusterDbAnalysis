@@ -10,11 +10,11 @@ $ git submodule update
 
 Help text for all Python scripts is available using the "-h" command. In addition we have dumped all of the help text to /doc/help_texts to make for easy searching.
 
-## Main scripts
+## Setup scripts
 
 These scripts should be run in the following order to set up the database, once all of the input data is placed correctly (see the [wiki](https://github.com/mattb112885/clusterDbAnalysis/wiki) for complete directions)
 
-* main.sh
+* setup_step1.sh
 
     Backs up existing organisms file, generates a new one from the genbank files, and reconciles abbreviations. 
 
@@ -32,7 +32,7 @@ These scripts should be run in the following order to set up the database, once 
 
     Dumps the results into a sqlite database $ROOT/db/Database.SQLite
 
-* main2.sh
+* setup_step2.sh
 
     Runs clustering with the specified parameters (cutoff, inflation value and method\metric for clustering) for EVERY group of organisms in the "groups" file
     
@@ -46,13 +46,13 @@ These scripts should be run in the following order to set up the database, once 
     other method you want. The only requirements are that you format the input files correctly and that the gene IDs are ITEP IDs (matching fig\|\d+\.\d+\.peg\.\d+). See the wiki
     and help text for importExternalClustering.py for details.
 
-* main3.sh 
+* setup_step3.sh 
 
     Parses Genbank files in the genbank/ folder to get whole-genome nucleotide sequences.
 
     Adds the sequences to the database (WARNING: Do not do this for human-sized genomes!)
 
-* main4.sh
+* setup_step4.sh
 
     Downloads a copy of the NCBI CDD if it doesn't already exist
 
@@ -62,7 +62,7 @@ These scripts should be run in the following order to set up the database, once 
 
     Imports results into the database
 
-* main5.sh
+* setup_step5.sh (EXPERIMENTAL)
 
     Import user-specified gene calls and cluster information into the database. At the moment this is only used to amend the existing presence-absence tables but other uses are likely forthcoming.
 
@@ -113,9 +113,9 @@ These scripts should be run in the following order to set up the database, once 
 * $ROOT/genbank/: Location for all GENBANK files (see /doc/INSTALL for details)
 * $ROOT/raw/: Location for all RAW files (see /doc/INSTALL for details)
 * $ROOT/scripts/: Contains "dead-end" \ convenient wrapper scripts to do common analysis tasks.
-* $ROOT/src/: Contains modules that can be executed after loading up the data using main scripts.
+* $ROOT/src/: Contains modules that can be executed after loading up the data using setup scripts.
 
-## Folders created by the main scripts
+## Folders created by the setup scripts
 
 * $ROOT/blastn_res/: BLASTN all vs. all results
 * $ROOT/blastres/: BLASTP all vs. all results

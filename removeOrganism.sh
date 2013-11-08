@@ -138,7 +138,7 @@ if [ -d ./clusters/ ]; then
     echo "Clusters folder";
     cd ./clusters/;
     if [ $DELETE -eq 0 ]; then
-	echo "All clusters would be deleted (re-run main2.sh with the same parameters to get clusters without the deleted organism)"
+	echo "All clusters would be deleted (re-run setup_step2.sh with the same parameters to get clusters without the deleted organism)"
 	echo "List of files that would be deleted:"
 	# Just in case we decide we want to put a README here after all...
 	ls | grep -v "README"
@@ -153,7 +153,7 @@ if [ -d ./flatclusters/ ]; then
     echo "Flat Clusters folder";    
     cd ./flatclusters/;
     if [ $DELETE -eq 0 ]; then
-	echo "All clusters would be deleted (re-run main2.sh with the same parameters to get clusters without the deleted organism)"
+	echo "All clusters would be deleted (re-run setup_step2.sh with the same parameters to get clusters without the deleted organism)"
 	echo "List of files to be deleted:"
 	ls | grep -v "README"
 	echo ""
@@ -167,7 +167,7 @@ if [ -d ./db/ ]; then
     echo "Database folder";
     cd ./db/;
     if [ $DELETE -eq 0 ]; then
-	echo "All data in the database would be deleted (re-run main scripts to re-build without the deleted organism)"
+	echo "All data in the database would be deleted (re-run setup scripts to re-build without the deleted organism)"
 	echo "List of files to be deleted:"
 	ls | grep -v "README"
 	echo ""

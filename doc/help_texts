@@ -173,8 +173,8 @@ db_displayExternalClusterHits.py
 Usage: db_displayExternalClusterHits.py [options] < gene_id_list
 
  Use Biopython to display the hits to external clusters (via RPSBLAST) mapped
-onto a protein or a list of proteins. You have to run main4.sh before this
-function will work.
+onto a protein or a list of proteins. You have to run setup_step4.sh before
+this function will work.
 
 Options:
   -h, --help            show this help message and exit
@@ -753,8 +753,8 @@ db_getPresenceAbsenceTable.py
 Usage: db_getPresenceAbsenceTable.py [options] > presence_absence_table
 
 Generates a presence - absence table (or slices thereof) based on the one
-automatically loaded as part of main2.sh.  Default activity is to dump the
-database as is (pegs).
+automatically loaded as part of setup_step2.sh.  Default activity is to dump
+the database as is (pegs).
 
 Options:
   -h, --help            show this help message and exit
@@ -773,13 +773,14 @@ Options:
                         Given a newick file with the SAME organism names as
                         the presencebsence table, orders the columns to
                         conform with the tree (D: no ordering)
-  -u, --useronly        WARNING: HACKY and Requires main5 to have been run.
-                        Only return those genes that were provided by the user
-                        (it is assumed that only ITEP genes match
+  -u, --useronly        WARNING: HACKY and Requires setup_step5 to have been
+                        run.  Only return those genes that were provided by
+                        the user (it is assumed that only ITEP genes match
                         fig|\d+\.\d+\.peg\.\d+).
-  -i, --iteponly        WARNING: HACKY and Requires main5 to have been run.
-                        Only return genes originating from ITEP (it is assumed
-                        that only ITEP genes match fig|\d+\.\d+\.peg\.\d+).
+  -i, --iteponly        WARNING: HACKY and Requires setup_step5 to have been
+                        run.  Only return genes originating from ITEP (it is
+                        assumed that only ITEP genes match
+                        fig|\d+\.\d+\.peg\.\d+).
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getSequencesFromBlastResults.py
@@ -1005,11 +1006,12 @@ Usage: db_TBlastN_wrapper.py (-d|-f|-o) [options] < Protein_ids > Tblastn_table
 Attempts to run TBLASTN and identify missing genes. It identifies called genes
 that match the hit location and also tries to find genes on the opposite
 strand that conflict.  Either you must specify the compiled contig database or
-must have run ./main3.sh and specify a single organism or list of organism IDs
-against which to perform the BLAST.  Output table columns:  queryid, querylen,
-subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct,
-evalue, bitscore, hitframe,                        strandedString,
-targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID
+must have run ./setup_step3.sh and specify a single organism or list of
+organism IDs against which to perform the BLAST.  Output table columns:
+queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen,
+queryoverlappct, evalue, bitscore, hitframe,
+strandedString, targetgeneid, targetannotation, targetgenelen,
+targetoverlappct, TBLASTN_hitID
 
 Options:
   -h, --help            show this help message and exit
@@ -1626,7 +1628,7 @@ generates a geneinfo file for the cluster(s) containing matching genes
 
 SEE ALSO ./geneid2clustergeneinfo.sh
 
-DEPENDENCIES: The database must be loaded (with main.sh) and the specified run ID
+DEPENDENCIES: The database must be loaded (with setup_step1.sh) and the specified run ID
 must be one of the possible run IDs (from db_getAllClusterRuns.py).
 
 *--------------------------------------------------------------------------------------------------------------------------*
@@ -1690,7 +1692,7 @@ Optionally: specify an alternate base name for the file (default: the gene ID)
 
 SEE ALSO ./annotation2clustergeneinfo.sh
 
-DEPENDENCIES: The database must be loaded (with main.sh) and the specified run ID
+DEPENDENCIES: The database must be loaded (with setup_step1.sh) and the specified run ID
 must be one of the possible run IDs (from db_getAllClusterRuns.py). The gene ID must
 also be the gene for one of the genes in the database. Failure results in an empty file.
 

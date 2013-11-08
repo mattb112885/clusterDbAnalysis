@@ -9,7 +9,7 @@ from FileLocator import *
 
 usage="%prog [options] > presence_absence_table"
 description="""Generates a presence - absence table (or slices thereof) based on
-the one automatically loaded as part of main2.sh. 
+the one automatically loaded as part of setup_step2.sh. 
 Default activity is to dump the database as is (pegs)."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--number", help="Rather than printing PEGs, print the number of representatives in each organism (D: Prints pegs)", 
@@ -20,10 +20,10 @@ parser.add_option("-r", "--runid", help="Only print results for the specified ru
 parser.add_option("-c", "--clusterid", help="Only print results for the specified cluster ID (D: Prints the table for all of them)", action="store", type="int", dest="clusterid", default=None)
 parser.add_option("-t", "--treeorder", help="Given a newick file with the SAME organism names as the presence\absence table, orders the columns to conform with the tree (D: no ordering)",
                   action = "store", type="str", dest="treeorder", default=None)
-parser.add_option("-u", "--useronly", help="""WARNING: HACKY and Requires main5 to have been run. 
+parser.add_option("-u", "--useronly", help="""WARNING: HACKY and Requires setup_step5 to have been run. 
 Only return those genes that were provided by the user (it is assumed that only ITEP genes match fig|\d+\.\d+\.peg\.\d+).""",
                   action = "store_true", dest="useronly", default=False)
-parser.add_option("-i", "--iteponly", help="""WARNING: HACKY and Requires main5 to have been run. 
+parser.add_option("-i", "--iteponly", help="""WARNING: HACKY and Requires setup_step5 to have been run. 
 Only return genes originating from ITEP (it is assumed that only ITEP genes match fig|\d+\.\d+\.peg\.\d+).""",
                   action = "store_true", dest="iteponly", default=False)
 (options,args) = parser.parse_args()

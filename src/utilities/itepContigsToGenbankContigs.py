@@ -17,7 +17,7 @@ description = """
 Get a conversion table from ITEP contig IDs to
 contig IDs in the provided genbank file.
 The provided genbank file MUST have been modified using
-addItepIdsToGanbank.py (or in the process of making tables
+addItepIdsToGenbank.py (or in the process of making tables
 e.g. with convertGenabnk2Table.py) for the use of this function
 to make sense!
 """

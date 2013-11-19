@@ -1,7 +1,19 @@
-## Documentation
+Welcome to the landing page for ITEP, the Integrated Toolkit for the Exploration of microbial Pan-genomes! ITEP is a toolkit for comparative genomics of multiple related
+microbial genomes. The capabilities of the tool include:
 
-Tutorials for use of this toolkit are available on the [wiki page](https://github.com/mattb112885/clusterDbAnalysis/wiki/) for this project. You can also download
-them locally using:
+* de novo protein family prediction by clustering, 
+* ortholog detection, 
+* analysis of functional domains,
+* identification of core and variable genes and gene regions, 
+* analysis of gene gain and loss patterns according to the protein family predictions,
+* sequence alignments, alignment curation and tree building, 
+* curation of annotations and gene calls,
+* integration of cross-genome analysis and metabolic networks for study of metabolic network evolution
+
+The tool has been designed to be modular, and as such additional capabilities will be added as needed.
+
+Tutorials for use of this toolkit are available on the [wiki page](https://github.com/mattb112885/clusterDbAnalysis/wiki/) for this project. You can also download them locally 
+using:
 
 $ git submodule init
 $ git submodule update
@@ -12,7 +24,8 @@ Help text for all Python scripts is available using the "-h" command. In additio
 
 ## Setup scripts
 
-These scripts should be run in the following order to set up the database, once all of the input data is placed correctly (see the [wiki](https://github.com/mattb112885/clusterDbAnalysis/wiki) for complete directions)
+These scripts should be run in the following order to set up the database, once all of the input data is placed correctly (see the 
+[wiki](https://github.com/mattb112885/clusterDbAnalysis/wiki) for complete directions)
 
 * setup_step1.sh
 

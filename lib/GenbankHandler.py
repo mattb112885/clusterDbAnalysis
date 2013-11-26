@@ -23,6 +23,9 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
     seqidx = 11
     indexed_array = {}
     for ln in tbl:
+        if ln[startidx] == 'start':
+            continue
+
         # Do both of these because of possible incompatibilities in how the orderinf of
         # start and stop works...
         contig = ln[contigidx]
@@ -71,7 +74,7 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
             featurestart = int(location.start) + 1
             featureend = int(location.end)
             querytup = (original_name, featurestart, featureend)
-            if querytup in indexed_array and seq == indexed_array[querytup][0]:
+            if querytup in indexed_array and seq.lower() == indexed_array[querytup][0].lower():
                 if "db_xref" in multi_gbk_object[ii].features[jj].qualifiers:
                     multi_gbk_object[ii].features[jj].qualifiers["db_xref"].append("ITEP:%s" %(indexed_array[querytup][1]))
                 else:
@@ -79,7 +82,10 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
             else:
                 sys.stderr.write("BAD - the gene in the following location did not have a match in the table file!\n")
                 sys.stderr.write(str(location) + "\n")
-                sys.stderr.write(str(seq) + "\n")
+                sys.stderr.write(str(seq) + "\n\n")
+                if querytup in indexed_array:
+                    sys.stderr.write("did not match sequence in table file in the same location:\n")
+                    sys.stderr.write(str(indexed_array[querytup][0]) + "\n\n")
             pass
         pass
     return multi_gbk_object, newToOriginalName

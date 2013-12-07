@@ -39,34 +39,37 @@ if not os.path.isdir(outputfolder):
         exit(2)
     os.mkdir(outputfolder)
 
-# Make a dictionary that will hold our outfile names and handles
-# This is used to remove any dependency on order of rows in the file and also
-# make it non-ambiguous if multiple clusters have the same cluster IDs but different run IDs
-outfiles = {}
+# Make a dictionary that will hold our outfile names and what data goes into them.
+# This is used to remove any dependency on order of rows in the file
+outfileToSeqInfo = {}
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
+
     if len(spl) < 14:
         myrunid="NOCLUSTER"
         myclustid = ""
     else:
         myrunid = spl[12]
         myclustid = spl[13]
-    fname = "%s_%s.fasta" %(myrunid, myclustid)
-    #if we haven't seen this cluster run and ID yet, add it's handle to out dictionary, and make it the current fid
-    if fname not in outfiles.keys(): 
-        fid = open(os.path.join(outputfolder, fname), "w")
-        outfiles[fname] = fid
+    myfilename = os.path.join(outputfolder, "%s_%s.fasta" %(myrunid, myclustid) )
+
     if options.nuc:
         mysequence = spl[10]
     else:
         mysequence = spl[11]
+
     mygeneid = spl[0]
     myannotation = spl[9]
-    ln = ">%s %s\n%s\n" %(mygeneid, myannotation, mysequence)
-    outfiles[fname].write(ln)
 
-#close all files
-for fhandle in outfiles.values():
-    fhandle.close()
+    if myfilename in outfileToSeqInfo:
+        outfileToSeqInfo[myfilename].append( (mygeneid, myannotation, mysequence) )
+    else:
+        outfileToSeqInfo[myfilename] = [ (mygeneid, myannotation, mysequence) ]
+
+for filename in outfileToSeqInfo:
+    fid = open(filename, "w")
+    for seq in outfileToSeqInfo[filename]:
+        fid.write(">%s %s\n%s\n" %(seq[0], seq[1], seq[2]) )
+    fid.close()
 
 

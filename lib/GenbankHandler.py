@@ -8,7 +8,7 @@ for increased compatibility between ITEP and other tools.
 
 import sys
 
-def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
+def addItepGeneIdsToGenbank(multi_gbk_object, tbl, ignoreseq=False):
     '''
     Given a RAW table (list of tuples) and a genbank object,
     attempt to match up every object in the RAW table with every
@@ -74,7 +74,7 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl):
             featurestart = int(location.start) + 1
             featureend = int(location.end)
             querytup = (original_name, featurestart, featureend)
-            if querytup in indexed_array and seq.lower() == indexed_array[querytup][0].lower():
+            if querytup in indexed_array and ( ignoreseq or seq.lower() == indexed_array[querytup][0].lower() ):
                 if "db_xref" in multi_gbk_object[ii].features[jj].qualifiers:
                     multi_gbk_object[ii].features[jj].qualifiers["db_xref"].append("ITEP:%s" %(indexed_array[querytup][1]))
                 else:

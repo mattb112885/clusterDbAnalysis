@@ -76,7 +76,14 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, ignoreseq=False):
             querytup = (original_name, featurestart, featureend)
             if querytup in indexed_array and ( ignoreseq or seq.lower() == indexed_array[querytup][0].lower() ):
                 if "db_xref" in multi_gbk_object[ii].features[jj].qualifiers:
-                    multi_gbk_object[ii].features[jj].qualifiers["db_xref"].append("ITEP:%s" %(indexed_array[querytup][1]))
+                    alreadyHasItep = False
+                    itep_id = "ITEP:%s" %(indexed_array[querytup][1])
+                    for ref in multi_gbk_object[ii].features[jj].qualifiers["db_xref"]:
+                        if itep_id in ref:
+                            alreadyHasItep = True
+                            break
+                    if not alreadyHasItep:
+                        multi_gbk_object[ii].features[jj].qualifiers["db_xref"].append("ITEP:%s" %(indexed_array[querytup][1]))
                 else:
                     multi_gbk_object[ii].features[jj].qualifiers["db_xref"] = [ "ITEP:%s" %(indexed_array[querytup][1]) ]
             else:

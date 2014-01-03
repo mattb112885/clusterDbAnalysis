@@ -165,6 +165,12 @@ def genbank_extract(ptr, version_number):
 
     match_SEED_xref = re.compile("SEED\:(fig\|\d+\.\d+\.peg\.\d+)")
     match_KEGG_xref = re.compile("KEGG\:.*?\+(.*)")
+    # Have ITEP IDs been added previously?
+    match_ITEP_xref = re.compile("ITEP\:(fig\|\d+\.\d+\.peg\.\d+)")
+
+    seedConflictCheck = False
+    itepConflictCheck = False
+
     for gb_seqrec in gb_seqrec_multi:
         orginfo = info_from_genbank(gb_seqrec)
         for feature in gb_seqrec.features:
@@ -187,20 +193,22 @@ def genbank_extract(ptr, version_number):
                 record = feature.extract(gb_seqrec)
                 geneinfo.update(info_from_record(record))
 
-                # This section is for PubSEED-derived genbank files. If we just iterate over the list we end up being off
-                # because some of the numbers are skipped in the PUBSEED files... and because they don't put the IDs in the standard place
-                # but in the "db_xref" field.
-                # Build output with custom fields (and add them to info list)
-                # There are other xrefs that I don't try to capture here...
+                # Handle supported xrefs: KEGG (locus tags by another name), SEED, and ITEP references
                 aliases = []
                 geneid = None
-                seedConflictCheck = False
                 if "db_xref" in feature.qualifiers:
                     for xref in feature.qualifiers["db_xref"]:
                         match = match_SEED_xref.match(xref)
                         if match is not None:
                             geneid = match.group(1)
                             seedConflictCheck = True
+                        match = match_ITEP_xref.match(xref)
+                        if match is not None:
+                            # If there is both an ITEP ID and a SEED ID they must match
+                            if geneid is not None and geneid != match.group(1):
+                                raise IOError("ERROR: ITEP ID did not match with SEED ID in provided Genbank file - this should never happen.")
+                            geneid = match.group(1)
+                            itepConflictCheck = True
                         # Note that one SEED gene can have more than one KEGG match (i.e. go with more than one locus tag).
                         # This is OK - I'll just capture all of them here.
                         match = match_KEGG_xref.match(xref)
@@ -213,6 +221,8 @@ def genbank_extract(ptr, version_number):
                     # If this is not the case we will most likely get duplicated IDs which is BAD.
                     if seedConflictCheck:
                         raise IOError("ERROR: In order to avoid namespace collisions, if at least one gene has a PubSEED ID attached then ALL of them must.")
+                    elif itepConflictCheck:
+                        raise IOError("ERROR: In order to avoid namespace collisions, if at least one gene has an ITEP ID already attached then ALL of them must.")
                     else:
                         geneid = "fig|" + str(orginfo["taxon"]) + "." + str(version_number) + ".peg." + str(counter)
                         pass

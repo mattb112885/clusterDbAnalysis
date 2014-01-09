@@ -23,7 +23,7 @@ if [ $? -eq 1 ]; then
 fi
 
 echo "Checking for uniqueness of organisms in organisms file..."
-nl=$(cat organisms | wc -l)
+nl=$(cat organisms | sort | wc -l)
 numname=$(cat organisms | cut -f 1 | sort -u | wc -l);
 numid=$(cat organisms | cut -f 2 | sort -u | wc -l);
 if [ "${nl}" != "${numname}" ]; then
@@ -50,7 +50,7 @@ if [ ! -f "groups" ]; then
 fi
 
 echo "Checking for uniqueness of groups..."
-ng=$(cat groups | wc -l);
+ng=$(cat groups | sort | wc -l);
 numgroups=$(cat groups | sort -u | wc -l);
 if [ "${ng}" != "${numgroups}" ]; then
     echo 'ERROR: Group names must be unique';

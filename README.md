@@ -22,10 +22,16 @@ $ git submodule update
 
 Help text for all Python scripts is available using the "-h" command. In addition we have dumped all of the help text to /doc/help_texts to make for easy searching.
 
-## Setup scripts
+## Setting up paths
+
+Make sure you source the SourceMe.sh file for the repository before trying to run any ITEP commands. This will add appropriate paths. 
+To switch between different ITEP databases on the same machine, just source the SourceMe.sh file in the root repository for the database you want to use.
+
+## Database setup scripts
 
 These scripts should be run in the following order to set up the database, once all of the input data is placed correctly (see the 
-[wiki](https://github.com/mattb112885/clusterDbAnalysis/wiki) for complete directions)
+[wiki](https://github.com/mattb112885/clusterDbAnalysis/wiki) for complete directions). All of these scripts must be run from the
+root directory of the repository (as e.g. ./setup_step1.sh).
 
 * setup_step1.sh
 

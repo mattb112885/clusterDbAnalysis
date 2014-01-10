@@ -283,7 +283,7 @@ if __name__ == '__main__':
     parser.add_option("-r", "--replace", 
                       help="If specified, replaces old data related to the derived organism ID with the new data (D: Throws an error if an organism already is present with the derived organism ID)",
                       action="store_true", dest="replace", default=False)
-    parser.add_option("-v", "--version_number", help="The second number in the \d+\.\d+ format of the organism ID - use this to distinguish between multiple genbank files with the same taxID (D:88888)",
+    parser.add_option("-v", "--version_number", help="An integer used to distinguish between multiple genbank files with the same taxID (D:88888). This will become the second number in the organism ID",
                       action="store", type="int", dest="version_number", default=88888)
     (options, args) = parser.parse_args()
     

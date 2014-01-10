@@ -291,11 +291,7 @@ if __name__ == '__main__':
         sys.stderr.write("ERROR: Genbank_file (-g) is a required argument\n")
         exit(2)
 
-    # Check the version of Biopython. This script has been backported to work with some older versions but other scripts might have issues.
-    if float(Bio.__version__) < RECOMMENDED_BIOPYTHON_VERSION:
-        sys.stderr.write("WARNING: Your Biopython distribution (%s) may be too old to work with some ITEP scripts (1.61 or newer recommended)\n" %(Bio.__version__))
-
-    # Extract data from the Genbank file
+     # Extract data from the Genbank file
     orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number)
 
     rootdir = locateRootDirectory()

@@ -199,12 +199,5 @@ DROP TABLE blastresults;
 DROP TABLE blastn_results;
 DROP TABLE geneinfo;
 
-/* This command is needed to actually get the DB to shrink upon command.
-It takes a while to run and requires about twice the size of the database while it's running,
-but after it's done it can save hundreds of gigabytes.
-
-The alternative is to do a PRAGMA auto_vacuum FULL; ... or just to keep the tables around. */
-VACUUM;
-
 /* This should make some queries faster and doesn't take much time. */
 ANALYZE;

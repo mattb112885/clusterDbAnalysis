@@ -423,6 +423,7 @@ if __name__ == "__main__":
 
     # Now that we don't need to reference anything with the gene IDs any more, try to change them into
     # annotations
+    sanitizedToNot = getSanitizedContigList(cur)
     for node in t.traverse():
         if node.is_leaf():
             unsanitized = unsanitizeGeneId(node.name)
@@ -433,14 +434,18 @@ if __name__ == "__main__":
             else:
                 # FIxME - Attempt to get the organism name from the contig for TBLASTN IDs. If that fails we just give up.
                 annotation = ""
+                organism = ""
                 try:
                     contig,start,stop = splitTblastn(unsanitized)
+                    if contig in sanitizedToNot:
+                        contig = sanitizedToNot[contig]
                     q = "SELECT organism FROM organisms INNER JOIN contigs ON contigs.organismid = organisms.organismid WHERE contigs.contig_mod=?;"
                     cur.execute(q, (contig,) )
                     for res in cur:
                         organism = res[0]
                 except ValueError:
-                    organism = ""
+                    # Not a tblastn ID.
+                    pass
             node.name = sanitizeString("%s_%s_%s" %(organism, annotation[0:63], unsanitized), False)
     
     t, ts = prettifyTree(t, title = gene + " cluster regions", show_bootstraps = False, ts=ts)

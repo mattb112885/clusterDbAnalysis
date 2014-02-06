@@ -33,6 +33,12 @@ These scripts should be run in the following order to set up the database, once 
 [wiki](https://github.com/mattb112885/clusterDbAnalysis/wiki) for complete directions). All of these scripts must be run from the
 root directory of the repository (as e.g. ./setup_step1.sh).
 
+* convertGenbank2table.py
+
+    Use this to take concatenated Genbank files (anything Biopython can read) and format them for use with ITEP. Note: Concatenate genbank files if you have
+more than one contig for your organism before running this script. Put your input genbank files anywhere EXCEPT in the genbank/ directory (the files will 
+have db_xrefs added and will be placed there automatically with filenames expected by ITEP scritps)
+ 
 * setup_step1.sh
 
     Backs up existing organisms file, generates a new one from the genbank files, and reconciles abbreviations. 

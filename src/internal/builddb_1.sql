@@ -204,7 +204,7 @@ It takes a while to run and requires about twice the size of the database while 
 but after it's done it can save hundreds of gigabytes.
 
 The alternative is to do a PRAGMA auto_vacuum FULL; ... or just to keep the tables around. */
-VACUUM;
+/* VACUUM; */
 
 /* This should make some queries faster and doesn't take much time. */
 ANALYZE;

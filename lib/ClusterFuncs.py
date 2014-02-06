@@ -149,7 +149,15 @@ def getGeneNeighborhoods(geneid, clusterrunid, cur):
     geneids.append(clusterrunid)
     cur.execute(sql, geneids)
     lookupcluster = dict(cur.fetchall())
-    outdata = [l + (lookupcluster[l[1]],) for l in results]
+    outdata = []
+    for l in results:
+        if l[1] in lookupcluster:
+            outdata.append(l + (lookupcluster[l[1]], ) )
+        else:
+            sys.stderr.write("WARNING: Gene ID %s not found in cluster run %s\n" %(l[1], clusterrunid))
+        pass
+        
+#    outdata = [l + (lookupcluster[l[1]],) for l in results]
     return outdata
 
 def getGenesInRegion(contig_id, start, stop, cur, overhang=0):

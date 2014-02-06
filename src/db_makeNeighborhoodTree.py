@@ -125,7 +125,12 @@ def makeSeqObjectsForTblastnNeighbors(tblastn_id, clusterrunid, cur, N=200000):
     '''
     # Lets first get the contig and start/stop locations (which tell us teh strand) out of
     # the TBLASTN id. This returns a ValueError if it fails which the calling function can catch if needed.
+    sanitizedToNot = getSanitizedContigList(cur)
+
     contig,start,stop = splitTblastn(tblastn_id)
+    if contig in sanitizedToNot:
+        contig = sanitizedToNot[contig]
+
     start = int(start)
     stop = int(stop)
 
@@ -140,8 +145,8 @@ def makeSeqObjectsForTblastnNeighbors(tblastn_id, clusterrunid, cur, N=200000):
     # Find the neighboring genes.
     neighboring_genes = getGenesInRegion(contig, start-N, stop+N, cur)
     if len(neighboring_genes) == 0:
-        sys.stderr.write("WARNING: No neighboring genes found for TBLASTN hit %s within %d nucleotides" %(tblastn_id, N))
-        return feature
+        sys.stderr.write("WARNING: No neighboring genes found for TBLASTN hit %s within %d nucleotides in contig %s\n" %(tblastn_id, N, contig))
+        return [ tblastn_feature ]
     else:
         neighboring_geneinfo = getGeneInfo(neighboring_genes, cur)
 

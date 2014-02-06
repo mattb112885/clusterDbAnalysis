@@ -56,6 +56,8 @@ parser.add_option("-r", "--forcereload", help="Force reload of the database with
                   action="store_true", dest="forcereload", default=False)
 parser.add_option("-k", "--keeptemp", help="Keep temporary files made by orthoMCL (D: Delete them - except the new config file which is stored in the filename specified by -n)",
                   action="store_true", dest="keeptemp", default=False)
+parser.add_option("-b", "--blastres", help="Use this BLAST results file for orthomcl input instead of the default (containing all organisms).",
+                  action="store", dest="blastres", default=None)
 
 (options, args) = parser.parse_args()
 
@@ -241,8 +243,13 @@ os.system("cat %s > %s" %(os.path.join(orthofastadir, "*"), orthofasta_cat))
 # ... and we need to ensure that the genes in the BLAST results have the same format.
 # This will take some time but WAY less than re-running BLAST.
 sys.stderr.write("Reformatting BLAST output file to use orthoMCL-compliant IDs...\n")
-blastresfile = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat")
-orthoblastres = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat_orthomcl")
+
+if options.blastres is None:
+    blastresfile = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat")
+    orthoblastres = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat_orthomcl")
+else:
+    blastresfile = options.blastres
+    orthoblastres = "%s_orthomcl" %(options.blastres)
 
 # Check that the two have the same number of lines and delete the orthoblastres
 # file if that is not the case.
@@ -288,7 +295,11 @@ except IOError:
 ########################################
 
 sys.stderr.write("Running orthomcl Blast parser to put blast results in the correct format for output...\n")
-orthomclBlastParserFile = os.path.join(os.path.dirname(locateDatabase()), "blastres_orthomcl_modified")
+
+if options.blastres is None:
+    orthomclBlastParserFile = os.path.join(os.path.dirname(locateDatabase()), "blastres_orthomcl_modified")
+else:
+    orthomclBlastParserFile = "%s_orthomcl_modified" %(options.blastres)
 
 # Note - the orthomclBlastParser modifies the number of lines in the file...
 # Therefore we cannot just check the number of lines and make sure they are

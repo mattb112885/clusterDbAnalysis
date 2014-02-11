@@ -121,10 +121,7 @@ for l in cur:
     geneToAnnote[sanitizeString(spl[0], False)] = sanitizeString(spl[9], False)
     geneToOrganism[sanitizeString(spl[0], False)] = sanitizeString(spl[1], False)
 
-# Standardize font sizes and tree width
-t, ts = prettifyTree(t, show_bootstraps = not options.no_bootstraps)
-# Standardize leaf order in equivalent trees (with same root)
-t = standardizeTreeOrdering(t)
+ts = TreeStyle()
 
 # Now we try and add the heatmap
 # if the user requests it
@@ -200,8 +197,6 @@ if options.textfile is not None:
 ######################
 # Add annotations and
 # larger bootstrap values to tree
-#
-# This must be done at the end or the textfile option will not work correctly.
 ######################
 
 for node in t.traverse():
@@ -212,7 +207,11 @@ for node in t.traverse():
             newname = "_".join( [ node.name, geneToOrganism[sanitizedName], geneToAnnote[sanitizedName] ] )
             node.name = newname
 
-
+# Standardize font sizes and tree width
+# This must be done at the end or displaying node names wont work correctly.
+t, ts = prettifyTree(t, show_bootstraps = not options.no_bootstraps, ts=ts)
+# Standardize leaf order in equivalent trees (with same root)
+t = standardizeTreeOrdering(t)
 
 if options.savenewick:
     t.write(outfile="%s.nwk" %(options.basename), format=0)

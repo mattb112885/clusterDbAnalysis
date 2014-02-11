@@ -17,6 +17,11 @@ def sanitizeString(string, warnOfReplacement):
         warnings.warn("WARNING: String %s replaced with sanitized version  %s\n" %(string, s) )
     return s
 
+def unsanitizeGeneId(sanitized_geneid):
+    '''Turns fig_\d+_\d+_peg_\d+ into fig|\d+.\d+.peg.\d+ for db recognition purposes.
+    Note that this can be used on any string containing sanitized gene IDs'''
+    return re.sub(r"fig_(\d+)_(\d+)_peg_(\d+)", r"fig|\1.\2.peg.\3", sanitized_geneid)
+
 def sanitizeByType(container, sanitizeby='tsv', onlycolumns=False):
     '''for a iterable of strings, carry out sanitizeString by:
         line, 

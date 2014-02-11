@@ -36,8 +36,8 @@ Note that the first row must look like this:
 #names [column_label1] [column_label2] ...
 
 Do not make a column label for the leaf name column. The #names is just a place holder - 
-not sure if it can be replaced but just put it in to make sure it works. 
-The ETE parser will fail without a label row with the right number of entries!
+but the ETE parser will fail without it.
+The ETE parser will also fail without a label row with the right number of entries!
 """,
                   action = "store", type="str", dest="datafile", default=None)
 parser.add_option("-w", "--data_width", help="Desired width of each data point on a heatmap (only valid with -f, default = 60)", action="store", type="int", dest="data_width", default=60)

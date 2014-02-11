@@ -4,6 +4,7 @@
 (common operations used by our scripts)'''
 
 from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace, TextFace
+from sanitizeString import *
 import re
 import sys
 import warnings
@@ -148,10 +149,6 @@ def rerootPhyloTree(phylo_tree, reroot_species = None):
         raise ValueError
 
     return phylo_tree
-
-def unsanitizeGeneId(sanitized_geneid):
-    '''Turns fig_\d+_\d+_peg_\d+ into fig|\d+.\d+.peg.\d+ for db recognition purposes'''
-    return re.sub(r"fig_(\d+)_(\d+)_peg_(\d+)", r"fig|\1.\2.peg.\3", sanitized_geneid)
 
 # TODO - this should probably go into a different library. I put it here for now since James's
 # tree function is the only one using it at the moment.

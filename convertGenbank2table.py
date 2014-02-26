@@ -168,11 +168,20 @@ def genbank_extract(ptr, version_number):
     # Have ITEP IDs been added previously?
     match_ITEP_xref = re.compile("ITEP\:(fig\|\d+\.\d+\.peg\.\d+)")
 
+    # If we have a SEED or ITEP ID we want to get the version number out of that.
+    get_version_number = re.compile("fig\|\d+\.(\d+)\.peg\.\d+")
+
+    # These are used to help avoid colliding namespaces.
     seedConflictCheck = False
     itepConflictCheck = False
 
+    orginfo = dict()
+    orginfoFound = False
     for gb_seqrec in gb_seqrec_multi:
-        orginfo = info_from_genbank(gb_seqrec)
+        if not orginfoFound:
+            orginfo = info_from_genbank(gb_seqrec)
+            orginfo["net_version_number"] = version_number
+            orginfoFound = True
         for feature in gb_seqrec.features:
             if feature.type =="CDS":
                 #check there is only one translation and get info
@@ -202,6 +211,13 @@ def genbank_extract(ptr, version_number):
                         if match is not None:
                             geneid = match.group(1)
                             seedConflictCheck = True
+                            versionNumberMatch = get_version_number.match(geneid)
+                            realVersionNumber = versionNumberMatch.group(1)
+                            if realVersionNumber != version_number:
+                                sys.stderr.write("WARNING: Version number %s from SEED ID will overwrite provided version number %s\n" %(realVersionNumber, version_number))
+                                version_number = realVersionNumber
+                                orginfo["net_version_number"] = realVersionNumber                                
+
                         match = match_ITEP_xref.match(xref)
                         if match is not None:
                             # If there is both an ITEP ID and a SEED ID they must match
@@ -209,6 +225,15 @@ def genbank_extract(ptr, version_number):
                                 raise IOError("ERROR: ITEP ID did not match with SEED ID in provided Genbank file - this should never happen.")
                             geneid = match.group(1)
                             itepConflictCheck = True
+                            versionNumberMatch = get_version_number.match(geneid)
+                            realVersionNumber = versionNumberMatch.group(1)
+                            if realVersionNumber != version_number:
+                                sys.stderr.write("WARNING: Version number %s from ITEP ID will overwrite provided version number %s\n" %(realVersionNumber, version_number))
+                                version_number = realVersionNumber
+                                orginfo["net_version_number"] = realVersionNumber                                
+
+                        match = match_ITEP_xref.match(xref)
+
                         # Note that one SEED gene can have more than one KEGG match (i.e. go with more than one locus tag).
                         # This is OK - I'll just capture all of them here.
                         match = match_KEGG_xref.match(xref)
@@ -293,6 +318,7 @@ if __name__ == '__main__':
 
      # Extract data from the Genbank file
     orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number)
+    options.version_number = orginfo["net_version_number"]
 
     rootdir = locateRootDirectory()
     organism_id = str(orginfo["taxon"]) + "." + str(options.version_number)

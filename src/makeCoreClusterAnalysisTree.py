@@ -67,6 +67,9 @@ parser.add_option("-n", "--none",
 parser.add_option("-y", "--any",
                   help = "Count clusters if they have representatives in ANY descendent node from each internal node.""",
                   action = "store_true", dest="any", default = False)
+parser.add_option("-c", "--clades",
+                  help = "Instead of comparing these statistics to the whole cluster run as an outgroup, restrict the outgroup to the sister clade(s) of the tree.",
+                  action = "store_true", dest="clades", default=False)
 
 (options, args) = parser.parse_args()
 
@@ -116,7 +119,7 @@ t, ts = prettifyTree(t, show_bootstraps = False)
 
 t, data = addCoreDataToTree(t, runid, 
                             all_org = options.all, any_org = options.any, only_org = options.only, 
-                            none_org = options.none, uniq_org = options.uniq)
+                            none_org = options.none, uniq_org = options.uniq, compare_to_adj_clade = options.clades)
 
 #we will cache in a dictionary, as the lookup is slow
 RepresentativeAnnotation={}

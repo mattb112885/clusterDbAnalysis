@@ -39,3 +39,4 @@ for line in fileinput.input("-"):
         stri = "\t".join(str(t) for t in s)
         print stri
 
+con.close()

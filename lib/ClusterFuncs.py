@@ -63,6 +63,23 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     cur.execute("DROP TABLE desiredgenes;")
     return resultTable
 
+def getClustersContainingGenes(genelist, cur):
+    '''
+    Get a list of cluster/runID pairs containing at least one of a set of genes.
+    Returns a list of (runid, clusterid, organism) tuples.
+    '''
+    cur.execute("CREATE TEMPORARY TABLE s ( geneid VARCHAR(256) );")
+
+    for gene in genelist:
+        cur.execute("INSERT INTO s VALUES (?);", (gene, ))
+
+    cur.execute("""SELECT clusters.* FROM clusters                                                                                                                                                                               WHERE clusters.geneid IN (SELECT geneid FROM s)                                                                                                                                                               ORDER BY runid, clusterid; """)
+
+    res = []
+    for l in cur:
+        res.append( tuple( [ str(s) for s in l ] ) )
+    return res
+
 
 def getValidBlastScoreMethods():
     '''

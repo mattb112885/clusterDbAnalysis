@@ -9,6 +9,19 @@ import re
 import sys
 import warnings
 
+def getLeafNames(ete_tree):
+    '''
+    Given an ETE tree, list the names of all leaves in the tree.
+
+    Returns a list of leaf names.
+    '''
+    names = []
+    for node in ete_tree.traverse(strategy="postorder"):
+        if node.is_leaf():
+            names.append(node.name)
+    return names
+
+
 def rerootEteTree(ete_tree, root_leaf = None, root_leaf_part = None):
     '''
     Given an ETE tree, re-root by either the whole name of a leaf (i.e. a gene ID) or a

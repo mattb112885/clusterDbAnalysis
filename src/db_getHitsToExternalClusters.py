@@ -36,3 +36,5 @@ for line in fileinput.input("-"):
     cur.execute(q, (externalid, options.evalue))
     for res in cur:
         print "\t".join([ str(s) for s in res ] )
+
+con.close()

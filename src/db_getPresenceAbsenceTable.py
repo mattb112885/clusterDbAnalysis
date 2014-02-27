@@ -155,3 +155,5 @@ for rec in cur:
                 newlst.append(lst[newcol2dbcol[ii]])
         lst = newlst
     print "\t".join(lst)
+
+con.close()

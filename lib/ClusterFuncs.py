@@ -172,6 +172,7 @@ def getGeneNeighborhoods(geneid, clusterrunid, cur):
             outdata.append(l + (lookupcluster[l[1]], ) )
         else:
             sys.stderr.write("WARNING: Gene ID %s not found in cluster run %s\n" %(l[1], clusterrunid))
+            outdata.append(l + (-1,) )
         pass
         
 #    outdata = [l + (lookupcluster[l[1]],) for l in results]

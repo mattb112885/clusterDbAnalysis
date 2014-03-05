@@ -3,7 +3,8 @@ ITEP 1.2
 This release includes a number of new features and bug fixes.
 
 NEW FEATURES:
-- OrthoMCL wrapper now optionally takes as input an arbitrary table of BLAST results from the ITEP database.
+- OrthoMCL wrapper now optionally takes as input an arbitrary table of BLAST results from the ITEP database. By default it pulls out and uses everything
+  in the database.
 - makeCoreClusterAnalysisTree.py now optionally can be used to analyze presence-absence patterns relative to sister clades,
   rather than relative to all organisms in the cluster run. See help text for details.
 - db_makeClusterComparisonTable.py - identify genes in the same cluster as a reference across cluster runs and provide
@@ -15,6 +16,13 @@ BUG FIXES:
   Thanks to Matt Richards for reporting.
 - Fixed handling of sanitized gene IDs (e.g. fig_83333_1_peg_1 intead of fig|83333.1.peg.1) when displaying trees
 - Fixed handling of tBLASTn IDs when building gene neighborhood trees
+- Fixed coloring of neighborhood trees when cluster cutoff is specified on the command line
+- Improved fallback of getGeneNeighborhoods when gene is not found in the specified cluster run. Fallback is now to use cluster ID = -1,
+  same as it is in the neighborhood display script.
+
+VIRTUAL MACHINE FIXES:
+- Added FastTreeMP to virtual machines
+- Upgraded Biopython to 1.63b on both machines
 
 OTHER CHANGES:
 - unsanitizeGeneId() function moved to sanitizeString.py library to avoid importing many tree-related libraries when not necessary.

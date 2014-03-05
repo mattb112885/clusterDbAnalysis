@@ -186,9 +186,11 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
     if cl is None:
         cl = getClusterOrgsByRun(runid)
 
+    if outgroup is not None:
+        outgroup = set(outgroup)
+
     previd = -1
     orgset = set(orglist)
-    outgroup = set(outgroup)
     currentorgs = set()
     goodClusters = []
     for l in cl:
@@ -217,11 +219,6 @@ def findGenesByOrganismList(orglist, runid, cl = None, sanitized = False, any_or
                 # Our criteria: we can't have any of the options be TRUE and not have the corresponding condition also be true
                 if not ( ( any_org and not anyok) or ( all_org and not allok) or (none_org and not noneok)
                          or (only_org and not onlyok) or (uniq_org and not uniqok) or ( use_pct_cutoff and not pctok) ):
-                    print "currentorgs:"
-                    print currentorgs
-                    print "outgroup:"
-                    print outgroup
-                    print "\n"
                     goodClusters.append( (prevrun, previd) )
 
             # Reset

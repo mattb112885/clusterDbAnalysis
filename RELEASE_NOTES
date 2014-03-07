@@ -19,6 +19,7 @@ BUG FIXES:
 - Fixed coloring of neighborhood trees when cluster cutoff is specified on the command line
 - Improved fallback of getGeneNeighborhoods when gene is not found in the specified cluster run. Fallback is now to use cluster ID = -1,
   same as it is in the neighborhood display script.
+- Fixed replaceGeneNamesWithAliases.py to work with much more general filetypes.
 
 VIRTUAL MACHINE FIXES:
 - Added FastTreeMP to virtual machines

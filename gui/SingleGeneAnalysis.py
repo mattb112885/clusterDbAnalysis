@@ -26,6 +26,16 @@ class NoGeneError(GuiError):
     pass
 
 class ITEPGui:
+    # Utilities
+    def _createTemporaryFile(self, delete=False):
+        f = tempfile.NamedTemporaryFile(delete=delete)
+        fname = f.name
+        return (f, fname)
+    def _getClusterId(self):
+        # Get the cluster in which the chosen gene is found in the chosen cluster run.
+        # Put into its own function because it's so ugly.
+        return self.accumulated_data['run_to_cluster'][self.accumulated_data['runid']]
+
     # Analyses
     def _get_nucleotide_fasta(self):
         geneinfo = self.accumulated_data['geneinfo']
@@ -37,12 +47,13 @@ class ITEPGui:
         text = '>%s %s\n%s\n' %(geneinfo[0], geneinfo[9], geneinfo[11])
         easygui.textbox(text=text)
         return True
+    def _get_neighborhood_plot(self):
+        raise GuiError('The selected feature has not been implemented yet.')
     # Analysis Related to getting related genes
     def _get_cluster_fasta(self, amino=True):
         r2c = self.accumulated_data['run_to_cluster']
-        runid = self.accumulated_data['runid']
-        clusterid = r2c[runid]
-        genelist = getGenesInCluster(runid, clusterid, self.sqlite_cursor)
+        clusterid = self._getClusterId()
+        genelist = getGenesInCluster(self.accumulated_data['runid'], clusterid, self.sqlite_cursor)
         geneinfo = getGeneInfo(genelist, self.sqlite_cursor)
         if amino:
             idx = 11
@@ -53,26 +64,53 @@ class ITEPGui:
             text += '>%s %s\n%s\n'%(gi[0], gi[9], gi[idx])
         easygui.textbox(text=text)
         return True
-
     def _get_presence_absence_table(self):
-        pa_tbl_file = tempfile.NamedTemporaryFile(delete=False)
-        pa_tbl_file_name = pa_tbl_file.name
-        cluster = self.accumulated_data['run_to_cluster'][self.accumulated_data['runid']]
-        os.system('db_getPresenceAbsenceTable.py -r %s -c %s > %s' %(self.accumulated_data['runid'], cluster, pa_tbl_file_name))
-        text = ''.join( [ line for line in pa_tbl_file ] )
+        (pa_file, pa_fname) = self._createTemporaryFile()
+        cluster = self._getClusterId()
+        cmd = 'db_getPresenceAbsenceTable.py -r %s -c %s > %s 2> /dev/null' %(self.accumulated_data['runid'], cluster, pa_fname)
+        print cmd
+        os.system(cmd)
+        text = ''.join( [ line for line in pa_file ] )
         easygui.textbox(text=text)
         return True
-
     def _make_crude_alignment(self):
-        raise GuiError('This feature is not yet implemented in GUI form.')
+        (aln_file, aln_fname) = self._createTemporaryFile()
+        cluster = self._getClusterId()
+        cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
+            %(self.accumulated_data['runid'], cluster, aln_fname)
+        print cmd
+        os.system(cmd)
+        text = ''.join( [ line for line in aln_file ] )
+        easygui.textbox(text=text)
+        return True
     def _make_crude_tree(self):
-        raise GuiError('This feature is not yet implemented in GUI form.')
-    def _display_crude_tree(self):
-        raise GuiError('This feature is not yet implemented in GUI form.')
+        (nwk_file, nwk_fname) = self._createTemporaryFile()
+        cluster = self._getClusterId()
+        cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
+            %(self.accumulated_data['runid'], cluster, nwk_fname)
+        print cmd
+        os.system(cmd)
+        text = ''.join( [ line for line in nwk_file ] )
+        easygui.textbox(text=text)
+        return True
+    def _display_crude_neighborhood_tree(self):
+        (nwk_file, nwk_fname) = self._createTemporaryFile()
+        cluster = self._getClusterId()
+        cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma > %s 2> /dev/null' \
+            %(self.accumulated_data['runid'], cluster, nwk_fname)
+        print cmd
+        os.system(cmd)
+
+        # Now that we have a Newick tree to test lets try to view it.
+        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
+        print second_cmd
+        os.system(second_cmd)
+        return True
 
     def _handle_cluster_run_options(self):
         valid_choices = [ 'Make Amino acid FASTA file', 'Make nucleotide FASTA file', 'Make a crude AA alignment', 
-                          'Make a crude Newick tree from AA alignment', 'Display a crude Newick tree from AA alignment',
+                          'Make a crude Newick tree from AA alignment',
+                          'Display a crude tree with neighborhoods attached',
                           'Get a presence and absence table' ]
         option = easygui.choicebox("What do you want to do with it?", "Choose an analysis", valid_choices)        
         if option is None:
@@ -85,10 +123,10 @@ class ITEPGui:
             self._make_crude_alignment()
         elif option == 'Make a crude Newick tree from AA alignment':
             self._make_crude_tree()
-        elif option == 'Display a crude Newick tree from AA alignment':
-            self._display_crude_tree()
         elif option == 'Get a presence and absence table':
             self._get_presence_absence_table()
+        elif option == 'Display a crude tree with neighborhoods attached':
+            self._display_crude_neighborhood_tree()
         return True
 
     def _get_related_genes(self):

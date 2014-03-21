@@ -9,6 +9,7 @@
 # Must be run from the root directory
 
 import sqlite3, optparse
+from ClusterFuncs import *
 from FileLocator import *
 
 usage = "%prog > run_id_list"
@@ -19,11 +20,8 @@ parser = optparse.OptionParser(usage=usage, description=description)
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-cur.execute("SELECT DISTINCT runid FROM clusters;")
+runs = getAllClusterRuns(cur)
 
-for l in cur:
-    s = list(l)
-    stri = "\t".join(str(t) for t in s)
-    print stri
+print "\n".join(runs)
 
 con.close()

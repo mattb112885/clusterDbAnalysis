@@ -40,3 +40,9 @@ def locateGroupsFile(raiseError=True):
         raise ValueError("ERROR: groups file not found in expected location %s" %(groupsspath) )
     return groupspath
 
+def locateAliasesFile(raiseError=True):
+    rootdir = locateRootDirectory()
+    aliaspath = os.path.join(rootdir, "aliases", "aliases")
+    if not os.path.exists(aliaspath) and raiseError:
+        raise ValueError("ERROR: aliases file not found in expected location %s" %(aliaspath) )
+    return aliaspath

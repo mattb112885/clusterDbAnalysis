@@ -312,6 +312,14 @@ def getContigIds(cur, orgid=None, orgname=None, issanitized=False):
         contig_ids.append(str(res[0]))
     return contig_ids
 
+def getAllClusterRuns(cur):
+    runs = []
+    cur.execute("SELECT DISTINCT runid FROM clusters;")
+    for l in cur:
+        runs.append(str(l[0]))
+    return runs
+
+
 def getContigSequence(cur, contig_list):
     '''
     Accepts as input a list of contig IDs (in ITEP format).

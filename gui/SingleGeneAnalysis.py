@@ -170,19 +170,24 @@ Note that only the options that contain your gene are listed here.
             run_to_cluster[cr[0]] = cr[1]
         self.accumulated_data['run_to_cluster'] = run_to_cluster
     def _setUpGeneInfo(self, alias):
-        alias_file = locateAliasesFile()
-        alias2gene = {}
-        for line in open(locateAliasesFile()):
-            spl = line.strip("\r\n").split("\t")
-            alias2gene[spl[1]] = spl[0]
-        if alias not in alias2gene:
-            raise NoGeneError("Sorry, we could not find locus tag %s in our aliases file. It might not be in this database.\n" %(alias))
+        # Try ITEP ID first
+        geneinfo = getGeneInfo( [ alias ], self.sqlite_cursor)
+        if len(geneinfo) == 0:
+            alias_file = locateAliasesFile()
+            alias2gene = {}
+            for line in open(locateAliasesFile()):
+                spl = line.strip("\r\n").split("\t")
+                alias2gene[spl[1]] = spl[0]
+            if alias not in alias2gene:
+                raise NoGeneError("Sorry, we could not find gene ID %s in the database or in our aliases file. It might not be in this database.\n" %(alias))
+            itep_id = alias2gene[alias]
+            geneinfo = getGeneInfo( [ itep_id ], self.sqlite_cursor)
+        else:
+            # ITEP ID was provided
+            itep_id = alias
 
-        itep_id = alias2gene[alias]
-        geneinfo = getGeneInfo( [ itep_id ], self.sqlite_cursor)
         geneinfo = geneinfo[0]
         self.accumulated_data['alias'] = alias
-        self.accumulated_data['alias_file'] = alias_file
         self.accumulated_data['ITEP_id'] = itep_id
         self.accumulated_data['geneinfo'] = geneinfo        
         return True
@@ -192,7 +197,7 @@ Note that only the options that contain your gene are listed here.
         self.accumulated_data = {}
         return
     # Interface
-    def getLocusTag(self):
+    def getGeneId(self):
         gene_alias = easygui.enterbox("Please enter the locus tag of the gene you wish to study.")
         if gene_alias is None:
             raise UserCancelError('User cancelled the operation.')
@@ -242,7 +247,7 @@ if __name__ == "__main__":
     gui = ITEPGui(cur)
 
     # Lets get a focus gene to study.
-    gene_alias = gui.getLocusTag()
+    gui.getGeneId()
 
     # What do you want to do with it?
     while 1:

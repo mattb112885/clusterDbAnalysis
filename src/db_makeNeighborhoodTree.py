@@ -101,27 +101,10 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, label=False):
         sys.stderr.write("WARNING: No genes in input tree had entries in the database so no neighborhoods will be drawn\n")
         return t, ts
 
-    # Get a list of clusters containing these genes
-    allclusters = []
+    allseqfeatures = []
     for gene in seqfeatures:
-        for feature in seqfeatures[gene]:
-            allclusters.append(feature.qualifiers["cluster_id"])
-
-    uniqueclusters = set(allclusters)
-
-    # Get clusters that have enough members to bother trying to color them (as determined by
-    # the greyout keyword)
-    multipleclusters = [c for c in uniqueclusters if allclusters.count(c) >= greyout]
-
-    # Don't die if nothing has enough clusters...
-    if len(multipleclusters) > 0:
-        getcolor = colormap(multipleclusters)
-    else:
-        getcolor = {}
-
-    #also add in grey (0.5,0.5,0.5 in RGB) for all others
-    singleclusters = [c for c in uniqueclusters if allclusters.count(c) < greyout]
-    getcolor.update([(sc, (0.5,0.5,0.5)) for sc in singleclusters])
+        allseqfeatures += seqfeatures[gene]
+    getcolor = makeClusterColorMap(allseqfeatures, greyout)
 
     #generate the region images for any leaf that has them, and map onto the tree
     #we will want to know the max width to make the figures

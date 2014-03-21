@@ -37,19 +37,19 @@ def makeSeqFeature(geneid, cur):
     feature.qualifiers["cluster_id"] = -1
     return feature
 
-def makeSeqFeaturesForGeneNeighbors(genename, clusterrunid, cur):
-    '''                                                                                                                                                                                                       
+def makeSeqFeaturesForGeneNeighbors(genename, runid, cur):
+    '''                                                                                                              
     Create seqFeature objects for a gene and its neighbors.
 
     genename is the ITEP ID for a gene.
-    clusterrunid is a tuple (clusterid, runid) 
+    runid is a run ID
 
     The function returns a list of BioPython SeqFeature objects for the specified gene 
     and its neighbors.
     
     If the gene is not found it returns an empty list.
     '''
-    outdata = getGeneNeighborhoods(genename, clusterrunid, cur)
+    outdata = getGeneNeighborhoods(genename, runid, cur)
     seqfeatures = []
     for neargene in outdata:
         feature = makeSeqFeature(neargene[1], cur)
@@ -185,6 +185,52 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, label=F
     #flip for reversed genes
     if centerdstrand == -1:
         os.system("convert -rotate 180 %s %s" % (imgfileloc, imgfileloc))
+    return imgfileloc
+
+
+def makeClusterColorMap(seqfeatures, greyout):
+    '''
+    seqfeatures is a list of SeqFeature objects.
+
+    Generate a color map based on presence and absence of genes in clusters.
+
+    If the number of genes in all the provided seqfeatures is less than the cutoff,
+    the color is set to gray. If you have seqfeatures for multiple genes you want to test at once,
+    concatenate them before calling this function.
+    '''
+    allclusters = []
+    for feature in seqfeatures:
+        allclusters.append(feature.qualifiers["cluster_id"])
+
+    uniqueclusters = set(allclusters)
+
+    # Get clusters that have enough members to bother trying to color them (as determined by
+    # the greyout keyword)
+    multipleclusters = [c for c in uniqueclusters if allclusters.count(c) >= greyout]
+
+    # Don't die if nothing has enough clusters...
+    if len(multipleclusters) > 0:
+        getcolor = colormap(multipleclusters)
+    else:
+        getcolor = {}
+
+    #also add in grey (0.5,0.5,0.5 in RGB) for all others                                                                                                                                                     
+    singleclusters = [c for c in uniqueclusters if allclusters.count(c) < greyout]
+    getcolor.update([(sc, (0.5,0.5,0.5)) for sc in singleclusters])
+    return getcolor
+
+##############################
+# Putting it all together... #
+##############################
+def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur):
+    '''
+    Make a genome context diagram for a single gene with ITEP ID geneid.
+    '''
+    seqfeatures = makeSeqFeaturesForGeneNeighbors(geneid, runid, cur)
+    getcolor = makeClusterColorMap(seqfeatures, 1)
+    start, end = regionlength(seqfeatures)
+    width = abs(end - start)
+    imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, label=True)
     return imgfileloc
 
 

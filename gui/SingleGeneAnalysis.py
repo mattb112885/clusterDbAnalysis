@@ -10,6 +10,7 @@ import tempfile
 
 from ClusterFuncs import *
 from FileLocator import *
+from BioPythonGraphics import *
 
 # The user probably doesn't want to see another box if they cancelled it themselves.
 class UserCancelError(Exception):
@@ -106,7 +107,11 @@ class ITEPGui:
         print second_cmd
         os.system(second_cmd)
         return True
-
+    def _get_gene_neighborhood(self):
+        self._get_run_id()
+        diagram = makeSingleGeneNeighborhoodDiagram(self.accumulated_data['ITEP_id'], self.accumulated_data['runid'], self.sqlite_cursor)
+        os.system("display %s" %(diagram))
+        return True
     def _handle_cluster_run_options(self):
         valid_choices = [ 'Make Amino acid FASTA file', 'Make nucleotide FASTA file', 'Make a crude AA alignment', 
                           'Make a crude Newick tree from AA alignment',
@@ -129,7 +134,7 @@ class ITEPGui:
             self._display_crude_neighborhood_tree()
         return True
 
-    def _get_related_genes(self):
+    def _get_run_id(self):
         # Entry into analyses for related genes.
         msg = ''' 
 Please choose one of the following sets of settings to use for the analysis.
@@ -152,9 +157,13 @@ Note that only the options that contain your gene are listed here.
 
         # Canceling from here - just go back to the other menu
         if runid is None:
-            return
+            return runid
 
         self.accumulated_data['runid'] = runid
+        return runid
+
+    def _get_related_genes(self):
+        self._get_run_id()
 
         ok = True
         while ok:
@@ -192,7 +201,7 @@ Note that only the options that contain your gene are listed here.
         self.accumulated_data['geneinfo'] = geneinfo        
         return True
     def __init__(self, cur):
-        self.valid_choices = [ 'Nucleotide FASTA', 'Amino acid FASTA', 'Related genes in other organisms']
+        self.valid_choices = [ 'Nucleotide FASTA', 'Amino acid FASTA', 'Gene neighborhood', 'Related genes in other organisms']
         self.sqlite_cursor = cur
         self.accumulated_data = {}
         return
@@ -233,8 +242,11 @@ What do you want to know about this gene?
             self._get_nucleotide_fasta()
         elif choice == 'Amino acid FASTA':
             self._get_amino_acid_fasta()
+        elif choice == 'Gene neighborhood':
+            self._get_gene_neighborhood()
         elif choice == 'Related genes in other organisms':
             self._get_related_genes()
+
         return True
 
 

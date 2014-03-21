@@ -8,6 +8,22 @@ import sys
 from FileLocator import *
 from sanitizeString import *
 
+def getSanitizedContigList(cur):
+    ''' 
+    Get a list of sanitized Contig IDs from an ITEP database.
+    
+    cur is a SQLite cursor pointing at an ITEP database.
+
+    Returns a dictionary from sanitized to unsanitized contig IDs
+    present in the database.    
+    '''
+    q = "SELECT DISTINCT contig_mod FROM contigs;"
+    cur.execute(q)
+    sanitizedToNot = {}
+    for res in cur:
+        sanitizedToNot[sanitizeString(res[0], False)] = res[0]
+    return sanitizedToNot
+
 def findRepresentativeAnnotation(runid, clusterid, cur):
     '''
     Identifies the most common annotation in a cluster/runID pair and returns a string

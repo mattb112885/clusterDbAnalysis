@@ -198,7 +198,7 @@ Note that only the options that contain your gene are listed here.
         return
     # Interface
     def getGeneId(self):
-        gene_alias = easygui.enterbox("Please enter the locus tag of the gene you wish to study.")
+        gene_alias = easygui.enterbox("Please enter the locus tag or ITEP ID of the gene you wish to study.")
         if gene_alias is None:
             raise UserCancelError('User cancelled the operation.')
         self._setUpGeneInfo(gene_alias)

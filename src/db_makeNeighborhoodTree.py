@@ -63,7 +63,7 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, label=False):
     '''
     Draw the neighborhoods around each of the genes in a gene tree given the cluster and run IDs and the tree (t)
 
-    clusterrunid is the run ID to use to identify homoloous clusters and ts is the treeStyle object associeted with the
+    clusterrunid is the run ID to use to identify homologous clusters and ts is the treeStyle object associated with the
     ETE tree t
 
     cur is a SQLite cursor object for the database
@@ -176,7 +176,7 @@ def treelegend(ts, getcolor, greyout):
 
 if __name__ == "__main__":
     '''
-    Given a protein tree, make a figure contaiing that tree with neighborhoods overlayed onto the tree.
+    Given a protein tree, make a figure containing that tree with neighborhoods overlayed onto the tree.
     '''
 
     usage="%prog -p protein_tree -r runid [options]"

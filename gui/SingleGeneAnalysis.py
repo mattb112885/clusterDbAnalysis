@@ -26,8 +26,16 @@ class GuiError(Exception):
 class NoGeneError(GuiError):
     pass
 
+# codebox makes the font monospaced so we can actually prettyprint (use codebox for tables and alignments).
+# But textbox is useful when we want word wrapping.
+
 class ITEPGui:
     # Utilities
+    def _geneInfoHeader(self, withclusters = False):
+        header = [ 'ITEP_geneID', 'Organism', 'Organism ID', '(Ignore)', 'ITEP Contig ID', 'Start', 'Stop', 'Strand', 'Strandsign', 'Function', 'NT sequence', 'AA sequence' ]
+        if withclusters:
+            header += ['Run ID', 'Cluster ID']
+        return header
     def _createTemporaryFile(self, delete=False):
         f = tempfile.NamedTemporaryFile(delete=delete)
         fname = f.name
@@ -36,8 +44,63 @@ class ITEPGui:
         # Get the cluster in which the chosen gene is found in the chosen cluster run.
         # Put into its own function because it's so ugly.
         return self.accumulated_data['run_to_cluster'][self.accumulated_data['runid']]
+    def _get_run_id(self):
+        msg = ''' 
+Please choose one of the following methods for defining gene families.
 
-    # Analyses
+OrthoMCL runs are useful for identifying orthologs (genes likely to share a function)
+
+maxbit runs are useful for identifying broader
+gene families. c_xxx in the following list means xxx was used as a cutoff. Higher 
+cutoffs mean more stringent similarity to define a family of related genes.
+
+Note that only the groups of organisms that contain your gene are listed here.
+'''
+        valid_choices = self.accumulated_data['run_to_cluster'].keys()
+
+        if len(valid_choices) == 0:
+            easygui.msgbox('The chosen gene is not found in any clustering results!')
+            return True
+
+        runid = easygui.choicebox(msg, 'Select a cluster run', valid_choices)
+
+        # Canceling from here - just go back to the other menu
+        if runid is None:
+            return runid
+
+        self.accumulated_data['runid'] = runid
+        return runid
+    def _print_readable_table(self, rows, header=True, separator = '|'):
+        '''Print a readable table from an array of arrays. '''
+        finaltext = ''
+        # What is the maximum length of each column?
+        numcols = len(rows[0])
+        lens = []
+        for i in range(numcols):
+            col = map(operator.itemgetter(i), rows)
+            maxlen = max(map(len, col))
+            lens.append(maxlen)
+        # Print the header row if there is one.
+        if header:
+            headers = rows[0]
+            header_elements = []
+            sep_elements = []
+            for i in range(numcols):
+                diff = lens[i] - len(headers[i])
+                header_elements.append( ' ' + headers[i] + ' '*diff + ' ')
+                sep_elements.append( '-'*( lens[i] + 2 ) )
+            finaltext += separator.join(header_elements) + "\n" + separator.join(sep_elements) + "\n"
+            rows = rows[1:]
+        # Print the rest of the rows.
+        formats = []
+        for line in rows:
+            row_elements = []
+            for i in range(numcols):
+                diff = lens[i] - len(line[i])
+                row_elements.append( ' ' + line[i] + ' '*diff + ' ')
+            finaltext += separator.join(row_elements) + '\n'
+        return finaltext
+    # Analyses on a single gene.
     def _get_nucleotide_fasta(self):
         geneinfo = self.accumulated_data['geneinfo']
         text = '>%s %s\n%s\n' %(geneinfo[0], geneinfo[9], geneinfo[10])
@@ -48,9 +111,20 @@ class ITEPGui:
         text = '>%s %s\n%s\n' %(geneinfo[0], geneinfo[9], geneinfo[11])
         easygui.textbox(text=text)
         return True
-    def _get_neighborhood_plot(self):
-        raise GuiError('The selected feature has not been implemented yet.')
+    def _get_gene_neighborhood(self):
+        self._get_run_id()
+        diagram = makeSingleGeneNeighborhoodDiagram(self.accumulated_data['ITEP_id'], self.accumulated_data['runid'], self.sqlite_cursor)
+        os.system("display %s" %(diagram))
+        return True
     # Analysis Related to getting related genes
+    def _get_cluster_geneinfo(self):
+        clusterid = self._getClusterId()
+        genelist = getGenesInCluster(self.accumulated_data['runid'], clusterid, self.sqlite_cursor)
+        geneinfo = getGeneInfo(genelist, self.sqlite_cursor)
+        geneinfo.insert(0, self._geneInfoHeader())
+        text = self._print_readable_table(geneinfo, header=True)
+        easygui.codebox(text=text)
+        return True
     def _get_cluster_fasta(self, amino=True):
         r2c = self.accumulated_data['run_to_cluster']
         clusterid = self._getClusterId()
@@ -71,8 +145,9 @@ class ITEPGui:
         cmd = 'db_getPresenceAbsenceTable.py -r %s -c %s > %s 2> /dev/null' %(self.accumulated_data['runid'], cluster, pa_fname)
         print cmd
         os.system(cmd)
-        text = ''.join( [ line for line in pa_file ] )
-        easygui.textbox(text=text)
+        pa_table = [ line.strip('\r\n').split('\t') for line in pa_file ] 
+        text = self._print_readable_table(pa_table)
+        easygui.codebox(text=text)
         return True
     def _make_crude_alignment(self):
         (aln_file, aln_fname) = self._createTemporaryFile()
@@ -82,9 +157,10 @@ class ITEPGui:
         print cmd
         os.system(cmd)
         text = ''.join( [ line for line in aln_file ] )
-        easygui.textbox(text=text)
+        easygui.codebox(text=text)
         return True
     def _make_crude_tree(self):
+        # Create tree and make human-readable.
         (nwk_file, nwk_fname) = self._createTemporaryFile()
         cluster = self._getClusterId()
         cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
@@ -95,28 +171,33 @@ class ITEPGui:
         easygui.textbox(text=text)
         return True
     def _display_crude_neighborhood_tree(self):
+        # Create tree
         (nwk_file, nwk_fname) = self._createTemporaryFile()
         cluster = self._getClusterId()
         cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma > %s 2> /dev/null' \
             %(self.accumulated_data['runid'], cluster, nwk_fname)
         print cmd
         os.system(cmd)
-
-        # Now that we have a Newick tree to test lets try to view it.
+        # View tree with neighborhoods
         second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
         print second_cmd
         os.system(second_cmd)
         return True
-    def _get_gene_neighborhood(self):
+    # Loop - study genes related to the starting gene.
+    def _get_related_genes(self):
         self._get_run_id()
-        diagram = makeSingleGeneNeighborhoodDiagram(self.accumulated_data['ITEP_id'], self.accumulated_data['runid'], self.sqlite_cursor)
-        os.system("display %s" %(diagram))
+        ok = True
+        while ok:
+            ok = self._handle_cluster_run_options()
         return True
     def _handle_cluster_run_options(self):
-        valid_choices = [ 'Make Amino acid FASTA file', 'Make nucleotide FASTA file', 'Make a crude AA alignment', 
+        valid_choices = [ 'Make Amino acid FASTA file', 
+                          'Make nucleotide FASTA file', 
+                          'Make a crude AA alignment', 
                           'Make a crude Newick tree from AA alignment',
                           'Display a crude tree with neighborhoods attached',
-                          'Get a presence and absence table' ]
+                          'Get a presence and absence table',
+                          'Get information on related genes']
         option = easygui.choicebox("What do you want to do with it?", "Choose an analysis", valid_choices)        
         if option is None:
             return False
@@ -132,45 +213,9 @@ class ITEPGui:
             self._get_presence_absence_table()
         elif option == 'Display a crude tree with neighborhoods attached':
             self._display_crude_neighborhood_tree()
+        elif option == 'Get information on related genes':
+            self._get_cluster_geneinfo()
         return True
-
-    def _get_run_id(self):
-        # Entry into analyses for related genes.
-        msg = ''' 
-Please choose one of the following sets of settings to use for the analysis.
-
-OrthoMCL runs are useful for identifying orthologs (genes likely to share a function)
-
-maxbit runs are useful for identifying broader
-gene families. c_xxx in the following list means xxx was used as a cutoff. Higher 
-cutoffs mean more stringent similarity to define a family of related genes.
-
-Note that only the options that contain your gene are listed here.
-'''
-        valid_choices = self.accumulated_data['run_to_cluster'].keys()
-
-        if len(valid_choices) == 0:
-            easygui.msgbox('The chosen gene is not found in any clustering results!')
-            return True
-
-        runid = easygui.choicebox(msg, 'Select a cluster run', valid_choices)
-
-        # Canceling from here - just go back to the other menu
-        if runid is None:
-            return runid
-
-        self.accumulated_data['runid'] = runid
-        return runid
-
-    def _get_related_genes(self):
-        self._get_run_id()
-
-        ok = True
-        while ok:
-            ok = self._handle_cluster_run_options()
-
-        return True
-
     # Setup
     def _setUpClusterInfo(self):
         clusterrun_list = getClustersContainingGenes( [ self.accumulated_data['ITEP_id'] ], self.sqlite_cursor)

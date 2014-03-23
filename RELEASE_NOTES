@@ -3,6 +3,16 @@ ITEP 1.2
 This release includes a number of new features and bug fixes.
 
 NEW FEATURES:
+
+- Beginnings of a crude GUI for common analysis workflows. Currently supported:
+    - Getting basic information about a gene
+    - Finding related genes and building crude alignments and trees
+    - Getting gene neighborhoods and overlaying on the tree
+    - Getting basic information about related genes
+    - Getting BLAST support for a gene family.
+  Note you must have already built the database before running the GUI. Using the gui requires you to have
+  access to an X11 server and the easygui Python package. It should be considered highly experimental / breakable
+  at this point.
 - OrthoMCL wrapper now optionally takes as input an arbitrary table of BLAST results from the ITEP database. By default it pulls out and uses everything
   in the database.
 - makeCoreClusterAnalysisTree.py now optionally can be used to analyze presence-absence patterns relative to sister clades,
@@ -23,6 +33,7 @@ BUG FIXES:
 
 VIRTUAL MACHINE FIXES:
 - Added FastTreeMP to virtual machines
+- Added easygui to virtual machines
 - Upgraded Biopython to 1.63b on both machines
 
 OTHER CHANGES:

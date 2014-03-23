@@ -31,10 +31,13 @@ class NoGeneError(GuiError):
 
 class ITEPGui:
     # Utilities
-    def _geneInfoHeader(self, withclusters = False):
+    def _geneInfoHeader(self):
         header = [ 'ITEP_geneID', 'Organism', 'Organism ID', '(Ignore)', 'ITEP Contig ID', 'Start', 'Stop', 'Strand', 'Strandsign', 'Function', 'NT sequence', 'AA sequence' ]
-        if withclusters:
-            header += ['Run ID', 'Cluster ID']
+        return header
+    def _blastHeader(self):
+        header = [ 'Query gene', 'Target gene', 'Percent identity', 'HSP length', 'Percent mismatch', 
+                   'Gap opens', 'Query start', 'Query end', 'Target start', 'Target end', 'E-value',
+                   'Bit score', 'Query self-bit score', 'Target self-bit score' ]
         return header
     def _createTemporaryFile(self, delete=False):
         f = tempfile.NamedTemporaryFile(delete=delete)
@@ -117,6 +120,14 @@ Note that only the groups of organisms that contain your gene are listed here.
         os.system("display %s" %(diagram))
         return True
     # Analysis Related to getting related genes
+    def _get_cluster_blast(self):
+        clusterid = self._getClusterId()
+        genelist = getGenesInCluster(self.accumulated_data['runid'], clusterid, self.sqlite_cursor)
+        blast = getBlastResultsBetweenSpecificGenes(genelist, self.sqlite_cursor)
+        blast.insert(0, self._blastHeader())
+        text = self._print_readable_table(blast, header=True)
+        easygui.codebox(text=text)
+        return True
     def _get_cluster_geneinfo(self):
         clusterid = self._getClusterId()
         genelist = getGenesInCluster(self.accumulated_data['runid'], clusterid, self.sqlite_cursor)
@@ -197,7 +208,8 @@ Note that only the groups of organisms that contain your gene are listed here.
                           'Make a crude Newick tree from AA alignment',
                           'Display a crude tree with neighborhoods attached',
                           'Get a presence and absence table',
-                          'Get information on related genes']
+                          'Get information on related genes',
+                          'Get blast support for a protein family']
         option = easygui.choicebox("What do you want to do with it?", "Choose an analysis", valid_choices)        
         if option is None:
             return False
@@ -215,6 +227,8 @@ Note that only the groups of organisms that contain your gene are listed here.
             self._display_crude_neighborhood_tree()
         elif option == 'Get information on related genes':
             self._get_cluster_geneinfo()
+        elif option == 'Get blast support for a protein family':
+            self._get_cluster_blast()
         return True
     # Setup
     def _setUpClusterInfo(self):

@@ -127,7 +127,7 @@ def regionlength(seqfeatures):
     end = min(min(starts),min(ends))
     return start, end
 
-def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, label=False):
+def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir=None, label=False):
     '''
     Makes a PNG figure for regions with a given color mapping, set of gene locations... 
 
@@ -142,8 +142,10 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, label=F
 
     # The files are not automatically deleted
     # but at least this prevents collisions.
-    # If we want auto-delete we have to be really careful to pass the file handle around everywhere.
-    imghandle = tempfile.NamedTemporaryFile(delete=False)
+    # A user who wants to clean up should specify a temporary directory and delete it afterward.
+    if tempdir is None:
+        tempdir = tempfile.gettempdir()
+    imghandle = tempfile.NamedTemporaryFile(delete=False, dir=tempdir)
     imgfileloc = imghandle.name
 
     # Set up an entry genome diagram object                                                                                                                                                                   
@@ -226,7 +228,7 @@ def makeClusterColorMap(seqfeatures, greyout):
 ##############################
 # Putting it all together... #
 ##############################
-def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur):
+def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur, tempdir=None):
     '''
     Make a genome context diagram for a single gene with ITEP ID geneid.
     '''
@@ -234,7 +236,7 @@ def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur):
     getcolor = makeClusterColorMap(seqfeatures, 1)
     start, end = regionlength(seqfeatures)
     width = abs(end - start)
-    imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, label=True)
+    imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, tempdir=tempdir, label=True)
     return imgfileloc
 
 ##########################

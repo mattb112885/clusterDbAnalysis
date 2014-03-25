@@ -38,7 +38,9 @@ import itertools
 import optparse
 import os
 import sqlite3
+import shutil
 import sys
+import tempfile
 
 from BioPythonGraphics import *
 from FileLocator import *
@@ -59,7 +61,7 @@ def regionlength(genelocs):
     end = min(min(starts),min(ends))
     return start, end
 
-def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, label=False):
+def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, tempdir=None, label=False):
     '''
     Draw the neighborhoods around each of the genes in a gene tree given the cluster and run IDs and the tree (t)
 
@@ -69,6 +71,9 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, label=False):
     cur is a SQLite cursor object for the database
 
     The arrows are grayed out if less than "greyout" genes appear in a given cluster.
+
+    tempdir is a temporary directory in which to store the results. The user is responsible for deleting this
+    directory afterwards to clean up.
     '''
 
     unsanitized = []
@@ -123,7 +128,7 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, label=False):
         except KeyError: 
             continue 
         sys.stderr.write("Making region drawing for gene ID %s...\n" %(newname))
-        imgfileloc = make_region_drawing(genelocs, getcolor, newname, maxwidth, label=label)
+        imgfileloc = make_region_drawing(genelocs, getcolor, newname, maxwidth, tempdir=tempdir, label=label)
         imageFace = faces.ImgFace(imgfileloc)
         leaf.add_face(imageFace, column=2, position = 'aligned')
 
@@ -226,7 +231,9 @@ if __name__ == "__main__":
     con = sqlite3.connect(locateDatabase())
     cur = con.cursor()
 
-    t, ts = draw_tree_regions(clusterrunid, t, ts, cur, greyout=options.cutoff, label=options.label)
+    tempdir = tempfile.mkdtemp()
+
+    t, ts = draw_tree_regions(clusterrunid, t, ts, cur, greyout=options.cutoff, tempdir=tempdir, label=options.label)
 
     # Now that we don't need to reference anything with the gene IDs any more, try to change them into
     # annotations
@@ -265,4 +272,10 @@ if __name__ == "__main__":
     if options.display:
         t.show(tree_style=ts)
 
+    # Clean up
     con.close()
+    try:
+        sys.stderr.write("Deleting temporary directory %s..." %(tempdir))
+        shutil.rmtree(tempdir)
+    except OSError as exc:
+        raise IOError("Unable to delete temporary directory %s" %(tempdir) )

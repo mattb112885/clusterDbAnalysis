@@ -39,7 +39,7 @@ class ITEPGui:
                    'Gap opens', 'Query start', 'Query end', 'Target start', 'Target end', 'E-value',
                    'Bit score', 'Query self-bit score', 'Target self-bit score' ]
         return header
-    def _createTemporaryFile(self, delete=False):
+    def _createTemporaryFile(self, delete=True):
         f = tempfile.NamedTemporaryFile(delete=delete)
         fname = f.name
         return (f, fname)
@@ -151,7 +151,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         easygui.textbox(text=text)
         return True
     def _get_presence_absence_table(self):
-        (pa_file, pa_fname) = self._createTemporaryFile()
+        (pa_file, pa_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
         cmd = 'db_getPresenceAbsenceTable.py -r %s -c %s > %s 2> /dev/null' %(self.accumulated_data['runid'], cluster, pa_fname)
         print cmd
@@ -161,7 +161,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         easygui.codebox(text=text)
         return True
     def _make_crude_alignment(self):
-        (aln_file, aln_fname) = self._createTemporaryFile()
+        (aln_file, aln_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
         cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
             %(self.accumulated_data['runid'], cluster, aln_fname)
@@ -172,7 +172,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         return True
     def _make_crude_tree(self):
         # Create tree and make human-readable.
-        (nwk_file, nwk_fname) = self._createTemporaryFile()
+        (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
         cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
             %(self.accumulated_data['runid'], cluster, nwk_fname)
@@ -183,7 +183,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         return True
     def _display_crude_neighborhood_tree(self):
         # Create tree
-        (nwk_file, nwk_fname) = self._createTemporaryFile()
+        (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
         cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma > %s 2> /dev/null' \
             %(self.accumulated_data['runid'], cluster, nwk_fname)

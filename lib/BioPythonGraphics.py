@@ -9,6 +9,7 @@ import colorsys
 import itertools
 import math
 import numpy
+import tempfile
 
 from Bio.Graphics import GenomeDiagram
 from Bio.SeqFeature import SeqFeature, FeatureLocation
@@ -137,10 +138,13 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, label=F
 
     if label is TRUE we add the cluster ID as a label to each of the arrows.
 
-    TODO make auto-del tempfiles, or pass svg as string
     '''
 
-    imgfileloc = "/tmp/%s.png" %(sanitizeString(centergenename, False))
+    # The files are not automatically deleted
+    # but at least this prevents collisions.
+    # If we want auto-delete we have to be really careful to pass the file handle around everywhere.
+    imghandle = tempfile.NamedTemporaryFile(delete=False)
+    imgfileloc = imghandle.name
 
     # Set up an entry genome diagram object                                                                                                                                                                   
     gd_diagram = GenomeDiagram.Diagram("Genome Region")
@@ -232,7 +236,6 @@ def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur):
     width = abs(end - start)
     imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, label=True)
     return imgfileloc
-
 
 ##########################
 # Other utilities        #

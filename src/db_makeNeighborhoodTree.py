@@ -194,7 +194,8 @@ if __name__ == "__main__":
     parser.add_option("-d", "--display", help="Display the resulting tree (D: Don't display, just save)", action="store_true", dest="display", default=False)
     parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", action="store", type="int", dest="cutoff", default=3)
     parser.add_option("-l", "--label", help="Add labels to the genes. The labels are the cluster IDs for the clusters in which the genes are found in the specified cluster run (D: Dont because its very messy)", action="store_true", dest="label", default=False)
-    parser.add_option("--png", help="Save high-quality PNG and SVG images (with base name specified by -o or by default, with the same name as input file)", dest="savepng", default=False)
+    parser.add_option("--png", help="Save high-quality PNG and SVG images (with base name specified by -o or by default, with the same name as input file)", action="store_true", 
+                      dest="savepng", default=False)
     (options,args) = parser.parse_args()
 
     if options.treeinfile is None:

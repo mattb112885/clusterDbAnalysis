@@ -4,6 +4,7 @@ import easygui
 
 import operator
 import os
+import shutil
 import sqlite3
 import sys
 import tempfile
@@ -39,6 +40,32 @@ class ITEPGui:
                    'Gap opens', 'Query start', 'Query end', 'Target start', 'Target end', 'E-value',
                    'Bit score', 'Query self-bit score', 'Target self-bit score' ]
         return header
+    def _save_file_dialogs(self, extension = ".txt"):
+        # Dialogs asking users to save file, sanity checks for existence of file, etc.
+        # If user cancels it defaults to the FIRST choice. We want default to be NO so I reverse the default of choices here.
+        saveornot = easygui.buttonbox(msg="Do you want to save results to a file?", choices = ("No", "Yes") )
+        if saveornot == "Yes":
+            filename = easygui.filesavebox(msg = "Where do you want to save the file (extension %s will automatically be added)?" %(extension))
+            if filename is None:
+                return None
+            filename = filename + "." + extension
+            if os.path.exists(filename):
+                ok_to_overwrite = easygui.buttonbox(msg="File %s already exists. Overwrite?" %(filename), choices = ("No", "Yes") )
+                if ok_to_overwrite == "Yes":
+                    return filename
+                else:
+                    return None
+            else:
+                return filename
+        else:
+            return None
+    def _success_dialog(self, filename):
+        easygui.msgbox(msg = "Successfully saved results to file %s" %(filename) )
+    def _save_text(self, text, filename):
+        # Write text exactly as passed here to a file
+        fid = open(filename, "w")
+        fid.write(text)
+        fid.close()
     def _createTemporaryFile(self, delete=True):
         f = tempfile.NamedTemporaryFile(delete=delete)
         fname = f.name
@@ -108,16 +135,28 @@ Note that only the groups of organisms that contain your gene are listed here.
         geneinfo = self.accumulated_data['geneinfo']
         text = '>%s %s\n%s\n' %(geneinfo[0], geneinfo[9], geneinfo[10])
         easygui.textbox(text=text)
+        output_file = self._save_file_dialogs(extension="fasta")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _get_amino_acid_fasta(self):
         geneinfo = self.accumulated_data['geneinfo']
         text = '>%s %s\n%s\n' %(geneinfo[0], geneinfo[9], geneinfo[11])
         easygui.textbox(text=text)
+        output_file = self._save_file_dialogs(extension="fasta")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _get_gene_neighborhood(self):
         self._get_run_id()
         diagram = makeSingleGeneNeighborhoodDiagram(self.accumulated_data['ITEP_id'], self.accumulated_data['runid'], self.sqlite_cursor, labeltype = 'aliases')
         os.system("display %s" %(diagram))
+        output_file = self._save_file_dialogs(extension="png")
+        if output_file is not None:
+            shutil.copyfile(diagram, output_file)
+            self._success_dialog(output_file)
         return True
     # Analysis Related to getting related genes
     def _get_cluster_blast(self):
@@ -127,6 +166,10 @@ Note that only the groups of organisms that contain your gene are listed here.
         blast.insert(0, self._blastHeader())
         text = self._print_readable_table(blast, header=True)
         easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension="txt")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _get_cluster_geneinfo(self):
         clusterid = self._getClusterId()
@@ -135,6 +178,10 @@ Note that only the groups of organisms that contain your gene are listed here.
         geneinfo.insert(0, self._geneInfoHeader())
         text = self._print_readable_table(geneinfo, header=True)
         easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension=".txt")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _get_cluster_fasta(self, amino=True):
         r2c = self.accumulated_data['run_to_cluster']
@@ -149,6 +196,10 @@ Note that only the groups of organisms that contain your gene are listed here.
         for gi in geneinfo:
             text += '>%s %s\n%s\n'%(gi[0], gi[9], gi[idx])
         easygui.textbox(text=text)
+        output_file = self._save_file_dialogs(extension="fasta")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _get_presence_absence_table(self):
         (pa_file, pa_fname) = self._createTemporaryFile(delete=True)
@@ -159,6 +210,10 @@ Note that only the groups of organisms that contain your gene are listed here.
         pa_table = [ line.strip('\r\n').split('\t') for line in pa_file ] 
         text = self._print_readable_table(pa_table)
         easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension="txt")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _make_crude_alignment(self):
         (aln_file, aln_fname) = self._createTemporaryFile(delete=True)
@@ -169,6 +224,10 @@ Note that only the groups of organisms that contain your gene are listed here.
         os.system(cmd)
         text = ''.join( [ line for line in aln_file ] )
         easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension="fasta")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _make_crude_tree(self):
         # Create tree and make human-readable.
@@ -180,8 +239,16 @@ Note that only the groups of organisms that contain your gene are listed here.
         os.system(cmd)
         text = ''.join( [ line for line in nwk_file ] )
         easygui.textbox(text=text)
+        output_file = self._save_file_dialogs(extension="nwk")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
         return True
     def _display_crude_neighborhood_tree(self):
+        # Unlike other commands we need to know if we are saving the results BEFORE we run it.
+        output_file = self._save_file_dialogs(extension="png")
+        output_file = output_file[0:len(output_file)-4]
+
         # Create tree
         (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
@@ -189,8 +256,13 @@ Note that only the groups of organisms that contain your gene are listed here.
             %(self.accumulated_data['runid'], cluster, nwk_fname)
         print cmd
         os.system(cmd)
+
         # View tree with neighborhoods
         second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
+
+        if output_file is not None:
+            second_cmd += " -o %s --png" %(output_file)
+
         print second_cmd
         os.system(second_cmd)
         return True

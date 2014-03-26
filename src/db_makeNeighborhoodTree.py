@@ -133,19 +133,19 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, tempdir=None, label=F
         leaf.add_face(imageFace, column=2, position = 'aligned')
 
     #add legend for clusters
-    ts = treelegend(ts, getcolor, greyout)
+    ts = treelegend(ts, getcolor, greyout, clusterrunid, cur)
 
     return t, ts
 
-def treelegendtext(cluster, color):
-    text = TextFace(" %s " % cluster)
+def treelegendtext(whattoprint, color):
+    text = TextFace(" %s " % whattoprint)
     text.hz_align = False
     text.fsize = 30
     text.fstyle = 'Bold'
     text.background.color = color
     return text
 
-def treelegend(ts, getcolor, greyout):
+def treelegend(ts, getcolor, greyout, clusterrunid, cur):
     '''
     Add legend to the tree with cluster numbers corresponding to each color
     '''
@@ -159,7 +159,9 @@ def treelegend(ts, getcolor, greyout):
     greycols =  int(math.ceil(math.sqrt(greynum))) 
     colornum = len(colorlist) - greynum
     # Because the color palette varies in 2 dimensions, this will make a box with the H and S indexed
-    colorcols =  int(math.ceil(math.sqrt(colornum)))
+#    colorcols =  int(math.ceil(math.sqrt(colornum)))
+    # Adding long annotations means we don't want this to be huge horizontally.
+    colorcols = 1
     # Put legend with colors at bottom to display cluster IDs.
     ts.legend_position=1
     gnum = 0
@@ -170,10 +172,13 @@ def treelegend(ts, getcolor, greyout):
             #offset the greys
             col = (gnum%greycols) + colorcols + 1 + 1 #offset from colors and grey def
             gnum += 1
+            # For gray boxes we don't care what the function is.
+            text = treelegendtext(cluster, color)
         else:             
             col = cnum%colorcols
             cnum += 1
-        text = treelegendtext(cluster, color)
+            samplefunc = findRepresentativeAnnotation(clusterrunid, str(cluster), cur)
+            text = treelegendtext(str(cluster) + ": " + samplefunc[0:63], color)
         #placement of this legend
         ts.legend.add_face(text, column=col)
     ts.legend.add_face(treelegendtext("> %s occurrences        < or = %s occurrences " % (greyout, greyout),'#FFFFFF'), column=colorcols + 1)

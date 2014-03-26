@@ -263,12 +263,16 @@ Note that only the groups of organisms that contain your gene are listed here.
             self._save_text(text, output_file)
             self._success_dialog(output_file)
         return True
-    def _make_crude_tree(self):
+    def _make_crude_tree(self, replacename = True):
         # Create tree and make human-readable.
         (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
-        cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
-            %(self.accumulated_data['runid'], cluster, nwk_fname)
+        if replacename:
+            cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
+                %(self.accumulated_data['runid'], cluster, nwk_fname)
+        else:
+            cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma > %s 2> /dev/null' \
+                %(self.accumulated_data['runid'], cluster, nwk_fname)           
         print cmd
         os.system(cmd)
         text = ''.join( [ line for line in nwk_file ] )
@@ -312,6 +316,7 @@ Note that only the groups of organisms that contain your gene are listed here.
                           'Make nucleotide FASTA file', 
                           'Make a crude AA alignment', 
                           'Make a crude Newick tree from AA alignment',
+                          'Make a crude Newick tree with ITEP IDs',
                           'Display a crude tree with neighborhoods attached',
                           'Get a presence and absence table',
                           'Get information on related genes',
@@ -327,6 +332,8 @@ Note that only the groups of organisms that contain your gene are listed here.
             self._make_crude_alignment()
         elif option == 'Make a crude Newick tree from AA alignment':
             self._make_crude_tree()
+        elif option == 'Make a crude Newick tree with ITEP IDs':
+            self._make_crude_tree(replacename=False)
         elif option == 'Get a presence and absence table':
             self._get_presence_absence_table()
         elif option == 'Display a crude tree with neighborhoods attached':

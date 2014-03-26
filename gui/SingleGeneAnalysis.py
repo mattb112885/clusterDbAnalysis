@@ -285,7 +285,8 @@ Note that only the groups of organisms that contain your gene are listed here.
     def _display_crude_neighborhood_tree(self):
         # Unlike other commands we need to know if we are saving the results BEFORE we run it.
         output_file = self._save_file_dialogs(extension="png")
-        output_file = output_file[0:len(output_file)-4]
+        if output_file is not None:
+            output_file = output_file[0:len(output_file)-4]
 
         # Create tree
         (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
@@ -296,7 +297,8 @@ Note that only the groups of organisms that contain your gene are listed here.
         os.system(cmd)
 
         # View tree with neighborhoods
-        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
+        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d -l' %(nwk_fname, self.accumulated_data['runid'])
+#        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
 
         if output_file is not None:
             second_cmd += " -o %s --png" %(output_file)

@@ -31,6 +31,7 @@ BUG FIXES:
   same as it is in the neighborhood display script.
 - Fixed replaceGeneNamesWithAliases.py to work with much more general filetypes.
 - Improved displaying of labels on neighborhood graphs. Should be much nicer now, no overlapping labels or labels cut off the edge of the image.
+- Presence-absence tables no longer print out columns with all NONE (e.g. columns for organisms not found in the specified cluster run).
 
 VIRTUAL MACHINE FIXES:
 - Added FastTreeMP to virtual machines

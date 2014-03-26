@@ -40,6 +40,13 @@ class ITEPGui:
                    'Gap opens', 'Query start', 'Query end', 'Target start', 'Target end', 'E-value',
                    'Bit score', 'Query self-bit score', 'Target self-bit score' ]
         return header
+    def _tblastnHeader(self):
+        header = ["Query gene", "Length of query gene", "Target contig", "Target organism", 
+                  "Start of target sequence", "End of target sequence", "HSP length", 
+                  "Percent of query overlapping", "E-value", "Bit score", "Frame of hit",
+                  "StrandedString", "Called gene in hit region", "Annotation of called gene", "Length of called gene",
+                  "Percent of called gene overlapping with HSP", "tBLASTn hit ID" ]      
+        return header
     def _save_file_dialogs(self, extension = ".txt"):
         # Dialogs asking users to save file, sanity checks for existence of file, etc.
         # If user cancels it defaults to the FIRST choice. We want default to be NO so I reverse the default of choices here.
@@ -157,6 +164,33 @@ Note that only the groups of organisms that contain your gene are listed here.
         if output_file is not None:
             shutil.copyfile(diagram, output_file)
             self._success_dialog(output_file)
+        return True
+    def _run_tblastn(self):
+        self._get_run_id()
+        # Organism file has to be closed to be used by the tblastn.
+        # So we have to clean it up manually. The results file though we can
+        # have cleaned up automatically.
+        (orgf, orgfname) = self._createTemporaryFile(delete=False)
+        (resf, resfname) = self._createTemporaryFile(delete=True)
+        orglist = getOrganismsInClusterRun(self.accumulated_data['runid'], self.sqlite_cursor)
+        orgids = []
+        for org in orglist:
+            orgid = organismNameToId(org, self.sqlite_cursor)
+            orgf.write(orgid + "\n")
+        orgf.close()
+        cmd = "echo '%s' | db_TBlastN_wrapper.py -f %s -r 1 > %s" %(self.accumulated_data['ITEP_id'], orgfname, resfname)
+        print cmd
+        os.system(cmd)
+        tblastn_results = [ line.strip("\r\n").split("\t") for line in resf ]
+        tblastn_results.insert(0, self._tblastnHeader())
+        text = self._print_readable_table(tblastn_results, header=True)
+        easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension=".txt")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)      
+        # Clean up temp file
+        os.remove(orgfname)
         return True
     # Analysis Related to getting related genes
     def _get_cluster_blast(self):
@@ -332,7 +366,11 @@ Note that only the groups of organisms that contain your gene are listed here.
         self.accumulated_data['geneinfo'] = geneinfo        
         return True
     def __init__(self, cur):
-        self.valid_choices = [ 'Nucleotide FASTA', 'Amino acid FASTA', 'Gene neighborhood', 'Related genes in other organisms']
+        self.valid_choices = [ 'Nucleotide FASTA', 
+                               'Amino acid FASTA', 
+                               'Gene neighborhood',
+                               'Run tBLASTn against a group of organisms',
+                               'Related genes in other organisms']
         self.sqlite_cursor = cur
         self.accumulated_data = {}
         return
@@ -377,6 +415,8 @@ What do you want to know about this gene?
             self._get_gene_neighborhood()
         elif choice == 'Related genes in other organisms':
             self._get_related_genes()
+        elif choice == 'Run tBLASTn against a group of organisms':
+            self._run_tblastn()
 
         return True
 

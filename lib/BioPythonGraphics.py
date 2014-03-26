@@ -9,6 +9,7 @@ import colorsys
 import itertools
 import math
 import numpy
+import os
 import tempfile
 
 from Bio.Graphics import GenomeDiagram
@@ -17,6 +18,7 @@ from reportlab.lib import colors as rcolors
 
 from sanitizeString import *
 from ClusterFuncs import *
+from FileLocator import *
 from TreeFuncs import splitTblastn
 
 ###########################################
@@ -127,7 +129,7 @@ def regionlength(seqfeatures):
     end = min(min(starts),min(ends))
     return start, end
 
-def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir=None, label=False):
+def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir=None, label=False, labeltype = 'clusterid' ):
     '''
     Makes a PNG figure for regions with a given color mapping, set of gene locations... 
 
@@ -136,8 +138,10 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir
     centergenename is the ID (as in the seqFeature) for the gene you wish to have in the middle.
     maxwidth is the maximum width of the image (in pixels)
 
-    if label is TRUE we add the cluster ID as a label to each of the arrows.
+    if label is TRUE we add a label to each of the arrows.
 
+    labeltype: 'clusterid' : Add numeric cluster ID to each feature
+               'aliases'   : Add a underscore-delimited list of aliases to each feature (aliases file is located in $ITEP_ROOT/aliases/aliases)
     '''
 
     # The files are not automatically deleted
@@ -156,8 +160,30 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir
     # Some basic properties of the figure itself
     arrowshaft_height = 0.3
     arrowhead_length = 0.3
-    default_fontsize = 30 # Font size for genome diagram labels
+    default_fontsize = 16 # Font size for genome diagram labels
     scale = 20     #AA per px for the diagram
+
+    if label:
+        # y-margins need to be bigger if we have labels
+        # Since labels could be on the top or the bottom we need to account for either possibility
+        yt = 0.3
+        yb = 0.3
+        ht = 725
+    else:
+        yt = 0
+        yb = 0
+        ht = 250
+
+    geneIdToAlias = {}
+    if label:
+        if labeltype == "aliases":
+            if os.path.exists(locateAliasesFile()):
+                for line in open(locateAliasesFile(), "r"):
+                    spl = line.strip("\r\n").split("\t")
+                    if spl[0] in geneIdToAlias:
+                        geneIdToAlias[spl[0]].append(spl[1])
+                    else:
+                        geneIdToAlias[spl[0]] = [ spl[1] ]
 
     # Build arrow objects for all of our features.
     for feature in seqfeatures:
@@ -169,10 +195,23 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir
             centerdstrand = feature.strand
         color = getcolor[feature.qualifiers["cluster_id"]]
 
-        gd_feature_set.add_feature(feature, name = str(feature.qualifiers["cluster_id"]),
+        name = feature.id
+        if label:
+            if labeltype == "aliases":
+                if feature.id in geneIdToAlias:
+                    name = "_".join(geneIdToAlias[feature.id])                   
+                    if len(name) > 30:
+                        name = name[0:30]
+            elif labeltype == "clusterid":
+                name = str(feature.qualifiers["cluster_id"])
+            else:
+                raise IOError("Invalid labeltype")
+
+        # 90 degrees to avoid the rightmost feature going off the screen
+        gd_feature_set.add_feature(feature, name = name,
                                    color=color, border = bordercol,
                                    sigil="ARROW", arrowshaft_height=arrowshaft_height, arrowhead_length = arrowhead_length,
-                                   label=label,  label_angle=20, label_size = default_fontsize
+                                   label=label,  label_angle=90, label_size = default_fontsize, label_position = 'middle'
                                    )
 
     start, end = regionlength(seqfeatures)
@@ -184,7 +223,7 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir
     roffset = float((pagew_px/2) - (l2mid/scale))
     loffset = float((pagew_px/2) - (r2mid/scale))
 
-    gd_diagram.draw(format="linear", start=start, end=end, fragments=1, pagesize=(225, pagew_px), xl=(loffset/pagew_px), xr=(roffset/pagew_px) )
+    gd_diagram.draw(format="linear", start=start, end=end, fragments=1, pagesize=(ht, pagew_px), xl=(loffset/pagew_px), xr=(roffset/pagew_px), yt=yt, yb=yb )
 
     gd_diagram.write(imgfileloc, "PNG")
 
@@ -228,7 +267,7 @@ def makeClusterColorMap(seqfeatures, greyout):
 ##############################
 # Putting it all together... #
 ##############################
-def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur, tempdir=None):
+def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur, tempdir=None, labeltype = 'clusterid'):
     '''
     Make a genome context diagram for a single gene with ITEP ID geneid.
     '''
@@ -236,7 +275,7 @@ def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur, tempdir=None):
     getcolor = makeClusterColorMap(seqfeatures, 1)
     start, end = regionlength(seqfeatures)
     width = abs(end - start)
-    imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, tempdir=tempdir, label=True)
+    imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, tempdir=tempdir, label=True, labeltype = labeltype)
     return imgfileloc
 
 ##########################

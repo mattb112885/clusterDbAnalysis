@@ -275,7 +275,7 @@ if __name__ == "__main__":
     # Clean up
     con.close()
     try:
-        sys.stderr.write("Deleting temporary directory %s..." %(tempdir))
+        sys.stderr.write("Deleting temporary directory %s...\n" %(tempdir))
         shutil.rmtree(tempdir)
     except OSError as exc:
         raise IOError("Unable to delete temporary directory %s" %(tempdir) )

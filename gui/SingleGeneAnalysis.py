@@ -116,7 +116,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         return True
     def _get_gene_neighborhood(self):
         self._get_run_id()
-        diagram = makeSingleGeneNeighborhoodDiagram(self.accumulated_data['ITEP_id'], self.accumulated_data['runid'], self.sqlite_cursor)
+        diagram = makeSingleGeneNeighborhoodDiagram(self.accumulated_data['ITEP_id'], self.accumulated_data['runid'], self.sqlite_cursor, labeltype = 'aliases')
         os.system("display %s" %(diagram))
         return True
     # Analysis Related to getting related genes

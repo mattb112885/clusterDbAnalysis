@@ -56,7 +56,7 @@ def getBlastResultsContainingGenes(geneids, cur, blastn=False, cutoff=1E-5):
     # Generate a table of BLAST results '
     cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
     for gene in geneids:
-        cur.execute("INSERT INTO desiredgenes VALUES (?);", (gn, ) )
+        cur.execute("INSERT INTO desiredgenes VALUES (?);", (gene, ) )
 
     # Generate a list of blast results with query matching one of the desiredgenes
     if blastn:
@@ -71,8 +71,10 @@ def getBlastResultsContainingGenes(geneids, cur, blastn=False, cutoff=1E-5):
 
     cur.execute(cmd, (cutoff,));
 
-    results = [ list(l) for l in cur ]
-    return results
+    resulttable = []
+    for k in cur:
+        resulttable.append( [ str(s) for s in k ] )
+    return resulttable
     
 
 def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):

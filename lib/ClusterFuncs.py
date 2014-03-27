@@ -74,6 +74,8 @@ def getBlastResultsContainingGenes(geneids, cur, blastn=False, cutoff=1E-5):
     resulttable = []
     for k in cur:
         resulttable.append( [ str(s) for s in k ] )
+
+    cur.execute("DROP TABLE desiredgenes;")
     return resulttable
     
 

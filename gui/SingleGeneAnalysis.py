@@ -165,6 +165,16 @@ Note that only the groups of organisms that contain your gene are listed here.
             shutil.copyfile(diagram, output_file)
             self._success_dialog(output_file)
         return True
+    def _get_similar_genes(self, blastn=False):
+        blastres = getBlastResultsContainingGenes( [ self.accumulated_data['ITEP_id'] ], self.sqlite_cursor, blastn=blastn )
+        blastres.insert(0, self._blastHeader())
+        text = self._print_readable_table(blastres, header=True)
+        easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension=".txt")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
+        return True
     def _run_tblastn(self):
         self._get_run_id()
         # Organism file has to be closed to be used by the tblastn.
@@ -378,6 +388,8 @@ Note that only the groups of organisms that contain your gene are listed here.
         self.valid_choices = [ 'Nucleotide FASTA', 
                                'Amino acid FASTA', 
                                'Gene neighborhood',
+                               'Get similar genes by BLASTP',
+                               'Get similar genes by BLASTN',
                                'Run tBLASTn against a group of organisms',
                                'Related genes in other organisms']
         self.sqlite_cursor = cur
@@ -426,6 +438,10 @@ What do you want to know about this gene?
             self._get_related_genes()
         elif choice == 'Run tBLASTn against a group of organisms':
             self._run_tblastn()
+        elif choice == 'Get similar genes by BLASTP':
+            self._get_similar_genes(blastn=False)
+        elif choice == 'Get similar genes by BLASTN':
+            self._get_similar_genes(blastn=True)
 
         return True
 

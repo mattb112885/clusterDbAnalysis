@@ -129,5 +129,5 @@ con.commit()
 cur = con.cursor()
 # These help us more quickly get subsets of a presence absence table.
 cur.execute("CREATE INDEX presenceabsenceclusters ON presenceabsence(clusterid);")
-cur.execute("CREATE INDEX presenceabsenceruns ON presenceabsence(runid);"
+cur.execute("CREATE INDEX presenceabsenceruns ON presenceabsence(runid);")
 con.close()

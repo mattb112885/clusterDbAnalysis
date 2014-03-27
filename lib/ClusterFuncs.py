@@ -45,10 +45,40 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
             bestannote = annote
     return bestannote
 
+def getBlastResultsContainingGenes(geneids, cur, blastn=False, cutoff=1E-5):
+    '''
+    Given a list of gene IDs, get a list of all BLAST results with significant
+    homology to any ONE of the genes in the provided list (as opposed to getBlastResultsBetweenSpecificGenes,
+    which requires BOTH of the genes to be on the provided list)
+
+    Results are returned as a list of lists [ [BLAST resutl 1], [BLAST result 2], ... ]
+    '''
+    # Generate a table of BLAST results '
+    cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
+    for gene in geneids:
+        cur.execute("INSERT INTO desiredgenes VALUES (?);", (gn, ) )
+
+    # Generate a list of blast results with query matching one of the desiredgenes
+    if blastn:
+        tbl = "blastnres_selfbit"
+    else:
+        tbl = "blastres_selfbit"
+
+    cmd = """SELECT %s.* FROM %s
+             WHERE (%s.evalue < ?) AND
+                 ( %s.targetgene   IN (select geneid from desiredgenes)
+                   OR %s.querygene IN (select geneid from desiredgenes) ) ;""" %(tbl, tbl, tbl, tbl, tbl)
+
+    cur.execute(cmd, (cutoff,));
+
+    results = [ list(l) for l in cur ]
+    return results
+    
+
 def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     '''
     Given a list of gene IDs, query the BLAST table to get a list of BLAST results
-    containing the genes. The table is in -m9 format but with query and target self-bit scores
+    BETWEEN any two genes in the list. The table is in -m9 format but with query and target self-bit scores
     added as the last two columns.
 
     blastn: TRUE if you want BLASTN results and FALSE if you want blastp results

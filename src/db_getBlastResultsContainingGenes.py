@@ -26,14 +26,17 @@ gc = options.genecolumn - 1
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-genelist = []
+genelist = set()
 for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")
     gn = spl[gc]
     if not gn.startswith("fig|"):
         gn = "fig|%s" %(gn)
-    genelist.append(gn)
+    genelist.add(gn)
 
-blastres = getBlastResultsContainingGenes(genelist, cur, evalue=evalue, blastn=blastn)
+blastres = getBlastResultsContainingGenes(genelist, cur, cutoff=options.cutoff, blastn=options.blastn)
+
+for blast in blastres:
+    print "\t".join(blast)
 
 con.close()

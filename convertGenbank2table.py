@@ -371,10 +371,10 @@ if the genomes are really different.\n""" %(genbank_filename))
         for line in open(bk_file, "r"):
             if tosearch in line:
                 if not options.replace:
-                    sys.stderr.write("""ERROR: Entries with gene ID %s already exist in the aliases file.
+                    sys.stderr.write("""ERROR: Entries with organism ID %s already exist in the aliases file.
 This could indicate a conflict in taxIDs between multiple organisms. Use -r to override this error and
 replace the existing entries in the aliases file with new entries or use a different version number (v) if the
-genomes are really different.""")
+genomes are really different.""" %(organism_id))
                     alias_ptr.close()
                     os.rename(bk_file, alias_filename)
                     exit(2)

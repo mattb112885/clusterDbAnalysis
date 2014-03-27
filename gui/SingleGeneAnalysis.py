@@ -10,6 +10,7 @@ import sys
 import tempfile
 
 from ClusterFuncs import *
+from ClusterGraph import *
 from FileLocator import *
 from BioPythonGraphics import *
 
@@ -316,6 +317,16 @@ Note that only the groups of organisms that contain your gene are listed here.
         print second_cmd
         os.system(second_cmd)
         return True
+    def _make_cluster_gml_file(self):
+        output_file = self._save_file_dialogs(extension="gml")
+        if output_file is None:
+            return True
+        clusterid = self._getClusterId()
+        genelist = getGenesInCluster(self.accumulated_data['runid'], clusterid, self.sqlite_cursor)
+        blastres = getBlastResultsBetweenSpecificGenes(genelist, self.sqlite_cursor)
+        graph = makeNetworkObjectFromBlastResults(blastres, "maxbit", 0.1, self.sqlite_cursor )
+        exportGraphToGML(graph, output_file)
+        easygui.msgbox(msg="GML file saved to %s. Import into Cytoscape or similar programs to view. A VizMapper file is available at lib/ITEP_vizmapper.props." %(output_file))
     # Loop - study genes related to the starting gene.
     def _get_related_genes(self):
         self._get_run_id()
@@ -332,8 +343,9 @@ Note that only the groups of organisms that contain your gene are listed here.
                           'Display a crude tree with neighborhoods attached',
                           'Get a presence and absence table',
                           'Get information on related genes',
+                          'Make a GML file to import into Cytoscape',
                           'Get blast support for a protein family']
-        option = easygui.choicebox("What do you want to do with it?", "Choose an analysis", valid_choices)        
+        option = easygui.choicebox("What do you want to do with the related genes?", "Choose an analysis", valid_choices)        
         if option is None:
             return False
         if option == 'Make Amino acid FASTA file':
@@ -354,6 +366,8 @@ Note that only the groups of organisms that contain your gene are listed here.
             self._get_cluster_geneinfo()
         elif option == 'Get blast support for a protein family':
             self._get_cluster_blast()
+        elif option == 'Make a GML file to import into Cytoscape':
+            self._make_cluster_gml_file()
         return True
     # Setup
     def _setUpClusterInfo(self):

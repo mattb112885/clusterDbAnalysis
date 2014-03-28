@@ -13,6 +13,7 @@ from ClusterFuncs import *
 from ClusterGraph import *
 from FileLocator import *
 from BioPythonGraphics import *
+from sanitizeString import *
 
 # The user probably doesn't want to see another box if they cancelled it themselves.
 class UserCancelError(Exception):
@@ -378,7 +379,9 @@ Note that only the groups of organisms that contain your gene are listed here.
         self.accumulated_data['run_to_cluster'] = run_to_cluster
     def _setUpGeneInfo(self, alias):
         # Try ITEP ID first
-        geneinfo = getGeneInfo( [ alias ], self.sqlite_cursor)
+        # Support either sanitized or unsanitized versions.
+        itep_id = unsanitizeGeneId(alias)
+        geneinfo = getGeneInfo( [ itep_id ], self.sqlite_cursor)
         if len(geneinfo) == 0:
             alias_file = locateAliasesFile()
             alias2gene = {}
@@ -389,9 +392,6 @@ Note that only the groups of organisms that contain your gene are listed here.
                 raise NoGeneError("Sorry, we could not find gene ID %s in the database or in our aliases file. It might not be in this database.\n" %(alias))
             itep_id = alias2gene[alias]
             geneinfo = getGeneInfo( [ itep_id ], self.sqlite_cursor)
-        else:
-            # ITEP ID was provided
-            itep_id = alias
 
         geneinfo = geneinfo[0]
         self.accumulated_data['alias'] = alias
@@ -411,7 +411,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         return
     # Interface
     def getGeneId(self):
-        gene_alias = easygui.enterbox("Please enter the locus tag or ITEP ID of the gene you wish to study.")
+        gene_alias = easygui.enterbox("Please enter the locus tag or ITEP ID (sanitized or not) of the gene you wish to study.")
         if gene_alias is None:
             raise UserCancelError('User cancelled the operation.')
         self._setUpGeneInfo(gene_alias)

@@ -29,6 +29,8 @@ parser.add_option("-t", "--translation", help="Translation table number for TBLA
 parser.add_option("-g", "--genecol", help="Column number for gene ID starting from 1 (D=1)", action="store", type="int", dest="gc", default=1)
 parser.add_option("-r", "--orgcol", help="Column number for organism ID starting from 1 (D=2, so that it matches the organisms file; ignored unless -f is specified)", 
                   action="store", type="int", dest="oc", default=2)
+parser.add_option("-a", "--calledgeneoverlap", help="Cutoff for overlap of called genes (D: 1% - if the called gene overlaps with the hit with less than 1% of its length it is ignored",
+                  action="store", type="float", dest="calledgeneoverlap", default=1)
 parser.add_option("-k", "--keep", help="Keep temporary files (D: Delete them)", action="store_true", dest="keep", default=False)
 (options, args) = parser.parse_args()
 
@@ -161,13 +163,14 @@ for line in open(ofile, "r"):
     cur.execute(q3, (subcontig, tblaststart, tblastend, tblaststart, tblastend))
 
     atleastone = False
+    insufficient_overlap = False
+
     # This part is always in common even if there are no overlaps
     firstLine = "%s\t%d\t%s\t%s\t%d\t%d\t%d\t%1.2f\t%s\t%s\t%s" %(queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, sframe)
 
     tblastn_hitID = "TBLASTN_CONTIG_%s_START_%d_STOP_%d" %(subcontig, tblaststart, tblastend)
     
     for rec in cur:
-        atleastone = True
         # Gene info for TARGET gene
         targetgeneid = rec[0]
         targetgenestart = int(rec[1])
@@ -175,6 +178,12 @@ for line in open(ofile, "r"):
         targetannotation = rec[3]
         targetoverlap = min(max(tblaststart, tblastend), max(targetgenestart, targetgeneend)) - max(min(tblaststart, tblastend), min(targetgenestart, targetgeneend))
         targetoverlappct = float(targetoverlap)/abs(float(targetgenestart - targetgeneend))*100
+
+        if targetoverlappct < options.calledgeneoverlap:
+            insufficient_overlap = True
+            continue
+        else:
+            atleastone = True
 
         # Same strand?
         if ( targetgenestart < targetgeneend and tblaststart < tblastend ) or ( targetgenestart > targetgeneend and tblaststart > tblastend ):
@@ -186,7 +195,12 @@ for line in open(ofile, "r"):
 
     # No gene matches the loation
     if not atleastone:
-        print "%s\tNOGENE\t\t\t\t\t%s" %(firstLine, tblastn_hitID)
+        if insufficient_overlap:
+            # We found only overlapping genes with less overlap than the cutoff.
+            # The INSUFFICIENT_OVERLAP signals to the user that this was the case.
+            print "%s\tINSUFFICIENT_OVERLAP\t\t\t\t\t%s" %(firstLine, tblastn_hitID)
+        else:
+            print "%s\tNOGENE\t\t\t\t\t%s" %(firstLine, tblastn_hitID)
 
 # Clean up
 if not options.keep:

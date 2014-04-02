@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import fileinput, optparse, sqlite3, sys, re
+from ClusterFuncs import *
 from FileLocator import *
 from sanitizeString import *
 
@@ -54,7 +55,7 @@ for line in open(options.gprfile, "r"):
     else:
         rxn2gpr[spl[0]] = [ gpr ]
 
-# Now lets get a list of genes
+# Now lets get a list of genes contained in those GPRs.
 genelist = []
 for rxn in rxn2gpr:
     for gpr in rxn2gpr[rxn]:
@@ -69,7 +70,7 @@ if len(genelist) == 0:
     sys.stderr.write("ERROR: No genes were found with expected formatting - dont forget to replace your IDs with those present in the database...\n")
     exit(2)
 
-# One gene can catalize multiple reactions. For the purposes of finding clusters, we don't care.
+# One gene can catalyze multiple reactions. For the purposes of finding clusters, we don't care.
 # We'll go back and sort that out with the GPRs later.
 genelist = list(set(genelist))
 
@@ -77,41 +78,26 @@ genelist = list(set(genelist))
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-# We want to make sure we get all the organisms for a particular cluster... but we don't need
-# all the genes for those.
-query1 = "SELECT clusterid,geneid FROM clusterorgs WHERE clusterorgs.runid=? AND clusterorgs.geneid=?"
-query2 = "SELECT organism FROM clusterorgs WHERE clusterorgs.runid=? AND clusterorgs.clusterid=?"
-query3 = "SELECT DISTINCT organism FROM clusterorgs WHERE clusterorgs.runid = ?"
+# ClusterID -> [organisms]
 cluster2orgs = {}
+# Cluster ID -> [genes in the input GPR]
 cluster2genes = {}
 
-orglist = set()
-cur.execute(query3, (options.runid, ))
-for res in cur:
-    orglist.add(sanitizeString(res[0], False))
+orglist = set(getOrganismsInClusterRun(options.runid, cur))
+cluster_tuples = getClustersContainingGenes( genelist, cur, runid=options.runid)
 
-for gene in genelist:
-    cur.execute(query1, (options.runid, gene))
-    # For genes we only care about the ones actually appearing in our GPRs.
-    clusterid = None
-    for res in cur:
-        clusterid = str(res[0])
-        geneid = str(res[1])
-        if clusterid in cluster2genes:
-            cluster2genes[clusterid].add(geneid)
-        else:
-            cluster2genes[clusterid] = set()
-            cluster2genes[clusterid].add(geneid)
-    # Now lets get what organisms are in that cluster.
-    cur.execute(query2, (options.runid, clusterid))
-    for res in cur:
-        org = sanitizeString(res[0], False)
-        orglist.add(org)
-        if clusterid in cluster2orgs:
-            cluster2orgs[clusterid].add(org)
-        else:
-            cluster2orgs[clusterid] = set()
-            cluster2orgs[clusterid].add(org)
+for tup in cluster_tuples:
+    clusterid = str(tup[1])
+    geneid = str(tup[2])
+    if clusterid in cluster2genes:
+        cluster2genes[clusterid].add(geneid)
+    else:
+        cluster2genes[clusterid] = set()
+        cluster2genes[clusterid].add(geneid)
+
+    if clusterid not in cluster2orgs:
+        cluster_orgs = getOrganismsInCluster(options.runid, clusterid, cur)
+        cluster2orgs[clusterid] = set(cluster_orgs)
 
 con.close()
 
@@ -119,7 +105,6 @@ con.close()
 # If not, we assign the genes in those clusters to FALSE and if they are to TRUE.
 # Then we evaluate...
 rxn2presence = {}
-rxn2presence["orgs"] = orglist
 
 syntaxerrors = set()
 nameerrors = set()
@@ -134,6 +119,7 @@ for org in orglist:
             # To use EVAL we need to have variables (gene names) with valid python syntax.
             gen = gene.replace("|", "_").replace(".", "_")
             gene2presenceabsence[gen] = val
+            print org, gen, gene2presenceabsence[gen]
     # Now we SHOULD be able to do eval.
     # If we have issues it means there's a formatting error in the GPR - we should print the offending ones and continue on.
     for rxn in rxn2gpr:
@@ -162,6 +148,8 @@ for s in syntaxerrors:
     sys.stderr.write(s)
 for s in nameerrors:
     sys.stderr.write(s)
+
+print "orgs\t%s" %("\t".join(orglist))
 
 for rxn in rxn2presence:
     # I do it this kind of round-about way because eval isn't always consistent with whether or not it throws a syntax error!

@@ -4,7 +4,9 @@
 such as cross-referencing with annotations, organisms, BLAST results, etc...'''
 
 import math
+import os
 import sys
+import tempfile
 from FileLocator import *
 from sanitizeString import *
 
@@ -113,17 +115,30 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     cur.execute("DROP TABLE desiredgenes;")
     return resultTable
 
-def getClustersContainingGenes(genelist, cur):
+def getClustersContainingGenes(genelist, cur, runid=None):
     '''
     Get a list of cluster/runID pairs containing at least one of a set of genes.
+
+    If runid is specified, only get the clusters in that cluster run.
+
     Returns a list of (runid, clusterid, organism) tuples.
     '''
+
+
     cur.execute("CREATE TEMPORARY TABLE s ( geneid VARCHAR(256) );")
 
     for gene in genelist:
         cur.execute("INSERT INTO s VALUES (?);", (gene, ))
 
-    cur.execute("""SELECT clusters.* FROM clusters                                                                                                                                                                               WHERE clusters.geneid IN (SELECT geneid FROM s)                                                                                                                                                               ORDER BY runid, clusterid; """)
+    if runid is None:
+        cur.execute("""SELECT clusters.* FROM clusters
+                       WHERE clusters.geneid IN (SELECT geneid FROM s)
+                       ORDER BY runid, clusterid; """)
+    else:
+        cur.execute("""SELECT clusters.* FROM clusters
+                       WHERE clusters.geneid IN (SELECT geneid FROM s)
+                       AND clusters.runid = ?
+                       ORDER BY runid, clusterid; """, (runid, ))
 
     res = []
     for l in cur:
@@ -285,6 +300,15 @@ def getGeneInfo(genelist, cur):
         for k in cur:
             res.append( [ str(s) for s in k ] )
     return res
+
+def getOrganismsInCluster(runid, clusterid, cur):
+    '''
+    Get a list of organism names in a cluster. Returns them as a list.
+    '''
+    organisms = []
+    cur.execute("SELECT organism FROM clusterorgs WHERE clusterorgs.runid=? AND clusterorgs.clusterid=?", (runid, clusterid) )
+    organisms = [ str(s[0]) for s in cur ]
+    return organisms
 
 def getOrganismsInClusterRun(runid, cur):
     '''

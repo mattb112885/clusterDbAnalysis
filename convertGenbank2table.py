@@ -324,11 +324,22 @@ if __name__ == '__main__':
         sys.stderr.write("ERROR: Genbank_file (-g) is a required argument\n")
         exit(2)
 
+    rootdir = locateRootDirectory()
+    gbk_dir = os.path.join(rootdir, "genbank")
+    raw_dir = os.path.join(rootdir, "raw")
+
+    # This should never happen but just in case it did, we will 
+    if not os.path.exists(gbk_dir):
+        sys.stderr.write("WARNING: Genbank output directory %s did not exist (it is part of the repo and should not be deleted). Attempting to create it...\n")
+        os.makedirs(gbk_dir)
+    if not os.path.exists(raw_dir):
+        sys.stderr.write("WARNING: Raw file output directory %s did not exist (it is part of the repo and should not be deleted). Attempting to create it...\n")
+        os.makedirs(raw_dir)
+
      # Extract data from the Genbank file
     orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number)
     options.version_number = orginfo["net_version_number"]
 
-    rootdir = locateRootDirectory()
     organism_id = str(orginfo["taxon"]) + "." + str(options.version_number)
     geneout_filename = os.path.join(rootdir, "raw", "%s.txt" %(organism_id))
     genbank_filename = os.path.join(rootdir, "genbank", "%s.gbk" %(organism_id))

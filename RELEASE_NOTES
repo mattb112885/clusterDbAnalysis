@@ -40,6 +40,7 @@ VIRTUAL MACHINE FIXES:
 
 OTHER CHANGES:
 - unsanitizeGeneId() function moved to sanitizeString.py library to avoid importing many tree-related libraries when not necessary.
+- Several additional script functions have been added to the callable libraries (especially several needed for the UI)
 
 ------------------------------
 

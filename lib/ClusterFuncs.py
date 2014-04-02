@@ -121,7 +121,7 @@ def getClustersContainingGenes(genelist, cur, runid=None):
 
     If runid is specified, only get the clusters in that cluster run.
 
-    Returns a list of (runid, clusterid, organism) tuples.
+    Returns a list of (runid, clusterid, geneid) tuples.
     '''
 
 

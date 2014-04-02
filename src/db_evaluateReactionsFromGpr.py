@@ -119,7 +119,6 @@ for org in orglist:
             # To use EVAL we need to have variables (gene names) with valid python syntax.
             gen = gene.replace("|", "_").replace(".", "_")
             gene2presenceabsence[gen] = val
-            print org, gen, gene2presenceabsence[gen]
     # Now we SHOULD be able to do eval.
     # If we have issues it means there's a formatting error in the GPR - we should print the offending ones and continue on.
     for rxn in rxn2gpr:

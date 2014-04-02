@@ -319,6 +319,49 @@ def getOrganismsInClusterRun(runid, cur):
     organisms = [ str(s[0]) for s in cur ]
     return organisms
 
+def getEquivalentGenesInOrganism( genelist, runid, cur, orgid=None, orgname=None ):
+    '''
+    Given a list of genes (in any organism), get a list of genes in the same cluster
+    in another organism.
+
+    genelist : A list of genes 
+    runid    : A cluster run ID
+    cur      : SQLite cursor
+
+    One of the following is required:
+    orgid    : ITEP Organism ID
+    orgname  : Organism name
+
+    Returns a dictionary from the original gene (in genelist) to the genes in the
+    target organism.
+    '''
+
+    if orgid is None and orgname is None:
+        raise IOError("Either orgid or orgname is required as input")
+    if orgid is not None and orgname is not None:
+        raise IOError("Cannot specify both organism name and ID.")
+    if orgname is None:
+        orgname = organismIdToName(orgid, cur)
+
+    output = {}
+    q = "SELECT * FROM clusterorgs WHERE runid = ? AND clusterid = ?"
+    for query_gene in genelist:
+        clustertups = getClustersContainingGenes( [ query_gene ], cur, runid = runid )
+        for tup in clustertups:
+            clusterid = tup[1]
+            cur.execute(q, (runid, clusterid) )
+            for res in cur:
+                if res[3] == orgname:
+                    target_gene = res[2]
+                    if query_gene in output:
+                        output[query_gene].append(target_gene)
+                    else:
+                        output[query_gene] = [ target_gene ]
+        if query_gene not in output:
+            sys.stderr.write("WARNING: Query gene %s did not have homologs in the target organsm %s.\n" %(query_gene, orgname))
+
+    return output           
+
 def organismNameToId(orgname, cur, issanitized = False):
     '''
     Given an organism name, return the ID for that organism name.
@@ -363,7 +406,7 @@ def getContigIds(cur, orgid=None, orgname=None, issanitized=False):
 
     By default, grabs ALL contigs.
     If orgid isn't None, grabs contigs only for organism with id "orgid".
-    If the organism's name isn't none, grabs contigs only for the specified organism.
+    If the organism's name isn't none, grabs contigs only for the specified organism with name 'orgname'
     '''
 
     if orgid is not None and orgname is not None:

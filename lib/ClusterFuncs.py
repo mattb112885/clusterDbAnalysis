@@ -4,6 +4,7 @@
 such as cross-referencing with annotations, organisms, BLAST results, etc...'''
 
 import math
+import operator
 import os
 import sys
 import tempfile
@@ -124,25 +125,22 @@ def getClustersContainingGenes(genelist, cur, runid=None):
     Returns a list of (runid, clusterid, geneid) tuples.
     '''
 
-
-    cur.execute("CREATE TEMPORARY TABLE s ( geneid VARCHAR(256) );")
-
-    for gene in genelist:
-        cur.execute("INSERT INTO s VALUES (?);", (gene, ))
-
-    if runid is None:
-        cur.execute("""SELECT clusters.* FROM clusters
-                       WHERE clusters.geneid IN (SELECT geneid FROM s)
-                       ORDER BY runid, clusterid; """)
-    else:
-        cur.execute("""SELECT clusters.* FROM clusters
-                       WHERE clusters.geneid IN (SELECT geneid FROM s)
-                       AND clusters.runid = ?
-                       ORDER BY runid, clusterid; """, (runid, ))
-
     res = []
-    for l in cur:
-        res.append( tuple( [ str(s) for s in l ] ) )
+    for gene in genelist:
+        if runid is None:
+            cur.execute("""SELECT clusters.* FROM clusters
+                           WHERE clusters.geneid = ?; """, (gene, ))
+            for l in cur:
+                res.append( tuple( [ str(s) for s in l ] ) )
+        else:
+            cur.execute("""SELECT clusters.* FROM clusters
+                           WHERE clusters.geneid = ?
+                           AND clusters.runid = ?; """, (gene, runid))
+            for l in cur:
+                res.append( tuple( [ str(s) for s in l ] ) )
+
+    res = sorted(res, key=operator.itemgetter(0,1,2))
+
     return res
 
 

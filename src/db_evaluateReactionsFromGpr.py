@@ -28,8 +28,12 @@ parser.add_option("-o", "--or", help="Replace all AND in the input GPR with OR (
 parser.add_option("-n", "--newgpr", help="""
 Instead of returning 0 and 1, return the new GPR in the other organisms. 
 Isozymes are delimited by semicolons and GPRs evaluated from duplicates in reactions in the input file
-are delimited by pipes.""", 
+are delimited by pipes. Any gene in the GPR that is not present is replaced with NONE.""", 
                   action="store_true", dest="newgpr", default=False)
+parser.add_option("-a", "--showabsence", help="""
+Replace old GPR with new GPR only if the reaction is present, and otherwise
+replace the whole GPR string with ABSENT. """,
+                  action="store_true", dest="showabsence", default=False)
 (options, args) = parser.parse_args()
 
 if options.gprfile is None:
@@ -136,7 +140,7 @@ for org in orglist:
             # Get new GPR
             new_gpr = gpr
             gpr_genes = gpr2genes[gpr]
-            equiv_dict = getEquivalentGenesInOrganism( gpr_genes, options.runid, cur, orgname=org )
+            equiv_dict = getEquivalentGenesInOrganism( gpr_genes, options.runid, cur, orgname=org, verbose=False )
             for gene in gpr_genes:
                 if gene in equiv_dict:
                     new_gpr = new_gpr.replace(gene, ";".join(equiv_dict[gene]))
@@ -162,6 +166,9 @@ for org in orglist:
             rxn2presence[rxn].append(int(overallPresence))
         else:
             rxn2presence[rxn] = [ int(overallPresence) ]
+        # If requested we flag absent reactions as absent instead of trying to display a GPR for them.
+        if not overallPresence and options.showabsence:
+            new_gpr_list = [ "ABSENT" ]
         # Also combine the new GPRs from different queries
         if rxn in rxn2new_gpr:
             rxn2new_gpr[rxn].append("|".join(new_gpr_list))
@@ -180,7 +187,7 @@ for rxn in rxn2presence:
     # This makes me a bit worried about the accuracy of the results...
     if rxn in badrxns:
         continue
-    if options.newgpr:
+    if options.newgpr or options.showabsence:
         print "%s\t%s" %(rxn, "\t".join( rxn2new_gpr[rxn] ))
     else:
         print "%s\t%s" %(rxn, "\t".join( [ str(a) for a in rxn2presence[rxn] ] ))

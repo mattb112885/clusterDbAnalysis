@@ -330,7 +330,7 @@ def getOrganismsInClusterRun(runid, cur):
     organisms = [ str(s[0]) for s in cur ]
     return organisms
 
-def getEquivalentGenesInOrganism( genelist, runid, cur, orgid=None, orgname=None ):
+def getEquivalentGenesInOrganism( genelist, runid, cur, orgid=None, orgname=None, verbose=True ):
     '''
     Given a list of genes (in any organism), get a list of genes in the same cluster
     in another organism.
@@ -368,7 +368,7 @@ def getEquivalentGenesInOrganism( genelist, runid, cur, orgid=None, orgname=None
                         output[query_gene].append(target_gene)
                     else:
                         output[query_gene] = [ target_gene ]
-        if query_gene not in output:
+        if query_gene not in output and verbose:
             sys.stderr.write("WARNING: Query gene %s did not have homologs in the target organsm %s.\n" %(query_gene, orgname))
 
     return output           

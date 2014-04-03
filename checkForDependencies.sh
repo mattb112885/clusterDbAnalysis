@@ -186,4 +186,12 @@ if [ $? -ne 0 ]; then
     echo ""
 fi
 
+python -c 'import easygui'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "WARNING: Unable to find the Python package easygui. This package is needed to use the graphical interfaces for ITEP."
+    echo "It can be found at http://easygui.sourceforge.net/"
+    echo ""
+fi
+
 exit ${STATUS};

@@ -25,6 +25,11 @@ parser.add_option("-g", "--gprfile", help="GPR file (required, D=None)", action=
 parser.add_option("-i", "--runid", help="Run ID to use to identify presence\absence of genes (requried, D=None)", action="store", type="str", dest="runid", default=None)
 parser.add_option("-o", "--or", help="Replace all AND in the input GPR with OR (useful for diagnosing issues with missing subunits). D = False, evaluate as written",
                   action="store_true", dest="repor", default=False)
+parser.add_option("-n", "--newgpr", help="""
+Instead of returning 0 and 1, return the new GPR in the other organisms. 
+Isozymes are delimited by semicolons and GPRs evaluated from duplicates in reactions in the input file
+are delimited by pipes.""", 
+                  action="store_true", dest="newgpr", default=False)
 (options, args) = parser.parse_args()
 
 if options.gprfile is None:
@@ -57,12 +62,15 @@ for line in open(options.gprfile, "r"):
 
 # Now lets get a list of genes contained in those GPRs.
 genelist = []
+gpr2genes = {}
 for rxn in rxn2gpr:
     for gpr in rxn2gpr[rxn]:
         genes = geneFinder.findall(gpr)
         if genes is None:
             sys.stderr.write("WARNING: No genes with expected format found in GPR %s\n" %(gpr) )
+            gpr2genes[gpr] = []
             continue
+        gpr2genes[gpr] = genes
         for gene in genes:
             genelist.append(gene)
 
@@ -99,18 +107,17 @@ for tup in cluster_tuples:
         cluster_orgs = getOrganismsInCluster(options.runid, clusterid, cur)
         cluster2orgs[clusterid] = set(cluster_orgs)
 
-con.close()
-
-# For each organism we iterate over each of those clusters and see if it is in there.
-# If not, we assign the genes in those clusters to FALSE and if they are to TRUE.
-# Then we evaluate...
 rxn2presence = {}
+rxn2new_gpr = {}
 
 syntaxerrors = set()
 nameerrors = set()
 badrxns = []
+# Evaluate the GPR for each organism.
 for org in orglist:
     gene2presenceabsence = {}
+    # For each metabolic cluster evaluate if the organism is in that cluster.
+    # We need to do this for the Boolean evaluation
     for cluster in cluster2orgs:
         val = False
         if org in cluster2orgs[cluster]:
@@ -120,11 +127,24 @@ for org in orglist:
             gen = gene.replace("|", "_").replace(".", "_")
             gene2presenceabsence[gen] = val
     # Now we SHOULD be able to do eval.
-    # If we have issues it means there's a formatting error in the GPR - we should print the offending ones and continue on.
+    # If we have issues it means there's a formatting error in the GPR or invalid genes or something - we print the offending ones and continue on.
     for rxn in rxn2gpr:
         gprlist = rxn2gpr[rxn]
         overallPresence = False
+        new_gpr_list = []
         for gpr in gprlist:
+            # Get new GPR
+            new_gpr = gpr
+            gpr_genes = gpr2genes[gpr]
+            equiv_dict = getEquivalentGenesInOrganism( gpr_genes, options.runid, cur, orgname=org )
+            for gene in gpr_genes:
+                if gene in equiv_dict:
+                    new_gpr = new_gpr.replace(gene, ";".join(equiv_dict[gene]))
+                else:
+                    new_gpr = new_gpr.replace(gene, "NONE")
+            new_gpr_list.append(new_gpr)
+
+            # Evaluate boolean expression for GPR
             try:
                 rxnPresent = eval(gpr.replace("|", "_").replace(".", "_"), {"__builtins__":None}, gene2presenceabsence)
             except SyntaxError:
@@ -142,6 +162,11 @@ for org in orglist:
             rxn2presence[rxn].append(int(overallPresence))
         else:
             rxn2presence[rxn] = [ int(overallPresence) ]
+        # Also combine the new GPRs from different queries
+        if rxn in rxn2new_gpr:
+            rxn2new_gpr[rxn].append("|".join(new_gpr_list))
+        else:
+            rxn2new_gpr[rxn] = [ "|".join(new_gpr_list) ]
 
 for s in syntaxerrors:
     sys.stderr.write(s)
@@ -155,4 +180,9 @@ for rxn in rxn2presence:
     # This makes me a bit worried about the accuracy of the results...
     if rxn in badrxns:
         continue
-    print "%s\t%s" %(rxn, "\t".join( [ str(a) for a in rxn2presence[rxn] ] ))
+    if options.newgpr:
+        print "%s\t%s" %(rxn, "\t".join( rxn2new_gpr[rxn] ))
+    else:
+        print "%s\t%s" %(rxn, "\t".join( [ str(a) for a in rxn2presence[rxn] ] ))
+
+con.close()

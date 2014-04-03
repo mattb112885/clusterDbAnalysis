@@ -25,6 +25,7 @@
 
 import sqlite3, fileinput, optparse
 from FileLocator import *
+from ClusterFuncs import *
 
 # Get input arguments                                                                  
 usage = "%prog [options] < runid_clusterid_table > cluster_gene_info"
@@ -39,32 +40,18 @@ parser.add_option("-c", "--ccolumn", help="Column number (start from 1) for clus
 rc = options.runcolumn - 1 # Convert to Pythonic indexes                                                                                                                                                      
 cc = options.clustercolumn - 1
 
+
+clusterruns = set()
+for line in fileinput.input("-"):
+    spl = line.strip('\r\n').split("\t")
+    clusterruns.add( (spl[rc], spl[cc]) )
+
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-# Make a temporary table with all of the clusters that we want to actually extract
-query = "CREATE TEMPORARY TABLE desiredclusters( runid VARCHAR(256), clusterid INT );"
-cur.execute(query);
-
-for line in fileinput.input("-"):
-    spl = line.strip('\r\n').split("\t")
-    query = "INSERT INTO desiredclusters VALUES (?, ?);"
-    con.execute(query, (spl[rc], spl[cc]))
-
-# Unique... god damnit
-query = "CREATE TEMPORARY TABLE unqclusters AS SELECT DISTINCT * from desiredclusters;"
-cur.execute(query)
-
-# Generate information about all of those clusters (for all genes, not just the ones piped into this command)
-cur.execute(""" SELECT processed.*, clusters.runid, clusters.clusterid
-              FROM clusters
-              INNER JOIN processed ON processed.geneid = clusters.geneid
-              INNER JOIN unqclusters ON unqclusters.clusterid = clusters.clusterid
-                 AND clusters.runid = unqclusters.runid;""")
-
-for l in cur:
-    s = list(l)
-    stri = "\t".join(str(t) for t in s)
-    print stri
+for cr in clusterruns:
+    geneinfo = getClusterGeneInfo(cr[0], cr[1], cur)
+    for info in geneinfo:
+        print "\t".join(info)
 
 con.close()

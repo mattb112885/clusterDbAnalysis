@@ -299,6 +299,19 @@ def getGeneInfo(genelist, cur):
             res.append( [ str(s) for s in k ] )
     return res
 
+def getClusterGeneInfo(runid, clusterid, cur):
+    '''
+    Get gene info for all genes in a cluster. Include the run ID and cluster ID
+    as the final two columns.
+    '''
+    genelist = getGenesInCluster(runid, clusterid, cur)
+    geneinfo = getGeneInfo(genelist, cur)
+    for ii in range(len(geneinfo)):
+        geneinfo[ii].append(runid)
+        geneinfo[ii].append(clusterid)
+
+    return geneinfo
+
 def getOrganismsInCluster(runid, clusterid, cur):
     '''
     Get a list of organism names in a cluster. Returns them as a list.

@@ -27,8 +27,7 @@ parser.add_option("-o", "--or", help="Replace all AND in the input GPR with OR (
                   action="store_true", dest="repor", default=False)
 parser.add_option("-n", "--newgpr", help="""
 Instead of returning 0 and 1, return the new GPR in the other organisms. 
-Isozymes are delimited by semicolons and GPRs evaluated from duplicates in reactions in the input file
-are delimited by pipes. Any gene in the GPR that is not present is replaced with NONE.""", 
+Any gene in the GPR that is not present is replaced with NONE.""", 
                   action="store_true", dest="newgpr", default=False)
 parser.add_option("-a", "--showabsence", help="""
 Replace old GPR with new GPR only if the reaction is present, and otherwise
@@ -143,10 +142,15 @@ for org in orglist:
             equiv_dict = getEquivalentGenesInOrganism( gpr_genes, options.runid, cur, orgname=org, verbose=False )
             for gene in gpr_genes:
                 if gene in equiv_dict:
-                    new_gpr = new_gpr.replace(gene, ";".join(equiv_dict[gene]))
+                    repstr = " or ".join(equiv_dict[gene])
+                    # Keep related genes grouped if needed.
+                    if len(equiv_dict[gene]) > 1:
+                        repstr = "(" + repstr + ")"
+                    new_gpr = new_gpr.replace(gene, repstr )
                 else:
                     new_gpr = new_gpr.replace(gene, "NONE")
-            new_gpr_list.append(new_gpr)
+            # Also keep separate organisms grouped.
+            new_gpr_list.append( "(" + new_gpr + ")" )
 
             # Evaluate boolean expression for GPR
             try:
@@ -171,9 +175,9 @@ for org in orglist:
             new_gpr_list = [ "ABSENT" ]
         # Also combine the new GPRs from different queries
         if rxn in rxn2new_gpr:
-            rxn2new_gpr[rxn].append("|".join(new_gpr_list))
+            rxn2new_gpr[rxn].append(" or ".join(new_gpr_list))
         else:
-            rxn2new_gpr[rxn] = [ "|".join(new_gpr_list) ]
+            rxn2new_gpr[rxn] = [ " or ".join(new_gpr_list) ]
 
 for s in syntaxerrors:
     sys.stderr.write(s)

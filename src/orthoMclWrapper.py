@@ -4,8 +4,8 @@ import optparse, os, re, sys
 from Bio import SeqIO
 from FileLocator import *
 
-usage = """%prog -l mysql_loginname -p mysql_password -d mysql_database_string [options]
-%prog -f orthomcl_config_file [options] """
+usage = """%prog -l mysql_loginname -p mysql_password -d mysql_database_string blastres [options]
+%prog -f orthomcl_config_file blastres [options] """
 description = """
   WARNING - This script is still a work in progress and is subject to random failures. Most random failures are related
   to issues with MySQL configuration that cannot be fixed without priveleges.
@@ -63,10 +63,12 @@ parser.add_option("-r", "--forcereload", help="Force reload of the database with
                   action="store_true", dest="forcereload", default=False)
 parser.add_option("-k", "--keeptemp", help="Keep temporary files made by orthoMCL (D: Delete them - except the new config file which is stored in the filename specified by -n)",
                   action="store_true", dest="keeptemp", default=False)
-parser.add_option("-b", "--blastres", help="Use this BLAST results file for orthomcl input instead of the default (containing all organisms).",
-                  action="store", dest="blastres", default=None)
 
 (options, args) = parser.parse_args()
+
+if len(args) < 1:
+    sys.stderr.write("ERROR: blast results are a required argument\n")
+    exit(2)
 
 # Either -l, -p, and -d must all be specified OR a previously-generated config file must be provided.
 if options.configfile is None and (options.login is None or options.password is None or options.dbstring is None):
@@ -251,12 +253,8 @@ os.system("cat %s > %s" %(os.path.join(orthofastadir, "*"), orthofasta_cat))
 # This will take some time but WAY less than re-running BLAST.
 sys.stderr.write("Reformatting BLAST output file to use orthoMCL-compliant IDs...\n")
 
-if options.blastres is None:
-    blastresfile = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat")
-    orthoblastres = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat_orthomcl")
-else:
-    blastresfile = options.blastres
-    orthoblastres = "%s_orthomcl" %(options.blastres)
+blastresfile = args[0]
+orthoblastres = "%s_orthomcl" %(blastresfile)
 
 # Check that the two have the same number of lines and delete the orthoblastres
 # file if that is not the case.

@@ -28,3 +28,4 @@ done
 cd ..;
 
 sqlite3 db/DATABASE.sqlite < src/internal/builddb_3.sql;
+rm db/contigs

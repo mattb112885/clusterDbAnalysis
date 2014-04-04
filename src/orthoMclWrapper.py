@@ -12,7 +12,7 @@ description = """
 
   You must have a 'orthomcl' MySQL database set up before running this and have access to the login and password info
   for that datbase. The user (by default orthomcl) should have ability to create, drop and edit tables on the orthomcl database.
-  See OrthoMCL documentation for details.
+  You could also change the config file to change the name of the orthomcl database. See OrthoMCL documentation for details.
 
   This script also requires having the orthomcl binaries (in $ORTHOMCLROOT/bin) added to your PATH variable.
 
@@ -23,7 +23,7 @@ description = """
   running it with the specified settings. It expects as input some set of BLAST results with ITEP gene IDs as queries and targets.
 
   The script essentially performs (in sequence) the steps specified in the orthoMCL user guide but skips the ones that were
-  already done for construction of the SQLite database, and reformats things so that they will work with orthoMCL.
+  already done for construction of the ITEP blast database, and reformats things so that they will work with orthoMCL.
 
   If redundant settings are present in the config file and in the inputs, the settings in the config file are overridden by
   the command line input and written to the file specified by -n (default: orthomcl.new.config).

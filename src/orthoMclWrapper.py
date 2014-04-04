@@ -8,24 +8,22 @@ usage = """%prog -l mysql_loginname -p mysql_password -d mysql_database_string b
 %prog -f orthomcl_config_file blastres [options] """
 description = """
   WARNING - This script is still a work in progress and is subject to random failures. Most random failures are related
-  to issues with MySQL configuration that cannot be fixed without priveleges.
+  to issues with MySQL configuration that cannot be fixed without priveleges. Follow the instructions below to minimize the amount of pain.
 
   You must have a 'orthomcl' MySQL database set up before running this and have access to the login and password info
   for that datbase. The user (by default orthomcl) should have ability to create, drop and edit tables on the orthomcl database.
   See OrthoMCL documentation for details.
 
+  This script also requires having the orthomcl binaries (in $ORTHOMCLROOT/bin) added to your PATH variable.
+
   You must empty the 'orthomcl' database for each different set of BLAST data you want to analyse before calling
   this function or it will not work correctly.
 
   This is a wrapper script for converting our data into a format in which it can be run with OrthoMCL and then
-  running it with the specified settings. By default it runs orthoMCL on ALL BLAST data that was used to build the database.
-  Use --blastres to specify a (smaller) BLAST results file to use instead.
+  running it with the specified settings. It expects as input some set of BLAST results with ITEP gene IDs as queries and targets.
 
   The script essentially performs (in sequence) the steps specified in the orthoMCL user guide but skips the ones that were
   already done for construction of the SQLite database, and reformats things so that they will work with orthoMCL.
-
-  The script requires installation of MYSQL and having a database created (see OrthoMCL help file "mysqlInstallGuide.txt"). 
-  It also requires having the orthomcl binaries (in $ORTHOMCLROOT/bin) added to your PATH variable.
 
   If redundant settings are present in the config file and in the inputs, the settings in the config file are overridden by
   the command line input and written to the file specified by -n (default: orthomcl.new.config).

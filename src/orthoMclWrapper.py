@@ -181,7 +181,7 @@ options.configfile = options.newconfigfile
 # We don't necessarily want to re-load all the BLAST info (takes a long time) if
 # it hasn't changed at all.
 sys.stderr.write("Installing OrthoMCL schema...\n")
-#os.system("orthomclInstallSchema %s" %(options.configfile))
+os.system("orthomclInstallSchema %s" %(options.configfile))
 
 ########################################
 # 5-7) - Make BLAST results files in   #
@@ -301,10 +301,7 @@ except IOError:
 
 sys.stderr.write("Running orthomcl Blast parser to put blast results in the correct format for output...\n")
 
-if options.blastres is None:
-    orthomclBlastParserFile = os.path.join(os.path.dirname(locateDatabase()), "blastres_orthomcl_modified")
-else:
-    orthomclBlastParserFile = "%s_orthomcl_modified" %(options.blastres)
+orthomclBlastParserFile = "%s_orthomcl_modified" %(blastresfile)
 
 # Note - the orthomclBlastParser modifies the number of lines in the file...
 # Therefore we cannot just check the number of lines and make sure they are

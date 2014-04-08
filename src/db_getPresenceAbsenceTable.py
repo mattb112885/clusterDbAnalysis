@@ -5,7 +5,9 @@ import os
 import sys
 import sqlite3
 import optparse
+from ClusterFuncs import *
 from FileLocator import *
+from sanitizeString import *
 
 usage="%prog [options] > presence_absence_table"
 description="""Generates a presence - absence table (or slices thereof) based on
@@ -54,6 +56,16 @@ if options.iteponly and options.useronly:
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
+# If a run ID is specified, we want to only return columns in that run.
+orgsToInclude = None
+if options.runid is not None:
+    orgsToInclude = set()
+    orgs = getOrganismsInClusterRun(options.runid, cur)
+    if len(orgs) == 0:
+        raise IOError("ERROR: Specified run ID %s does not exist in the database." %(options.runid) )        
+    for org in orgs:
+        orgsToInclude.add(sanitizeString(org, False))
+
 if options.runid is None and options.clusterid is None:
     cur.execute("SELECT * FROM presenceabsence;")
 else:
@@ -68,30 +80,37 @@ nameorder = []
 if options.treeorder is not None:
     nameorder = treeorder(options.treeorder)
 
-# Get a list of organism names. If we want to sort them in tree-order,
-# We need to check that all of the names are consistent with what is in the
-# tree.
+# Get a list of organism names. 
 collist = [tup[0] for tup in cur.description]
+
+# Mapping from the column order we want to the column order we have.
 newcol2dbcol = {}
-if options.treeorder is not None:
-    for ii in range(len(collist)):
-        # Mapping from the column order we want to the column order we have.
+for ii in range(len(collist)):
+    if orgsToInclude is not None:
+        if collist[ii] not in orgsToInclude:
+            if ii >= 3:
+                # Don't bother giving me a warning if it's just a label for the run ID, cluster ID or annotation (first three columns)
+#                sys.stderr.write("WARNING: Organism name %s in the database was not found in the requested cluster run. It will be deleted!!\n" %(collist[ii]))
+                continue
+    if options.treeorder is None:
+        # Keep the same ordering that exists
+        newcol2dbcol[ii] = ii
+    else:
         if collist[ii] not in nameorder:
             # Don't bother giving me a warning if it's just a label for the run ID, cluster ID or annotation (first three columns)
             if ii >= 3:
                 sys.stderr.write("WARNING: Organism name %s in the database was not found in the provided tree. It will be deleted!!\n" %(collist[ii]))
+                continue
         else:
-            idx = nameorder.index(collist[ii])
+            idx = nameorder.index(collist[ii]) + 3
             newcol2dbcol[idx] = ii
 
-if options.treeorder is None:
-    print "\t".join(collist)
-else:
-    newcollist = collist[0:3]
-    for ii in range(len(nameorder)):
-        if ii in newcol2dbcol:
-            newcollist.append(collist[newcol2dbcol[ii]])
-    print "\t".join(newcollist)
+# Reorder columns in header
+newcollist = collist[0:3]
+for ii in range(len(collist)):
+    if ii >= 3 and ii in newcol2dbcol:
+        newcollist.append(collist[newcol2dbcol[ii]])
+print "\t".join(newcollist)
 
 istitle = True
 titles = []
@@ -137,6 +156,7 @@ for rec in cur:
             pass
         pass
 
+    # Convert format if requested
     for ii in range(len(lst)):
         if ii < 3:
             continue
@@ -147,13 +167,13 @@ for rec in cur:
         elif options.number:
             lst[ii] = str(lst[ii].count(";") + 1)
 
-    # If we want to re-order, do it now.
-    if options.treeorder is not None:
-        newlst = lst[0:3]
-        for ii in range(len(nameorder)):
-            if ii in newcol2dbcol:
-                newlst.append(lst[newcol2dbcol[ii]])
-        lst = newlst
+    # Reorder rows (and throw out rows that don't match organism lists we need - either from tree or from 
+    # run ID)
+    newlst = lst[0:3]
+    for ii in range(len(lst)):
+        if ii >= 3 and ii in newcol2dbcol:
+            newlst.append(lst[newcol2dbcol[ii]])
+    lst = newlst
     print "\t".join(lst)
 
 con.close()

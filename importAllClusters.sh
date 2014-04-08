@@ -33,3 +33,5 @@ sqlite3 db/DATABASE.sqlite < src/internal/builddb_2.sql;
 # This is a python script because it involves some operations that would be impossible or hard in pure SQL.
 echo "Making a pre-built presence\absence table in the database..."
 db_loadPresenceAbsence.py;
+
+rm db/flat_clusters;

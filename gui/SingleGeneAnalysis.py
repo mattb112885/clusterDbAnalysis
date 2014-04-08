@@ -10,8 +10,10 @@ import sys
 import tempfile
 
 from ClusterFuncs import *
+from ClusterGraph import *
 from FileLocator import *
 from BioPythonGraphics import *
+from sanitizeString import *
 
 # The user probably doesn't want to see another box if they cancelled it themselves.
 class UserCancelError(Exception):
@@ -39,6 +41,13 @@ class ITEPGui:
         header = [ 'Query gene', 'Target gene', 'Percent identity', 'HSP length', 'Percent mismatch', 
                    'Gap opens', 'Query start', 'Query end', 'Target start', 'Target end', 'E-value',
                    'Bit score', 'Query self-bit score', 'Target self-bit score' ]
+        return header
+    def _tblastnHeader(self):
+        header = ["Query gene", "Length of query gene", "Target contig", "Target organism", 
+                  "Start of target sequence", "End of target sequence", "HSP length", 
+                  "Percent of query overlapping", "E-value", "Bit score", "Frame of hit",
+                  "StrandedString", "Called gene in hit region", "Annotation of called gene", "Length of called gene",
+                  "Percent of called gene overlapping with HSP", "tBLASTn hit ID" ]      
         return header
     def _save_file_dialogs(self, extension = ".txt"):
         # Dialogs asking users to save file, sanity checks for existence of file, etc.
@@ -158,6 +167,43 @@ Note that only the groups of organisms that contain your gene are listed here.
             shutil.copyfile(diagram, output_file)
             self._success_dialog(output_file)
         return True
+    def _get_similar_genes(self, blastn=False):
+        blastres = getBlastResultsContainingGenes( [ self.accumulated_data['ITEP_id'] ], self.sqlite_cursor, blastn=blastn )
+        blastres.insert(0, self._blastHeader())
+        text = self._print_readable_table(blastres, header=True)
+        easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension=".txt")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)
+        return True
+    def _run_tblastn(self):
+        self._get_run_id()
+        # Organism file has to be closed to be used by the tblastn.
+        # So we have to clean it up manually. The results file though we can
+        # have cleaned up automatically.
+        (orgf, orgfname) = self._createTemporaryFile(delete=False)
+        (resf, resfname) = self._createTemporaryFile(delete=True)
+        orglist = getOrganismsInClusterRun(self.accumulated_data['runid'], self.sqlite_cursor)
+        orgids = []
+        for org in orglist:
+            orgid = organismNameToId(org, self.sqlite_cursor)
+            orgf.write(orgid + "\n")
+        orgf.close()
+        cmd = "echo '%s' | db_TBlastN_wrapper.py -f %s -r 1 > %s" %(self.accumulated_data['ITEP_id'], orgfname, resfname)
+        print cmd
+        os.system(cmd)
+        tblastn_results = [ line.strip("\r\n").split("\t") for line in resf ]
+        tblastn_results.insert(0, self._tblastnHeader())
+        text = self._print_readable_table(tblastn_results, header=True)
+        easygui.codebox(text=text)
+        output_file = self._save_file_dialogs(extension=".txt")
+        if output_file is not None:
+            self._save_text(text, output_file)
+            self._success_dialog(output_file)      
+        # Clean up temp file
+        os.remove(orgfname)
+        return True
     # Analysis Related to getting related genes
     def _get_cluster_blast(self):
         clusterid = self._getClusterId()
@@ -229,12 +275,16 @@ Note that only the groups of organisms that contain your gene are listed here.
             self._save_text(text, output_file)
             self._success_dialog(output_file)
         return True
-    def _make_crude_tree(self):
+    def _make_crude_tree(self, replacename = True):
         # Create tree and make human-readable.
         (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
-        cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
-            %(self.accumulated_data['runid'], cluster, nwk_fname)
+        if replacename:
+            cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
+                %(self.accumulated_data['runid'], cluster, nwk_fname)
+        else:
+            cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma > %s 2> /dev/null' \
+                %(self.accumulated_data['runid'], cluster, nwk_fname)           
         print cmd
         os.system(cmd)
         text = ''.join( [ line for line in nwk_file ] )
@@ -247,7 +297,8 @@ Note that only the groups of organisms that contain your gene are listed here.
     def _display_crude_neighborhood_tree(self):
         # Unlike other commands we need to know if we are saving the results BEFORE we run it.
         output_file = self._save_file_dialogs(extension="png")
-        output_file = output_file[0:len(output_file)-4]
+        if output_file is not None:
+            output_file = output_file[0:len(output_file)-4]
 
         # Create tree
         (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
@@ -258,7 +309,8 @@ Note that only the groups of organisms that contain your gene are listed here.
         os.system(cmd)
 
         # View tree with neighborhoods
-        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
+        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d -l' %(nwk_fname, self.accumulated_data['runid'])
+#        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
 
         if output_file is not None:
             second_cmd += " -o %s --png" %(output_file)
@@ -266,6 +318,16 @@ Note that only the groups of organisms that contain your gene are listed here.
         print second_cmd
         os.system(second_cmd)
         return True
+    def _make_cluster_gml_file(self):
+        output_file = self._save_file_dialogs(extension="gml")
+        if output_file is None:
+            return True
+        clusterid = self._getClusterId()
+        genelist = getGenesInCluster(self.accumulated_data['runid'], clusterid, self.sqlite_cursor)
+        blastres = getBlastResultsBetweenSpecificGenes(genelist, self.sqlite_cursor)
+        graph = makeNetworkObjectFromBlastResults(blastres, "maxbit", 0.1, self.sqlite_cursor )
+        exportGraphToGML(graph, output_file)
+        easygui.msgbox(msg="GML file saved to %s. Import into Cytoscape or similar programs to view. A VizMapper file is available at lib/ITEP_vizmapper.props." %(output_file))
     # Loop - study genes related to the starting gene.
     def _get_related_genes(self):
         self._get_run_id()
@@ -278,11 +340,13 @@ Note that only the groups of organisms that contain your gene are listed here.
                           'Make nucleotide FASTA file', 
                           'Make a crude AA alignment', 
                           'Make a crude Newick tree from AA alignment',
+                          'Make a crude Newick tree with ITEP IDs',
                           'Display a crude tree with neighborhoods attached',
                           'Get a presence and absence table',
                           'Get information on related genes',
+                          'Make a GML file to import into Cytoscape',
                           'Get blast support for a protein family']
-        option = easygui.choicebox("What do you want to do with it?", "Choose an analysis", valid_choices)        
+        option = easygui.choicebox("What do you want to do with the related genes?", "Choose an analysis", valid_choices)        
         if option is None:
             return False
         if option == 'Make Amino acid FASTA file':
@@ -293,6 +357,8 @@ Note that only the groups of organisms that contain your gene are listed here.
             self._make_crude_alignment()
         elif option == 'Make a crude Newick tree from AA alignment':
             self._make_crude_tree()
+        elif option == 'Make a crude Newick tree with ITEP IDs':
+            self._make_crude_tree(replacename=False)
         elif option == 'Get a presence and absence table':
             self._get_presence_absence_table()
         elif option == 'Display a crude tree with neighborhoods attached':
@@ -301,6 +367,8 @@ Note that only the groups of organisms that contain your gene are listed here.
             self._get_cluster_geneinfo()
         elif option == 'Get blast support for a protein family':
             self._get_cluster_blast()
+        elif option == 'Make a GML file to import into Cytoscape':
+            self._make_cluster_gml_file()
         return True
     # Setup
     def _setUpClusterInfo(self):
@@ -311,7 +379,9 @@ Note that only the groups of organisms that contain your gene are listed here.
         self.accumulated_data['run_to_cluster'] = run_to_cluster
     def _setUpGeneInfo(self, alias):
         # Try ITEP ID first
-        geneinfo = getGeneInfo( [ alias ], self.sqlite_cursor)
+        # Support either sanitized or unsanitized versions.
+        itep_id = unsanitizeGeneId(alias)
+        geneinfo = getGeneInfo( [ itep_id ], self.sqlite_cursor)
         if len(geneinfo) == 0:
             alias_file = locateAliasesFile()
             alias2gene = {}
@@ -322,9 +392,6 @@ Note that only the groups of organisms that contain your gene are listed here.
                 raise NoGeneError("Sorry, we could not find gene ID %s in the database or in our aliases file. It might not be in this database.\n" %(alias))
             itep_id = alias2gene[alias]
             geneinfo = getGeneInfo( [ itep_id ], self.sqlite_cursor)
-        else:
-            # ITEP ID was provided
-            itep_id = alias
 
         geneinfo = geneinfo[0]
         self.accumulated_data['alias'] = alias
@@ -332,13 +399,19 @@ Note that only the groups of organisms that contain your gene are listed here.
         self.accumulated_data['geneinfo'] = geneinfo        
         return True
     def __init__(self, cur):
-        self.valid_choices = [ 'Nucleotide FASTA', 'Amino acid FASTA', 'Gene neighborhood', 'Related genes in other organisms']
+        self.valid_choices = [ 'Nucleotide FASTA', 
+                               'Amino acid FASTA', 
+                               'Gene neighborhood',
+                               'Get similar genes by BLASTP',
+                               'Get similar genes by BLASTN',
+                               'Run tBLASTn against a group of organisms',
+                               'Related genes in other organisms']
         self.sqlite_cursor = cur
         self.accumulated_data = {}
         return
     # Interface
     def getGeneId(self):
-        gene_alias = easygui.enterbox("Please enter the locus tag or ITEP ID of the gene you wish to study.")
+        gene_alias = easygui.enterbox("Please enter the locus tag or ITEP ID (sanitized or not) of the gene you wish to study.")
         if gene_alias is None:
             raise UserCancelError('User cancelled the operation.')
         self._setUpGeneInfo(gene_alias)
@@ -377,6 +450,12 @@ What do you want to know about this gene?
             self._get_gene_neighborhood()
         elif choice == 'Related genes in other organisms':
             self._get_related_genes()
+        elif choice == 'Run tBLASTn against a group of organisms':
+            self._run_tblastn()
+        elif choice == 'Get similar genes by BLASTP':
+            self._get_similar_genes(blastn=False)
+        elif choice == 'Get similar genes by BLASTN':
+            self._get_similar_genes(blastn=True)
 
         return True
 

@@ -19,6 +19,8 @@ NEW FEATURES:
   rather than relative to all organisms in the cluster run. See help text for details.
 - db_makeClusterComparisonTable.py - identify genes in the same cluster as a reference across cluster runs and provide
   a table in a suitable format for displaying with db_displayTree.py
+- db_getEquivalentGenesInOrganism.py - Given a list of query genes, a run ID and an organism, finds all genes in the provided organism that are in the
+  same cluster as the query genes and returns a conversion table.
 
 BUG FIXES:
 - Check for biopython version no longer fails due to letters in the version number. Thanks to Matt Richards for reporting.
@@ -31,6 +33,7 @@ BUG FIXES:
   same as it is in the neighborhood display script.
 - Fixed replaceGeneNamesWithAliases.py to work with much more general filetypes.
 - Improved displaying of labels on neighborhood graphs. Should be much nicer now, no overlapping labels or labels cut off the edge of the image.
+- Presence-absence tables no longer print out columns with all NONE (e.g. columns for organisms not found in the specified cluster run).
 
 VIRTUAL MACHINE FIXES:
 - Added FastTreeMP to virtual machines
@@ -39,6 +42,7 @@ VIRTUAL MACHINE FIXES:
 
 OTHER CHANGES:
 - unsanitizeGeneId() function moved to sanitizeString.py library to avoid importing many tree-related libraries when not necessary.
+- Several additional script functions have been added to the callable libraries (especially several needed for the UI)
 
 ------------------------------
 

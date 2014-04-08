@@ -68,3 +68,5 @@ cat db/external_CDD | sed -r 's/gnl\|CDD\|([0-9]+)/\1/g' > db/external_CDD_MOD
 mv db/external_CDD_MOD db/external_CDD
 
 sqlite3 db/DATABASE.sqlite < src/internal/builddb_4.sql
+
+rm db/external_CDD;

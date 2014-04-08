@@ -4,28 +4,26 @@ import optparse, os, re, sys
 from Bio import SeqIO
 from FileLocator import *
 
-usage = """%prog -l mysql_loginname -p mysql_password -d mysql_database_string [options]
-%prog -f orthomcl_config_file [options] """
+usage = """%prog -l mysql_loginname -p mysql_password -d mysql_database_string blastres [options]
+%prog -f orthomcl_config_file blastres [options] """
 description = """
   WARNING - This script is still a work in progress and is subject to random failures. Most random failures are related
-  to issues with MySQL configuration that cannot be fixed without priveleges.
+  to issues with MySQL configuration that cannot be fixed without priveleges. Follow the instructions below to minimize the amount of pain.
 
   You must have a 'orthomcl' MySQL database set up before running this and have access to the login and password info
   for that datbase. The user (by default orthomcl) should have ability to create, drop and edit tables on the orthomcl database.
-  See OrthoMCL documentation for details.
+  You could also change the config file to change the name of the orthomcl database. See OrthoMCL documentation for details.
+
+  This script also requires having the orthomcl binaries (in $ORTHOMCLROOT/bin) added to your PATH variable.
 
   You must empty the 'orthomcl' database for each different set of BLAST data you want to analyse before calling
   this function or it will not work correctly.
 
   This is a wrapper script for converting our data into a format in which it can be run with OrthoMCL and then
-  running it with the specified settings. By default it runs orthoMCL on ALL BLAST data that was used to build the database.
-  Use --blastres to specify a (smaller) BLAST results file to use instead.
+  running it with the specified settings. It expects as input some set of BLAST results with ITEP gene IDs as queries and targets.
 
   The script essentially performs (in sequence) the steps specified in the orthoMCL user guide but skips the ones that were
-  already done for construction of the SQLite database, and reformats things so that they will work with orthoMCL.
-
-  The script requires installation of MYSQL and having a database created (see OrthoMCL help file "mysqlInstallGuide.txt"). 
-  It also requires having the orthomcl binaries (in $ORTHOMCLROOT/bin) added to your PATH variable.
+  already done for construction of the ITEP blast database, and reformats things so that they will work with orthoMCL.
 
   If redundant settings are present in the config file and in the inputs, the settings in the config file are overridden by
   the command line input and written to the file specified by -n (default: orthomcl.new.config).
@@ -63,10 +61,12 @@ parser.add_option("-r", "--forcereload", help="Force reload of the database with
                   action="store_true", dest="forcereload", default=False)
 parser.add_option("-k", "--keeptemp", help="Keep temporary files made by orthoMCL (D: Delete them - except the new config file which is stored in the filename specified by -n)",
                   action="store_true", dest="keeptemp", default=False)
-parser.add_option("-b", "--blastres", help="Use this BLAST results file for orthomcl input instead of the default (containing all organisms).",
-                  action="store", dest="blastres", default=None)
 
 (options, args) = parser.parse_args()
+
+if len(args) < 1:
+    sys.stderr.write("ERROR: blast results are a required argument\n")
+    exit(2)
 
 # Either -l, -p, and -d must all be specified OR a previously-generated config file must be provided.
 if options.configfile is None and (options.login is None or options.password is None or options.dbstring is None):
@@ -179,7 +179,7 @@ options.configfile = options.newconfigfile
 # We don't necessarily want to re-load all the BLAST info (takes a long time) if
 # it hasn't changed at all.
 sys.stderr.write("Installing OrthoMCL schema...\n")
-#os.system("orthomclInstallSchema %s" %(options.configfile))
+os.system("orthomclInstallSchema %s" %(options.configfile))
 
 ########################################
 # 5-7) - Make BLAST results files in   #
@@ -251,12 +251,8 @@ os.system("cat %s > %s" %(os.path.join(orthofastadir, "*"), orthofasta_cat))
 # This will take some time but WAY less than re-running BLAST.
 sys.stderr.write("Reformatting BLAST output file to use orthoMCL-compliant IDs...\n")
 
-if options.blastres is None:
-    blastresfile = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat")
-    orthoblastres = os.path.join(os.path.dirname(locateDatabase()), "blastres_cat_orthomcl")
-else:
-    blastresfile = options.blastres
-    orthoblastres = "%s_orthomcl" %(options.blastres)
+blastresfile = args[0]
+orthoblastres = "%s_orthomcl" %(blastresfile)
 
 # Check that the two have the same number of lines and delete the orthoblastres
 # file if that is not the case.
@@ -303,10 +299,7 @@ except IOError:
 
 sys.stderr.write("Running orthomcl Blast parser to put blast results in the correct format for output...\n")
 
-if options.blastres is None:
-    orthomclBlastParserFile = os.path.join(os.path.dirname(locateDatabase()), "blastres_orthomcl_modified")
-else:
-    orthomclBlastParserFile = "%s_orthomcl_modified" %(options.blastres)
+orthomclBlastParserFile = "%s_orthomcl_modified" %(blastresfile)
 
 # Note - the orthomclBlastParser modifies the number of lines in the file...
 # Therefore we cannot just check the number of lines and make sure they are

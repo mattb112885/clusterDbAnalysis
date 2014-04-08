@@ -10,6 +10,7 @@
 # The code is identical except the sql command has an OR instead of an AND...
 
 import fileinput, optparse, sqlite3
+from ClusterFuncs import *
 from FileLocator import *
 
 usage = "%prog [options] < gene_ids > blast_results"
@@ -25,33 +26,17 @@ gc = options.genecolumn - 1
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
-# Generate a table of BLAST results                                                                                                                                                                            
-cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
+genelist = set()
 for line in fileinput.input("-"):
-    spl = line.strip('\r\n').split("\t")
+    spl = line.strip("\r\n").split("\t")
     gn = spl[gc]
-    # fig| is optional...
     if not gn.startswith("fig|"):
         gn = "fig|%s" %(gn)
-    cur.execute("INSERT INTO desiredgenes VALUES (?);", (gn, ) )
+    genelist.add(gn)
 
-# Generate a list of blast results with query matching one of the desiredgenes
+blastres = getBlastResultsContainingGenes(genelist, cur, cutoff=options.cutoff, blastn=options.blastn)
 
-if options.blastn:
-    tbl = "blastnres_selfbit"
-else:
-    tbl = "blastres_selfbit"
-
-cmd = """SELECT %s.* FROM %s
-         WHERE (%s.evalue < ?) AND 
-             ( %s.targetgene   IN (select geneid from desiredgenes)
-               OR %s.querygene IN (select geneid from desiredgenes) ) ;""" %(tbl, tbl, tbl, tbl, tbl)
-
-cur.execute(cmd, (options.cutoff,));
-
-for l in cur:
-    s = list(l)
-    stri = "\t".join(str(t) for t in s)
-    print stri
+for blast in blastres:
+    print "\t".join(blast)
 
 con.close()

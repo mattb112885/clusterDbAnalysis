@@ -160,3 +160,10 @@ cat db/raw_cat | getNeighbors_bothStrands_rast.py  > db/neighborhoods
 echo "Rebuilding database...";
 rm db/DATABASE.sqlite 2> /dev/null;
 sqlite3 db/DATABASE.sqlite < src/internal/builddb_1.sql;
+
+# Remove temporary files
+rm db/neighborhoods;
+rm db/blastres_cat;
+rm db/blastnres_cat;
+rm db/mod_cat;
+rm db/raw_cat;

@@ -2,6 +2,7 @@
 
 import fileinput, optparse, sys, sqlite3
 from FileLocator import *
+from ClusterFuncs import *
 
 usage="""%prog [options] < runid_clusterid_pair > organism_list"""
 description="Get a list of organisms included in the specified run / cluster ID pair"
@@ -24,14 +25,11 @@ for line in fileinput.input("-"):
         sys.stderr.write("ERROR: Can only specify ONE cluster/runID pair\n")
         exit(2)
     spl = line.strip("\r\n").split("\t")
-    run = spl[rc]
-    cluster = spl[cc]
-    cur.execute("SELECT DISTINCT organism FROM clusterorgs WHERE runid=? AND clusterid = ?", (run, cluster))
-    for res in cur:
-        # I store this in a string instead of printing it so that 
-        # if we throw an error we don't print anything insidiously.
-        # print "".join(str(s) for s in res)
-        mystr = "%s\n%s" %("".join(str(s) for s in res), mystr)
+    runid = spl[rc]
+    clusterid = spl[cc]
+    orglist = getOrganismsInCluster(runid, clusterid, cur)
+    stri = "\n".join(orglist)
 
-print mystr.strip()
+print stri
+
 con.close()

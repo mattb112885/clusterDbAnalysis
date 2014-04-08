@@ -4,7 +4,10 @@
 such as cross-referencing with annotations, organisms, BLAST results, etc...'''
 
 import math
+import operator
+import os
 import sys
+import tempfile
 from FileLocator import *
 from sanitizeString import *
 
@@ -45,10 +48,44 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
             bestannote = annote
     return bestannote
 
+def getBlastResultsContainingGenes(geneids, cur, blastn=False, cutoff=1E-5):
+    '''
+    Given a list of gene IDs, get a list of all BLAST results with significant
+    homology to any ONE of the genes in the provided list (as opposed to getBlastResultsBetweenSpecificGenes,
+    which requires BOTH of the genes to be on the provided list)
+
+    Results are returned as a list of lists [ [BLAST resutl 1], [BLAST result 2], ... ]
+    '''
+    # Generate a table of BLAST results '
+    cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
+    for gene in geneids:
+        cur.execute("INSERT INTO desiredgenes VALUES (?);", (gene, ) )
+
+    # Generate a list of blast results with query matching one of the desiredgenes
+    if blastn:
+        tbl = "blastnres_selfbit"
+    else:
+        tbl = "blastres_selfbit"
+
+    cmd = """SELECT %s.* FROM %s
+             WHERE (%s.evalue < ?) AND
+                 ( %s.targetgene   IN (select geneid from desiredgenes)
+                   OR %s.querygene IN (select geneid from desiredgenes) ) ;""" %(tbl, tbl, tbl, tbl, tbl)
+
+    cur.execute(cmd, (cutoff,));
+
+    resulttable = []
+    for k in cur:
+        resulttable.append( [ str(s) for s in k ] )
+
+    cur.execute("DROP TABLE desiredgenes;")
+    return resulttable
+    
+
 def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     '''
     Given a list of gene IDs, query the BLAST table to get a list of BLAST results
-    containing the genes. The table is in -m9 format but with query and target self-bit scores
+    BETWEEN any two genes in the list. The table is in -m9 format but with query and target self-bit scores
     added as the last two columns.
 
     blastn: TRUE if you want BLASTN results and FALSE if you want blastp results
@@ -79,21 +116,31 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     cur.execute("DROP TABLE desiredgenes;")
     return resultTable
 
-def getClustersContainingGenes(genelist, cur):
+def getClustersContainingGenes(genelist, cur, runid=None):
     '''
     Get a list of cluster/runID pairs containing at least one of a set of genes.
-    Returns a list of (runid, clusterid, organism) tuples.
+
+    If runid is specified, only get the clusters in that cluster run.
+
+    Returns a list of (runid, clusterid, geneid) tuples.
     '''
-    cur.execute("CREATE TEMPORARY TABLE s ( geneid VARCHAR(256) );")
-
-    for gene in genelist:
-        cur.execute("INSERT INTO s VALUES (?);", (gene, ))
-
-    cur.execute("""SELECT clusters.* FROM clusters                                                                                                                                                                               WHERE clusters.geneid IN (SELECT geneid FROM s)                                                                                                                                                               ORDER BY runid, clusterid; """)
 
     res = []
-    for l in cur:
-        res.append( tuple( [ str(s) for s in l ] ) )
+    for gene in genelist:
+        if runid is None:
+            cur.execute("""SELECT clusters.* FROM clusters
+                           WHERE clusters.geneid = ?; """, (gene, ))
+            for l in cur:
+                res.append( tuple( [ str(s) for s in l ] ) )
+        else:
+            cur.execute("""SELECT clusters.* FROM clusters
+                           WHERE clusters.geneid = ?
+                           AND clusters.runid = ?; """, (gene, runid))
+            for l in cur:
+                res.append( tuple( [ str(s) for s in l ] ) )
+
+    res = sorted(res, key=operator.itemgetter(0,1,2))
+
     return res
 
 
@@ -252,6 +299,28 @@ def getGeneInfo(genelist, cur):
             res.append( [ str(s) for s in k ] )
     return res
 
+def getClusterGeneInfo(runid, clusterid, cur):
+    '''
+    Get gene info for all genes in a cluster. Include the run ID and cluster ID
+    as the final two columns.
+    '''
+    genelist = getGenesInCluster(runid, clusterid, cur)
+    geneinfo = getGeneInfo(genelist, cur)
+    for ii in range(len(geneinfo)):
+        geneinfo[ii].append(runid)
+        geneinfo[ii].append(clusterid)
+
+    return geneinfo
+
+def getOrganismsInCluster(runid, clusterid, cur):
+    '''
+    Get a list of organism names in a cluster. Returns them as a list.
+    '''
+    organisms = []
+    cur.execute("SELECT organism FROM clusterorgs WHERE clusterorgs.runid=? AND clusterorgs.clusterid=?", (runid, clusterid) )
+    organisms = [ str(s[0]) for s in cur ]
+    return organisms
+
 def getOrganismsInClusterRun(runid, cur):
     '''
     Get a list of organism names in a cluster run. Returns them as a list.
@@ -260,6 +329,49 @@ def getOrganismsInClusterRun(runid, cur):
     cur.execute("SELECT DISTINCT organism FROM clusterorgs WHERE runid=?", (runid, ))
     organisms = [ str(s[0]) for s in cur ]
     return organisms
+
+def getEquivalentGenesInOrganism( genelist, runid, cur, orgid=None, orgname=None, verbose=True ):
+    '''
+    Given a list of genes (in any organism), get a list of genes in the same cluster
+    in another organism.
+
+    genelist : A list of genes 
+    runid    : A cluster run ID
+    cur      : SQLite cursor
+
+    One of the following is required:
+    orgid    : ITEP Organism ID
+    orgname  : Organism name
+
+    Returns a dictionary from the original gene (in genelist) to the genes in the
+    target organism.
+    '''
+
+    if orgid is None and orgname is None:
+        raise IOError("Either orgid or orgname is required as input")
+    if orgid is not None and orgname is not None:
+        raise IOError("Cannot specify both organism name and ID.")
+    if orgname is None:
+        orgname = organismIdToName(orgid, cur)
+
+    output = {}
+    q = "SELECT * FROM clusterorgs WHERE runid = ? AND clusterid = ?"
+    for query_gene in genelist:
+        clustertups = getClustersContainingGenes( [ query_gene ], cur, runid = runid )
+        for tup in clustertups:
+            clusterid = tup[1]
+            cur.execute(q, (runid, clusterid) )
+            for res in cur:
+                if res[3] == orgname:
+                    target_gene = res[2]
+                    if query_gene in output:
+                        output[query_gene].append(target_gene)
+                    else:
+                        output[query_gene] = [ target_gene ]
+        if query_gene not in output and verbose:
+            sys.stderr.write("WARNING: Query gene %s did not have homologs in the target organsm %s.\n" %(query_gene, orgname))
+
+    return output           
 
 def organismNameToId(orgname, cur, issanitized = False):
     '''
@@ -305,7 +417,7 @@ def getContigIds(cur, orgid=None, orgname=None, issanitized=False):
 
     By default, grabs ALL contigs.
     If orgid isn't None, grabs contigs only for organism with id "orgid".
-    If the organism's name isn't none, grabs contigs only for the specified organism.
+    If the organism's name isn't none, grabs contigs only for the specified organism with name 'orgname'
     '''
 
     if orgid is not None and orgname is not None:

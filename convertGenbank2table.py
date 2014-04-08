@@ -73,12 +73,14 @@ def info_from_genbank(gb_seqrec):
     # The "try" part will only work for Entrez-derived GBK files but we want to be more
     # generic. If we can't find it from tehre we try to get it from the dbxref and if it fails there too
     # there's nothing we can do.
+    sys.stderr.write("Attempting to query Entrez for the taxID...\n")
     try:
         info["gi"]= gb_seqrec.annotations['gi']
         if gb_seqrec.name:
             info["gb_name"] = gb_seqrec.name
         info["taxon"] = lookupStrainID(gb_seqrec.id)
     except:
+        sys.stderr.write("Querying Entrez failed. Getting taxID from the genbank file...\n")
         for record in gb_seqrec.features:
             if record.type == "source":
                 for xref in record.qualifiers["db_xref"]:
@@ -177,11 +179,14 @@ def genbank_extract(ptr, version_number):
 
     orginfo = dict()
     orginfoFound = False
+    cnt = 0
     for gb_seqrec in gb_seqrec_multi:
         if not orginfoFound:
             orginfo = info_from_genbank(gb_seqrec)
             orginfo["net_version_number"] = version_number
             orginfoFound = True
+        cnt += 1
+        sys.stderr.write("Extracting data on features for genbank record number %d...\n" %(cnt))
         for feature in gb_seqrec.features:
             if feature.type =="CDS":
                 #check there is only one translation and get info
@@ -194,6 +199,9 @@ def genbank_extract(ptr, version_number):
                     continue
                 assert len(feature.qualifiers['translation'])==1
                 counter += 1
+
+                if ( counter % 100 == 0 ):
+                    sys.stderr.write("Now working on feature number %d ... \n" %(counter))
 
                 geneinfo = {}
                 #get aa info
@@ -316,11 +324,22 @@ if __name__ == '__main__':
         sys.stderr.write("ERROR: Genbank_file (-g) is a required argument\n")
         exit(2)
 
+    rootdir = locateRootDirectory()
+    gbk_dir = os.path.join(rootdir, "genbank")
+    raw_dir = os.path.join(rootdir, "raw")
+
+    # This should never happen but just in case it did, we will 
+    if not os.path.exists(gbk_dir):
+        sys.stderr.write("WARNING: Genbank output directory %s did not exist (it is part of the repo and should not be deleted). Attempting to create it...\n")
+        os.makedirs(gbk_dir)
+    if not os.path.exists(raw_dir):
+        sys.stderr.write("WARNING: Raw file output directory %s did not exist (it is part of the repo and should not be deleted). Attempting to create it...\n")
+        os.makedirs(raw_dir)
+
      # Extract data from the Genbank file
     orginfo, genes, aliases = genbank_extract(options.genbank_file, options.version_number)
     options.version_number = orginfo["net_version_number"]
 
-    rootdir = locateRootDirectory()
     organism_id = str(orginfo["taxon"]) + "." + str(options.version_number)
     geneout_filename = os.path.join(rootdir, "raw", "%s.txt" %(organism_id))
     genbank_filename = os.path.join(rootdir, "genbank", "%s.gbk" %(organism_id))
@@ -363,10 +382,10 @@ if the genomes are really different.\n""" %(genbank_filename))
         for line in open(bk_file, "r"):
             if tosearch in line:
                 if not options.replace:
-                    sys.stderr.write("""ERROR: Entries with gene ID %s already exist in the aliases file.
+                    sys.stderr.write("""ERROR: Entries with organism ID %s already exist in the aliases file.
 This could indicate a conflict in taxIDs between multiple organisms. Use -r to override this error and
 replace the existing entries in the aliases file with new entries or use a different version number (v) if the
-genomes are really different.""")
+genomes are really different.""" %(organism_id))
                     alias_ptr.close()
                     os.rename(bk_file, alias_filename)
                     exit(2)

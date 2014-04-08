@@ -160,19 +160,27 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir
     # Some basic properties of the figure itself
     arrowshaft_height = 0.3
     arrowhead_length = 0.3
-    default_fontsize = 16 # Font size for genome diagram labels
     scale = 20     #AA per px for the diagram
 
     if label:
         # y-margins need to be bigger if we have labels
         # Since labels could be on the top or the bottom we need to account for either possibility
-        yt = 0.3
-        yb = 0.3
-        ht = 725
+        # Labels are longer for other types than for cluster IDs (which are typically < 6 characters)
+        if labeltype == 'clusterid':
+            yt = 0.1
+            yb = 0.1
+            ht = 350
+            default_fontsize = 25
+        else:
+            yt = 0.3
+            yb = 0.3
+            ht = 725
+            default_fontsize = 16 # Font size for genome diagram labels
     else:
         yt = 0
         yb = 0
         ht = 250
+        default_fontsize = 16 # Doesnt matter
 
     geneIdToAlias = {}
     if label:

@@ -29,8 +29,8 @@
 #echo ""
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export PYTHONPATH=$DIR"/lib":$PYTHONPATH
-export PATH=$DIR"/src":$PATH
-export PATH=$DIR"/src/internal":$PATH
-export PATH=$DIR"/src/utilities":$PATH
-export PATH=$DIR"/scripts":$PATH
+export PYTHONPATH="$DIR/lib":"$PYTHONPATH"
+export PATH="$DIR/src":"$PATH"
+export PATH="$DIR/src/internal":"$PATH"
+export PATH="$DIR/src/utilities":"$PATH"
+export PATH="$DIR/scripts":"$PATH"

@@ -88,6 +88,8 @@ parser.add_option("-o", "--outdir", help="Output directory for all of the PNG fi
                   action="store", type="str", dest="outdir", default="externalHitGraphics")
 parser.add_option("-s", "--showevalue", help="Show E-value for RPSBLAST hits along with the names (D: Show names only)",
                   action="store_true", dest="showevalue", default=False)
+parser.add_option("-m", "--maxhits", help="Maximum number of hits to display on the figure (D:Not limited). Try this if the figure gets too messy.",
+                  action="store", type="int", dest="maxhits", default=None)
 (options, args) = parser.parse_args()
 
 if options.outdir is None:
@@ -175,6 +177,8 @@ for geneid in genelist:
                                    label=True, label_position = "start", label_angle = 0, label_size = 24
                                    )
         n += 1
+        if options.maxhits is not None and n > (options.maxhits + 1):
+            break
 
     gd_diagram.draw(format="linear", start=start, end=end, fragments=1)
     pathname = os.path.join( options.outdir, sanitizeString(geneid, False) + ".svg" )

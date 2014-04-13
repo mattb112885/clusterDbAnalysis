@@ -6,6 +6,7 @@ import operator
 import os
 import shutil
 import sqlite3
+import subprocess
 import sys
 import tempfile
 
@@ -172,7 +173,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         blastres.insert(0, self._blastHeader())
         text = self._print_readable_table(blastres, header=True)
         easygui.codebox(text=text)
-        output_file = self._save_file_dialogs(extension=".txt")
+        output_file = self._save_file_dialogs(extension="txt")
         if output_file is not None:
             self._save_text(text, output_file)
             self._success_dialog(output_file)
@@ -183,13 +184,18 @@ Note that only the groups of organisms that contain your gene are listed here.
         # So we have to clean it up manually. The results file though we can
         # have cleaned up automatically.
         (orgf, orgfname) = self._createTemporaryFile(delete=False)
-        (resf, resfname) = self._createTemporaryFile(delete=True)
+        (resf, resfname) = self._createTemporaryFile(delete=False)
         orglist = getOrganismsInClusterRun(self.accumulated_data['runid'], self.sqlite_cursor)
         orgids = []
         for org in orglist:
             orgid = organismNameToId(org, self.sqlite_cursor)
             orgf.write(orgid + "\n")
         orgf.close()
+        sys.stderr.write("Now running the tblastn wrapper (this could take some time...)\n")
+#        f1 = subprocess.Popen([ "echo", self.accumulated_data['ITEP_id'] ], stdout=subprocess.PIPE)
+#        f2 = subprocess.Popen(["db_TBlastN_wrapper.py", "-f", orgfname, "-r", "1" ], stdin=f1.stdout, stdout=resf)
+#        f1.stdout.close()
+#        f2.communicate()
         cmd = "echo '%s' | db_TBlastN_wrapper.py -f %s -r 1 > %s" %(self.accumulated_data['ITEP_id'], orgfname, resfname)
         print cmd
         os.system(cmd)
@@ -197,12 +203,34 @@ Note that only the groups of organisms that contain your gene are listed here.
         tblastn_results.insert(0, self._tblastnHeader())
         text = self._print_readable_table(tblastn_results, header=True)
         easygui.codebox(text=text)
-        output_file = self._save_file_dialogs(extension=".txt")
+        output_file = self._save_file_dialogs(extension="txt")
         if output_file is not None:
             self._save_text(text, output_file)
             self._success_dialog(output_file)      
-        # Clean up temp file
+        # Clean up temp files
         os.remove(orgfname)
+        os.remove(resfname)
+        return True
+    def _get_conserved_domains(self):
+        tmpdir = tempfile.mkdtemp()       
+        f1 = subprocess.Popen(["echo", self.accumulated_data['ITEP_id'] ], stdout=subprocess.PIPE )
+        # Limiting hits to 8 is probably more reasonable than applying a generic Evalue cutoff.
+        f2 = subprocess.Popen(["db_displayExternalClusterHits.py", "--maxhits", "8", "--outdir", tmpdir, "--showevalue" ], stdin=f1.stdout)
+        f1.stdout.close()  # Allow echo to receive a SIGPIPE if the second command exits before the first.
+        f2.communicate()
+        outfiles = [ f for f in os.listdir(tmpdir) if os.path.isfile(os.path.join(tmpdir,f)) ]
+        if len(outfiles) == 0:
+            easygui.msgbox(msg = "Sorry, the specified gene had no external cluster hits")
+        else:
+            for outfile in outfiles:
+                f3 = subprocess.Popen(["display", os.path.join(tmpdir, outfile)])
+                f3.communicate()
+
+        output_file = self._save_file_dialogs(extension="svg")
+        if output_file is not None:
+            f4 = subprocess.Popen(["cp", os.path.join(tmpdir, outfile), output_file])
+            f4.communicate()
+        shutil.rmtree(tmpdir)
         return True
     # Analysis Related to getting related genes
     def _get_cluster_blast(self):
@@ -224,7 +252,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         geneinfo.insert(0, self._geneInfoHeader())
         text = self._print_readable_table(geneinfo, header=True)
         easygui.codebox(text=text)
-        output_file = self._save_file_dialogs(extension=".txt")
+        output_file = self._save_file_dialogs(extension="txt")
         if output_file is not None:
             self._save_text(text, output_file)
             self._success_dialog(output_file)
@@ -405,7 +433,9 @@ Note that only the groups of organisms that contain your gene are listed here.
                                'Get similar genes by BLASTP',
                                'Get similar genes by BLASTN',
                                'Run tBLASTn against a group of organisms',
-                               'Related genes in other organisms']
+                               'Related genes in other organisms',
+                               'Show conserved domain hits',
+                               ]
         self.sqlite_cursor = cur
         self.accumulated_data = {}
         return
@@ -456,6 +486,8 @@ What do you want to know about this gene?
             self._get_similar_genes(blastn=False)
         elif choice == 'Get similar genes by BLASTN':
             self._get_similar_genes(blastn=True)
+        elif choice == 'Show conserved domain hits':
+            self._get_conserved_domains()
 
         return True
 

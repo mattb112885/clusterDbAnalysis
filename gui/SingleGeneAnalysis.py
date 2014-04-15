@@ -215,7 +215,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         tmpdir = tempfile.mkdtemp()       
         f1 = subprocess.Popen(["echo", self.accumulated_data['ITEP_id'] ], stdout=subprocess.PIPE )
         # Limiting hits to 8 is probably more reasonable than applying a generic Evalue cutoff.
-        f2 = subprocess.Popen(["db_displayExternalClusterHits.py", "--maxhits", "8", "--outdir", tmpdir, "--showevalue" ], stdin=f1.stdout)
+        f2 = subprocess.Popen(["db_displayExternalClusterHits.py", "--maxhits", "15", "--outdir", tmpdir, "--showevalue" ], stdin=f1.stdout)
         f1.stdout.close()  # Allow echo to receive a SIGPIPE if the second command exits before the first.
         f2.communicate()
         outfiles = [ f for f in os.listdir(tmpdir) if os.path.isfile(os.path.join(tmpdir,f)) ]

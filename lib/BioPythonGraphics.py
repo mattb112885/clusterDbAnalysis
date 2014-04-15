@@ -129,7 +129,7 @@ def regionlength(seqfeatures):
     end = min(min(starts),min(ends))
     return start, end
 
-def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir=None, label=False, labeltype = 'clusterid' ):
+def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir=None, imgfileloc = None, label=False, labeltype = 'clusterid' ):
     '''
     Makes a PNG figure for regions with a given color mapping, set of gene locations... 
 
@@ -142,15 +142,19 @@ def make_region_drawing(seqfeatures, getcolor, centergenename, maxwidth, tempdir
 
     labeltype: 'clusterid' : Add numeric cluster ID to each feature
                'aliases'   : Add a underscore-delimited list of aliases to each feature (aliases file is located in $ITEP_ROOT/aliases/aliases)
+
+    If an output file is unspecified the region drawing will be made temporary in tempdir (or if that isn't specified either, it will be made temporary
+    in a new directory created in /tmp/ or the default temporary directory for Python)
     '''
 
     # The files are not automatically deleted
     # but at least this prevents collisions.
     # A user who wants to clean up should specify a temporary directory and delete it afterward.
-    if tempdir is None:
-        tempdir = tempfile.gettempdir()
-    imghandle = tempfile.NamedTemporaryFile(delete=False, dir=tempdir)
-    imgfileloc = imghandle.name
+    if imgfileloc is None:
+        if tempdir is None:
+            tempdir = tempfile.gettempdir()
+        imghandle = tempfile.NamedTemporaryFile(delete=False, dir=tempdir)
+        imgfileloc = imghandle.name
 
     # Set up an entry genome diagram object                                                                                                                                                                   
     gd_diagram = GenomeDiagram.Diagram("Genome Region")
@@ -275,7 +279,7 @@ def makeClusterColorMap(seqfeatures, greyout):
 ##############################
 # Putting it all together... #
 ##############################
-def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur, tempdir=None, labeltype = 'clusterid'):
+def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur, tempdir=None, imgfileloc = None, labeltype = 'clusterid'):
     '''
     Make a genome context diagram for a single gene with ITEP ID geneid.
     '''
@@ -283,7 +287,7 @@ def makeSingleGeneNeighborhoodDiagram(geneid, runid, cur, tempdir=None, labeltyp
     getcolor = makeClusterColorMap(seqfeatures, 1)
     start, end = regionlength(seqfeatures)
     width = abs(end - start)
-    imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, tempdir=tempdir, label=True, labeltype = labeltype)
+    imgfileloc = make_region_drawing(seqfeatures, getcolor, geneid, width, tempdir=tempdir, imgfileloc = imgfileloc, label=True, labeltype = labeltype)
     return imgfileloc
 
 ##########################

@@ -13,14 +13,14 @@ NEW FEATURES:
   Note you must have already built the database before running the GUI. Using the gui requires you to have
   access to an X11 server and the easygui Python package. It should be considered highly experimental / breakable
   at this point.
-- OrthoMCL wrapper now optionally takes as input an arbitrary table of BLAST results from the ITEP database. By default it pulls out and uses everything
-  in the database.
+- OrthoMCL wrapper now takes as input an arbitrary table of BLAST results from the ITEP database
 - makeCoreClusterAnalysisTree.py now optionally can be used to analyze presence-absence patterns relative to sister clades,
   rather than relative to all organisms in the cluster run. See help text for details.
 - db_makeClusterComparisonTable.py - identify genes in the same cluster as a reference across cluster runs and provide
   a table in a suitable format for displaying with db_displayTree.py
 - db_getEquivalentGenesInOrganism.py - Given a list of query genes, a run ID and an organism, finds all genes in the provided organism that are in the
   same cluster as the query genes and returns a conversion table.
+- Make a diagram of neighbors for a single gene
 
 BUG FIXES:
 - Check for biopython version no longer fails due to letters in the version number. Thanks to Matt Richards for reporting.
@@ -34,11 +34,14 @@ BUG FIXES:
 - Fixed replaceGeneNamesWithAliases.py to work with much more general filetypes.
 - Improved displaying of labels on neighborhood graphs. Should be much nicer now, no overlapping labels or labels cut off the edge of the image.
 - Presence-absence tables no longer print out columns with all NONE (e.g. columns for organisms not found in the specified cluster run).
+- Made SourceMe.sh more robust to spaces in the current PATH definition. Thanks to drjcthrash for the inspiration.
+- Improved performance of run ID listing and organism links.
+- Fixed bug in definition of distinctorgs view (and turned it into a table).
 
 VIRTUAL MACHINE FIXES:
 - Added FastTreeMP to virtual machines
 - Added easygui to virtual machines
-- Upgraded Biopython to 1.63b on both machines
+- Upgraded Biopython to 1.63 on both machines
 
 OTHER CHANGES:
 - unsanitizeGeneId() function moved to sanitizeString.py library to avoid importing many tree-related libraries when not necessary.

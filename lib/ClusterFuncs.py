@@ -326,9 +326,9 @@ def getOrganismsInClusterRun(runid, cur):
     Get a list of organism names in a cluster run. Returns them as a list.
     '''
     organisms = []
-    cur.execute("SELECT DISTINCT organism FROM clusterorgs WHERE runid=?", (runid, ))
+    cur.execute("SELECT DISTINCT organism FROM distinctorgs WHERE runid=?", (runid, ))
     organisms = [ str(s[0]) for s in cur ]
-    return organisms
+    return sorted(organisms)
 
 def getEquivalentGenesInOrganism( genelist, runid, cur, orgid=None, orgname=None, verbose=True ):
     '''
@@ -442,10 +442,10 @@ def getContigIds(cur, orgid=None, orgname=None, issanitized=False):
 
 def getAllClusterRuns(cur):
     runs = []
-    cur.execute("SELECT DISTINCT runid FROM clusters;")
+    cur.execute("SELECT DISTINCT runid FROM distinctorgs;")
     for l in cur:
         runs.append(str(l[0]))
-    return runs
+    return sorted(runs)
 
 
 def getContigSequence(cur, contig_list):

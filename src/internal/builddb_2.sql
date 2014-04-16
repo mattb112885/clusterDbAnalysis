@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS clusters;
 DROP VIEW IF EXISTS clusterorgs;
-DROP VIEW IF EXISTS distinctorgs;
+DROP TABLE IF EXISTS distinctorgs;
 
 /* This is intended to be run after builddb_1.sql
    The two scripts are separated in order to allow us to generate clusters
@@ -27,7 +27,7 @@ CREATE VIEW clusterorgs AS
        INNER JOIN processed ON processed.geneid = clusters.geneid
        ORDER BY clusters.clusterid DESC;
 
-/* Cluster IDs and what organisms are part of those cluster IDs */
-CREATE VIEW distinctorgs AS SELECT DISTINCT clusterorgs.runid, clusterorgs.organism FROM clusterorgs;
+/* Run IDs and what organisms are part of those run IDs */
+CREATE TABLE distinctorgs AS SELECT DISTINCT runid, organism FROM clusterorgs;
 
 ANALYZE;

@@ -6,10 +6,21 @@ such as cross-referencing with annotations, organisms, BLAST results, etc...'''
 import math
 import operator
 import os
+import sqlite3
 import sys
 import tempfile
 from FileLocator import *
 from sanitizeString import *
+
+def _oldClusterRunText():
+    return """
+This operation will potentially be slow because your database was built using an old version of ITEP.\n
+To fix this, go into your SQLite file ($ sqlite db/DATABASE.sqlite ) and execute the following commands: \n
+\n
+DROP VIEW distinctorgs;\n
+CREATE TABLE distinctorgs AS SELECT DISTINCT runid, organism FROM clusterorgs;\n
+.exit\n
+"""
 
 def getSanitizedContigList(cur):
     ''' 
@@ -326,7 +337,11 @@ def getOrganismsInClusterRun(runid, cur):
     Get a list of organism names in a cluster run. Returns them as a list.
     '''
     organisms = []
-    cur.execute("SELECT DISTINCT organism FROM distinctorgs WHERE runid=?", (runid, ))
+    try:
+        cur.execute("SELECT DISTINCT organism FROM distinctorgs WHERE runid=?", (runid, ))
+    except sqlite3.OperationalError:
+        sys.stderr.write(_oldClusterRunText())
+        cur.execute("SELECT DISTINCT organism FROM clusterorgs WHERE runid=?", (runid, ))
     organisms = [ str(s[0]) for s in cur ]
     return sorted(organisms)
 
@@ -442,11 +457,14 @@ def getContigIds(cur, orgid=None, orgname=None, issanitized=False):
 
 def getAllClusterRuns(cur):
     runs = []
-    cur.execute("SELECT DISTINCT runid FROM distinctorgs;")
+    try:
+        cur.execute("SELECT DISTINCT runid FROM distinctorgs;")
+    except sqlite3.OperationalError:
+        sys.stderr.write(_oldClusterRunText())
+        cur.execute("SELECT DISTINCT runid FROM clusters;")
     for l in cur:
         runs.append(str(l[0]))
     return sorted(runs)
-
 
 def getContigSequence(cur, contig_list):
     '''

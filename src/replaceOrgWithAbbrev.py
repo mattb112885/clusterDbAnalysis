@@ -18,7 +18,7 @@ from sanitizeString import *
 from FileLocator import *
 
 usage="%prog [options] < text_file > text_file_with_orgname"
-description="Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file (e.g. a newick file)"
+description="Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file (e.g. a newick file). Note the fig| is optional."
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-f", "--orgfile", help="Organism file (optional, default = organisms file in root directory of current install)", 
                   action="store", type="str", dest="orgfile", default=None)

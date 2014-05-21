@@ -117,16 +117,14 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     blastn: TRUE if you want BLASTN results and FALSE if you want blastp results
     '''
 
-    # We need to have both query AND target contain the gene ids so specify only_query is fine
-    # and saves us time.
+    # First lets get all of the BLAST results in which the QUERY is one of the specified genes.
     firstpass = getBlastResultsContainingGenes(geneids, cur, blastn=blastn, only_query = True)
-
-    geneids = set(geneids)
 
     # Not the most memory efficient here.
     # We asked for query only, which is res[0]
-    # We need to check that the target (res[1]) is also in our gene list.
+    # We need to check that the TARGET (res[1]) is also in our gene list.
     resultTable = []
+    geneids = set(geneids)
     for res in firstpass:
         if res[1] in geneids:
             resultTable.append(res)

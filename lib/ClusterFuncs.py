@@ -117,29 +117,20 @@ def getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=False):
     blastn: TRUE if you want BLASTN results and FALSE if you want blastp results
     '''
 
-    # FIXME - Can I get equivalent performance by passing in lots of queries at once instead of making a temporary table?
-    # Expunging the temporary tables would allow us not to have to give "w" to anyone that wants to use the database.
-    cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
-    for geneid in geneids:
-        cur.execute("INSERT INTO desiredgenes VALUES (?);", (geneid, ) )
+    # We need to have both query AND target contain the gene ids so specify only_query is fine
+    # and saves us time.
+    firstpass = getBlastResultsContainingGenes(geneids, cur, blastn=blastn, only_query = True)
 
-    # Generate a list of blast results with query matching one of the desiredgenes
-    if blastn:
-        tbl = "blastnres_selfbit"
-    else:
-        tbl = "blastres_selfbit"   
+    geneids = set(geneids)
 
-    cmd = """SELECT %s.* FROM %s
-         WHERE %s.targetgene IN (select geneid from desiredgenes)
-         AND %s.querygene IN (select geneid from desiredgenes);""" %(tbl, tbl, tbl, tbl)
-    cur.execute(cmd)
-
+    # Not the most memory efficient here.
+    # We asked for query only, which is res[0]
+    # We need to check that the target (res[1]) is also in our gene list.
     resultTable = []
-    for k in cur:
-        resultTable.append( [ str(s) for s in k ] )
-
-    # Since we're preserving cur we should clean up here.
-    cur.execute("DROP TABLE desiredgenes;")
+    for res in firstpass:
+        if res[1] in geneids:
+            resultTable.append(res)
+            
     return resultTable
 
 def getClustersContainingGenes(genelist, cur, runid=None):

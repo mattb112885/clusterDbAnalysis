@@ -19,6 +19,8 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
 parser.add_option("-c", "--cutoff", help="E-value cutoff (D: Show all results in database)", action="store", type="float", dest="cutoff", default=10)
 parser.add_option("-n", "--blastn", help="Base the results on BLASTN instead of BLASTP (D: BLASTP)", action="store_true", dest="blastn", default=False)
+parser.add_option("-o", "--onlyquery", help="Only return results for which one of the specified genes is the query (by default returns results whether it is a query or a target", action="store_true",
+                  dest="only_query", default=False)
 (options, args) = parser.parse_args()
 
 gc = options.genecolumn - 1
@@ -34,7 +36,7 @@ for line in fileinput.input("-"):
         gn = "fig|%s" %(gn)
     genelist.add(gn)
 
-blastres = getBlastResultsContainingGenes(genelist, cur, cutoff=options.cutoff, blastn=options.blastn)
+blastres = getBlastResultsContainingGenes(genelist, cur, cutoff=options.cutoff, blastn=options.blastn, only_query=options.only_query)
 
 for blast in blastres:
     print "\t".join(blast)

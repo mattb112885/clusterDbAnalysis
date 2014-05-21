@@ -59,37 +59,52 @@ def findRepresentativeAnnotation(runid, clusterid, cur):
             bestannote = annote
     return bestannote
 
-def getBlastResultsContainingGenes(geneids, cur, blastn=False, cutoff=1E-5):
+def getBlastResultsContainingGenes(geneids, cur, blastn=False, cutoff=1E-5, only_query = False):
     '''
     Given a list of gene IDs, get a list of all BLAST results with significant
     homology to any ONE of the genes in the provided list (as opposed to getBlastResultsBetweenSpecificGenes,
     which requires BOTH of the genes to be on the provided list)
 
     Results are returned as a list of lists [ [BLAST resutl 1], [BLAST result 2], ... ]
-    '''
-    # Generate a table of BLAST results '
-    cur.execute("""CREATE TEMPORARY TABLE desiredgenes ("geneid" VARCHAR(128), FOREIGN KEY(geneid) REFERENCES rawdata(geneid));""")
-    for gene in geneids:
-        cur.execute("INSERT INTO desiredgenes VALUES (?);", (gene, ) )
 
-    # Generate a list of blast results with query matching one of the desiredgenes
+    Specify only_query = True to get only those genes for which the query is one of the specified genes.
+    Otherwise we return anything where the query OR the target is the gene.
+    '''
     if blastn:
         tbl = "blastnres_selfbit"
     else:
         tbl = "blastres_selfbit"
 
-    cmd = """SELECT %s.* FROM %s
-             WHERE (%s.evalue < ?) AND
-                 ( %s.targetgene   IN (select geneid from desiredgenes)
-                   OR %s.querygene IN (select geneid from desiredgenes) ) ;""" %(tbl, tbl, tbl, tbl, tbl)
+    geneids = list(geneids)
 
-    cur.execute(cmd, (cutoff,));
-
+    # This is the number of genes we break up the query into.
+    # The sqlite-defined limit is 999; 100 should be safe.
+    MAX_PARAMS = 100
     resulttable = []
-    for k in cur:
-        resulttable.append( [ str(s) for s in k ] )
 
-    cur.execute("DROP TABLE desiredgenes;")
+    # Break up gene IDs into groups of MAX_PARAMS
+    # and execute IN statements on the groups.
+    for ii in range(int(len(geneids)/MAX_PARAMS) + 1):
+        N_PARAMS = min(MAX_PARAMS, len(geneids) - MAX_PARAMS*ii)
+        ARR_PORTION = geneids[ii*MAX_PARAMS:(ii+1)*MAX_PARAMS]
+        IN_ARRAY = ",".join( ["?"]*N_PARAMS )
+
+        if only_query:
+            targetstr = ""
+        else:
+            targetstr = " OR %s.targetgene IN ( %s ) " %(tbl, IN_ARRAY)
+
+        cmd = """SELECT %s.* from %s
+                  WHERE (%s.evalue < ? ) 
+                  AND ( %s.querygene IN ( %s ) %s  ); """ %(tbl, tbl, tbl, tbl, IN_ARRAY, targetstr)
+        
+        if only_query:
+            cur.execute(cmd, [cutoff, ] + ARR_PORTION )
+        else:
+            cur.execute(cmd, [cutoff, ] + ARR_PORTION + ARR_PORTION)
+        for k in cur:
+            resulttable.append( [ str(s) for s in k ] )
+
     return resulttable
     
 

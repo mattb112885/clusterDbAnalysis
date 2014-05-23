@@ -8,14 +8,16 @@ from FileLocator import *
 # For sequence transposing
 from Bio import Seq
 
-usage = "%prog [options] < geneids > geneids_with_upstream"
+headers = [ "geneid", "status", "upstream_sequence" ]
+usage = """%prog [options] < geneids > geneids_with_upstream
+
+Output table: """ + " ".join(headers)
 description="""Get the upstream nucleotide sequence of the given set of genes.
-   Requires you to have the contigs loaded into the database.
-
-   Optionally, only print up to the next called gene.
-
-   Output: A three-column table
-   geneid     warnings\OK    upstream NT sequence
+Requires you to have the contigs loaded into the database. It is careful to only
+print sequences up to the next called gene or gap (N) in the sequence unless you
+tell it not to. This is because upstream regions are often used to search for motifs
+but motifs may be hard to distinguish from strong protein sequence conservation in
+protein-coding regions.
 
 Explanation of warnings:
 CONTIGEND - Upstream region reached the end of a contig.

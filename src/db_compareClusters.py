@@ -15,10 +15,19 @@ import sqlite3
 import sys
 from FileLocator import *
 
-usage = "%prog RUNID1 RUNID2 > comparison_file"
-description="Generates a file comparing each overlapping pair of clusters between the two specified run IDs. The tab-delimited file has one row for each overlapping pair of clusters and has one column with the overlapping genes and one column with the non-overlapping genes from each cluster"
+header = [ "run_id_1", "cluster_id_1", "run_id_2", "cluster_id_2", "common_genes", "genes_only_cluster_1", "genes_only_cluster_2" ]
+
+usage = """%prog RUNID1 RUNID2 > comparison_file
+
+Output table: """ + " ".join(header)
+
+description="""Generates a file comparing each overlapping pair of clusters between 
+the two specified clustering runs. The tab-delimited file has one row for each overlapping 
+pair of clustersm, and the overlapping and non-overlapping genes are specified."""
+
 parser = optparse.OptionParser(usage=usage, description=description)
-parser.add_option("-i", "--includeall", help="If specified, include organisms not in common between the two runs as non-overlapping genes. Default is to omit those genes", action="store_true", dest="includeall", default=False)
+parser.add_option("-i", "--includeall", help="""If specified, include organisms not in common between the two runs as non-overlapping genes. 
+The default is to omit those genes (only genes found in both specified cluster runs are printed)""", action="store_true", dest="includeall", default=False)
 (options, args) = parser.parse_args()
 
 if len(args) != 2:

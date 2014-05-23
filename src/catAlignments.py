@@ -14,7 +14,7 @@ import sys
 import optparse
 
 usage="%prog [options] alignment_path > concatenated_alignment"
-description="""Concatinate all alignments in alignment_path.
+description="""Concatinate all FASTA alignments in alignment_path.
 All alignments must have exactly one represenative from each organism and all
 must have representatives from the same set of organisms."""
 parser = optparse.OptionParser(usage=usage, description=description)

@@ -10,14 +10,15 @@ from FileLocator import *
 from sanitizeString import *
 from ClusterFuncs import *
 
-usage = "%prog [options] focus_gene < gene_ids > cluster_comparison_table"
+usage = """%prog [options] focus_gene < gene_ids > cluster_comparison_table"""
 description = '''
 Given a list of gene IDs and a focus gene, identifies all of the clusters (across
 all cluster runs in the database) that contain the gene. Then identifies if the
-genes in 'gene_ids' are identified in the same cluster or not. The output is a
-table with 1 if the gene is present and 0 if it is not (some options allow changing
-this to yes/no). An example usage is to provide all genes in a broad cluster (low
-cutoff) and use this to see how cutoff affects the clustering results.
+genes in 'gene_ids' are identified in the same cluster as the focus gene or not. 
+The output is a table with 1 if the gene is present and 0 if it is not (some options 
+allow changing this to yes/no). An example usage is to provide all genes in a broad cluster (low
+cutoff) and use this to see how cutoff affects the clustering results. The evaluation is done for every
+cluster run in which both genes are found.
 
 Provided gene IDs can be sanitized or unsanitized.'''
 

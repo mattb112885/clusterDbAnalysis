@@ -5,21 +5,25 @@ from ClusterFuncs import *
 from FileLocator import *
 from sanitizeString import *
 
-usage = "%prog -g GPR_file -i RunID [options] > Rxn_presence_absence"
+usage = """%prog -g GPR_file -i RunID [options] > Evaluated_GPR_table
+
+Output table: rxn_id (Evaluation_org1) (Evaluation_org2) ..."""
+
 description = """This function takes a two-column table containing
-gene protein reaction relationships (GPR) and produces a table
+gene protein reaction relationships (GPR) as input and produces a table
 telling whether the reaction is present in each organism in a given cluster run
-based on the presence\absence of individual genes from the clustering results.
+based on the presence\absence of individual genes from the clustering results
+(or optionally, it gives you the GPR for each other organism in the cluster run
+instead).
 
 The GPR_file should have exactly two columns:
-* A column of reaction IDs (first column)
-* A column of Gene-protein relationships [I.E. "GeneX and GeneY"] (second column)
+* A column of reaction IDs (first column), and
+* A column of Gene-protein relationships [I.E. "GeneX and GeneY"] (second column).
 
-This will only work if the gene IDs are the same in the GPRs as they are in the database.
-
-The gene IDs MUST be formatted the same way as they are in the database, i.e. in the 
-fig\|\d+\.\d+\.peg\.\d+ format
+This function will only work if the gene IDs in the GPR file are ITEP IDs. See
+replaceAliasesWithGeneNames.py for something that might help achieve this.
 """
+
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gprfile", help="GPR file (required, D=None)", action="store", type="str", dest="gprfile", default=None)
 parser.add_option("-i", "--runid", help="Run ID to use to identify presence\absence of genes (requried, D=None)", action="store", type="str", dest="runid", default=None)

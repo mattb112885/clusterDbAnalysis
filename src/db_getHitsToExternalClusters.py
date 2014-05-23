@@ -7,7 +7,11 @@ import sys
 
 from FileLocator import *
 
-usage = "%prog [options] < external_clusterids > similarities"
+header = " ".join([ "querygene", "cdd_id", "pctid", "alnlen", "mismatches", "gapopens", "querystart", "queryend", "substart", "subend", "evalue", "bitscore" ])
+
+usage = """%prog [options] < external_clusterids > similarities
+
+Output: """ + header
 description = """Given a list of external clusterIDs (from cog, pfam, tigrfam...), attempts to identify proteins
 in the database that are homologous (by RPSBLAST) to the profile implied by those clusters, and returns them
 and their E-values."""

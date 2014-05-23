@@ -8,7 +8,11 @@ import optparse
 import sys
 from CoreGeneFunctions import *
 
-usage="%prog (-a|-n|-p|-s|-y) [options] run_id < organism_list > cluster_run_id_list"
+header = [ "runid", "clusterid" ]
+
+usage="""%prog (-a|-n|-p|-s|-y) [options] run_id < organism_names > cluster_run_id_list
+
+Output: """ + " ".join(header)
 description="""Find clusters with a paritcular quality relative to the list of organisms you specified.
 Note: To find conserved gene clusters use -a
 To find core gene clusters for a particular group, use both -a and -u

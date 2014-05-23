@@ -19,14 +19,17 @@
 import fileinput, sqlite3, optparse
 from FileLocator import *
 
-usage="%prog [options] < gene_ids > gene_info"
+headers = [ "organism_name", "contig_id", "start", "stop", "strand", "strandnum", "annotation", "DNA_seq", "AA_seq" ]
+
+usage="""%prog [options] < gene_ids > gene_info
+
+Output table: """ + " ".join(headers)
 description="""Given a list of gene IDs, get their gene info, 
 including annotations, contig, organism, strand, and sequences. 
 Start is the first nucleotide of the start codon (e.g. A in ATG)
 and stop is the last nucleotide, relative to nucleotide 1 at the start
 of the contig.
-Table headers:
-geneid organism_name contig_id start stop strand strandnum annotation DNA_seq AA_seq."""
+"""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
 parser.add_option("-a", "--add", help="Add gene information to the end of the existing file (D: only return the gene information)", 

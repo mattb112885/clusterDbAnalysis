@@ -8,7 +8,9 @@
 import fileinput, optparse, sqlite3
 from FileLocator import *
 
-usage="%prog [options] < gene_ids > gene_ids_with_organism"
+usage="""%prog [options] < table_with_gene_ids > table_with_organism_added
+
+Output table: (original_row) organism_id [gene_annotation]"""
 description = """Add the organism name to a tab-delimited file containing gene IDs. 
 Optionally, add annotations as well."""
 parser = optparse.OptionParser(description=description, usage=usage)

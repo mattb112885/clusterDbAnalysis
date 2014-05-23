@@ -28,9 +28,16 @@ from FileLocator import *
 from ClusterFuncs import *
 
 # Get input arguments                                                                  
-usage = "%prog [options] < runid_clusterid_table > cluster_gene_info"
+
+headers = [ "organism_name", "contig_id", "start", "stop", "strand", "strandnum", "annotation", "DNA_seq", "AA_seq", "run_id", "cluster_id" ]
+usage = """%prog [options] < runid_clusterid_table > cluster_gene_info
+
+Output table: """ + " ".join(headers)
+
 description = """Given a list of run ID / cluster ID pairs (one pair in each row of the input table), 
-get a list of info in each gene in those clusters including organism, strand, location, contig, and sequences""" 
+get a list of gene information for each gene in each of the input clusters. The results include
+organism, strand, location, contig, and sequences (and the run\clusterID to which the gene belongs)""" 
+
 parser = optparse.OptionParser(usage=usage, description=description)
 
 parser.add_option("-r", "--rcolumn", help="Column number (start from 1) for run ID", action="store", type="int", dest="runcolumn", default=1)

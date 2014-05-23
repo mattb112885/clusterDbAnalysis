@@ -16,7 +16,7 @@ import optparse
 import fileinput
 import sys
 
-usage = "%prog [options] aliasFile < gene_annotation_file > gene_annotation_file with aliases added to annotation"
+usage = """%prog [options] aliasFile < gene_annotation_file > gene_annotation_file with aliases added to annotation"""
 description = "Adds aliases from an alias file to the annotations in a file (by default, a Raw file)"
 parser = optparse.OptionParser(usage=usage)
 parser.add_option("-a", "--annotecolumn", help="Column number for annotation (start from 1)", action="store", type="int", dest="annotec", default=8)

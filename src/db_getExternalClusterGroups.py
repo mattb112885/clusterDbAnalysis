@@ -5,7 +5,10 @@ from FileLocator import *
 
 ok_databases = ["all", "cd", "cog", "pfam", "tigr", "prk", "smart"]
 
-usage = "%prog [options] < gene_id_list > External_cluster_ids"
+usage = """%prog [options] < gene_id_list > External_cluster_ids
+
+Supported databases: """ + " ".join(ok_databases)
+
 description = """Given a list of gene IDs, identifies the external cluster IDs
 that are homologous to those gene IDs as determined by RPSBLAST. By default
 returns all of the results - given a specific database to look at, will

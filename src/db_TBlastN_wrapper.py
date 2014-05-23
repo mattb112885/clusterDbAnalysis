@@ -9,16 +9,16 @@ from FileLocator import *
 TABLEDESCRIPTION = """queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, hitframe, 
                       strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID"""
 
-usage = "%prog (-d|-f|-o) [options] < Protein_ids > Tblastn_table"
+usage = """%prog (-d|-f|-o) [options] < Protein_ids > Tblastn_table
+
+Output: """ + TABLEDESCRIPTION
 description = """Attempts to run TBLASTN and identify
 missing genes. It identifies called genes that match the hit location and
 also tries to find genes on the opposite strand that conflict.
 
 Either you must specify the compiled contig database or must have run ./setup_step3.sh and
 specify a single organism or list of organism IDs against which to perform the BLAST.
-
-Output table columns: 
-%s""" %(TABLEDESCRIPTION)
+"""
 
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-o", "--organism", help="Organism ID to BLAST against.", action="store", type="str", dest="org", default=None)

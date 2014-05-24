@@ -4,18 +4,6 @@ o-------------------------------------------------------------------------------
 
 *--------------------------------------------------------------------------------------------------------------------------*
 
-addAliasesToGeneAnnotations.py
-
-Usage: addAliasesToGeneAnnotations.py [options] aliasFile < gene_annotation_file > gene_annotation_file with aliases added to annotation
-
-Options:
-  -h, --help            show this help message and exit
-  -a ANNOTEC, --annotecolumn=ANNOTEC
-                        Column number for annotation (start from 1)
-  -g GENEC, --geneidcolumn=GENEC
-                        Column number for gene id (start from 1)
-*--------------------------------------------------------------------------------------------------------------------------*
-
 addItepIdsToGenbank.py
 
 Usage: addItepIdsToGenbank.py genbank_file raw_file output_file
@@ -29,6 +17,8 @@ Options:
                   biopython can write the genbank file. The original ID will
                   be saved as a db_xref. (D: Dont - but the function will fail
                   if any contig IDs are larger than 16 characters
+  -b, --tblfile   Specify this option if instead of a RAW file you are using
+                  the 'tbl' file from RAST tarball ($basedir/Features/peg/tbl)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 annoteSeq2Fasta.py
@@ -92,9 +82,9 @@ catAlignments.py
 
 Usage: catAlignments.py [options] alignment_path > concatenated_alignment
 
-Concatinate all alignments in alignment_path. All alignments must have exactly
-one represenative from each organism and all must have representatives from
-the same set of organisms.
+Concatinate all FASTA alignments in alignment_path. All alignments must have
+exactly one represenative from each organism and all must have representatives
+from the same set of organisms.
 
 Options:
   -h, --help         show this help message and exit
@@ -115,7 +105,9 @@ Options:
 
 db_addOrganismNameToTable.py
 
-Usage: db_addOrganismNameToTable.py [options] < gene_ids > gene_ids_with_organism
+Usage: db_addOrganismNameToTable.py [options] < table_with_gene_ids > table_with_organism_added
+
+Output table: (original_row) organism_id [gene_annotation]
 
 Add the organism name to a tab-delimited file containing gene IDs.
 Optionally, add annotations as well.
@@ -156,20 +148,24 @@ db_compareClusters.py
 
 Usage: db_compareClusters.py RUNID1 RUNID2 > comparison_file
 
-Generates a file comparing each overlapping pair of clusters between the two
-specified run IDs. The tab-delimited file has one row for each overlapping
-pair of clusters and has one column with the overlapping genes and one column
-with the non-overlapping genes from each cluster
+Output table: run_id_1 cluster_id_1 run_id_2 cluster_id_2 common_genes genes_only_cluster_1 genes_only_cluster_2
+
+Generates a file comparing each overlapping pair of clusters between  the two
+specified clustering runs. The tab-delimited file has one row for each
+overlapping  pair of clustersm, and the overlapping and non-overlapping genes
+are specified.
 
 Options:
   -h, --help        show this help message and exit
   -i, --includeall  If specified, include organisms not in common between the
-                    two runs as non-overlapping genes. Default is to omit
-                    those genes
+                    two runs as non-overlapping genes.  The default is to omit
+                    those genes (only genes found in both specified cluster
+                    runs are printed)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_displayExternalClusterHits.py
 
+No module named MySQLdb
 Usage: db_displayExternalClusterHits.py [options] < gene_id_list
 
  Use Biopython to display the hits to external clusters (via RPSBLAST) mapped
@@ -190,6 +186,9 @@ Options:
                         input genes (D: externalHitGraphics)
   -s, --showevalue      Show E-value for RPSBLAST hits along with the names
                         (D: Show names only)
+  -m MAXHITS, --maxhits=MAXHITS
+                        Maximum number of hits to display on the figure (D:Not
+                        limited). Try this if the figure gets too messy.
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_displayTree.py
@@ -221,10 +220,9 @@ Options:
                         on the rest.  Note that the first row must look like
                         this: #names [column_label1] [column_label2] ...  Do
                         not make a column label for the leaf name column. The
-                        #names is just a place holder -  not sure if it can be
-                        replaced but just put it in to make sure it works.
-                        The ETE parser will fail without a label row with the
-                        right number of entries!
+                        #names is just a place holder -  but the ETE parser
+                        will fail without it. The ETE parser will also fail
+                        without a label row with the right number of entries!
   -w DATA_WIDTH, --data_width=DATA_WIDTH
                         Desired width of each data point on a heatmap (only
                         valid with -f, default = 60)
@@ -252,17 +250,20 @@ Options:
 
 db_evaluateReactionsFromGpr.py
 
-Usage: db_evaluateReactionsFromGpr.py -g GPR_file -i RunID [options] > Rxn_presence_absence
+Usage: db_evaluateReactionsFromGpr.py -g GPR_file -i RunID [options] > Evaluated_GPR_table
+
+Output table: rxn_id (Evaluation_org1) (Evaluation_org2) ...
 
 This function takes a two-column table containing gene protein reaction
-relationships (GPR) and produces a table telling whether the reaction is
-present in each organism in a given cluster run based on the presencebsence
-of individual genes from the clustering results.  The GPR_file should have
-exactly two columns: * A column of reaction IDs (first column) * A column of
-Gene-protein relationships [I.E. "GeneX and GeneY"] (second column)  This will
-only work if the gene IDs are the same in the GPRs as they are in the
-database.  The gene IDs MUST be formatted the same way as they are in the
-database, i.e. in the  fig\|\d+\.\d+\.peg\.\d+ format
+relationships (GPR) as input and produces a table telling whether the reaction
+is present in each organism in a given cluster run based on the
+presencebsence of individual genes from the clustering results (or
+optionally, it gives you the GPR for each other organism in the cluster run
+instead).  The GPR_file should have exactly two columns: * A column of
+reaction IDs (first column), and * A column of Gene-protein relationships
+[I.E. "GeneX and GeneY"] (second column).  This function will only work if the
+gene IDs in the GPR file are ITEP IDs. See replaceAliasesWithGeneNames.py for
+something that might help achieve this.
 
 Options:
   -h, --help            show this help message and exit
@@ -274,6 +275,12 @@ Options:
   -o, --or              Replace all AND in the input GPR with OR (useful for
                         diagnosing issues with missing subunits). D = False,
                         evaluate as written
+  -n, --newgpr           Instead of returning 0 and 1, return the new GPR in
+                        the other organisms.  Any gene in the GPR that is not
+                        present is replaced with NONE.
+  -a, --showabsence      Replace old GPR with new GPR only if the reaction is
+                        present, and otherwise replace the whole GPR string
+                        with ABSENT.
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_findBadMutationsFromTblastn.py
@@ -311,7 +318,9 @@ Options:
 
 db_findClustersByOrganismList.py
 
-Usage: db_findClustersByOrganismList.py (-a|-n|-p|-s|-y) [options] run_id < organism_list > cluster_run_id_list
+Usage: db_findClustersByOrganismList.py (-a|-n|-p|-s|-y) [options] run_id < organism_names > cluster_run_id_list
+
+Output: runid clusterid
 
 Find clusters with a paritcular quality relative to the list of organisms you
 specified. Note: To find conserved gene clusters use -a To find core gene
@@ -447,15 +456,21 @@ Options:
                         E-value cutoff (D: Show all results in database)
   -n, --blastn          Base the results on BLASTN instead of BLASTP (D:
                         BLASTP)
+  -o, --onlyquery       Only return results for which one of the specified
+                        genes is the query (by default returns results whether
+                        it is a query or a target
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getClusterGeneInformation.py
 
 Usage: db_getClusterGeneInformation.py [options] < runid_clusterid_table > cluster_gene_info
 
+Output table: organism_name contig_id start stop strand strandnum annotation DNA_seq AA_seq run_id cluster_id
+
 Given a list of run ID / cluster ID pairs (one pair in each row of the input
-table),  get a list of info in each gene in those clusters including organism,
-strand, location, contig, and sequences
+table),  get a list of gene information for each gene in each of the input
+clusters. The results include organism, strand, location, contig, and
+sequences (and the run\clusterID to which the gene belongs)
 
 Options:
   -h, --help            show this help message and exit
@@ -476,6 +491,8 @@ Options:
   -h, --help            show this help message and exit
   -g GENECOLUMN, --gcolumn=GENECOLUMN
                         Column number (start from 1) for gene ID
+  -r RUNID, --runid=RUNID
+                        Restrict results to the given run ID
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_getClustersWithAnnotation.py
@@ -552,9 +569,33 @@ Options:
                         Specify this if the organism's name is sanitized
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_getEquivalentGenesInOrganism.py
+
+Usage: 
+db_getEquivalentGenesInOrganism.py runID -n 'organism_name' < gene_list > equivalent_genes
+db_getEquivalentGenesInOrganism.py runID -i 'organism_id'   < gene_list > equivalent_genes
+
+
+Given a list of genes and an organism name or ID, identifies all genes in the
+same cluster as the target genes in the specified organism.  Returns a two-
+column table containing the list of genes in the first column and the
+equivalent gene IDs in the other organism separated by semicolons in the
+second.  Note that the order of the output is not necessarily the same as the
+order of the input.
+
+Options:
+  -h, --help            show this help message and exit
+  -n ORGNAME, --name=ORGNAME
+                        Name of target organism.
+  -i ORGID, --id=ORGID  Organism ID for target organism.
+  -g GC, --genecol=GC   Column number for gene Id starting from 1 (D:1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_getExternalClusterGroups.py
 
 Usage: db_getExternalClusterGroups.py [options] < gene_id_list > External_cluster_ids
+
+Supported databases: all cd cog pfam tigr prk smart
 
 Given a list of gene IDs, identifies the external cluster IDs that are
 homologous to those gene IDs as determined by RPSBLAST. By default returns all
@@ -576,6 +617,8 @@ Options:
 db_getExternalClustersByDescription.py
 
 Usage: db_getExternalClustersByDescription.py [Options] "Description 1" "Description 2" ...
+
+Output table:  cdd_id external_clusterid clustername description profile_length
 
 Identify external clusters (optionally in a specific database) that match a
 specified description. If more than one description is provided, return all
@@ -606,11 +649,12 @@ db_getGeneInformation.py
 
 Usage: db_getGeneInformation.py [options] < gene_ids > gene_info
 
+Output table: organism_name contig_id start stop strand strandnum annotation DNA_seq AA_seq
+
 Given a list of gene IDs, get their gene info,  including annotations, contig,
 organism, strand, and sequences.  Start is the first nucleotide of the start
 codon (e.g. A in ATG) and stop is the last nucleotide, relative to nucleotide
-1 at the start of the contig. Table headers: geneid organism_name contig_id
-start stop strand strandnum annotation DNA_seq AA_seq.
+1 at the start of the contig.
 
 Options:
   -h, --help            show this help message and exit
@@ -624,12 +668,12 @@ db_getGeneNeighborhoods.py
 
 Usage: db_getGeneNeighborhoods.py [options] < gene_id_list > gene_neighborhoods
 
+Output: querygene neighbor_gene gene_distance contig start_location strand annotation
+
 Given a list of gene IDs, get the neighborhoods within the specified  number
 of genes on the same contig on either strand from the specified gene. Note
 that start location is always the first base of a start codon (so start > stop
-for - strand genes). The neighborhoods table has the following fields: queryge
-ne:::neighbor_gene:::gene_distance:::contig:::start_location:::strand:::annota
-tion
+for - strand genes).
 
 Options:
   -h, --help            show this help message and exit
@@ -642,6 +686,8 @@ Options:
 db_getGenesInClusters.py
 
 Usage: db_getGenesInClusters.py [options] < runid_clusterid_table > gene_id_list
+
+Output table: run_id cluster_id gene_id
 
 Given a list of run IDs and cluster IDs,  returns a list of all genes present
 in those run ID \ cluster ID pairs
@@ -700,6 +746,8 @@ Options:
 db_getHitsToExternalClusters.py
 
 Usage: db_getHitsToExternalClusters.py [options] < external_clusterids > similarities
+
+Output: querygene cdd_id pctid alnlen mismatches gapopens querystart queryend substart subend evalue bitscore
 
 Given a list of external clusterIDs (from cog, pfam, tigrfam...), attempts to
 identify proteins in the database that are homologous (by RPSBLAST) to the
@@ -833,10 +881,14 @@ db_getUpstreamRegion.py
 
 Usage: db_getUpstreamRegion.py [options] < geneids > geneids_with_upstream
 
-Get the upstream nucleotide sequence of the given set of genes.    Requires
-you to have the contigs loaded into the database.     Optionally, only print
-up to the next called gene.     Output: A three-column table    geneid
-warnings\OK    upstream NT sequence  Explanation of warnings: CONTIGEND -
+Output table: geneid status upstream_sequence
+
+Get the upstream nucleotide sequence of the given set of genes. Requires you
+to have the contigs loaded into the database. It is careful to only print
+sequences up to the next called gene or gap (N) in the sequence unless you
+tell it not to. This is because upstream regions are often used to search for
+motifs but motifs may be hard to distinguish from strong protein sequence
+conservation in protein-coding regions.  Explanation of warnings: CONTIGEND -
 Upstream region reached the end of a contig. NOUPSTREAM - There is no upstream
 region (either another gene overlaps or immediately abuts, or the gene reaches
 the very end of a contig) CONTAINSGAP - if there are a large number of n's
@@ -913,6 +965,34 @@ Options:
                         it)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_makeClusterComparisonTable.py
+
+Usage: db_makeClusterComparisonTable.py [options] focus_gene < gene_ids > cluster_comparison_table
+
+ Given a list of gene IDs and a focus gene, identifies all of the clusters
+(across all cluster runs in the database) that contain the gene. Then
+identifies if the genes in 'gene_ids' are identified in the same cluster as
+the focus gene or not.  The output is a table with 1 if the gene is present
+and 0 if it is not (some options  allow changing this to yes/no). An example
+usage is to provide all genes in a broad cluster (low cutoff) and use this to
+see how cutoff affects the clustering results. The evaluation is done for
+every cluster run in which both genes are found.  Provided gene IDs can be
+sanitized or unsanitized.
+
+Options:
+  -h, --help            show this help message and exit
+  -n, --newick          Specify this if input is a Newick file and not a list
+                        of gene IDs
+  -g GC, --genecol=GC   Column number for gene ID in input starting from 1
+                        (not valid with -n, D=1)
+  -y, --yesno           Print yes and no instead of 1 and 0
+  -f FILTER_RUNS, --filter_runs=FILTER_RUNS
+                        Only include cluster runs matching the specified regex
+  -a, --all             Instead of specifying a list of gene IDs, this will
+                        print a table for ALL genes found in the same cluster
+                        as the focus gene in at least one run.
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_makeClusterGraph.py
 
 Usage:  db_makeClusterGraph.py -m method -u cutoff [options] < cluster_runid_pairs 
@@ -953,6 +1033,27 @@ Options:
                         Output GML file (REQUIRED)
 *--------------------------------------------------------------------------------------------------------------------------*
 
+db_makeNeighborhoodDiagram.py
+
+No module named MySQLdb
+Usage: db_makeNeighborhoodDiagram.py runid [options] < gene_ids
+
+Saves neighborhood diagrams for genes in a specified directory. The run ID is
+used to color code the neighborhood diagram.  The color code is not
+necessarily consistent across different input genes but is internally
+consistent for neighborhoods of a given gene.
+
+Options:
+  -h, --help            show this help message and exit
+  -d DIRECTORY, --directory=DIRECTORY
+                        Directory in which to save neighborhood diagrams.
+                        Default is 'geneNeighborhoods'
+  -l LABELTYPE, --labeltype=LABELTYPE
+                        Type of label to use. Valid types are 'aliases' or
+                        'clusterid' (D: aliases)
+  -g GC, --genecol=GC   Column number for gene IDs starting from 1 (D: 1)
+*--------------------------------------------------------------------------------------------------------------------------*
+
 db_makeNeighborhoodTree.py
 
 No module named MySQLdb
@@ -979,6 +1080,9 @@ Options:
                         IDs for the clusters in which the genes are found in
                         the specified cluster run (D: Dont because its very
                         messy)
+  --png                 Save high-quality PNG and SVG images (with base name
+                        specified by -o or by default, with the same name as
+                        input file)
 *--------------------------------------------------------------------------------------------------------------------------*
 
 db_replaceGeneNameWithAnnotation.py
@@ -987,9 +1091,10 @@ Usage: db_replaceGeneNameWithAnnotation.py [options] < infile > outfile
 
 Look for things that look like gene IDs (fig|#.#.peg.#) in the input file and
 replace them with annotation and\or organism name, properly sanitized to work
-in a Newick file. Replace with organism only: use -o Replace with annotation
-only: use -a Replace with organism and annotation and keep original gene id:
-use -a -o -k
+in a Newick file. Also works if the input has sanitized gene IDs
+(fig_#_#_peg_#) Replace with organism only: use -o Replace with annotation
+only: use -a Replace with organism and annotation and keep original
+(sanitized) gene id: use -a -o -k
 
 Options:
   -h, --help      show this help message and exit
@@ -1003,15 +1108,14 @@ db_TBlastN_wrapper.py
 
 Usage: db_TBlastN_wrapper.py (-d|-f|-o) [options] < Protein_ids > Tblastn_table
 
+Output: queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, hitframe, 
+                      strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID
+
 Attempts to run TBLASTN and identify missing genes. It identifies called genes
 that match the hit location and also tries to find genes on the opposite
 strand that conflict.  Either you must specify the compiled contig database or
 must have run ./setup_step3.sh and specify a single organism or list of
-organism IDs against which to perform the BLAST.  Output table columns:
-queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen,
-queryoverlappct, evalue, bitscore, hitframe,
-strandedString, targetgeneid, targetannotation, targetgenelen,
-targetoverlappct, TBLASTN_hitID
+organism IDs against which to perform the BLAST.
 
 Options:
   -h, --help            show this help message and exit
@@ -1028,9 +1132,13 @@ Options:
                         Translation table number for TBLASTN (D=11 - bacteria,
                         archaea and plant plastids)
   -g GC, --genecol=GC   Column number for gene ID starting from 1 (D=1)
-  -r OC, --orgcol=OC    Column number for organism ID starting from 1 (D=3, so
+  -r OC, --orgcol=OC    Column number for organism ID starting from 1 (D=2, so
                         that it matches the organisms file; ignored unless -f
                         is specified)
+  -a CALLEDGENEOVERLAP, --calledgeneoverlap=CALLEDGENEOVERLAP
+                        Cutoff for overlap of called genes (D: 1% - if the
+                        called gene overlaps with the hit with less than 1% of
+                        its length it is ignored
   -k, --keep            Keep temporary files (D: Delete them)
 *--------------------------------------------------------------------------------------------------------------------------*
 
@@ -1134,10 +1242,12 @@ Options:
 
 makeBlastScoreTable.py
 
-Usage: makeBlastScoreTable.py -m method -c cutoff [options] < blast_result_table
+Usage: makeBlastScoreTable.py -m method -c cutoff [options] < blast_result_table""
+
+Output table: gene_1 gene_2 calculated_score
 
 Given a blast score table (augmented with self-bit scores for query and target
-genes), calculates a similarity value based on the desired scoring metric.
+genes),  calculates a similarity value based on the desired scoring metric.
 Currently implemented metrics: maxbit minbit avgbit normhsp
 
 Options:
@@ -1198,6 +1308,9 @@ Options:
                         in the cluster)
   -y, --any             Count clusters if they have representatives in ANY
                         descendent node from each internal node.
+  -c, --clades          Instead of comparing these statistics to the whole
+                        cluster run as an outgroup, restrict the outgroup to
+                        the sister clade(s) of the tree.
 *--------------------------------------------------------------------------------------------------------------------------*
 
 makeHistorgram.py
@@ -1233,27 +1346,35 @@ Options:
 
 orthoMclWrapper.py
 
-Usage: orthoMclWrapper.py -l mysql_loginname -p mysql_password -d mysql_database_string [options]
-orthoMclWrapper.py -f orthomcl_config_file [options] 
+Usage: orthoMclWrapper.py -l mysql_loginname -p mysql_password -d mysql_database_string blastres [options]
+orthoMclWrapper.py -f orthomcl_config_file blastres [options] 
 
    WARNING - This script is still a work in progress and is subject to random
-failures.    This is a wrapper script for converting our data into a format in
-which it can be run with OrthoMCL and then   running it with the specified
-settings. It runs orthoMCL on ALL BLAST data that was used to build the
-database (not   on subsets).    The script essentially performs (in sequence)
-the steps specified in the orthoMCL user guide but skips the ones that were
-already done for construction of the SQLite database, and reformats things so
-that they will work with orthoMCL.    The script requires installation of
-MYSQL and having a database created (see OrthoMCL help file
-"mysqlInstallGuide.txt").    It also requires having the orthomcl binaries
-(in $ORTHOMCLROOT/bin) added to your PATH variable.    If redundant settings
-are present in the config file and in the inputs, the settings in the config
-file are overridden by   the command line input and written to the file
-specified by -n (default: orthomcl.new.config).    If the script crashes or is
-killed between when the BLAST data is reformatted and when it is imported into
-the database,   you will get a segfault from MCL. If this happens run this
-script with --forcereload (-r)  - the error is related to    not having any
-data to cluster becuase the data import failed.
+failures. Most random failures are related   to issues with MySQL
+configuration that cannot be fixed without priveleges. Follow the instructions
+below to minimize the amount of pain.    You must have a 'orthomcl' MySQL
+database set up before running this and have access to the login and password
+info   for that datbase. The user (by default orthomcl) should have ability to
+create, drop and edit tables on the orthomcl database.   You could also change
+the config file to change the name of the orthomcl database. See OrthoMCL
+documentation for details.    This script also requires having the orthomcl
+binaries (in $ORTHOMCLROOT/bin) added to your PATH variable.    You must empty
+the 'orthomcl' database for each different set of BLAST data you want to
+analyse before calling   this function or it will not work correctly.    This
+is a wrapper script for converting our data into a format in which it can be
+run with OrthoMCL and then   running it with the specified settings. It
+expects as input some set of BLAST results with ITEP gene IDs as queries and
+targets.    The script essentially performs (in sequence) the steps specified
+in the orthoMCL user guide but skips the ones that were   already done for
+construction of the ITEP blast database, and reformats things so that they
+will work with orthoMCL.    If redundant settings are present in the config
+file and in the inputs, the settings in the config file are overridden by
+the command line input and written to the file specified by -n (default:
+orthomcl.new.config).    If the script crashes or is killed between when the
+BLAST data is reformatted and when it is imported into the database,   you
+will get a segfault from MCL. If this happens run this script with
+--forcereload (-r)  - the error is related to    not having any data to
+cluster becuase the data import failed.
 
 Options:
   -h, --help            show this help message and exit
@@ -1435,6 +1556,10 @@ Options:
                         Sanitized characters do not include pipes or periods
                         so that this function can be used to put gene IDs in
                         without this function
+  -d DELIMITERS, --delimiters=DELIMITERS
+                        Regex that matches anything that separates your gene
+                        IDs from other things in the string. Default is
+                        whitespace, semicolons and commas.
 *--------------------------------------------------------------------------------------------------------------------------*
 
 replaceOrgWithAbbrev.py
@@ -1442,7 +1567,7 @@ replaceOrgWithAbbrev.py
 Usage: replaceOrgWithAbbrev.py [options] < text_file > text_file_with_orgname
 
 Replace organism IDs (fig|xx.yy) with organism abbreviations in a text file
-(e.g. a newick file)
+(e.g. a newick file). Note the fig| is optional.
 
 Options:
   -h, --help            show this help message and exit
@@ -1544,7 +1669,7 @@ itepContigsToGenbankContigs.py -g genbankfile -o organismid > Conversion_table
 
  Get a conversion table from ITEP contig IDs to contig IDs in the provided
 genbank file. The provided genbank file MUST have been modified using
-addItepIdsToGanbank.py (or in the process of making tables e.g. with
+addItepIdsToGenbank.py (or in the process of making tables e.g. with
 convertGenabnk2Table.py) for the use of this function to make sense!
 
 Options:

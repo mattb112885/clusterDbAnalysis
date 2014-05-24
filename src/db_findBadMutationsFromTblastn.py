@@ -9,7 +9,9 @@ from ClusterFuncs import *
 from FileLocator import *
 from getSequenceRegion import *
 
-usage = "%prog [options] < TBLASTN_output > bad_mutation_list"
+header = [ "contig", "query_gene" ]
+usage = """%prog [options] < TBLASTN_output > bad_mutation_list"""
+
 description = """Given a TBLASTN output from db_TBlastN_wrapper,
 attempt to automatically identify frameshifts and fragments of the same
 gene that appear on separate lines.

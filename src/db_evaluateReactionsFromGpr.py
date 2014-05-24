@@ -12,7 +12,7 @@ Output table: rxn_id (Evaluation_org1) (Evaluation_org2) ..."""
 description = """This function takes a two-column table containing
 gene protein reaction relationships (GPR) as input and produces a table
 telling whether the reaction is present in each organism in a given cluster run
-based on the presence\absence of individual genes from the clustering results
+based on the presence-absence of individual genes from the clustering results
 (or optionally, it gives you the GPR for each other organism in the cluster run
 instead).
 
@@ -26,7 +26,7 @@ replaceAliasesWithGeneNames.py for something that might help achieve this.
 
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gprfile", help="GPR file (required, D=None)", action="store", type="str", dest="gprfile", default=None)
-parser.add_option("-i", "--runid", help="Run ID to use to identify presence\absence of genes (requried, D=None)", action="store", type="str", dest="runid", default=None)
+parser.add_option("-i", "--runid", help="Run ID to use to identify presence-absence of genes (requried, D=None)", action="store", type="str", dest="runid", default=None)
 parser.add_option("-o", "--or", help="Replace all AND in the input GPR with OR (useful for diagnosing issues with missing subunits). D = False, evaluate as written",
                   action="store_true", dest="repor", default=False)
 parser.add_option("-n", "--newgpr", help="""

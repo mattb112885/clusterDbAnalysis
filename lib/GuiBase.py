@@ -58,6 +58,30 @@ class GuiBase:
         ''' Dialog box for successful saving of a file.'''
         easygui.msgbox(msg = "Successfully saved results to file %s" %(filename) )
         return
+    def _get_directory(self):
+        ''' Dialog box for getting a directory to which to save files. '''
+        return easygui.diropenbox(msg="Where would you like to save the results files?", title="Choose a directory", default=None)
+    def _get_file_name(self, extension="txt"):
+        '''
+        
+        This returns the name of a file the user wants to save as
+        or None if the user cancels or does not name a file.
+
+        '''
+        filename = easygui.filesavebox(msg = "Where do you want to save the file (extension %s will automatically be added)?" %(extension))
+        # User cancelled.
+        if filename is None:
+            return None
+        filename = filename + "." + extension
+        # Check for file existence and ask if it is OK to overwrite the file.
+        if os.path.exists(filename):
+            ok_to_overwrite = easygui.buttonbox(msg="File %s already exists. Overwrite?" %(filename), choices = ("No", "Yes") )
+            if ok_to_overwrite == "Yes":
+                return filename
+            else:
+                return None
+        else:
+            return filename
     def _save_file_dialogs(self, extension = "txt"):
         ''' Dialogs asking users to save file, sanity checks for existence of file, etc.
 
@@ -70,18 +94,7 @@ class GuiBase:
         # If user cancels it defaults to the FIRST choice. We want default to be NO so I reverse the default of choices here. 
         saveornot = easygui.buttonbox(msg="Do you want to save results to a file?", choices = ("No", "Yes") )
         if saveornot == "Yes":
-            filename = easygui.filesavebox(msg = "Where do you want to save the file (extension %s will automatically be added)?" %(extension))
-            if filename is None:
-                return None
-            filename = filename + "." + extension
-            if os.path.exists(filename):
-                ok_to_overwrite = easygui.buttonbox(msg="File %s already exists. Overwrite?" %(filename), choices = ("No", "Yes") )
-                if ok_to_overwrite == "Yes":
-                    return filename
-                else:
-                    return None
-            else:
-                return filename
+            filename = self._get_file_name(extension=extension)
         else:
             return None
     def _print_readable_table(self, rows, header=True, separator = '|'):

@@ -95,6 +95,7 @@ class GuiBase:
         saveornot = easygui.buttonbox(msg="Do you want to save results to a file?", choices = ("No", "Yes") )
         if saveornot == "Yes":
             filename = self._get_file_name(extension=extension)
+            return filename
         else:
             return None
     def _print_readable_table(self, rows, header=True, separator = '|'):

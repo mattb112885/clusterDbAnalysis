@@ -3,8 +3,9 @@
 # Wrapper script for TBLASTN verification of presence\absence
 # across different genomes
 
-import fileinput, os, optparse, random, sqlite3, sys
+import fileinput, os, optparse, random, sqlite3, sys, tempfile
 from FileLocator import *
+from ClusterFuncs import *
 
 TABLEDESCRIPTION = """queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, hitframe, 
                       strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID"""
@@ -12,6 +13,7 @@ TABLEDESCRIPTION = """queryid, querylen, subcontig, organism, tblaststart, tblas
 usage = """%prog (-d|-f|-o) [options] < Protein_ids > Tblastn_table
 
 Output: """ + TABLEDESCRIPTION
+
 description = """Attempts to run TBLASTN and identify
 missing genes. It identifies called genes that match the hit location and
 also tries to find genes on the opposite strand that conflict.
@@ -22,7 +24,7 @@ specify a single organism or list of organism IDs against which to perform the B
 
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-o", "--organism", help="Organism ID to BLAST against.", action="store", type="str", dest="org", default=None)
-parser.add_option("-f", "--orgfile", help="File of organism IDs to BLAST against (use this option if you want to test against multiple organisms", action="store", type="str", dest="orgfile", default=None)
+parser.add_option("-f", "--orgfile", help="File of organism IDs to BLAST against (use this option if you want to test against multiple organisms)", action="store", type="str", dest="orgfile", default=None)
 parser.add_option("-d", "--db", help="BLAST database to use for BLASTing (use this option if you already have generated a blast database)", action="store", type="str", dest="db", default=None)
 parser.add_option("-c", "--cutoff", help="E-value cutoff for TBLASTN (D=1E-5)", action="store", type="float", dest="cutoff", default=1E-5)
 parser.add_option("-t", "--translation", help="Translation table number for TBLASTN (D=11 - bacteria, archaea and plant plastids)", action="store", type="int", dest="translation", default=11)
@@ -66,24 +68,25 @@ cur = con.cursor()
 
 # Get protein sequences from the specified gene IDs
 # and put them into a FASTA file for input into TBLASTN
-rn = random.randint(0, 2**30)
-qfile = "%d.faa" %(rn)
-fid = open(qfile, "w")
-q = "SELECT geneid, aaseq FROM processed WHERE geneid = ?;"
-for pid in pids:
-    cur.execute(q, (pid, ))
-    for res in cur:
-        fid.write(">%s\n%s\n" %(str(res[0]), str(res[1])))
-fid.close()
+
+sys.stderr.write("Getting query genes..\n")
+qfid = tempfile.NamedTemporaryFile(delete=False)
+qfile = qfid.name
+geneinfo = getGeneInfo(pids, cur)
+for info in geneinfo:
+    qfid.write(">%s\n%s\n" %(info[0], info[11]))
+qfid.close()
 
 # Compile a BLAST database to search against.
 # The way we do this depends a bit on how the function was called.
 # If an organism ID is passed... just find all the contigs from the database
 # and compile them.
 organism = None
+db = None
 if options.org is not None:
-    db = "%d.fna" %(rn)
-    fid = open(db, "w")
+    sys.stderr.write("Getting contigs for specified organism %s...\n" %(options.org))
+    fid = tempfile.NamedTemporaryFile(delete=False)
+    db = fid.name
     q = """SELECT contigs.contig_mod, contigs.seq FROM contigs
            WHERE contigs.organismid = ?"""
     cur.execute(q, (options.org, ) )
@@ -99,9 +102,10 @@ if options.org is not None:
     os.system("makeblastdb -dbtype nucl -in %s > /dev/null" %(db))
 # If a file of organism IDs was specified, do the same thing but just do it for all of the specified IDs
 elif options.orgfile is not None:
-    db = "%d.fna" %(rn)
+    sys.stderr.write("Getting contigs for organisms in specified file %s...\n" %(options.orgfile))
+    fid_out = tempfile.NamedTemporaryFile(delete=False)
+    db = fid_out.name
     oc = options.oc - 1
-    fid_out = open(db, "w")
     q = """SELECT contigs.contig_mod, contigs.seq FROM contigs 
          WHERE contigs.organismid = ?"""
     for line in open(options.orgfile, "r"):
@@ -126,7 +130,8 @@ elif options.db is not None:
 
 # Run TBLASTN
 # Note - -soft_masking true is needed to help prevent two hits to a continuous protein due to filtering of low-complexity regions
-ofile = "%d.out" %(rn)
+outfid = tempfile.NamedTemporaryFile(delete=False)
+ofile = outfid.name
 cmd = "tblastn -db %s -soft_masking true -evalue %1.1e -query %s -out %s -db_gencode %d -outfmt \"6 qseqid sseqid sstart send evalue bitscore sframe\" " %(db, options.cutoff, qfile, ofile, options.translation)
 sys.stderr.write("Now executing TBLASTN with command: \n%s\n" %(cmd))
 os.system(cmd)
@@ -204,8 +209,15 @@ for line in open(ofile, "r"):
 
 # Clean up
 if not options.keep:
-    os.system("rm %d.*" %(rn))
-
-sys.stderr.write(TABLEDESCRIPTION + "\n")
+    if options.db is None:
+        os.remove(db)
+    os.remove(qfile)
+    os.remove(ofile)
+else:
+    sys.stderr.write("The temporary files were not removed on request and are the following:\n")
+    sys.stderr.write("tBLASTn target BLAST database: %s\n" %(db))
+    sys.stderr.write("Query file: %s\n" %(qfile))
+    sys.stderr.write("BLAST raw result file: %s\n" %(ofile))
+    sys.stderr.write("It is recommeneded that the user move the file(s) they want to another directory for further analysis, as temp files are deleted periodically from the OS.\n")
 
 con.close()

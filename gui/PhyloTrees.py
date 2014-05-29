@@ -19,6 +19,8 @@ import os
 import sqlite3
 import sys
 
+from ete2 import Tree
+
 from GuiBase import *
 from ClusterFuncs import *
 from CoreGeneFunctions import *
@@ -30,7 +32,7 @@ class PhyloUI(GuiBase):
     def start(self):
         tasks = [ 'Build an organism tree',
                   'Analyze an organism tree' ]
-        msg = "Please choose a task" 
+        msg = "Please choose a task"
         task = easygui.choicebox(msg, 'Select a task', tasks)
         
         if task == 'Build an organism tree':
@@ -38,10 +40,54 @@ class PhyloUI(GuiBase):
             tb.buildOrganismTree()
             pass
         elif task == 'Analyze an organism tree':
-            pass
+            ta = OrganismTreeAnalyzer(self.sqlite_cursor)
+            ta.chooseTreeAnalysis()
+        else:
+            raise UserCancelError("Unknown or cancelled operation")
+
+class OrganismTreeAnalyzer(PhyloUI):
+    def _getTreeFile():
+        raise GuiError("This is not yet implemented. Sorry!")
+        return
+    def _make_hr_tree():
+        raise GuiError("This is not yet implemented. Sorry!")
+        return
+    def _reroot_tree():
+        raise GuiError("This is not yet implemented. Sorry!")
+        # Get a list of human-readable leaf names to reroot to (if possible)
+        #    Should make a function in lib/ that can make this dictionary from original to sanitized human-readable names.
+        #    I seem to need it a lot.
+        # Ask for a new root
+        # Translate to original ID
+        # Reroot the tree
+        # Return the rerooted tree
+        return
+    def _perform_pa_analysis():
+        raise GuiError("This is not yet implemented. Sorry!")
+        return
+### Public functions
+    def __init__(self, cur):
+        PhyloUI.__init__(self, cur)
+        self.treefile = self._getTreeFile()
+        self.tree = Tree(self.treefile)
+    def chooseTreeAnalysis():
+        tasks = [ 'Create human-readable tree',
+                  'Reroot tree',
+                  'Generate excel file and presence absence analysis diagram' ]
+        # User can specify an arbitrary number of analyses
+        while 1:
+            task = easygui.choicebox(msg, 'Select an analysis', tasks)
+            if task == 'Reroot tree':
+                self._reroot_tree()
+                self._save_file_dialogs(extension="nwk")
+            elif task == 'Create human-readable tree':
+                self._make_hr_tree()
+            elif task == 'Generate excel file and presence absence analysis diagram':
+                self._perform_pa_analysis()
+            else:
+                raise UserCancelError("User cancelled operation")
 
 class TreeBuilder(PhyloUI):
-    # Init: TreeBuilder(sqlite3_cursor)
     def __init__(self, cur):
         PhyloUI.__init__(self, cur)
     def _get_runid(self):
@@ -152,9 +198,13 @@ class TreeBuilder(PhyloUI):
         sys.stderr.write("Building a tree from the concatenated alignment...\n")
         tree_path = os.path.join(results_location, "Concatenated_protein_tree.nwk")
         cmd = "cat \"%s\" | FastTreeMP -wag -gamma > \"%s\"" %(cat_aln_path, tree_path)
+        print cmd
+        os.system(cmd)
 
         # Done.
-        sys.stderr.write("Done. Use the UI or replaceOrgsWithAbbrev.py to put organism names on the tree leaves.\n")
+        sys.stderr.write("""Done. Final tree location: %s .
+Use the UI or replaceOrgsWithAbbrev.py to put organism names on the tree leaves.\n""" %(tree_path))
+
 
         return tree_path
 

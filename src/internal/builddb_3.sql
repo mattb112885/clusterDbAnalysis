@@ -26,6 +26,7 @@ CREATE TABLE contigs(
 
 /* If this one isn't unique we're in trouble */
 CREATE UNIQUE INDEX contigcontigs ON contigs(contig_mod);
+CREATE INDEX contigorgs ON contigs(organismid);
 
 CREATE TABLE tblastn(
        "queryid" TEXT,

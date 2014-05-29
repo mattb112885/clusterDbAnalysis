@@ -70,7 +70,6 @@ def makeNetworkObjectFromBlastResults( blastres, score_method, cutoff, cur ):
     genelist = list(set(querygenes + targetgenes))
     for gene in genelist:
         geneinfo = getGeneInfo( [ gene ], cur )
-        print gene, geneinfo
         # Not sure if the string sanitizing will be necessary.
         G.add_node(gene, organism=geneinfo[0][1], annotation=geneinfo[0][9])
 

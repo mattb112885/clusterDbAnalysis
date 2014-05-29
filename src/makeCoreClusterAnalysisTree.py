@@ -17,7 +17,12 @@ usage="%prog [options] newick_file runid"
 description="""
 Generate an ETE tree with internal node labels corresponding to the number of
 clusters conserved in the nodes beneath it (conservation being defined by a variery of options
-below). The input MUST be a Newick file with organism IDs REPLACED with their names.
+below). The input can be a Newick file with organism IDs REPLACED with their names or with the
+IDs (possibly fig|[id]) as leaves. If the tree has organism IDs you should specify -i so that
+the program processes it correctly.
+
+If the specified tree has IDs on the leaves, the names are replaced AFTER trying to reroot.
+So you should specify an ID for the organism with -r
 
 The function alternatively (or in addition) exports a XLS file with sheet names equal to the node number printed
 on the tree containing the cluster, runid pair and a representative annotation from each cluster
@@ -25,6 +30,9 @@ identified with these properties...
 """
 
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("-i", "--ids",
+                  help="Select if input ID has organism IDs and not names.",
+                  action="store_true", dest="ids", default=False)
 parser.add_option("-d", "--display", 
                   help="Display tree", 
                   action="store_true", dest="display", default=False)
@@ -86,7 +94,6 @@ if not (options.all or options.uniq or options.only or options.none or options.a
     sys.stderr.write("ERROR: At least one of -a, -u, -s, -n, -y is required\n")
     exit(2)
 
-
 if options.savepng:
     options.savesvg = True
 
@@ -112,6 +119,12 @@ runid = args[1]
 
 if options.reroot_org is not None:
     t = rerootEteTree(t, root_leaf_part = options.reroot_org)
+
+if options.ids:
+    for node in t.iter_leaves():
+        # The node may or may not have fig| in front of it.
+        name = node.name.replace("fig|", "")
+        node.name = sanitizeString(organismIdToName(name, cur), False)
 
 # Make something pretty out of it.
 # We don't want bootstraps here since they just make the tree more cluttered.

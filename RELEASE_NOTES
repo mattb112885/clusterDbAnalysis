@@ -37,6 +37,8 @@ BUG FIXES:
 - Made SourceMe.sh more robust to spaces in the current PATH definition. Thanks to drjcthrash for the inspiration.
 - Improved performance of run ID listing and organism links.
 - Fixed bug in definition of distinctorgs view (and turned it into a table).
+- Improved concurrency of multiple scripts. Removed all temporary tables in sqlite except one (in db_getBlastResultsBetweenSpecificOrganisms) for performance reasons.
+  Some scripts now require explicit declaration of an output location which did not before, to remove confusion on where files end up.
 
 VIRTUAL MACHINE FIXES:
 - Added FastTreeMP to virtual machines

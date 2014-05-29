@@ -8,7 +8,6 @@ import operator
 import os
 import sqlite3
 import sys
-import tempfile
 from FileLocator import *
 from sanitizeString import *
 

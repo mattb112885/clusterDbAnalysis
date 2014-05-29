@@ -11,7 +11,7 @@ from FileLocator import *
 symmetric_methods, unsymmetric_methods = getValidBlastScoreMethods()
 all_methods = symmetric_methods + unsymmetric_methods
 
-usage = """ %prog -m method -u cutoff [options] < cluster_runid_pairs """
+usage = """ %prog -m method -u cutoff -o outdir [options] < cluster_runid_pairs """
 description = """From a given cluster/runID pair, calcualte and export a GML file that
 can be opened in Cytoscape or similar viewers to visualize the cluster.
 By default, it creates GML files with name "runid_clusterid.gml" . If you specify your own
@@ -24,14 +24,15 @@ parser.add_option("-u", "--cutoff", help="Scoring cutoff to use (REQUIRED)", act
 parser.add_option("-r", "--runcol", help="Column number for Run ID starting from 1 (D:1)", action="store", type="int", dest="rc", default=1)
 parser.add_option("-c", "--clusterid", help="Column number for Cluster ID starting from 1 (D: 2)", action="store", type="int", dest="cc", default=2)
 parser.add_option("-n", "--blastn", help="Use BLASTN instead of BLASTP for scoring results (D: BLASTP)", action="store_true", dest="blastn", default=False)
+parser.add_option("-o", "--outdir", help="Output directory for GML files", action="store", type="str", dest="outdir", default=None)
 (options, args) = parser.parse_args()
 
 # Convert to pythonic indexes
 rc = options.rc - 1
 cc = options.cc - 1
 
-if options.method is None or options.cutoff is None:
-    sys.stderr.write("ERROR: both method (-m) and cutoff (-u) are required arguments\n")
+if options.method is None or options.cutoff is None or options.outdir is None:
+    sys.stderr.write("ERROR: method (-m), cutoff (-u), and output directory (-o) are required arguments\n")
     exit(2)
 
 cluster_runs = []
@@ -50,6 +51,8 @@ for cr in cluster_runs:
         blast_str = "blastn"
     else:
         blast_str = "blastp"
-    exportGraphToGML(G, "%s_%s_%s_%1.2f_%s.gml" %(runid, clusterid, options.method, options.cutoff, blast_str ) )
+    if not os.path.exists(options.outdir):
+        os.makedirs(options.outdir)
+    exportGraphToGML(G, os.path.join(options.outdir,"%s_%s_%s_%1.2f_%s.gml" %(runid, clusterid, options.method, options.cutoff, blast_str ) ) )
 
 con.close()

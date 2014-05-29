@@ -194,8 +194,8 @@ if __name__ == "__main__":
     parser = optparse.OptionParser(usage=usage, description=description)
     parser.add_option("-r", "--runid", help="Run ID (required)", action="store", type="str", dest="clusterrunid", default=None)
     parser.add_option("-p", "--prottree", help="Protein tree (required)", action="store", type="str", dest="treeinfile", default=None)
+    parser.add_option("-o", "--outfile", help="Base name for output file (required)", action="store", type="str", dest="outfile", default=None)
     parser.add_option("-t", "--treetitle", help="Tree title (D: same as run ID)", action="store", type="str", dest="gene", default=None)
-    parser.add_option("-o", "--outfile", help="Base name for output file (D: Same as input tree)", action="store", type="str", dest="outfile", default=None)
     parser.add_option("-d", "--display", help="Display the resulting tree (D: Don't display, just save)", action="store_true", dest="display", default=False)
     parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", action="store", type="int", dest="cutoff", default=3)
     parser.add_option("-l", "--label", help="Add labels to the genes. The labels are the cluster IDs for the clusters in which the genes are found in the specified cluster run (D: Dont because its very messy)", action="store_true", dest="label", default=False)
@@ -209,11 +209,12 @@ if __name__ == "__main__":
 
     # James - how did you plan on using muliple clusters? Doesnt make a lot of sense to me.
     if options.clusterrunid is None:
-        sys.stderr.write("ERROR - -r (runid) is a required argument\n")
+        sys.stderr.write("ERROR: -r (runid) is a required argument\n")
         exit(2)
 
     if options.outfile is None:
-        options.outfile = options.treeinfile
+        sys.stderr.write("ERROR: -o (output file base name) is a required argument\n")
+        exit(2)
 
     clusterrunid = options.clusterrunid
     treeinfile = options.treeinfile 

@@ -70,22 +70,23 @@ from BioPythonGraphics import *
 from ClusterFuncs import *
 from FileLocator import *
 
-usage = "%prog [options] < gene_id_list"
+usage = "%prog -o outdir [options] < gene_id_list"
 description = """ Use Biopython to display the hits to external clusters
 (via RPSBLAST) mapped onto a protein or a list of proteins. You have to run setup_step4.sh
 before this function will work.
+
+Output directory is a required argument.
 """
 
 parser = optparse.OptionParser(usage=usage, description=description)
 
+parser.add_option("-o", "--outdir", help="Output directory (REQUIRED)", action="store", type="str", dest="outdir", default=None)
 parser.add_option("-d", "--database", help="Only display hits for this database (e.g. PFAM, COG, cd, ...) (D: Show all of them in separate rows above the gene)",
                   action="store", type="str", dest="database", default="all")
 parser.add_option("-e", "--evalue", help="E-value cutoff for hits to display (D:1E-5)",
                   action="store", type="float", dest="evalue", default=1E-5)
 parser.add_option("-g", "--geneocl", help="Column number for gene ID, starting from 1 (D=1)",
                   action = "store", type="int", dest="gc", default=1)
-parser.add_option("-o", "--outdir", help="Output directory for all of the PNG files for the input genes (D: externalHitGraphics)",
-                  action="store", type="str", dest="outdir", default="externalHitGraphics")
 parser.add_option("-s", "--showevalue", help="Show E-value for RPSBLAST hits along with the names (D: Show names only)",
                   action="store_true", dest="showevalue", default=False)
 parser.add_option("-m", "--maxhits", help="Maximum number of hits to display on the figure (D:Not limited). Try this if the figure gets too messy.",
@@ -93,7 +94,7 @@ parser.add_option("-m", "--maxhits", help="Maximum number of hits to display on 
 (options, args) = parser.parse_args()
 
 if options.outdir is None:
-    sys.stderr.write("ERROR: output directory (-o) is a required argument\n")
+    sys.stderr.write("ERROR: Output directory (positional) is a required argument.\n")
     exit(2)
 
 # Make it not fail if the directory doesn't exist already.

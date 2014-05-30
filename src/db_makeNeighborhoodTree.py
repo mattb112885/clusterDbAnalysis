@@ -178,6 +178,8 @@ def treelegend(ts, getcolor, greyout, clusterrunid, cur):
             col = cnum%colorcols
             cnum += 1
             samplefunc = findRepresentativeAnnotation(clusterrunid, str(cluster), cur)
+            if samplefunc is None:
+                samplefunc = "NONE (probably a singleton excluded in an orthomcl run)"
             text = treelegendtext(str(cluster) + ": " + samplefunc[0:63], color)
         #placement of this legend
         ts.legend.add_face(text, column=col)

@@ -10,7 +10,13 @@ from FileLocator import *
 from sanitizeString import *
 from ClusterFuncs import *
 
-usage = """%prog [options] focus_gene < gene_ids > cluster_comparison_table"""
+usage = """%prog [options] focus_gene < gene_ids > cluster_comparison_table
+
+Output: Gene_id (Comp_runid1) (Comp_runid2) ...
+
+The entries are 1 (yes) if gene "Gene_id" is in the same cluster as the
+focus gene in the specified cluster run, 0 (no) if it is not and -1 (NA) if
+the gene is not present in the cluster run."""
 description = '''
 Given a list of gene IDs and a focus gene, identifies all of the clusters (across
 all cluster runs in the database) that contain the gene. Then identifies if the
@@ -49,6 +55,7 @@ cur = con.cursor()
 res = getClustersContainingGenes( [ focusgene ], cur)
 # Just in case there is more than one cluster per run
 clusterrun_to_genes = {}
+focus_runids = set()
 for result in res:
     runid = result[0]
     clusterid = result[1]
@@ -56,6 +63,12 @@ for result in res:
         continue        
     geneids = getGenesInCluster(runid, clusterid, cur)
     clusterrun_to_genes[(runid, clusterid)] = set(geneids)
+    focus_runids.add(runid)
+
+# Get the organisms in each run which we are comparing here.
+focus_run_to_org = {}
+for runid in focus_runids:
+    focus_run_to_org[runid] = getOrganismsInClusterRun(runid, cur)
 
 # Read in the remainder of the gene IDs
 geneids = set()
@@ -99,10 +112,23 @@ for gene in geneids:
             else:
                 printstr = "1"
         else:
-            if options.yesno:
-                printstr = "no"
+            # Is the organism valid?
+            geneinfo = getGeneInfo([gene], cur)
+            one_geneinfo = geneinfo[0]
+            organism = one_geneinfo[1]
+            if organism not in focus_run_to_org[clusterrun[0]]:
+                if options.yesno:
+                    printstr = "NA"
+                else:
+                    printstr = "-1"
             else:
-                printstr = "0"
+                if options.yesno:
+                    printstr = "no"
+                else:
+                    printstr = "0"
+                    pass
+                pass
+            pass
         row.append(printstr)
     print "\t".join(row)
 

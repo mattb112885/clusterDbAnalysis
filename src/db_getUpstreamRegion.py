@@ -8,10 +8,10 @@ from FileLocator import *
 # For sequence transposing
 from Bio import Seq
 
-headers = [ "geneid", "status", "upstream_sequence" ]
+header = [ "geneid", "status", "upstream_sequence" ]
 usage = """%prog [options] < geneids > geneids_with_upstream
 
-Output table: """ + " ".join(headers)
+Output table: """ + " ".join(header)
 description="""Get the upstream nucleotide sequence of the given set of genes.
 Requires you to have the contigs loaded into the database. It is careful to only
 print sequences up to the next called gene or gap (N) in the sequence unless you
@@ -37,6 +37,8 @@ parser.add_option("-o", "--allowgeneoverlap",
 parser.add_option("-l", "--othergenelength", help="If allowing gene overlaps, still ignore called genes less than this length (in nucleotides) within the upstream region (D=0 - cut off after ANY gene)", action="store", type="int", dest="othergenelength", default=0)
 parser.add_option("-g", "--genecolumn", help="Column number for gene ID in input, starting from 1 (D=1)", action="store", type="int", dest="gc", default=1)
 parser.add_option("-i", "--ingene", help="Number of nucleotides WITHIN the gene to gather in addition to the upstream region (D=3 - i.e. grab the start codon only)", action="store", type="int", dest="ingene", default=3)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 # Read stdin to get gene IDs
@@ -67,6 +69,8 @@ q2 = """SELECT geneid, genestart, geneend, strand FROM processed
         AND ABS(genestart - geneend) > ?"""
 NUMINGENE = options.ingene
 
+if options.header:
+    print "\t".join(header)
 for gene in geneids:
     # Where is this gene located?
     cur.execute(q1, (gene, ) )

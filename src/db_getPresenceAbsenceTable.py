@@ -9,10 +9,11 @@ from ClusterFuncs import *
 from FileLocator import *
 from sanitizeString import *
 
-usage="%prog [options] > presence_absence_table"
-description="""Generates a presence - absence table (or slices thereof) based on
-the one automatically loaded as part of setup_step2.sh. 
-Default activity is to dump the database as is (pegs)."""
+usage="""%prog [options] > presence_absence_table
+
+Output: Run_id Cluster_id Representative_annotation (organism1_PA) (organism2_PA) ... """
+description="""Generates a presence - absence table (or slices thereof) based on pre-computed clusters.
+Default activity is to print all available presence-absence from all clusters and all cluster runs."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--number", help="Rather than printing PEGs, print the number of representatives in each organism (D: Prints pegs)", 
                   action="store_true", dest="number", default=False)

@@ -20,7 +20,9 @@ from FileLocator import *
 valid_methods = ['mafft_linsi', 'mafft_einsi', 'mafft_ginsi', 'mafft_default', 
 	'clustalw_default']
 
-usage="%prog -m Method (-n|-t|-g|-p) [options] < Cluster_RunID > Final_alignment"
+usage="""%prog -m Method (-n|-t|-g|-p) [options] < Cluster_RunID > Final_alignment
+
+Output: FASTA alignment"""
 description="""Generates a new alignment from a piped-in pair of run\cluster ID """
 parser = optparse.OptionParser(usage=usage, description=description)
 ### Input options

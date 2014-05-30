@@ -11,7 +11,9 @@ from FileLocator import *
 symmetric_methods, unsymmetric_methods = getValidBlastScoreMethods()
 all_methods = symmetric_methods + unsymmetric_methods
 
-usage = """ %prog -m method -u cutoff [options] < BLAST_results """
+usage = """ %prog -m method -u cutoff [options] < BLAST_results
+
+Output: .gml file (import into Cytoscape or other graph visualization software) """
 description = """Generate a GML file for all edges in a BLAST results table.
 Currently implemented methods: %s """ %(" ".join(all_methods) )
 

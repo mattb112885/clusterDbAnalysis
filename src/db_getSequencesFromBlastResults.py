@@ -4,7 +4,9 @@ import fileinput, optparse, sqlite3, sys
 from FileLocator import *
 from getSequenceRegion import *
 
-usage = "%prog [options] < table > table_with_sequences"
+usage = """%prog [options] < table > table_with_sequences
+
+Output: Same table as put in, but with sequences added on another column."""
 description = """Identify the sequence of the HSP based on
 the provided ID (contig or gene) and the start and stop locations
 of the HSP.
@@ -69,6 +71,7 @@ idcol = options.idcol - 1
 startcol = options.startcol - 1
 endcol = options.endcol - 1
 
+couldBeHeader = True
 for line in fileinput.input("-"):
     spl = line.strip("\r\n").split("\t")
     try:
@@ -79,9 +82,14 @@ for line in fileinput.input("-"):
         sys.stderr.write("ERROR: Input table does not have enough columns for the specified column numbers for ID, start and stop location\n")
         exit(2)
     except ValueError:
-        sys.stderr.write("ERROR: The specified column numbers for start and stop locations do not appear to have integers in them - check that the specified column numbers are correct\n")
-        exit(2)
-
+        if couldBeHeader:
+            # If the user asked for a header row in a middle table and then passed it here, we don't want to crash due to that. But we only expect one header row.
+            couldBeHeader = False
+            continue
+        else:
+            sys.stderr.write("ERROR: The specified column numbers for start and stop locations do not appear to have integers in them - check that the specified column numbers are correct\n")
+            exit(2)
+    
     cur.execute(q, (myid,))
     for rec in cur:
         startingSeq = str(rec[0])

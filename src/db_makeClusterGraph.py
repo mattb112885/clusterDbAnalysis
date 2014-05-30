@@ -11,7 +11,9 @@ from FileLocator import *
 symmetric_methods, unsymmetric_methods = getValidBlastScoreMethods()
 all_methods = symmetric_methods + unsymmetric_methods
 
-usage = """ %prog -m method -u cutoff -o outdir [options] < cluster_runid_pairs """
+usage = """ %prog -m method -u cutoff -o outdir [options] < cluster_runid_pairs 
+
+Output: .gml file (import into Cytoscape or other graph visualization software)"""
 description = """From a given cluster/runID pair, calcualte and export a GML file that
 can be opened in Cytoscape or similar viewers to visualize the cluster.
 By default, it creates GML files with name "runid_clusterid.gml" . If you specify your own

@@ -13,11 +13,11 @@ header = [ "runid", "clusterid" ]
 usage="""%prog (-a|-n|-p|-s|-y) [options] run_id < organism_names > cluster_run_id_list
 
 Output: """ + " ".join(header)
-description="""Find clusters with a paritcular quality relative to the list of organisms you specified.
-Note: To find conserved gene clusters use -a
-To find core gene clusters for a particular group, use both -a and -u
-To find core genes only in a parituclar group (to the exclusion of all the others in that cluster run), use -a, -u, and -s
-To find clusers that exclude all the specified organisms use -n
+description="""Find clusters with a paritcular quality relative to a specified list of organisms: 
+To find conserved gene clusters use -a.
+To find core gene clusters for a particular group, use both -a and -u.
+To find core genes only in a parituclar group (to the exclusion of all the others in that cluster run), use -a, -u, and -s.
+To find clusers that exclude all the specified organisms use -n.
 Using only -u or various contradictory combinations will result in an error.
 """
 parser = optparse.OptionParser(usage=usage, description=description)
@@ -31,6 +31,8 @@ parser.add_option("-r", "--sanitized", help="If specified, the names in the inpu
 parser.add_option("-p", "--pct_cutoff", help="Percentage of organisms in the specified list of organisms that must have a member to be included (incompatible with -a, -y, and -n but can be used with -s)",
                   action="store", type="float", dest="pct_cutoff", default=None)
 #parser.add_option("-m", "--minorgs", help="Minimum number of organisms in clusters to be included (D=no minimum)", action="store", type="int", dest="minorg", default=None)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 if not len(args) == 1:
@@ -70,5 +72,7 @@ clusterrun_list = findGenesByOrganismList(orglist, args[0],
                                           pct_cutoff = options.pct_cutoff
                                           )
 
+if options.header:
+    print "\t".join(header)
 for cr in clusterrun_list:
     print "%s\t%s" %(cr[0], cr[1])

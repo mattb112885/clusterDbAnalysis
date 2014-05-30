@@ -19,11 +19,11 @@
 import fileinput, sqlite3, optparse
 from FileLocator import *
 
-headers = [ "organism_name", "contig_id", "start", "stop", "strand", "strandnum", "annotation", "DNA_seq", "AA_seq" ]
+header = [ "organism_name", "contig_id", "start", "stop", "strand", "strandnum", "annotation", "DNA_seq", "AA_seq" ]
 
 usage="""%prog [options] < gene_ids > gene_info
 
-Output table: """ + " ".join(headers)
+Output table: """ + " ".join(header)
 description="""Given a list of gene IDs, get their gene info, 
 including annotations, contig, organism, strand, and sequences. 
 Start is the first nucleotide of the start codon (e.g. A in ATG)
@@ -34,6 +34,8 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-g", "--gcolumn", help="Column number (start from 1) for gene ID", action="store", type="int", dest="genecolumn", default=1)
 parser.add_option("-a", "--add", help="Add gene information to the end of the existing file (D: only return the gene information)", 
                   action="store_true", dest="keep", default=False)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 gc = options.genecolumn - 1 # Convert to Pythonic indexes               
@@ -41,6 +43,8 @@ gc = options.genecolumn - 1 # Convert to Pythonic indexes
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
+if options.header:
+    print "\t".join(header)
 for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
 

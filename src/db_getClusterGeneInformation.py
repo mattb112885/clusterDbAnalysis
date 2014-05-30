@@ -29,10 +29,10 @@ from ClusterFuncs import *
 
 # Get input arguments                                                                  
 
-headers = [ "organism_name", "contig_id", "start", "stop", "strand", "strandnum", "annotation", "DNA_seq", "AA_seq", "run_id", "cluster_id" ]
+header = [ "organism_name", "contig_id", "start", "stop", "strand", "strandnum", "annotation", "DNA_seq", "AA_seq", "run_id", "cluster_id" ]
 usage = """%prog [options] < runid_clusterid_table > cluster_gene_info
 
-Output table: """ + " ".join(headers)
+Output table: """ + " ".join(header)
 
 description = """Given a list of run ID / cluster ID pairs (one pair in each row of the input table), 
 get a list of gene information for each gene in each of the input clusters. The results include
@@ -42,6 +42,8 @@ parser = optparse.OptionParser(usage=usage, description=description)
 
 parser.add_option("-r", "--rcolumn", help="Column number (start from 1) for run ID", action="store", type="int", dest="runcolumn", default=1)
 parser.add_option("-c", "--ccolumn", help="Column number (start from 1) for cluster ID", action="store", type="int", dest="clustercolumn", default=2)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 rc = options.runcolumn - 1 # Convert to Pythonic indexes                                                                                                                                                      
@@ -56,6 +58,8 @@ for line in fileinput.input("-"):
 con = sqlite3.connect(locateDatabase())
 cur = con.cursor()
 
+if options.header:
+    print "\t".join(header)
 for cr in clusterruns:
     geneinfo = getClusterGeneInfo(cr[0], cr[1], cur)
     for info in geneinfo:

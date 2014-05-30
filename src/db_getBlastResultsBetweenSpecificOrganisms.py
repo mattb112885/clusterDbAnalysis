@@ -15,14 +15,25 @@
 import sqlite3, optparse
 from FileLocator import *
 
-usage = "%prog \"Organism 1\" \"Organism 2\" ... > blast_results"
+header = [ 'Query_gene', 'Target_gene', 'Percent_identity', 'HSP_length', 'Percent_mismatch',
+           'Gap_opens', 'Query_start', 'Query_end', 'Target_start', 'Target_end', 'E_value',
+           'Bit_score', 'Query_selfbit', 'Target_selfbit' ]
+
+
+usage = """%prog \"Organism 1\" \"Organism 2\" ... > blast_results
+
+Output: """ + " ".join(header)
+
 description = """Given list of organism names to match, returns a list
 of BLAST results between organisms matching any of those keywords."""
+
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-s", "--strict", help="Require exact name matches for organisms (D: Partial name matches are OK)",
                    action="store_true", dest="strict", default=False)
 parser.add_option("-n", "--blastn", help="Return BLASTN hits rather than BLASTP hits. (D: BLASTP)",
                   action="store_true", dest="blastn", default=False)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 # Do we want exact matches or LIKE %org%?
@@ -75,6 +86,8 @@ cmd = """SELECT %s.* FROM %s
 
 cur.execute(cmd)
 
+if options.header:
+    print "\t".join(header)
 for l in cur:
     s = list(l)
     stri = "\t".join(str(t) for t in s)

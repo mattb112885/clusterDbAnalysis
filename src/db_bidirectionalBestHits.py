@@ -17,16 +17,21 @@ from ClusterFuncs import *
 
 okmethods = [ "evalue", "maxbit", "minbit" ]
 
-usage="""%prog [options] > BBH_table"""
-description = "Return a list of bidirectional best blast hits based on the specified scoring criteria. Output table has (tab-delimited): Query gene, target gene, query genome, forward score, backward score"
+header = [ "Query_gene", "Target_gene", "Query_organism", "Forward_score", "Backward_score" ]
+usage="""%prog [options] > BBH_table
+
+Output: """ + " ".join(header)
+description = "Return a list of bidirectional best blast hits based on the specified scoring criteria."
 parser = optparse.OptionParser(description=description, usage=usage)
 parser.add_option("-m", "--method", help="Scoring metric to use to define best hit (D=evalue). Defined methods: %s" %(" ".join(okmethods)),
                   action="store", type="str", dest="method", default="evalue")
 parser.add_option("-r", "--runid", help="Get bidirectional best BLAST hits for organisms in this cluster run only (D: Get them for all organisms in the database)",
                   action="store", type="str", dest="runid", default=None)
-parser.add_option("-f", "--orgfile", help="File containing s list of organisms to which to limit search. Use \"-\" for stdin. Cannot use with -r. (D: Get hits between all organisms in the database)",
+parser.add_option("-f", "--orgfile", help="File containing a list of organism names to which to limit search. Use \"-\" for stdin. Cannot use with -r. (D: Get hits between all organisms in the database)",
                   action="store", type="str", dest="orgfile", default=None)
 parser.add_option("-o", "--orgcol", help="Column number for organism ids (ignored unless -f is specified), starting from 1 (D=1)", action="store", type="int", dest="oc", default=1)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 oc = options.oc - 1
@@ -103,6 +108,9 @@ if len(Best_pairs.keys()) == 0:
 # Look at all the best queries and see if the target gene paired with the same organism
 # has a best hit as the query.
 sys.stderr.write("Calculating bidirectional bests...\n")
+
+if options.header:
+    print "\t".join(header)
 for pair in Best_pairs:
     forward_hit = Best_pairs[pair]
 

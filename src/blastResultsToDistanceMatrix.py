@@ -4,7 +4,9 @@ import fileinput, math, optparse, sys
 
 okmethods = ["pctid", "logevalue", "minbit", "maxbit"]
 
-usage = "%prog [options] < BLAST_results > distance_matrix"
+usage = """%prog [options] < BLAST_results > distance_matrix
+
+Output: Query genes on rows and target genes on columns. Each entry is BLAST distance between query and target."""
 description = """Turn a table of BLAST results into a distance matrix.
 The distance matrix will be suitable for conversion into a heatmap with
 plotHeatmap.py

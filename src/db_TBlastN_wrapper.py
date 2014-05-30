@@ -7,12 +7,15 @@ import fileinput, os, optparse, random, sqlite3, sys, tempfile
 from FileLocator import *
 from ClusterFuncs import *
 
-TABLEDESCRIPTION = """queryid, querylen, subcontig, organism, tblaststart, tblastend, tblastlen, queryoverlappct, evalue, bitscore, hitframe, 
-                      strandedString, targetgeneid, targetannotation, targetgenelen, targetoverlappct, TBLASTN_hitID"""
+header = [ 'queryid', 'querylen', 'subcontig', 'organism', 
+           'tblaststart', 'tblastend', 'tblastlen', 'queryoverlappct',
+           'evalue', 'bitscore', 'hitframe', 'strandedString', 'targetgeneid',
+           'targetannotation', 'targetgenelen', 'targetoverlappct',
+           'tBLASTn_hitID' ]
 
 usage = """%prog (-d|-f|-o) [options] < Protein_ids > Tblastn_table
 
-Output: """ + TABLEDESCRIPTION
+Output: """ + " ".join(header)
 
 description = """Attempts to run TBLASTN and identify
 missing genes. It identifies called genes that match the hit location and
@@ -34,6 +37,8 @@ parser.add_option("-r", "--orgcol", help="Column number for organism ID starting
 parser.add_option("-a", "--calledgeneoverlap", help="Cutoff for overlap of called genes (D: 1% - if the called gene overlaps with the hit with less than 1% of its length it is ignored",
                   action="store", type="float", dest="calledgeneoverlap", default=1)
 parser.add_option("-k", "--keep", help="Keep temporary files (D: Delete them)", action="store_true", dest="keep", default=False)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 #############
@@ -53,6 +58,7 @@ if options.db is not None:
 if numnotnone > 1:
     sys.stderr.write("ERROR: Cannot specify more than one of -o, -f, and -d (input options)\n")
     exit(2)
+
 
 #############
 # Get a list of input protein IDs
@@ -140,6 +146,10 @@ sys.stderr.write("Generating gene overlap report...\n")
 q = "SELECT ABS(genestart - geneend) FROM processed WHERE geneid = ?;"
 q2 = "SELECT organism FROM organisms INNER JOIN contigs ON contigs.organismid = organisms.organismid WHERE contigs.contig_mod = ?;"
 q3 = "SELECT geneid, genestart, geneend, annotation FROM processed WHERE contig_mod = ? AND MIN(genestart, geneend) <= MAX(?,?) AND MIN(?,?) <= MAX(genestart, geneend);"
+
+if options.header:
+    print "\t".join(header)
+
 # For each TBLASTN hit...
 for line in open(ofile, "r"):
     spl = line.strip("\r\n").split("\t")

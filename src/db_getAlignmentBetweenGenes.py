@@ -5,7 +5,7 @@
 import fileinput, optparse, os, random, sqlite3, sys
 from FileLocator import *
 
-usage="%prog [options] < gene_list > alignment"
+usage="%prog [options] < gene_list > fasta_alignment"
 description="""Get a quick and dirty (whole-gene) alignment between 
 a set of genes of interest piped from stdin. Runs the alignment using
 mafft with the --auto and --reorder flags.

@@ -8,10 +8,13 @@ import sys
 from FileLocator import *
 from ClusterFuncs import *
 
+header = [ 'Original_gene', 'Equivalent_genes' ]
+
 usage = """
 %prog runID -n 'organism_name' < gene_list > equivalent_genes
 %prog runID -i 'organism_id'   < gene_list > equivalent_genes
-"""
+
+Output: """ + " ".join(header)
 
 description = """Given a list of genes and an organism name or ID, identifies all genes
 in the same cluster as the target genes in the specified organism.
@@ -25,6 +28,8 @@ parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-n", "--name", help="Name of target organism.", action="store", type="str", dest="orgname", default=None)
 parser.add_option("-i", "--id", help="Organism ID for target organism.", action="store", type="str", dest="orgid", default=None)
 parser.add_option("-g", "--genecol", help="Column number for gene Id starting from 1 (D:1)", action="store", type="int", dest="gc", default=1)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 if len(args) < 1:
@@ -45,6 +50,8 @@ cur = con.cursor()
 
 equivalent_dict = getEquivalentGenesInOrganism( genelist, runid, cur, orgid=options.orgid, orgname=options.orgname )
 
+if options.header:
+    print "\t".join(header)
 for gene in equivalent_dict:
     print "\t".join( [ gene, ";".join(equivalent_dict[gene]) ] )
 

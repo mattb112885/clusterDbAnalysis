@@ -12,9 +12,15 @@ import sqlite3, optparse
 from ClusterFuncs import *
 from FileLocator import *
 
-usage = "%prog > run_id_list"
+header = "runid"
+
+usage = """%prog > run_id_list
+
+Output: """ + " ".join(header)
 description = "Return list of all run IDs from the database"
 parser = optparse.OptionParser(usage=usage, description=description)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 con = sqlite3.connect(locateDatabase())
@@ -22,6 +28,8 @@ cur = con.cursor()
 
 runs = getAllClusterRuns(cur)
 
+if options.header:
+    print header
 print "\n".join(runs)
 
 con.close()

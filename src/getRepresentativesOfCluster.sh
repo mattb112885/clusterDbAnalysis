@@ -8,6 +8,9 @@ if [ $# -ne 2 ]; then
     echo ""
     echo "Description: Given a run and cluster ID, identify representatives"
     echo "according to the MyRAST function svr_representative_sequences."
+    echo ""
+    echo "Usage depends on installation of MyRAST on your system."
+    echo ""
     echo "WARNING: At the moment this is not a finished script and will likely be heavily"
     echo "modified or removed."
     exit 0;

@@ -23,7 +23,9 @@ import optparse
 from Bio import AlignIO
 from Bio import SeqIO
 
-usage = "%prog [options] < Fasta_alignment > Fasta_alignment_filtered"
+usage = """%prog [options] < Fasta_alignment > Fasta_alignment_filtered
+
+Output: Trimmed FASTA alignment file"""
 description="Run GBLOCKS with specified parameter values. GBLOCKS is a program to filter low-quality sections out of a multiple alignment"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-p", "--program", help="Name or location of your GBLOCKS program (D: Gblocks)", action="store", type="str", dest="program", default="Gblocks")

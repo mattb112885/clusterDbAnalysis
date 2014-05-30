@@ -185,36 +185,41 @@ def treelegend(ts, getcolor, greyout, clusterrunid, cur):
     return ts
 
 if __name__ == "__main__":
-    '''
-    Given a protein tree, make a figure containing that tree with neighborhoods overlayed onto the tree.
-    '''
 
-    usage="%prog -p protein_tree -r runid [options]"
+    usage="""
+%prog -p protein_tree -r runid -d [options]
+%prog -p protein_tree -r runid -b basename --svg [options]
+%prog -p protein_tree -r runid -b basename --png [options]
+
+    Output: PNG or SVG, or just display the tree on the screen. You can specify more than one of -d, --svg or --png if you wish."""
     description="""Generates a tree with gene regions"""
     parser = optparse.OptionParser(usage=usage, description=description)
     parser.add_option("-r", "--runid", help="Run ID (required)", action="store", type="str", dest="clusterrunid", default=None)
     parser.add_option("-p", "--prottree", help="Protein tree (required)", action="store", type="str", dest="treeinfile", default=None)
-    parser.add_option("-o", "--outfile", help="Base name for output file (required)", action="store", type="str", dest="outfile", default=None)
+    parser.add_option("-o", "--outfile", help="Base name for output file (required if you want to save the file)", action="store", type="str", dest="outfile", default=None)
     parser.add_option("-t", "--treetitle", help="Tree title (D: same as run ID)", action="store", type="str", dest="gene", default=None)
     parser.add_option("-d", "--display", help="Display the resulting tree (D: Don't display, just save)", action="store_true", dest="display", default=False)
     parser.add_option("-c", "--cutoff", help="Number of members of a cluster below which a gene is greyed out (D: 3 - 2 or less are greyed out)", action="store", type="int", dest="cutoff", default=3)
     parser.add_option("-l", "--label", help="Add labels to the genes. The labels are the cluster IDs for the clusters in which the genes are found in the specified cluster run (D: Dont because its very messy)", action="store_true", dest="label", default=False)
     parser.add_option("--png", help="Save high-quality PNG and SVG images (with base name specified by -o or by default, with the same name as input file)", action="store_true", 
                       dest="savepng", default=False)
+    parser.add_option("--svg", help="Save an SVG image of the final tree.", action="store_true", dest="savesvg", default=False)
     (options,args) = parser.parse_args()
 
     if options.treeinfile is None:
         sys.stderr.write("ERROR: -p (protein input tree) is required\n")
         exit(2)
 
-    # James - how did you plan on using muliple clusters? Doesnt make a lot of sense to me.
     if options.clusterrunid is None:
         sys.stderr.write("ERROR: -r (runid) is a required argument\n")
         exit(2)
 
-    if options.outfile is None:
-        sys.stderr.write("ERROR: -o (output file base name) is a required argument\n")
+    if options.outfile is None and (options.savepng or options.savesvg):
+        sys.stderr.write("ERROR: -o (output file base name) is a required argument if --png or --svg is specified")
         exit(2)
+
+    if not (options.savepng or options.savesvg or options.display):
+        sys.stderr.write("ERROR: Must specify one of -d (display), --svg (save SVG file) or --png (save PNG file)")
 
     clusterrunid = options.clusterrunid
     treeinfile = options.treeinfile 
@@ -271,10 +276,11 @@ if __name__ == "__main__":
     
     t, ts = prettifyTree(t, title = gene + " cluster regions", show_bootstraps = False, ts=ts)
 
-    if options.savepng:
+    if options.savepng or options.savesvg:
         os.system("rm test.svg 2> /dev/null")
         t.render("%s.svg" %(options.outfile), tree_style=ts)
-        os.system("convert -trim -depth 32 -background transparent %s.svg %s.png" %(options.outfile, options.outfile))
+        if options.savepng:
+            os.system("convert -trim -depth 32 -background transparent %s.svg %s.png" %(options.outfile, options.outfile))
 
     if options.display:
         t.show(tree_style=ts)

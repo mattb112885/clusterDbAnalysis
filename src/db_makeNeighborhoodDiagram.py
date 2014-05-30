@@ -10,7 +10,9 @@ from BioPythonGraphics import *
 from FileLocator import *
 from sanitizeString import *
 
-usage = "%prog runid [options] < gene_ids"
+usage = """%prog runid [options] < gene_ids
+
+Output: One PNG file for each specified gene."""
 
 description = """Saves neighborhood diagrams for genes in a specified directory. The run ID is used to color code the neighborhood diagram. 
 The color code is not necessarily consistent across different input genes but is internally consistent for neighborhoods of a given gene."""

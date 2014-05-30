@@ -22,6 +22,7 @@ command -v blastp > /dev/null 2>&1 || {
     echo "ERROR: Unable to find NCBI BLAST+ which is required";
     echo "It can be found at ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/"
     echo "Note that the \"blast\" in aptitude is NOT BLAST+ - you must have e.g. the blastp executable"
+    echo "Also note that to use RPSBLAST you will need a recent enough version. 2.28 is known to work."
     echo "";
     $STATUS=1;
 }
@@ -56,6 +57,7 @@ if [ $? -ne 0 ]; then
     echo ""
     echo "ERROR: Unable to find required package Biopython (Bio). This package is needed for many IO and graphics operations in ITEP"
     echo "It can be downloaded from http://biopython.org or installed (via setuptools) with sudo easy_install -f http://biopython.org/DIST/ biopython"
+    echo "Newer versions are less likely to have issues with parsing Genbank files."
     echo ""
     $STATUS=1;
 fi
@@ -98,14 +100,14 @@ command -v CompareToBootstrap.pl > /dev/null 2>&1 || {
 command -v FastTreeMP > /dev/null 2>&1 || {
     echo "";
     echo "WARNING: Unable to find FastTreeMP with the default program name - will need to specify the actual program name to";
-    echo "use the wrapper script for FastTree";
+    echo "use the wrapper script for FastTree (The default name is FastTreeMP)";
     echo "";
 }
 
 command -v Gblocks > /dev/null 2>&1 || {
     echo "";
     echo "WARNING: Unable to find Gblocks with default program name - will need to specify the actual program name to ";
-    echo "use the wrapper script for GBlocks";
+    echo "use the wrapper script for GBlocks (the default name is Gblocks).";
     echo "If you don't have it, it can be found at http://molevol.cmima.csic.es/castresana/Gblocks.html";
     echo "";
 }
@@ -147,7 +149,8 @@ command -v perl > /dev/null 2>&1 || {
 command -v 'raxmlHPC-PTHREADS' > /dev/null 2>&1 || {
     echo "";
     echo "WARNING: Unable to find raxml with the default program name - will need to specify the actual program name to";
-    echo "use the wrapper script for RaxML";
+    echo "use the wrapper script for RaxML. The default program name is raxmlHPC-PTHREADS";
+    echo "";
     echo "If you dont have RaxML it can be downloaded at http://www.exelixis-lab.org/ or checked out of github"
     echo "using git clone git@github.com:stamatak/standard-RAxML (requires a github account and SSH key)."
     echo "";
@@ -191,6 +194,14 @@ if [ $? -ne 0 ]; then
     echo ""
     echo "WARNING: Unable to find the Python package easygui. This package is needed to use the graphical interfaces for ITEP."
     echo "It can be found at http://easygui.sourceforge.net/"
+    echo ""
+fi
+
+python -c 'import xlwt'
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "WARNING: Unable to find the Python package xlwt. This package is needed to export to Excel (most scripts do not need this)."
+    echo "It can be found at https://pypi.python.org/pypi/xlwt or installed via pip install xlwt"
     echo ""
 fi
 

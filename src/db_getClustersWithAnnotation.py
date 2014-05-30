@@ -20,10 +20,17 @@
 import sqlite3, fileinput, optparse, sys
 from FileLocator import *
 
-usage = "%prog [options] \"Annotation 1\" \"Annotation 2\" ... < run_ids > clusters_with_genes_containing_annotation_words"
-description = "Given list of run IDs, returns a list of genes and clusters containing given word(s) in the annotation - separate inputs are combined with OR statements"
+header = [ "Runid", "Cluster_id", "Matching_gene", "Matching_annotation" ]
+usage = """%prog [options] \"Annotation 1\" \"Annotation 2\" ... < run_ids > clusters_with_genes_containing_annotation_words
+
+Output: """ + " ".join(header)
+description = """Given list of run IDs, returns a list of genes and clusters containing at least one of the given word(s) in the annotation.
+Note that only the genes matching the annotation are returned, not all of the genes in the clusters. Use db_getGenesInClusters.py to get
+all of the genes in a list of clusters."""
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.add_option("-r", "--runcol", help="Column number for run ID, starting from 1 (D=1)", action="store", type="int", dest="rc", default=1)
+parser.add_option("--header", help="Specify to add header to the output file (useful if you want to take the results and put into Excel or similar programs)",
+                  action="store_true", default=False)
 (options, args) = parser.parse_args()
 
 if len(args) < 1:
@@ -50,6 +57,8 @@ for i in range(len(teststr)):
         query = query + "OR "
 query = query + ");"
 
+if options.header:
+    print "\t".join(header)
 for line in fileinput.input("-"):
     # Note - "+" for tuples is the concatination operator
     spl = line.strip('\r\n').split("\t")

@@ -268,6 +268,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         if output_file is not None:
             output_file = output_file[0:len(output_file)-4]
 
+
         # Create tree
         (nwk_file, nwk_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
@@ -278,7 +279,6 @@ Note that only the groups of organisms that contain your gene are listed here.
 
         # View tree with neighborhoods
         second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d -l' %(nwk_fname, self.accumulated_data['runid'])
-#        second_cmd = 'db_makeNeighborhoodTree.py -p %s -r %s -d' %(nwk_fname, self.accumulated_data['runid'])
 
         if output_file is not None:
             second_cmd += " -o %s --png" %(output_file)

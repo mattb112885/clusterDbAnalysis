@@ -332,8 +332,8 @@ if options.logfile is None:
 
 # Check if the output file for the specified settings already exists.
 # Otherwise why bother re-doing all of this?
-
-expectedfilename = "orthomcl_all_I_%1.4f_c_%d_%d" %(options.inflation, options.evalcut, options.pctcut)
+base = os.path.basename(blastresfile)
+expectedfilename = "orthomcl_%s_I_%1.4f_c_%d_%d" %(base, options.inflation, options.evalcut, options.pctcut)
 expectedoutput = os.path.join(os.path.dirname(locateDatabase()), "..", "clusters", expectedfilename)
 if not (options.forcereload or reloadDb):
     try:

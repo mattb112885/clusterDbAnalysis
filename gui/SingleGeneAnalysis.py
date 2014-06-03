@@ -350,12 +350,14 @@ Note that only the groups of organisms that contain your gene are listed here.
         # Support either sanitized or unsanitized versions.
         itep_id = unsanitizeGeneId(alias)
         geneinfo = getGeneInfo( [ itep_id ], self.sqlite_cursor)
+        # Not an ITEP ID.
         if len(geneinfo) == 0:
+            alias = alias.upper()
             alias_file = locateAliasesFile()
             alias2gene = {}
             for line in open(locateAliasesFile()):
                 spl = line.strip("\r\n").split("\t")
-                alias2gene[spl[1]] = spl[0]
+                alias2gene[spl[1].upper()] = spl[0]
             if alias not in alias2gene:
                 raise NoGeneError("Sorry, we could not find gene ID %s in the database or in our aliases file. It might not be in this database.\n" %(alias))
             itep_id = alias2gene[alias]

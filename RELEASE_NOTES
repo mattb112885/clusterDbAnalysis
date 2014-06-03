@@ -10,10 +10,12 @@ NEW FEATURES:
     - Getting gene neighborhoods and overlaying on the tree
     - Getting basic information about related genes
     - Getting BLAST support for a gene family.
+    - Building an organism tree from a selection of core genes
   Note you must have already built the database before running the GUI. Using the gui requires you to have
   access to an X11 server and the easygui Python package. It should be considered highly experimental / breakable
   at this point.
-- OrthoMCL wrapper now takes as input an arbitrary table of BLAST results from the ITEP database
+- OrthoMCL wrapper now takes as input an arbitrary table of BLAST results from the ITEP database instead of trying to
+  run OrthoMCL with everything. Use db_getBlastResultsBetweenSpecificOrganisms.py to generate the input table.
 - makeCoreClusterAnalysisTree.py now optionally can be used to analyze presence-absence patterns relative to sister clades,
   rather than relative to all organisms in the cluster run. See help text for details.
 - db_makeClusterComparisonTable.py - identify genes in the same cluster as a reference across cluster runs and provide
@@ -21,6 +23,8 @@ NEW FEATURES:
 - db_getEquivalentGenesInOrganism.py - Given a list of query genes, a run ID and an organism, finds all genes in the provided organism that are in the
   same cluster as the query genes and returns a conversion table.
 - Make a diagram of neighbors for a single gene
+- Most table-generating functions support use of a --header argument (use this only for the last command in a pipeline).The header contains descriptiosn of the rows' contents. 
+  Exceptions include scripts that add columns to an existing table and functions that always produce headers (e.g. db_getPresenceAbsenceTable.py)
 
 BUG FIXES:
 - Check for biopython version no longer fails due to letters in the version number. Thanks to Matt Richards for reporting.

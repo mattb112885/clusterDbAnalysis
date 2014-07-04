@@ -84,11 +84,11 @@ os.system(cmd)
 faa = "%d.faa" %(rann)
 alncmd = ""
 if options.method == 'mafft_linsi':
-	alncmd = "mafft --maxiterate 1000 --localpair %s > %s 2> /dev/null" %(fasta, faa)
+	alncmd = "mafft --anysymbol --maxiterate 1000 --localpair %s > %s 2> /dev/null" %(fasta, faa)
 if options.method == 'mafft_einsi':
-	alncmd = "mafft --maxiterate 1000 --genafpair %s > %s 2> /dev/null" %(fasta, faa)
+	alncmd = "mafft --anysymbol --maxiterate 1000 --genafpair %s > %s 2> /dev/null" %(fasta, faa)
 if options.method == 'mafft_ginsi':
-	alncmd = "mafft --maxiterate 1000 --globalpair %s > %s 2> /dev/null" %(fasta, faa)
+	alncmd = "mafft --anysymbol --maxiterate 1000 --globalpair %s > %s 2> /dev/null" %(fasta, faa)
 if options.method == 'mafft_default':
 	alncmd = "mafft %s > %s 2> /dev/null" %(fasta, faa)
 if options.method == 'clustalw_default':

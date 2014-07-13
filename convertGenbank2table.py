@@ -60,7 +60,7 @@ def info_from_genbank(gb_seqrec):
         info["id"] = gb_seqrec.name
     else:
         info["id"] = gb_seqrec.id
-    
+
     info["number_of_features"] = len(gb_seqrec.features)
     numcds = len([f for f in gb_seqrec.features if (f.type =='CDS')])
     info["number_of_cds"] = numcds
@@ -178,13 +178,10 @@ def genbank_extract(ptr, version_number):
     itepConflictCheck = False
 
     orginfo = dict()
-    orginfoFound = False
     cnt = 0
     for gb_seqrec in gb_seqrec_multi:
-        if not orginfoFound:
-            orginfo = info_from_genbank(gb_seqrec)
-            orginfo["net_version_number"] = version_number
-            orginfoFound = True
+        orginfo = info_from_genbank(gb_seqrec)
+        orginfo["net_version_number"] = version_number
         cnt += 1
         sys.stderr.write("Extracting data on features for genbank record number %d...\n" %(cnt))
         for feature in gb_seqrec.features:
@@ -279,6 +276,7 @@ def genbank_extract(ptr, version_number):
                     aliases.append(feature.qualifiers["protein_id"][0])
                 if "locus_tag" in feature.qualifiers:
                     aliases.append(feature.qualifiers["locus_tag"][0])
+
                 if "gene" in feature.qualifiers:
                     aliases.append(feature.qualifiers["gene"][0])
                 geneidToAlias[geneid] = aliases

@@ -84,21 +84,25 @@ tileRow =  "%s\t%s\t%s\t%s" %("RunID", "ClusterID", "SampleAnnote", titleRow)
 mytable = []
 # Generate table
 for rectup in rc2go:
+    myList = []
     myrunid = rectup[0]
     myclusterid = rectup[1]
     myorgdict = rc2go[rectup]
     # Get most common annotation
     myannote = findRepresentativeAnnotation(myrunid, myclusterid, cur)
     # Get the organism peg list
-    myorgstr = ""
+    myList.append(myrunid)
+    myList.append(myclusterid)
+    if '\t' in myannote:
+        sys.stderr.write("WARNING: A gene in run ID %s with cluster ID %s had an annotation with tabs in it. This probably indicates a problem with parsing one of the input files.\n" %(myrunid, myclusterid))
+        myannote = myannote.replace("\t", "")
+    myList.append(myannote)
     for org in orgList:
         if org in myorgdict:
-            myorgstr = "%s\t%s" %(myorgstr, ";".join(myorgdict[org]))
+            myList.append(";".join(myorgdict[org]))
         else:
-            myorgstr = "%s\t%s" %(myorgstr, "NONE")
-    myorgstr = myorgstr.lstrip()
-    myline = "%s\t%s\t%s\t%s" %(myrunid, myclusterid, myannote, myorgstr)
-    mytable.append(myline)
+            myList.append("NONE")
+    mytable.append(tuple(myList))
 
 # Generate SQL table with this info in it.
 cur.execute("DROP TABLE IF EXISTS presenceabsence;")
@@ -116,13 +120,12 @@ cmd += ");"
 cur.execute(cmd)
 
 for ln in mytable:
-    sp = ln.split("\t")
     cmd = "INSERT INTO presenceabsence VALUES ("
-    for s in sp:
+    for l in ln:
         cmd += "?,"
     cmd = cmd.rstrip(",")
     cmd += ");"
-    cur.execute(cmd, tuple(sp))
+    cur.execute(cmd, ln)
 # We have to commit because we added a table.
 con.commit()
 

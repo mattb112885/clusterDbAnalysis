@@ -9,4 +9,4 @@ description = "Get the current root directory of the TIEP repository"
 parser = optparse.OptionParser(usage=usage, description=description)
 parser.parse_args()
 
-print locateRootDirectory()
+print(locateRootDirectory())

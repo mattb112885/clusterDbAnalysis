@@ -48,6 +48,6 @@ for line in fileinput.input("-"):
 for run_cluster_id in run_cluster_ids:
     geneids = getGenesInCluster(run_cluster_id[0], run_cluster_id[1], cur)
     for gene in geneids:
-        print "%s\t%s\t%s" %(run_cluster_id[0], run_cluster_id[1], gene)
+        print("%s\t%s\t%s" %(run_cluster_id[0], run_cluster_id[1], gene))
 
 con.close()

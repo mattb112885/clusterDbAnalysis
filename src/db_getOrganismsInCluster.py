@@ -30,6 +30,6 @@ for line in fileinput.input("-"):
     orglist = getOrganismsInCluster(runid, clusterid, cur)
     stri = "\n".join(orglist)
 
-print stri
+print(stri)
 
 con.close()

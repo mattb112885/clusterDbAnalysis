@@ -17,5 +17,5 @@ for line in fileinput.input("-"):
         continue
     header = ">" + spl[1] + " " + spl[7]
     seq = spl[11]
-    print header
-    print seq
+    print(header)
+    print(seq)

@@ -90,7 +90,7 @@ for gene in geneids:
         # This means the gene is at the very end of the contig so lets just kill it.
         if interval_end < 1 or interval_start > contiglen:
             warnings += "NOUPSTREAM,"
-            print "%s\t%s\t" %(geneid,warnings)
+            print("%s\t%s\t" %(geneid,warnings))
             continue
         if interval_start < 1 or interval_end > contiglen:
             warnings += "CONTIGEND,"
@@ -139,6 +139,6 @@ for gene in geneids:
         # We need to do the reverse complement if we are on the "-" strand...
         if strand == "-":
             seq = str(Seq.Seq(seq).reverse_complement())
-        print "%s\t%s\t%s" %(gene, warnings, seq)
+        print("%s\t%s\t%s" %(gene, warnings, seq))
 
 con.close()

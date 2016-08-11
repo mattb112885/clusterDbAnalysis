@@ -91,4 +91,4 @@ for link in putative_links:
         sys.stderr.write("WARNING: ID mismatch between what is in genbank file and what is expected to be in ITEP -  ID %s was not found in ITEP but was generated from the genbank file\n" %(link))
 
 for link in putative_links:
-    print "%s\t%s" %(link, putative_links[link])
+    print("%s\t%s" %(link, putative_links[link]))

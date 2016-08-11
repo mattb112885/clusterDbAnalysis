@@ -25,4 +25,4 @@ for line in fileinput.input("-"):
     eid = spl[idc]
     cur.execute(query, (eid, ))
     for res in cur:
-        print "\t".join([str(s) for s in res])
+        print("\t".join([str(s) for s in res]))

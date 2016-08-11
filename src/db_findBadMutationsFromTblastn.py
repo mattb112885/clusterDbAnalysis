@@ -129,7 +129,7 @@ for contig in result_dict:
                 else:
                     TYPE = "INVERSION"
             if TYPE is not None:
-                print "%s\t%s\t%d\t%d\t%d\t%d\t%s" %(contig, query, first_comp[0], first_comp[1], second_comp[0], second_comp[1], TYPE)
+                print("%s\t%s\t%d\t%d\t%d\t%d\t%s" %(contig, query, first_comp[0], first_comp[1], second_comp[0], second_comp[1], TYPE))
 
         # Check for stop codons (this probably doesn't strictly need to be done separately but...)
         for ii in range(len(ls)):
@@ -142,4 +142,4 @@ for contig in result_dict:
                 if 100 - float(loc)/float(len(contig_region))*100.0 > options.nonsense_pct:
                     TYPE = "NONSENSE"
             if TYPE is not None:
-                print "%s\t%s\t%d\t%d\t%d\t%d\t%s" %(contig, query, ls[ii][0], ls[ii][1], ls[ii][0], ls[ii][1], TYPE)
+                print("%s\t%s\t%d\t%d\t%d\t%d\t%s" %(contig, query, ls[ii][0], ls[ii][1], ls[ii][0], ls[ii][1], TYPE))

@@ -59,6 +59,6 @@ cur = con.cursor()
 for cr in clusterruns:
     geneinfo = getClusterGeneInfo(cr[0], cr[1], cur)
     for info in geneinfo:
-        print "\t".join(info)
+        print("\t".join(info))
 
 con.close()

@@ -56,4 +56,4 @@ cur = con.cursor()
 cur.execute(query, tuple(toSubstitute))
 
 for rec in cur:
-    print "\t".join(str(s) for s in rec)
+    print("\t".join(str(s) for s in rec))

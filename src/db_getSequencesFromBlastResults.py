@@ -86,4 +86,4 @@ for line in fileinput.input("-"):
     for rec in cur:
         startingSeq = str(rec[0])
         finalSeq = getContigRegion(startingSeq, sloc, eloc, isprot, options.translate)
-        print "\t".join(spl + [ finalSeq ] )
+        print("\t".join(spl + [ finalSeq ] ))

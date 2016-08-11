@@ -158,7 +158,7 @@ for sub in subToReal:
     treestr = treestr.replace(sub, subToReal[sub])
 
 # Print the final tree to stdout
-print treestr
+print(treestr)
 
 # Clean up temporary files
 if not options.keep:

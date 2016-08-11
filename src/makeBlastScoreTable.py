@@ -54,10 +54,10 @@ for line in fileinput.input("-"):
     if n >= maxn:
         scorelist = calculateScoreFromBlastres(blastres, options.method, options.cutoff, include_zeros = not options.noprint, needsymmetric = True)
         for score in scorelist:
-            print "%s\t%s\t%s" %(score[0], score[1], str(score[2]))
+            print("%s\t%s\t%s" %(score[0], score[1], str(score[2])))
         n = 0
         blastres = []
 
 scorelist = calculateScoreFromBlastres(blastres, options.method, options.cutoff, include_zeros=not options.noprint, needsymmetric = True)
 for score in scorelist:
-    print "%s\t%s\t%s" %(score[0], score[1], str(score[2]))
+    print("%s\t%s\t%s" %(score[0], score[1], str(score[2])))

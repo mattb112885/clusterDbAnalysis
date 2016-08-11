@@ -162,7 +162,7 @@ def gb_accession(gbfile):
     #open genbank or multi-genbank
     gb_handle = open(gbfile,"r")
     gb_seqrec = SeqIO.parse(gb_handle, "genbank")
-    sequence = gb_seqrec.next()
+    sequence = next(gb_seqrec)
     accession = sequence.name
     gb_handle.close()
     sys.stderr.write("File %s has accession %s\n" % (gbfile, accession))
@@ -186,7 +186,7 @@ def concatinate_files(dictionary, outlocation = '', extension="gbk"):
     would create two output files, file1.extension (concatinating infile1 and infile2)
     and file2.extension (concatinating infile2 and infile3).
     '''
-    for filenamebase, files in dictionary.items():
+    for filenamebase, files in list(dictionary.items()):
         outfilename = os.path.join(outlocation, str(filenamebase) + "." + extension)
         outfile = open(outfilename, 'w')
         for f in files:
@@ -269,11 +269,11 @@ be downloaded.
     if inargs.accessioninput:
         #these are all 1:1
         IDs = [accession_to_strainID(accession, return_nucID = True) for accession in inputlist]
-        strainIDlist, genbankIDs = zip(*IDs)
+        strainIDlist, genbankIDs = list(zip(*IDs))
     if inargs.genbankinput:
         #these are all 1:1 with the input, but we need to look up the genbankID from the accestions in a seperate step
         IDs = [(gb_taxon(gbfile), gb_accession(gbfile)) for gbfile in inputlist]
-        strainIDlist, accessionIDs = zip(*IDs)
+        strainIDlist, accessionIDs = list(zip(*IDs))
         genbankIDs = [accessionID_to_genbankIDs(accession) for accession in accessionIDs]
     if inargs.taxonidinput:
         #these are not 1:1 with the input if we are recursing (or if there are multiple refseqs per organism
@@ -284,14 +284,14 @@ be downloaded.
     organismIDs = defaultdict(list)
     for st, gb in zip(strainIDlist, genbankIDs):
         organismIDs[st + ".88888"] = organismIDs[st + ".88888"] + gb
-    print organismIDs
-    print organismIDs.items()
+    print(organismIDs)
+    print(list(organismIDs.items()))
     TEMPFILES = []
     #get one or more gb file for each entry (organism OR actual genbank ID)
-    for strainID, genbankIDs in organismIDs.items():
-        print strainID
+    for strainID, genbankIDs in list(organismIDs.items()):
+        print(strainID)
         if len(genbankIDs ) > 0:
-            print genbankIDs
+            print(genbankIDs)
             sys.stderr.write("Data for strain %s\n" % strainID)
             gbfiles = [getGenbank(genbankID, outlocation=inargs.outputdir, overwrite=True) for genbankID in genbankIDs]
             organismIDs[strainID] = gbfiles

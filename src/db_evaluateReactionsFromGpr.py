@@ -188,7 +188,7 @@ for s in syntaxerrors:
 for s in nameerrors:
     sys.stderr.write(s)
 
-print "orgs\t%s" %("\t".join(orglist))
+print("orgs\t%s" %("\t".join(orglist)))
 
 for rxn in rxn2presence:
     # I do it this kind of round-about way because eval isn't always consistent with whether or not it throws a syntax error!
@@ -196,8 +196,8 @@ for rxn in rxn2presence:
     if rxn in badrxns:
         continue
     if options.newgpr or options.showabsence:
-        print "%s\t%s" %(rxn, "\t".join( rxn2new_gpr[rxn] ))
+        print("%s\t%s" %(rxn, "\t".join( rxn2new_gpr[rxn] )))
     else:
-        print "%s\t%s" %(rxn, "\t".join( [ str(a) for a in rxn2presence[rxn] ] ))
+        print("%s\t%s" %(rxn, "\t".join( [ str(a) for a in rxn2presence[rxn] ] )))
 
 con.close()

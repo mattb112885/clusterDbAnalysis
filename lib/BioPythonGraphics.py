@@ -123,7 +123,7 @@ def makeSeqObjectsForTblastnNeighbors(tblastn_id, clusterrunid, cur, N=200000):
 def regionlength(seqfeatures):
     ''' Find the beginning and end of nucleotides spanning a set of gene locations '''
     location = [(int(loc.location.start), int(loc.location.end)) for loc in seqfeatures]
-    starts, ends = zip(*location)
+    starts, ends = list(zip(*location))
     #have to compare both, as some are reversed
     start = max(max(starts),max(ends))
     end = min(min(starts),min(ends))
@@ -318,8 +318,8 @@ def colormap(valuelist):
     V = [0.7]*N
     # Create all combinations of our colors.                                                                                                                                                           
     HS = itertools.product(H, S)
-    H, S = zip(*HS)
-    HSV = zip(H,S,V)
+    H, S = list(zip(*HS))
+    HSV = list(zip(H,S,V))
     RGB = [colorsys.hsv_to_rgb(h,s,v) for h, s, v in HSV]
-    colorlookup = dict(zip(values, RGB[:N]))
+    colorlookup = dict(list(zip(values, RGB[:N])))
     return colorlookup

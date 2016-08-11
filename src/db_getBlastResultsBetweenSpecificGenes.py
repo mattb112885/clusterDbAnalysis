@@ -29,6 +29,6 @@ for line in fileinput.input("-"):
 
 blastres = getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=options.blastn)
 for res in blastres:
-    print "\t".join(res)
+    print("\t".join(res))
 
 con.close()

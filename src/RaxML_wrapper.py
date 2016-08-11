@@ -143,7 +143,7 @@ for sub in subToReal:
     treestr = treestr.replace(sub, subToReal[sub])
 
 # Print the final tree to stdout
-print treestr
+print(treestr)
 
 if CLEANUP:
     # * to remove the "reduced" files if any are created by RAXML

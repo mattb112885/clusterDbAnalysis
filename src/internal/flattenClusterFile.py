@@ -46,5 +46,5 @@ for line in fileinput.input("-"):
     spl = line.strip('\r\n').split('\t')
     for gene in spl:
         string = str(runid) + "\t" + str(rowIdx) + "\t" + gene
-        print string
+        print(string)
     rowIdx = rowIdx + 1

@@ -57,16 +57,16 @@ for key in firstKeyToRows:
         if options.keep1:
             for spl in firstKeyToRows[key]:
                 st = options.delimiter.join(spl) + options.delimiter*secondFileNumCols
-                print st
+                print(st)
     else:
         for spl in firstKeyToRows[key]:
             for spl2 in secondKeyToRows[key]:
                 st = options.delimiter.join(spl) + options.delimiter + options.delimiter.join(spl2)
-                print st
+                print(st)
 
 for key in secondKeyToRows:
     if key not in firstKeyToRows:
         if options.keep2:
             for spl2 in secondKeyToRows[key]:
                 st = options.delimiter*firstFileNumCols + options.delimiter.join(spl2)
-                print st
+                print(st)

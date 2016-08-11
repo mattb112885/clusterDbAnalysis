@@ -21,6 +21,6 @@ for line in fileinput.input("-"):
     runid = spl[rc]
     orglist = getOrganismsInClusterRun(runid, cur)
     for org in orglist:
-        print "\t".join( [ runid, org ] )
+        print("\t".join( [ runid, org ] ))
 
 con.close()

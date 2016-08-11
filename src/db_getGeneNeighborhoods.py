@@ -44,6 +44,6 @@ for gene in fileinput.input("-"):
     cur.execute("""SELECT * from neighborhoods
                    WHERE neighborhoods.centergene=? AND ABS(neighborhoods.distance) <= ?;""", (geneid,nsize))
     for l in cur:
-        print "\t".join([ str(s) for s in list(l) ])
+        print("\t".join([ str(s) for s in list(l) ]))
 
 con.close()

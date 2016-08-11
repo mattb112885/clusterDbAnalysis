@@ -64,20 +64,20 @@ def makeNetworkObjectFromBlastResults( blastres, score_method, cutoff, cur ):
     getqueries = operator.itemgetter(0)
     gettargets = operator.itemgetter(1)
 
-    querygenes = map(getqueries, blastres)
-    targetgenes = map(gettargets, blastres)
+    querygenes = list(map(getqueries, blastres))
+    targetgenes = list(map(gettargets, blastres))
     
     genelist = list(set(querygenes + targetgenes))
     for gene in genelist:
         geneinfo = getGeneInfo( [ gene ], cur )
-        print gene, geneinfo
+        print(gene, geneinfo)
         # Not sure if the string sanitizing will be necessary.
         G.add_node(gene, organism=geneinfo[0][1], annotation=geneinfo[0][9])
 
     # Note - we don't care here if the score is symmetric or not, we just want to visualize it.
     scores = calculateScoreFromBlastres( blastres, score_method, cutoff, include_zeros = False, needsymmetric = False )
     minscore = 0
-    maxscore = max( map(operator.itemgetter(2), scores ) )
+    maxscore = max( list(map(operator.itemgetter(2), scores )) )
     for score in scores:
         # Omit self-hits
         if score[0] == score[1]:

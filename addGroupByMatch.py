@@ -65,7 +65,7 @@ if len(matchingorgs) == 0:
     exit(2)
 
 # Don't cluster the same group with multiple names.
-if matchingorgs in group2orglist.values():
+if matchingorgs in list(group2orglist.values()):
     sys.stderr.write("ERROR: The list of organisms matching your query is already present in the groups file under a different name\n")
     exit(2)
 

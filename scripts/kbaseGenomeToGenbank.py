@@ -18,7 +18,7 @@ def strip_control_characters(input):
     '''Taken from http://chase-seibert.github.com/blog/2011/05/20/stripping-control-characters-in-python.html'''
     if input:  
         # unicode invalid characters  
-        RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + u'|' + u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % (unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff), unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff), unichr(0xd800),unichr(0xdbff),unichr(0xdc00),unichr(0xdfff) )
+        RE_XML_ILLEGAL = '([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + '|' + '([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % (chr(0xd800),chr(0xdbff),chr(0xdc00),chr(0xdfff), chr(0xd800),chr(0xdbff),chr(0xdc00),chr(0xdfff), chr(0xd800),chr(0xdbff),chr(0xdc00),chr(0xdfff) )
         input = re.sub(RE_XML_ILLEGAL, "", input)  
         # ascii control characters  
         input = re.sub(r"[\x01-\x1F\x7F]", "", input)              

@@ -52,7 +52,7 @@ for line in fileinput.input("-"):
     myorg = ""
     myid = ""
     
-    for org in orgNames.keys():
+    for org in list(orgNames.keys()):
         if org in spl[1]:
             myorg = orgNames[org]
             myid = orgIds[org]
@@ -61,5 +61,5 @@ for line in fileinput.input("-"):
     contig = myid + "." + spl[0]
 
     modln = spl[1] + "\t" + myid + "\t" + myorg + "\t\t" + contig + "\t" + str(sign(int(spl[5]) - int(spl[4]))) + "\t" + str(len(spl[11])) + "\t" + str(len(spl[12]))
-    print modln
+    print(modln)
 

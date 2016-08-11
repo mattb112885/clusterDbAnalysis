@@ -39,6 +39,6 @@ for line in fileinput.input("-"):
             ann = str(k[0])
             spl.append(ann)
 
-    print "\t".join(spl)
+    print("\t".join(spl))
 
 con.close()

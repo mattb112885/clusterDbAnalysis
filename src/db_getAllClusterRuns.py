@@ -22,6 +22,6 @@ cur = con.cursor()
 
 runs = getAllClusterRuns(cur)
 
-print "\n".join(runs)
+print("\n".join(runs))
 
 con.close()

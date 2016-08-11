@@ -96,7 +96,7 @@ def info_from_genbank(gb_seqrec):
         exit(2)
 
     if gb_seqrec.annotations:
-        info.update([("gb_annotation: "+k,v) for k, v in gb_seqrec.annotations.items()])
+        info.update([("gb_annotation: "+k,v) for k, v in list(gb_seqrec.annotations.items())])
 
     return info
 
@@ -454,7 +454,7 @@ genomes are really different.""" %(organism_id))
 
     #Write out the organism data
     if options.org_file is not None:
-        names = orginfo.keys()
+        names = list(orginfo.keys())
         names.sort()
         orgout_file = open(options.orgout_file, "w")
         orgout = csv.DictWriter(orgout_file, fieldnames = names)

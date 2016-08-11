@@ -57,6 +57,6 @@ for line in fileinput.input("-"):
             # Sanitize the annotation and replace it...
             annotestr = sanitizeString(annotestr, False)
             st = st.replace(rep, annotestr)
-    print st
+    print(st)
 
 con.close()

@@ -33,6 +33,6 @@ for line in fileinput.input("-"):
 
 res = getClustersContainingGenes(desiredGenes, cur, runid=options.runid)
 for tup in res:
-    print "\t".join(tup)
+    print("\t".join(tup))
 
 con.close()

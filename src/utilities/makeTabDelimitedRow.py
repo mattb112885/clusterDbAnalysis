@@ -34,4 +34,4 @@ elif options.infile == "-":
 else:
     st = options.delimiter.join( [ s.strip("\r\n") for s in open(options.infile, "r") ] )
 
-print st
+print(st)

@@ -64,12 +64,12 @@ for originalString in fileinput.input("-"):
             else:
                 newstring[ii] += "_" + geneToAnnotation[newstring[ii]]
 
-    print newstring, len(newstring)
-    print delims, len(delims)
+    print(newstring, len(newstring))
+    print(delims, len(delims))
     finalstring = ''
     for ii in range(len(newstring)):
         finalstring += newstring[ii]
         if ii != len(newstring) - 1:
             finalstring += delims[ii]
             
-    print finalstring
+    print(finalstring)

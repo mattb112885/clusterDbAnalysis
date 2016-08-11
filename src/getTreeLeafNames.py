@@ -27,4 +27,4 @@ for line in fileinput.input(options.infile):
     ii += 1
 
 for node in nodenames:
-    print node
+    print(node)

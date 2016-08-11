@@ -119,7 +119,7 @@ for geneid in genelist:
     rpsblast_hits = getRpsBlastForQueryGenes( [geneid], options.evalue, cur, database=options.database )
 
     # Get a divergent color mapping.
-    rps_targets = map(operator.itemgetter(12), rpsblast_hits)
+    rps_targets = list(map(operator.itemgetter(12), rpsblast_hits))
     colorscheme = colormap(rps_targets)
 
     # RPSBLAST hits have coordinates relative to the beginning of the protein (not relative to the location on the contig).

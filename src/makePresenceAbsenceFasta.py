@@ -34,5 +34,5 @@ for line in fileinput.input("-"):
 #print orgdict
 
 for key in presabsdict:
-    print ">%s" %(orgdict[key])
-    print "".join(str(s) for s in presabsdict[key])
+    print(">%s" %(orgdict[key]))
+    print("".join(str(s) for s in presabsdict[key]))

@@ -30,4 +30,4 @@ for line in open(args[1]):
     for alias in alias2gene:
         if alias in repl:
             repl = repl.replace(alias, alias2gene[alias])
-    print "%s\t%s" %(spl[0], repl)
+    print("%s\t%s" %(spl[0], repl))

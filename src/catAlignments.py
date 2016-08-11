@@ -57,5 +57,5 @@ for filename in filelist:
 
 # Print concatinated result
 for s in seqs:
-    print ">" + s
-    print seqs[s]
+    print(">" + s)
+    print(seqs[s])

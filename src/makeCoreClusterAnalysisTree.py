@@ -147,7 +147,7 @@ if options.savexls:
             rownum += 1
     xlsname = "%s.xls" %(options.basename) 
     wb.save(xlsname) 
-    print "Output to %s with tabs of nodes, and collumns:\n\tclusterrunID\tclusterID\tRepresentativeAnnotation\n" % xlsname
+    print("Output to %s with tabs of nodes, and collumns:\n\tclusterrunID\tclusterID\tRepresentativeAnnotation\n" % xlsname)
     
 if options.savetxt:
     tsvfilename="%s_all_nodes.tsv" % (options.basename)
@@ -157,7 +157,7 @@ if options.savetxt:
             for clusterrun in data[nodenum]:
                 tsv.writerow((nodenum,) + clusterrun + (get_annotation(clusterrun),))
         tsvfile.close()
-    print "Output to %s with collumns:\n\tnode\tclusterrunID\tclusterID\tRepresentativeAnnotation\n" % tsvfilename
+    print("Output to %s with collumns:\n\tnode\tclusterrunID\tclusterID\tRepresentativeAnnotation\n" % tsvfilename)
 
 if options.save_multi_txt:
     for nodenum in data:
@@ -167,7 +167,7 @@ if options.save_multi_txt:
             for clusterrun in data[nodenum]:
                 tsv.writerow(clusterrun + (get_annotation(clusterrun),))
         tsvfile.close()
-    print "Output to files like %s with collumns:\n\tnode\tclusterrunID\tclusterID\tRepresentativeAnnotation\n" % tsvfilename
+    print("Output to files like %s with collumns:\n\tnode\tclusterrunID\tclusterID\tRepresentativeAnnotation\n" % tsvfilename)
 
 if options.savesvg:
     # Some versions of ETE create a "test.svg" and others do not.

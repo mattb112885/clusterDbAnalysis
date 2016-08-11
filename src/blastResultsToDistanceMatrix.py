@@ -47,7 +47,7 @@ for line in fileinput.input("-"):
 queries = sorted(list(queries))
 targets = sorted(list(targets))
 
-print "\t" + "\t".join(targets)
+print("\t" + "\t".join(targets))
 
 for query in queries:
     row = query
@@ -56,4 +56,4 @@ for query in queries:
             row = row + "\t" + str(qt_to_score[(query, target)])
         else:
             row = row + "\t" + str(options.default)
-    print row
+    print(row)

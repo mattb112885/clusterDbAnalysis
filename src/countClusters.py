@@ -15,4 +15,4 @@ parser.parse_args()
 
 for line in fileinput.input("-"):
     spl = line.split("\t")
-    print len(spl)
+    print(len(spl))

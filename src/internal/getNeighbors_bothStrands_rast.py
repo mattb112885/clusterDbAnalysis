@@ -65,6 +65,6 @@ for contig in contigToTuple:
             if ii+jj > len(currentTuples) - 1:
                 continue
             # Print the gene as a neighbor - also print location and contig as a sanity check
-            print "%s\t%s\t%d\t%s\t%d\t%d\t%s\t%s" %(currentTuples[ii][0], currentTuples[ii+jj][0], 
+            print("%s\t%s\t%d\t%s\t%d\t%d\t%s\t%s" %(currentTuples[ii][0], currentTuples[ii+jj][0], 
                                               jj, 
-                                              currentTuples[ii+jj][1], currentTuples[ii+jj][2], currentTuples[ii+jj][3], currentTuples[ii+jj][4], currentTuples[ii+jj][5])
+                                              currentTuples[ii+jj][1], currentTuples[ii+jj][2], currentTuples[ii+jj][3], currentTuples[ii+jj][4], currentTuples[ii+jj][5]))

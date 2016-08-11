@@ -49,6 +49,6 @@ for line in fileinput.input("-"):
     geneid = spl[gc]
     cur.execute(cmd, (geneid, ) )
     for res in cur:
-        print "\t".join([ str(s) for s in res ])
+        print("\t".join([ str(s) for s in res ]))
 
 con.close()

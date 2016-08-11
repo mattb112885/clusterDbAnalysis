@@ -15,4 +15,4 @@ X = numpy.array( [ tuple(line.strip("\r\n").split("\t")) for line in fileinput.i
 X = X.transpose()
 
 for ii in X:
-    print "\t".join(ii)
+    print("\t".join(ii))

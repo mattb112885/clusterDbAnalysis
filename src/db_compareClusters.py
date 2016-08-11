@@ -95,7 +95,7 @@ for cluster1 in run1_clusterToGenes:
             run1only = ";".join(run1_clusterToGenes[cluster1])
             run2only = ""
             cluster2 = "NO_OVERLAP"
-            print "%s\t%s\t%s\t%s\t%s\t%s\t%s" %(args[0], cluster1, args[1], cluster2, overlap, run1only, run2only)
+            print("%s\t%s\t%s\t%s\t%s\t%s\t%s" %(args[0], cluster1, args[1], cluster2, overlap, run1only, run2only))
             continue
         else:
             # Just skip these
@@ -110,7 +110,7 @@ for cluster1 in run1_clusterToGenes:
             if (cluster1, cluster2) in donePairs or (cluster2, cluster1) in donePairs:
                 continue
             overlap,run1only,run2only = getComparisonStrings(cluster1, cluster2, run1_clusterToGenes, run2_clusterToGenes, run1_geneToCluster, run2_geneToCluster, options.includeall)
-            print "%s\t%s\t%s\t%s\t%s\t%s\t%s" %(args[0], cluster1, args[1], cluster2, overlap, run1only, run2only)
+            print("%s\t%s\t%s\t%s\t%s\t%s\t%s" %(args[0], cluster1, args[1], cluster2, overlap, run1only, run2only))
             donePairs.append( (cluster1, cluster2) )
 
 # Do the exact same thing but the opposite direction (since we want a symmetric compare)
@@ -122,7 +122,7 @@ for cluster2 in run2_clusterToGenes:
             run2only = ";".join(run2_clusterToGenes[cluster2])
             run1only = ""
             cluster1 = "NO_OVERLAP"
-            print "%s\t%s\t%s\t%s\t%s\t%s\t%s" %(args[0], cluster1, args[1], cluster2, overlap, run1only, run2only)
+            print("%s\t%s\t%s\t%s\t%s\t%s\t%s" %(args[0], cluster1, args[1], cluster2, overlap, run1only, run2only))
             continue
         else:
             # Just skip these

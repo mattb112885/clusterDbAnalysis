@@ -53,4 +53,4 @@ for line in fileinput.input("-"):
             myline = myline.replace(s, orgAbbrev[s] + "_" + s)
         else:
             myline = myline.replace(s, orgAbbrev[s])
-    print myline
+    print(myline)

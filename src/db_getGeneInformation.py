@@ -55,6 +55,6 @@ for line in fileinput.input("-"):
         stri = "\t".join(str(t) for t in s)
         if options.keep:
             stri = "%s\t%s" %(line.strip('\r\n'), stri)
-        print stri
+        print(stri)
     
 con.close()

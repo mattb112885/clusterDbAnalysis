@@ -43,4 +43,4 @@ for line in fileinput.input("-"):
     spl = line.strip('\r\n').split("\t")
     if spl[geneColumn] in geneToAliases:
         spl[annoteColumn] += geneToAliases[spl[geneColumn]]
-    print "\t".join(spl)
+    print("\t".join(spl))

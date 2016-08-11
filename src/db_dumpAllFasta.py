@@ -25,6 +25,6 @@ else:
 cur.execute(query)
 for res in cur:
     ls = [ str(s) for s in res ]
-    print ">%s_%s_%s\n%s" %(ls[0], ls[1], ls[2], ls[3])
+    print(">%s_%s_%s\n%s" %(ls[0], ls[1], ls[2], ls[3]))
 
 con.close()

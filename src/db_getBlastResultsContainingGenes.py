@@ -39,6 +39,6 @@ for line in fileinput.input("-"):
 blastres = getBlastResultsContainingGenes(genelist, cur, cutoff=options.cutoff, blastn=options.blastn, only_query=options.only_query)
 
 for blast in blastres:
-    print "\t".join(blast)
+    print("\t".join(blast))
 
 con.close()

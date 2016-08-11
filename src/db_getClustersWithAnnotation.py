@@ -57,7 +57,7 @@ for line in fileinput.input("-"):
     for l in cur:
         s = list(l)
         stri = "\t".join(str(t) for t in s)
-        print stri
+        print(stri)
 
 con.close()
 fileinput.close()

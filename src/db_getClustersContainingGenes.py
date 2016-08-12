@@ -8,6 +8,7 @@
 # Option -g: Column containing gene ID (default = 1), starting from 1 in the first column
 #
 
+from __future__ import print_function
 import sqlite3, fileinput, optparse
 from FileLocator import *
 from ClusterFuncs import *

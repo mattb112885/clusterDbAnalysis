@@ -4,6 +4,7 @@
 # available in the database.
 # 
 
+from __future__ import print_function
 import sqlite3
 import optparse
 from FileLocator import *

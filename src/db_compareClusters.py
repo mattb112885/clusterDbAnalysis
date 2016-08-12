@@ -10,6 +10,7 @@
 # Any genes that aren't in the other run at all are ignored unless -i is specified, in which case they are included as non-overlapping genes
 # and clusters containing only genes not in the other run are given a file corresponding to a dummy cluster (NO_OVERLAP) in the other run ID
 
+from __future__ import print_function
 import optparse
 import sqlite3
 import sys

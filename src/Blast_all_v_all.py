@@ -12,6 +12,8 @@
 #
 # Matthew Benedict
 
+from __future__ import print_function
+
 # Run in parallel
 from ruffus import *
 

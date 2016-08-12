@@ -7,6 +7,7 @@
 # (which can subsequently be used to do clustering...)
 # 
 
+from __future__ import print_function
 import sqlite3, optparse, fileinput
 from FileLocator import *
 from ClusterFuncs import *

@@ -15,6 +15,7 @@
 # nuccore can be filtered by: txid39152[Organism:noexp] AND srcdb_refseq[Properties]
 # see http://www.ncbi.nlm.nih.gov/books/NBK21100/#A286 for some details about the terms and limits
 
+from __future__ import print_function
 from Bio import Entrez, SeqIO
 import os, sys, re, getpass, socket
 import argparse, textwrap 

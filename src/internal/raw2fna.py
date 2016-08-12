@@ -2,6 +2,7 @@
 
 # Generates fna file from tne input file (piped) and exports it to stdout
 
+from __future__ import print_function
 import fileinput
 import optparse
 

@@ -15,6 +15,7 @@
 # choosing a model, and especially for performing global boostrap analysis
 # using FASTTREE
 
+from __future__ import print_function
 import fileinput
 import sys
 import random

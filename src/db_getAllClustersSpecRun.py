@@ -8,6 +8,7 @@
 #
 # Results are printed to stdout.
 
+from __future__ import print_function
 import fileinput, sqlite3, optparse, os
 from FileLocator import *
 

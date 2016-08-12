@@ -6,6 +6,7 @@
 #
 # This can be piped into makeHistogram to get a histogram of the number of elements
 
+from __future__ import print_function
 import fileinput
 import optparse
 usage = "%prog < cluster_file > counts"

@@ -13,6 +13,7 @@
 # -e [ending point for histogram]: Default = maximum value
 # -n Number of bins [default = 10]
 
+from __future__ import print_function
 import numpy
 import optparse
 import fileinput

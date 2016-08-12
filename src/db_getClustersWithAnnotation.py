@@ -17,6 +17,7 @@
 #
 # Multiple different annotations are combined with OR statements.
 
+from __future__ import print_function
 import sqlite3, fileinput, optparse, sys
 from FileLocator import *
 

@@ -9,6 +9,7 @@
 #
 # The code is identical except the sql command has an OR instead of an AND...
 
+from __future__ import print_function
 import fileinput, optparse, sqlite3
 from ClusterFuncs import *
 from FileLocator import *

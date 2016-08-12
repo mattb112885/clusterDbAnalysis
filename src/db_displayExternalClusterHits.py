@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 # FIXME - Put these into a library (should be their own library since external clusters
 # are kind of unique (definitely distinct from de novo computed ones)
 def getHitsToExternalClusters(external_clusterid_list, evalue, cur):

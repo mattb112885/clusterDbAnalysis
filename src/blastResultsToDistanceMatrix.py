@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput, math, optparse, sys
 
 okmethods = ["pctid", "logevalue", "minbit", "maxbit"]

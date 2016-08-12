@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Libraries needed
+from __future__ import print_function
 import fileinput, optparse
 import os, sys, csv, getpass, socket, shutil, re
 

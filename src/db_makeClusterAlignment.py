@@ -6,6 +6,7 @@
 # the user has to manually re-add all of these things to get everything
 # into the db correctly.
 
+from __future__ import print_function
 import fileinput, optparse, os, random, sqlite3, sys
 from Bio import AlignIO
 from FileLocator import *

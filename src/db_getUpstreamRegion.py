@@ -3,6 +3,7 @@
 # From my initial tests I think the results are correct but it's still possible
 # an off-by-one is lurking somewhere...
 
+from __future__ import print_function
 import fileinput, optparse, sqlite3, sys
 from FileLocator import *
 # For sequence transposing

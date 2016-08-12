@@ -7,6 +7,7 @@
 #
 # Result is exported to stdout
 
+from __future__ import print_function
 from Bio import SeqIO
 import os
 import re

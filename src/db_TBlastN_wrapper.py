@@ -3,6 +3,7 @@
 # Wrapper script for TBLASTN verification of presence\absence
 # across different genomes
 
+from __future__ import print_function
 import fileinput, os, optparse, random, sqlite3, sys
 from FileLocator import *
 

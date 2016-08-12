@@ -5,6 +5,7 @@
 #
 # The fasta file will contain all of the genes in the database...
 
+from __future__ import print_function
 import optparse, sqlite3, sys
 from FileLocator import *
 

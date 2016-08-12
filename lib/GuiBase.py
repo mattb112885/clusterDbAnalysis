@@ -8,6 +8,7 @@ so if you want to use it for other functions you can as well.
 
 '''
 
+from __future__ import print_function
 import easygui
 
 import operator

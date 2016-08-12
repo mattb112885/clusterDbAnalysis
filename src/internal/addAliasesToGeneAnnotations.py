@@ -12,6 +12,7 @@
 #
 # By default expects a RAW file
 
+from __future__ import print_function
 import optparse
 import fileinput
 import sys

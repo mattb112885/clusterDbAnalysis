@@ -2,6 +2,7 @@
 #
 # Use MAFFT to make a quick and dirty alignment between a (small) set of genes of interest.
 
+from __future__ import print_function
 import fileinput, optparse, os, random, sqlite3, sys
 from FileLocator import *
 

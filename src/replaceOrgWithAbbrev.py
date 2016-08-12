@@ -11,6 +11,7 @@
 # and it will make them more readable by replacing them with organism names
 #
 
+from __future__ import print_function
 import fileinput
 import sys
 import optparse

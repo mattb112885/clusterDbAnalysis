@@ -13,6 +13,7 @@ been fixed and targeted for 3.0.1). If you want to read the attributes in go bac
 
 '''
 
+from __future__ import print_function
 import matplotlib
 import networkx
 import operator

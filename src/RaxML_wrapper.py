@@ -13,6 +13,7 @@
 # I wrote this because the svr_tree function didn't work for me when trying to run it
 # with RAXML, and I need something...
 
+from __future__ import print_function
 import fileinput
 import sys
 import random

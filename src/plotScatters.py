@@ -6,6 +6,7 @@
 # Plots using relatively nice font sizes, dot sizes, etc...
 # 
 
+from __future__ import print_function
 from matplotlib import pyplot, rcParams, axis
 import optparse
 import fileinput

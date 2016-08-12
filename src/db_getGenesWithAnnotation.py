@@ -5,6 +5,7 @@
 # Given one (or multiple to string with ORs) annotation,
 # returns all genes in the database matching that annotation.
 
+from __future__ import print_function
 import optparse, sqlite3, sys
 from FileLocator import *
 from ClusterFuncs import *

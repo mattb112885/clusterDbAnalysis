@@ -18,6 +18,7 @@
 # Local alignments (if you WANT domain hits)
 # -m normhsp: Bit score / hsp length (equivalent to r in mcxdeblast)
 
+from __future__ import print_function
 import optparse, fileinput, sys
 
 from FileLocator import *

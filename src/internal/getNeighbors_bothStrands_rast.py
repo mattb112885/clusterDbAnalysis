@@ -8,6 +8,7 @@
 # Unlike the other version, this one will generate a neighbor table including
 # BOTH strands as equivalent, rather than just ONE.
 
+from __future__ import print_function
 import sys
 from operator import itemgetter
 import re

@@ -15,6 +15,7 @@
 #
 # Note - this function itself doesn't specifically call the database but depends on two functions that do.
 
+from __future__ import print_function
 import os, sys
 import optparse
 from FileLocator import *

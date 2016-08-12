@@ -5,6 +5,7 @@
 #
 # Comes with a decent set of options.
 
+from __future__ import print_function
 import numpy
 import optparse
 import os

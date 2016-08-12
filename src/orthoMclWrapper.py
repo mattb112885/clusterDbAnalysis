@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import optparse, os, re, sys
 from Bio import SeqIO
 from FileLocator import *

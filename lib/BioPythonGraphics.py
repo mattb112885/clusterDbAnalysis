@@ -5,6 +5,7 @@ This library file contains functions for generating and manipulating Biopython
 graphics objects.
 '''
 
+from __future__ import print_function
 import colorsys
 import itertools
 import math

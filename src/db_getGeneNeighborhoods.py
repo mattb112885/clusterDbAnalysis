@@ -3,6 +3,7 @@
 # Get gene neighborhoods within +/- K (default = 3) from each gene in stdin
 #
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sqlite3

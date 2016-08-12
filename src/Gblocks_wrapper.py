@@ -15,6 +15,7 @@
 #
 # According to the paper the relaxed parameters are better when dealing with short alignments (i.e. only one gene)
 #
+from __future__ import print_function
 import fileinput
 import sys
 import random

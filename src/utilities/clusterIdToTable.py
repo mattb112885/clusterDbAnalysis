@@ -16,6 +16,7 @@
 # Methanosarcina_I_2.0_c_0.4_m_maxbit  1001
 # Methanosarcina_I_2.0_c_0.4_m_maxbit  1003
 
+from __future__ import print_function
 import sys
 import fileinput
 import optparse

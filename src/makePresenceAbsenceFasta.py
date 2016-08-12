@@ -5,6 +5,7 @@
 # from teh presence-absence table
 # The presence-absence table starts with interesting stuff on the third column
 
+from __future__ import print_function
 import fileinput
 import optparse
 

@@ -23,6 +23,7 @@
 # -r or --rcolumn: Column number for run id (count from 1)
 # -c or --ccolumn: Column number for cluster id (count from 1)
 
+from __future__ import print_function
 import sqlite3, fileinput, optparse
 from FileLocator import *
 from ClusterFuncs import *

@@ -7,6 +7,7 @@
 # The best hit is defined by E-value but could later be defined by any
 # other score we want with appropriate input arguments...
 
+from __future__ import print_function
 import fileinput
 import math
 import optparse

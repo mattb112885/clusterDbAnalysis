@@ -5,6 +5,7 @@
 # Annotation (col 7)
 # Also reads organism file (argument 1) and matches the strings.
 
+from __future__ import print_function
 import optparse
 import sys
 

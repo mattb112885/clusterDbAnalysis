@@ -3,6 +3,7 @@
 # Get clusters (in the same run) with the same presence/absence pattern as
 # the cluster/runID pair as specified...
 
+from __future__ import print_function
 import fileinput, optparse, sys, os
 
 usage="%prog [options] < runid_clusterid_pair > same_clusters"

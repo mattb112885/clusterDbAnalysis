@@ -12,6 +12,7 @@
 # (which can subsequently be used to do clustering...)
 # 
 
+from __future__ import print_function 
 import sqlite3, optparse
 from FileLocator import *
 

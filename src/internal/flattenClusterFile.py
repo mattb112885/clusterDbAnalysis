@@ -22,6 +22,7 @@
 # (e.g. give me the blast results for all of the genes listed in cluster 1
 # against anything else)
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sys

@@ -33,6 +33,7 @@ See the following for more details.
 http://blog.gmane.org/gmane.comp.python.reportlab.user/month=20060701/page=5
 '''
 
+from __future__ import print_function
 import math
 import itertools
 import optparse

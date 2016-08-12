@@ -16,6 +16,7 @@
 # If you do not include the "fig|" I will add it for you. However, no other modifications are allowed.
 #
 
+from __future__ import print_function
 import fileinput, sqlite3, optparse
 from FileLocator import *
 

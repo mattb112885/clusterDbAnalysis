@@ -3,6 +3,7 @@
 # Standard function for string sanitization
 # Mostly to prevent Newick files from getting confused
 
+from __future__ import print_function
 import re, warnings
 
 '''This is an internal function to standardize sanitation of strings for unput into various formats.

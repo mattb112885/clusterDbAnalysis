@@ -9,6 +9,7 @@
 # The output is a new newick file with 
 # the gene names replaced (after sanitizing)
 
+from __future__ import print_function
 import re
 import sys
 import fileinput

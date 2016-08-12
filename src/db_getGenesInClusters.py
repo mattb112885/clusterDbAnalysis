@@ -12,6 +12,7 @@
 #
 # Note - this is quite slow so I don't suggest using it.
 
+from __future__ import print_function
 import fileinput, sqlite3, optparse
 from FileLocator import *
 from ClusterFuncs import *

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput, optparse, sqlite3, sys
 from FileLocator import *
 
@@ -49,6 +50,6 @@ for line in fileinput.input("-"):
     geneid = spl[gc]
     cur.execute(cmd, (geneid, ) )
     for res in cur:
-        print "\t".join([ str(s) for s in res ])
+        print("\t".join([ str(s) for s in res ]))
 
 con.close()

@@ -7,6 +7,7 @@
 #
 # Result is exported to stdout
 
+from __future__ import print_function
 from Bio import SeqIO
 import os
 import re
@@ -57,5 +58,5 @@ for filename in filelist:
 
 # Print concatinated result
 for s in seqs:
-    print ">" + s
-    print seqs[s]
+    print(">" + s)
+    print(seqs[s])

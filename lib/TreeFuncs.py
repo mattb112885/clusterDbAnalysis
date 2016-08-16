@@ -3,6 +3,7 @@
 '''Convenient functions for tree-drawing and manipulation with ETE
 (common operations used by our scripts)'''
 
+from __future__ import print_function
 from ete2 import Tree, faces, TreeStyle, NodeStyle, AttrFace, TextFace
 from sanitizeString import *
 import re

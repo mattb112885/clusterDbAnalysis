@@ -8,6 +8,7 @@ so if you want to use it for other functions you can as well.
 
 '''
 
+from __future__ import print_function
 import easygui
 
 import operator
@@ -96,8 +97,8 @@ class GuiBase:
         numcols = len(rows[0])
         lens = []
         for i in range(numcols):
-            col = map(operator.itemgetter(i), rows)
-            maxlen = max(map(len, col))
+            col = list(map(operator.itemgetter(i), rows))
+            maxlen = max(list(map(len, col)))
             lens.append(maxlen)
         # Print the header row if there is one.
         if header:

@@ -3,6 +3,7 @@
 # Wrapper script for TBLASTN verification of presence\absence
 # across different genomes
 
+from __future__ import print_function
 import fileinput, os, optparse, random, sqlite3, sys
 from FileLocator import *
 
@@ -191,16 +192,16 @@ for line in open(ofile, "r"):
         else:
             strandedString = "OTHERSTRAND"
 
-        print "%s\t%s\t%s\t%s\t%d\t%1.2f\t%s" %(firstLine, strandedString, targetgeneid, targetannotation, abs(targetgenestart-targetgeneend), targetoverlappct, tblastn_hitID)
+        print("%s\t%s\t%s\t%s\t%d\t%1.2f\t%s" %(firstLine, strandedString, targetgeneid, targetannotation, abs(targetgenestart-targetgeneend), targetoverlappct, tblastn_hitID))
 
     # No gene matches the loation
     if not atleastone:
         if insufficient_overlap:
             # We found only overlapping genes with less overlap than the cutoff.
             # The INSUFFICIENT_OVERLAP signals to the user that this was the case.
-            print "%s\tINSUFFICIENT_OVERLAP\t\t\t\t\t%s" %(firstLine, tblastn_hitID)
+            print("%s\tINSUFFICIENT_OVERLAP\t\t\t\t\t%s" %(firstLine, tblastn_hitID))
         else:
-            print "%s\tNOGENE\t\t\t\t\t%s" %(firstLine, tblastn_hitID)
+            print("%s\tNOGENE\t\t\t\t\t%s" %(firstLine, tblastn_hitID))
 
 # Clean up
 if not options.keep:

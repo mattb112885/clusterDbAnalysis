@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna, generic_protein
 

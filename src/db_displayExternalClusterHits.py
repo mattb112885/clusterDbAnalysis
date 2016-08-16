@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 # FIXME - Put these into a library (should be their own library since external clusters
 # are kind of unique (definitely distinct from de novo computed ones)
 def getHitsToExternalClusters(external_clusterid_list, evalue, cur):
@@ -119,7 +121,7 @@ for geneid in genelist:
     rpsblast_hits = getRpsBlastForQueryGenes( [geneid], options.evalue, cur, database=options.database )
 
     # Get a divergent color mapping.
-    rps_targets = map(operator.itemgetter(12), rpsblast_hits)
+    rps_targets = list(map(operator.itemgetter(12), rpsblast_hits))
     colorscheme = colormap(rps_targets)
 
     # RPSBLAST hits have coordinates relative to the beginning of the protein (not relative to the location on the contig).

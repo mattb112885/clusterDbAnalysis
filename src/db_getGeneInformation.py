@@ -16,6 +16,7 @@
 # If you do not include the "fig|" I will add it for you. However, no other modifications are allowed.
 #
 
+from __future__ import print_function
 import fileinput, sqlite3, optparse
 from FileLocator import *
 
@@ -55,6 +56,6 @@ for line in fileinput.input("-"):
         stri = "\t".join(str(t) for t in s)
         if options.keep:
             stri = "%s\t%s" %(line.strip('\r\n'), stri)
-        print stri
+        print(stri)
     
 con.close()

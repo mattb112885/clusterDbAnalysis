@@ -4,6 +4,7 @@
 # identify clusters within that run that only have representatives
 # within the specified list of organisms
 
+from __future__ import print_function
 import fileinput, operator, optparse, sqlite3, sys, os
 from FileLocator import *
 from sanitizeString import *

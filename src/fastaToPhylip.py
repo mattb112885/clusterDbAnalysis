@@ -7,6 +7,7 @@
 # consistent with PHYLIP format
 #
 
+from __future__ import print_function
 import fileinput
 import sys
 from Bio import AlignIO

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_funtion
 import optparse
 import sys
 
@@ -30,4 +31,4 @@ for line in open(args[1]):
     for alias in alias2gene:
         if alias in repl:
             repl = repl.replace(alias, alias2gene[alias])
-    print "%s\t%s" %(spl[0], repl)
+    print("%s\t%s" %(spl[0], repl))

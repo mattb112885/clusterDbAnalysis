@@ -8,6 +8,7 @@
 # and the cluster ID's with the specified number of genes (regardless of organisms) in the
 # second column.
 
+from __future__ import print_function
 import fileinput, sqlite3, optparse, sys
 from FileLocator import *
 
@@ -37,6 +38,6 @@ for line in fileinput.input("-"):
     for l in cur:
         s = list(l)
         stri = "\t".join(str(t) for t in s)
-        print stri
+        print(stri)
 
 con.close()

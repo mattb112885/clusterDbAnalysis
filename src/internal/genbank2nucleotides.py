@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput, optparse, re, sys
 from Bio import SeqIO
 
@@ -47,6 +48,6 @@ for gb_seqrec in multi_records:
     contig_name = "%s.%s" %(orgname, contig_name)
     seq = str(gb_seqrec.seq)
     if opts.tab:
-        print "%s\t%s\t%s" %(contig_name, seq, orgname)
+        print("%s\t%s\t%s" %(contig_name, seq, orgname))
     else:
-        print ">%s\n%s" %(contig_name, gb_seqrec.seq)
+        print(">%s\n%s" %(contig_name, gb_seqrec.seq))

@@ -23,6 +23,7 @@
 # -r or --rcolumn: Column number for run id (count from 1)
 # -c or --ccolumn: Column number for cluster id (count from 1)
 
+from __future__ import print_function
 import sqlite3, fileinput, optparse
 from FileLocator import *
 from ClusterFuncs import *
@@ -59,6 +60,6 @@ cur = con.cursor()
 for cr in clusterruns:
     geneinfo = getClusterGeneInfo(cr[0], cr[1], cur)
     for info in geneinfo:
-        print "\t".join(info)
+        print("\t".join(info))
 
 con.close()

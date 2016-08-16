@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput, optparse, sys, sqlite3
 from FileLocator import *
 from ClusterFuncs import *
@@ -21,6 +22,6 @@ for line in fileinput.input("-"):
     runid = spl[rc]
     orglist = getOrganismsInClusterRun(runid, cur)
     for org in orglist:
-        print "\t".join( [ runid, org ] )
+        print("\t".join( [ runid, org ] ))
 
 con.close()

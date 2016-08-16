@@ -15,6 +15,7 @@
 # choosing a model, and especially for performing global boostrap analysis
 # using FASTTREE
 
+from __future__ import print_function
 import fileinput
 import sys
 import random
@@ -158,7 +159,7 @@ for sub in subToReal:
     treestr = treestr.replace(sub, subToReal[sub])
 
 # Print the final tree to stdout
-print treestr
+print(treestr)
 
 # Clean up temporary files
 if not options.keep:

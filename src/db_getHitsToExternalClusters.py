@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sqlite3
@@ -39,6 +40,6 @@ for line in fileinput.input("-"):
     externalid = spl[ecc]
     cur.execute(q, (externalid, options.evalue))
     for res in cur:
-        print "\t".join([ str(s) for s in res ] )
+        print("\t".join([ str(s) for s in res ] ))
 
 con.close()

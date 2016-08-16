@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sqlite3
@@ -49,6 +50,6 @@ for line in fileinput.input("-"):
     geneids = getGenesInRegion(contig, start, stop, cur, overhang=options.overhang)
     geneinfo = getGeneInfo(geneids, cur)
     for info in geneinfo:
-        print "\t".join(info)
+        print("\t".join(info))
 
 con.close()

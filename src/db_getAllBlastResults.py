@@ -4,6 +4,7 @@
 # available in the database.
 # 
 
+from __future__ import print_function
 import sqlite3
 import optparse
 from FileLocator import *
@@ -22,6 +23,6 @@ cur.execute("""SELECT * FROM blastres_selfbit;""")
 for l in cur:
     s = list(l)
     stri = "\t".join(str(t) for t in s)
-    print stri
+    print(stri)
 
 con.close()

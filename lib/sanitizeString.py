@@ -3,6 +3,7 @@
 # Standard function for string sanitization
 # Mostly to prevent Newick files from getting confused
 
+from __future__ import print_function
 import re, warnings
 
 '''This is an internal function to standardize sanitation of strings for unput into various formats.
@@ -32,7 +33,7 @@ def sanitizeByType(container, sanitizeby='tsv', onlycolumns=False):
     assert sanitizeby in set(['line', 'tsv', 'newick', 'fasta'])
     if sanitizeby=='line': 
         for line in container:
-            print sanitizeString(line.strip("\r\n"), False)
+            print(sanitizeString(line.strip("\r\n"), False))
     if sanitizeby=='tsv': 
         for line in container:
             if onlycolumns: 
@@ -41,16 +42,16 @@ def sanitizeByType(container, sanitizeby='tsv', onlycolumns=False):
                     newline[i-1]=sanitizeString(newline[i-1], False)
             else:
                 newline=[sanitizeString(item.strip("\r\n"), False) for item in line.split("\t")]
-            print "\t".join(newline)
+            print("\t".join(newline))
     if sanitizeby=='newick':
         from ete2 import Tree
         t=Tree("".join(container))
         for l in t:
             l.name=sanitizeString(l.name, False)
-        print t.write()
+        print(t.write())
     if sanitizeby=='fasta': 
         from Bio import SeqIO
-        from StringIO import StringIO
+        from io import StringIO
         from sys import stdout
         fasta = StringIO("".join(container))
         for seq_record in SeqIO.parse(fasta, "fasta"):

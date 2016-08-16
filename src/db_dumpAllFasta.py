@@ -5,6 +5,7 @@
 #
 # The fasta file will contain all of the genes in the database...
 
+from __future__ import print_function
 import optparse, sqlite3, sys
 from FileLocator import *
 
@@ -25,6 +26,6 @@ else:
 cur.execute(query)
 for res in cur:
     ls = [ str(s) for s in res ]
-    print ">%s_%s_%s\n%s" %(ls[0], ls[1], ls[2], ls[3])
+    print(">%s_%s_%s\n%s" %(ls[0], ls[1], ls[2], ls[3]))
 
 con.close()

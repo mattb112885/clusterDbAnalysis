@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import optparse
 import sqlite3
 import sys
@@ -28,6 +29,6 @@ if options.organismid is not None and options.sanitized:
 contiglist = getContigIds(cur, orgid=options.organismid, orgname=options.organism, issanitized=options.sanitized)
 
 for contig in contiglist:
-    print contig
+    print(contig)
 
 con.close()

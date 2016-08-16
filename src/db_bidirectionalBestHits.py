@@ -7,6 +7,7 @@
 # The best hit is defined by E-value but could later be defined by any
 # other score we want with appropriate input arguments...
 
+from __future__ import print_function
 import fileinput
 import math
 import optparse
@@ -96,7 +97,7 @@ for s in cur:
         Best_pairs[mypair] = (ls[1], myscore, ls[14])
     n += 1
 
-if len(Best_pairs.keys()) == 0:
+if len(list(Best_pairs.keys())) == 0:
     sys.stderr.write("ERROR: No bidirectional best hits found (were the organisms passed into this function correct?)\n")
     exit(2)
 
@@ -117,6 +118,6 @@ for pair in Best_pairs:
     # I print the forward and backward scores because E-values aren't necessarily symmetric...
     if backward_hit[0] == pair[0]:
         # Query gene, target gene, query genome, forward score, backward score
-        print "%s\t%s\t%s\t%1.4f\t%1.4f" %(pair[0], forward_hit[0], pair[1], forward_hit[1], backward_hit[1])
+        print("%s\t%s\t%s\t%1.4f\t%1.4f" %(pair[0], forward_hit[0], pair[1], forward_hit[1], backward_hit[1]))
 
 con.close()

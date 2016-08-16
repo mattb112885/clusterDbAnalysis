@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import optparse, sys, sqlite3
 from FileLocator import *
 
@@ -56,4 +57,4 @@ cur = con.cursor()
 cur.execute(query, tuple(toSubstitute))
 
 for rec in cur:
-    print "\t".join(str(s) for s in rec)
+    print("\t".join(str(s) for s in rec))

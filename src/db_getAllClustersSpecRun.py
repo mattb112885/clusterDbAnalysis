@@ -8,6 +8,7 @@
 #
 # Results are printed to stdout.
 
+from __future__ import print_function
 import fileinput, sqlite3, optparse, os
 from FileLocator import *
 
@@ -31,6 +32,6 @@ for line in fileinput.input("-"):
     for l in cur:
         s = list(l)
         stri = "\t".join(str(t) for t in s)
-        print stri
+        print(stri)
 
 con.close()

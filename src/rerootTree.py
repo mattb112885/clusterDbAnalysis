@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sys
@@ -38,4 +39,4 @@ root_leaf = options.leafname
 root_leaf_part = options.leafpart
 ete_tree = rerootEteTree(ete_tree, root_leaf = root_leaf, root_leaf_part = root_leaf_part)
 
-print ete_tree.write()
+print(ete_tree.write())

@@ -11,6 +11,7 @@
 # and it will make them more readable by replacing them with organism names
 #
 
+from __future__ import print_function
 import fileinput
 import sys
 import optparse
@@ -53,4 +54,4 @@ for line in fileinput.input("-"):
             myline = myline.replace(s, orgAbbrev[s] + "_" + s)
         else:
             myline = myline.replace(s, orgAbbrev[s])
-    print myline
+    print(myline)

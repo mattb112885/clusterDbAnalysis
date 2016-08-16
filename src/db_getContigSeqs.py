@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sqlite3
@@ -31,8 +32,8 @@ cur = con.cursor()
 contigdict = getContigSequence(cur, contiglist)
 for contig in contigdict:
     if options.fasta:
-        print ">%s\n%s\n" %(contig, contigdict[contig])
+        print(">%s\n%s\n" %(contig, contigdict[contig]))
     else:
-        print "%s\t%s" %(contig, contigdict[contig])
+        print("%s\t%s" %(contig, contigdict[contig]))
 
 con.close()

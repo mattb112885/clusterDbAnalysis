@@ -5,6 +5,7 @@
 # and we will add the organism's name corresponding to that gene ID as an
 # extra column on the output.
 
+from __future__ import print_function
 import fileinput, optparse, sqlite3
 from FileLocator import *
 
@@ -39,6 +40,6 @@ for line in fileinput.input("-"):
             ann = str(k[0])
             spl.append(ann)
 
-    print "\t".join(spl)
+    print("\t".join(spl))
 
 con.close()

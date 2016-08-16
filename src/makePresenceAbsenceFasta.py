@@ -5,6 +5,7 @@
 # from teh presence-absence table
 # The presence-absence table starts with interesting stuff on the third column
 
+from __future__ import print_function
 import fileinput
 import optparse
 
@@ -34,5 +35,5 @@ for line in fileinput.input("-"):
 #print orgdict
 
 for key in presabsdict:
-    print ">%s" %(orgdict[key])
-    print "".join(str(s) for s in presabsdict[key])
+    print(">%s" %(orgdict[key]))
+    print("".join(str(s) for s in presabsdict[key]))

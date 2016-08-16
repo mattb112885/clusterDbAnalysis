@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import re
 import os
 import sys
@@ -110,7 +111,7 @@ newcollist = collist[0:3]
 for ii in range(len(collist)):
     if ii >= 3 and ii in newcol2dbcol:
         newcollist.append(collist[newcol2dbcol[ii]])
-print "\t".join(newcollist)
+print("\t".join(newcollist))
 
 istitle = True
 titles = []
@@ -174,6 +175,6 @@ for rec in cur:
         if ii >= 3 and ii in newcol2dbcol:
             newlst.append(lst[newcol2dbcol[ii]])
     lst = newlst
-    print "\t".join(lst)
+    print("\t".join(lst))
 
 con.close()

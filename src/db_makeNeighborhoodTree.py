@@ -33,6 +33,7 @@ See the following for more details.
 http://blog.gmane.org/gmane.comp.python.reportlab.user/month=20060701/page=5
 '''
 
+from __future__ import print_function
 import math
 import itertools
 import optparse
@@ -55,7 +56,7 @@ from ete2 import Phyloxml, phyloxml
 
 def regionlength(genelocs):
     location = [(int(loc.location.start), int(loc.location.end)) for loc in genelocs]
-    starts, ends = zip(*location)
+    starts, ends = list(zip(*location))
     #have to compare both, as some are reversed
     start = max(max(starts),max(ends))
     end = min(min(starts),min(ends))
@@ -102,7 +103,7 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, tempdir=None, label=F
                 pass
 
     # Don't bother trying the rest if nothing matches at all.
-    if len(seqfeatures.keys()) == 0:
+    if len(list(seqfeatures.keys())) == 0:
         sys.stderr.write("WARNING: No genes in input tree had entries in the database so no neighborhoods will be drawn\n")
         return t, ts
 
@@ -114,7 +115,7 @@ def draw_tree_regions(clusterrunid, t, ts, cur, greyout=3, tempdir=None, label=F
     #generate the region images for any leaf that has them, and map onto the tree
     #we will want to know the max width to make the figures
     widths = []
-    for genelocs in seqfeatures.values():
+    for genelocs in list(seqfeatures.values()):
         start, end = regionlength(genelocs)
         widths.append(abs(end - start))
     maxwidth = max(widths)
@@ -150,9 +151,9 @@ def treelegend(ts, getcolor, greyout, clusterrunid, cur):
     Add legend to the tree with cluster numbers corresponding to each color
     '''
     #needs hex, not 0 to 1 RGB, this function wants a list so unpack and pack  back up
-    clusters, colors = zip(*getcolor.items())
+    clusters, colors = list(zip(*list(getcolor.items())))
     colors = RGB_to_hex(colors)
-    colorlist = zip(clusters, colors)
+    colorlist = list(zip(clusters, colors))
     colorlist.sort()
     greynum = len([uc for uc, color in colorlist if color == '#7f7f7f'])
     # to make close to a box

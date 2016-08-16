@@ -8,6 +8,7 @@
 #
 # Must be run from the root directory
 
+from __future__ import print_function
 import sqlite3, optparse
 from ClusterFuncs import *
 from FileLocator import *
@@ -22,6 +23,6 @@ cur = con.cursor()
 
 runs = getAllClusterRuns(cur)
 
-print "\n".join(runs)
+print("\n".join(runs))
 
 con.close()

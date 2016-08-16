@@ -15,6 +15,7 @@
 # Make sure anything with special characters in it is surrounded in single quotes when calling from bash
 # so it is interpreted literally...
 
+from __future__ import print_function
 import optparse, fileinput
 
 usage="""%prog "cell_1" "cell_2" ... > Tab-delimited line
@@ -34,4 +35,4 @@ elif options.infile == "-":
 else:
     st = options.delimiter.join( [ s.strip("\r\n") for s in open(options.infile, "r") ] )
 
-print st
+print(st)

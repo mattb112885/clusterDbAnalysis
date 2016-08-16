@@ -9,6 +9,7 @@
 #
 # The code is identical except the sql command has an OR instead of an AND...
 
+from __future__ import print_function
 import fileinput, optparse, sqlite3
 from ClusterFuncs import *
 from FileLocator import *
@@ -39,6 +40,6 @@ for line in fileinput.input("-"):
 blastres = getBlastResultsContainingGenes(genelist, cur, cutoff=options.cutoff, blastn=options.blastn, only_query=options.only_query)
 
 for blast in blastres:
-    print "\t".join(blast)
+    print("\t".join(blast))
 
 con.close()

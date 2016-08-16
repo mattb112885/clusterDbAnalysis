@@ -12,6 +12,7 @@
 #
 # Note - this is quite slow so I don't suggest using it.
 
+from __future__ import print_function
 import fileinput, sqlite3, optparse
 from FileLocator import *
 from ClusterFuncs import *
@@ -48,6 +49,6 @@ for line in fileinput.input("-"):
 for run_cluster_id in run_cluster_ids:
     geneids = getGenesInCluster(run_cluster_id[0], run_cluster_id[1], cur)
     for gene in geneids:
-        print "%s\t%s\t%s" %(run_cluster_id[0], run_cluster_id[1], gene)
+        print("%s\t%s\t%s" %(run_cluster_id[0], run_cluster_id[1], gene))
 
 con.close()

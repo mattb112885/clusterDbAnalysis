@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import easygui
 
 import operator
@@ -66,7 +67,7 @@ cutoffs mean more stringent similarity to define a family of related genes.
 
 Note that only the groups of organisms that contain your gene are listed here.
 '''
-        valid_choices = self.accumulated_data['run_to_cluster'].keys()
+        valid_choices = list(self.accumulated_data['run_to_cluster'].keys())
 
         if len(valid_choices) == 0:
             easygui.msgbox('The chosen gene is not found in any clustering results!')
@@ -137,7 +138,7 @@ Note that only the groups of organisms that contain your gene are listed here.
 #        f1.stdout.close()
 #        f2.communicate()
         cmd = "echo '%s' | db_TBlastN_wrapper.py -f %s -r 1 > %s" %(self.accumulated_data['ITEP_id'], orgfname, resfname)
-        print cmd
+        print(cmd)
         os.system(cmd)
         tblastn_results = [ line.strip("\r\n").split("\t") for line in resf ]
         tblastn_results.insert(0, self._tblastnHeader())
@@ -219,7 +220,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         (pa_file, pa_fname) = self._createTemporaryFile(delete=True)
         cluster = self._getClusterId()
         cmd = 'db_getPresenceAbsenceTable.py -r %s -c %s > %s 2> /dev/null' %(self.accumulated_data['runid'], cluster, pa_fname)
-        print cmd
+        print(cmd)
         os.system(cmd)
         pa_table = [ line.strip('\r\n').split('\t') for line in pa_file ] 
         text = self._print_readable_table(pa_table)
@@ -234,7 +235,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         cluster = self._getClusterId()
         cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | db_replaceGeneNameWithAnnotation.py -a -o > %s 2> /dev/null' \
             %(self.accumulated_data['runid'], cluster, aln_fname)
-        print cmd
+        print(cmd)
         os.system(cmd)
         text = ''.join( [ line for line in aln_file ] )
         easygui.codebox(text=text)
@@ -253,7 +254,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         else:
             cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma > %s 2> /dev/null' \
                 %(self.accumulated_data['runid'], cluster, nwk_fname)           
-        print cmd
+        print(cmd)
         os.system(cmd)
         text = ''.join( [ line for line in nwk_file ] )
         easygui.textbox(text=text)
@@ -273,7 +274,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         cluster = self._getClusterId()
         cmd = 'makeTabDelimitedRow.py %s %s | db_makeClusterAlignment.py -m mafft_linsi -n | Gblocks_wrapper.py | FastTreeMP -wag -gamma > %s 2> /dev/null' \
             %(self.accumulated_data['runid'], cluster, nwk_fname)
-        print cmd
+        print(cmd)
         os.system(cmd)
 
         # View tree with neighborhoods
@@ -283,7 +284,7 @@ Note that only the groups of organisms that contain your gene are listed here.
         if output_file is not None:
             second_cmd += " -o %s --png" %(output_file)
 
-        print second_cmd
+        print(second_cmd)
         os.system(second_cmd)
         return True
     def _make_cluster_gml_file(self):
@@ -433,7 +434,7 @@ What do you want to know about this gene?
 
 
 if __name__ == "__main__":
-    print "WARNING! This is highly experimental and will probably break in strange and wonderful ways."
+    print("WARNING! This is highly experimental and will probably break in strange and wonderful ways.")
 
     # Initialization
     con = sqlite3.connect(locateDatabase())

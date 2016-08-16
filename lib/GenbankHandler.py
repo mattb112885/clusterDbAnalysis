@@ -6,6 +6,7 @@ for increased compatibility between ITEP and other tools.
 
 '''
 
+from __future__ import print_function
 import sys
 
 def addItepGeneIdsToGenbank(multi_gbk_object, tbl, ignoreseq=False):

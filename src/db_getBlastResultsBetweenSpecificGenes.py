@@ -7,6 +7,7 @@
 # (which can subsequently be used to do clustering...)
 # 
 
+from __future__ import print_function
 import sqlite3, optparse, fileinput
 from FileLocator import *
 from ClusterFuncs import *
@@ -29,6 +30,6 @@ for line in fileinput.input("-"):
 
 blastres = getBlastResultsBetweenSpecificGenes(geneids, cur, blastn=options.blastn)
 for res in blastres:
-    print "\t".join(res)
+    print("\t".join(res))
 
 con.close()

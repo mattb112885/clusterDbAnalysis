@@ -9,6 +9,7 @@
 # The output is a new newick file with 
 # the gene names replaced (after sanitizing)
 
+from __future__ import print_function
 import re
 import sys
 import fileinput
@@ -64,12 +65,12 @@ for originalString in fileinput.input("-"):
             else:
                 newstring[ii] += "_" + geneToAnnotation[newstring[ii]]
 
-    print newstring, len(newstring)
-    print delims, len(delims)
+    print(newstring, len(newstring))
+    print(delims, len(delims))
     finalstring = ''
     for ii in range(len(newstring)):
         finalstring += newstring[ii]
         if ii != len(newstring) - 1:
             finalstring += delims[ii]
             
-    print finalstring
+    print(finalstring)

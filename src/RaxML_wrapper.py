@@ -13,6 +13,7 @@
 # I wrote this because the svr_tree function didn't work for me when trying to run it
 # with RAXML, and I need something...
 
+from __future__ import print_function
 import fileinput
 import sys
 import random
@@ -143,7 +144,7 @@ for sub in subToReal:
     treestr = treestr.replace(sub, subToReal[sub])
 
 # Print the final tree to stdout
-print treestr
+print(treestr)
 
 if CLEANUP:
     # * to remove the "reduced" files if any are created by RAXML

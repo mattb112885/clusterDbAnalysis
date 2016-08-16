@@ -12,6 +12,7 @@
 # (which can subsequently be used to do clustering...)
 # 
 
+from __future__ import print_function 
 import sqlite3, optparse
 from FileLocator import *
 
@@ -78,6 +79,6 @@ cur.execute(cmd)
 for l in cur:
     s = list(l)
     stri = "\t".join(str(t) for t in s)
-    print stri
+    print(stri)
 
 con.close()

@@ -22,6 +22,7 @@
 # (e.g. give me the blast results for all of the genes listed in cluster 1
 # against anything else)
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sys
@@ -46,5 +47,5 @@ for line in fileinput.input("-"):
     spl = line.strip('\r\n').split('\t')
     for gene in spl:
         string = str(runid) + "\t" + str(rowIdx) + "\t" + gene
-        print string
+        print(string)
     rowIdx = rowIdx + 1

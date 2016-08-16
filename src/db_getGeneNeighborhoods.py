@@ -3,6 +3,7 @@
 # Get gene neighborhoods within +/- K (default = 3) from each gene in stdin
 #
 
+from __future__ import print_function
 import fileinput
 import optparse
 import sqlite3
@@ -44,6 +45,6 @@ for gene in fileinput.input("-"):
     cur.execute("""SELECT * from neighborhoods
                    WHERE neighborhoods.centergene=? AND ABS(neighborhoods.distance) <= ?;""", (geneid,nsize))
     for l in cur:
-        print "\t".join([ str(s) for s in list(l) ])
+        print("\t".join([ str(s) for s in list(l) ]))
 
 con.close()

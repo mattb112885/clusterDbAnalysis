@@ -8,6 +8,7 @@ relative to the root.'''
 
 # I include these lines so that the lib/ folders are always in the
 # PYTHONPATH
+from __future__ import print_function
 import sys
 import os
 sys.path.append(os.path.abspath(__file__))

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from FileLocator import *
 import os, optparse, sys, glob
 
@@ -50,7 +51,7 @@ for path in paths:
         if options.simpleoutput: 
             printcol(found, width=1)
         else:
-            print('\nPrograms found in '+path+':')
+            print(('\nPrograms found in '+path+':'))
             printcol(found, indent=2, width = options.maxw)
     elif not options.simpleoutput: 
-        print('\nNo programs found in '+path+'.')
+        print(('\nNo programs found in '+path+'.'))

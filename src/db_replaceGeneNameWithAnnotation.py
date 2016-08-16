@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput, optparse, sqlite3, sys, re
 from FileLocator import *
 from sanitizeString import *
@@ -57,6 +58,6 @@ for line in fileinput.input("-"):
             # Sanitize the annotation and replace it...
             annotestr = sanitizeString(annotestr, False)
             st = st.replace(rep, annotestr)
-    print st
+    print(st)
 
 con.close()

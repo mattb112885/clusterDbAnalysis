@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import Bio.SeqFeature as SeqFeature
 import Bio.Graphics.GenomeDiagram as GenomeDiagram
 from reportlab.lib import colors

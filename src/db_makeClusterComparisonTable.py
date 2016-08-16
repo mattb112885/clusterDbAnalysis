@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput
 import optparse
 import re
@@ -81,7 +82,7 @@ header = ['#names']
 for clusterrun in sorted(clusterrun_to_genes.keys()):
     cr_id = "%s_%s" %(clusterrun[0], clusterrun[1])
     header.append(cr_id)
-print "\t".join(header) 
+print("\t".join(header)) 
 
 # Now we look for each gene in each cluster.
 for gene in geneids:
@@ -104,6 +105,6 @@ for gene in geneids:
             else:
                 printstr = "0"
         row.append(printstr)
-    print "\t".join(row)
+    print("\t".join(row))
 
 con.close()

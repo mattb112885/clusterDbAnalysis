@@ -4,6 +4,7 @@
 # identify clusters within that run that only have representatives
 # within the specified list of organisms
 
+from __future__ import print_function
 import optparse
 import sys
 from CoreGeneFunctions import *
@@ -71,4 +72,4 @@ clusterrun_list = findGenesByOrganismList(orglist, args[0],
                                           )
 
 for cr in clusterrun_list:
-    print "%s\t%s" %(cr[0], cr[1])
+    print("%s\t%s" %(cr[0], cr[1]))

@@ -3,6 +3,7 @@
 '''This module contains functions for more general cluster data manipulation
 such as cross-referencing with annotations, organisms, BLAST results, etc...'''
 
+from __future__ import print_function
 import math
 import operator
 import os

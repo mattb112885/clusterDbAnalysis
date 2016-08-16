@@ -2,6 +2,7 @@
 
 # Generates fna file from tne input file (piped) and exports it to stdout
 
+from __future__ import print_function
 import fileinput
 import optparse
 
@@ -18,5 +19,5 @@ for line in fileinput.input("-"):
 
     header = ">" + spl[1] + " " + spl[7]
     seq = spl[12]
-    print header
-    print seq
+    print(header)
+    print(seq)

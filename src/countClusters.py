@@ -6,6 +6,7 @@
 #
 # This can be piped into makeHistogram to get a histogram of the number of elements
 
+from __future__ import print_function
 import fileinput
 import optparse
 usage = "%prog < cluster_file > counts"
@@ -15,4 +16,4 @@ parser.parse_args()
 
 for line in fileinput.input("-"):
     spl = line.split("\t")
-    print len(spl)
+    print(len(spl))

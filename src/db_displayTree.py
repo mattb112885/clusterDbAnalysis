@@ -5,6 +5,7 @@
 #
 # Comes with a decent set of options.
 
+from __future__ import print_function
 import numpy
 import optparse
 import os
@@ -130,7 +131,7 @@ ts = TreeStyle()
 if options.datafile is not None:
     array = t.arraytable
     numcols = len(array.colNames)
-    matrix_dist = [i for r in xrange(len(array.matrix))\
+    matrix_dist = [i for r in range(len(array.matrix))\
                        for i in array.matrix[r] if numpy.isfinite(i)]
     matrix_max = numpy.max(matrix_dist)
     matrix_min = numpy.min(matrix_dist)

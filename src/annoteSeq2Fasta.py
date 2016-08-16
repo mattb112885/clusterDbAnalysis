@@ -6,6 +6,7 @@
 # I make you a FASTA file and print it to stdout. This can be used for alignments / trees / whatever.
 #
 
+from __future__ import print_function
 import fileinput, optparse, sys
 
 usage = "%prog [options] < gene_seq_table > fasta_file"
@@ -33,4 +34,4 @@ for line in fileinput.input("-"):
         annote = ""
     else:
         annote = " %s" %(spl[annotecol])
-    print ">%s %s\n%s" %(geneid, annote, seq)
+    print(">%s %s\n%s" %(geneid, annote, seq))

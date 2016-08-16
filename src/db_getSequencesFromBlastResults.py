@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import fileinput, optparse, sqlite3, sys
 from FileLocator import *
 from getSequenceRegion import *
@@ -86,4 +87,4 @@ for line in fileinput.input("-"):
     for rec in cur:
         startingSeq = str(rec[0])
         finalSeq = getContigRegion(startingSeq, sloc, eloc, isprot, options.translate)
-        print "\t".join(spl + [ finalSeq ] )
+        print("\t".join(spl + [ finalSeq ] ))

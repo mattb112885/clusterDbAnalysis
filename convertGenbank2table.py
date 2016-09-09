@@ -146,7 +146,7 @@ def info_from_feature(feature):
 
 def info_from_record(record):
     info = {}
-    info["nucleotide_sequence"] = record.seq.tostring()
+    info["nucleotide_sequence"] = str(record.seq)
     #info["Nucleotide ID"] = record.id
     #info["Nucleotide Description"] = record.description
     #if record.dbxrefs:

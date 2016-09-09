@@ -69,7 +69,7 @@ def addItepGeneIdsToGenbank(multi_gbk_object, tbl, ignoreseq=False):
             if multi_gbk_object[ii].features[jj].type != "CDS":
                 continue
             record = multi_gbk_object[ii].features[jj].extract(multi_gbk_object[ii])
-            seq = record.seq.tostring()
+            seq = str(record.seq)
             # Get locations to match up (note they are splice indexes and start from 0 hence the +1 to start and nothing added to end)
             location = multi_gbk_object[ii].features[jj].location
             featurestart = int(location.start) + 1

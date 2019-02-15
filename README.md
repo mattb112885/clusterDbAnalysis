@@ -1,3 +1,9 @@
+# Archival
+
+This repository has not been updated for some time, and I longer have the capacity to maintain it. As such, it has been archived. Users are welcomed to continue to use it and to fork and modify it as they wish. Alternatively, the authors of this toolkit recommend [Anvi'o](http://merenlab.org/software/anvio/) as it can perform almost all functions of ITEP (and many more), but with a better database design and active maintenance. Thank you for your understanding.
+
+# What is ITEP
+
 Welcome to the landing page for ITEP, the Integrated Toolkit for the Exploration of microbial Pan-genomes! ITEP is a toolkit for comparative genomics of multiple related
 microbial genomes. The capabilities of the tool include:
 
